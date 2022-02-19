@@ -140,16 +140,16 @@ export default React.forwardRef((props: K3sConfigProps, ref) => {
       }
 
       try {
-        const tag = props.previewRef?.current?.tag ?? "";
-
         await new Promise<void>((resolve) => {
           // NOTE: If tag was not setted then just don't build a project
           // because it's doesn't contains anything except of thumbnail img
-          if (!tag) return resolve();
+          const tag = props.previewRef?.current?.tag;
+          if (!tag?.[0] || !tag?.[1]) return resolve();
+          const repo = `${tag[0]}:${tag[1]}`;
 
           const toastId = toast.loading("Please wait...");
           fetch(
-            `${basePath}/api/docker/build?tag=${tag}&path=/${
+            `${basePath}/api/docker/build?tag=${repo}&path=/${
               props.previewRef?.current?.formData?.name ?? ""
             }`,
             {
@@ -162,7 +162,7 @@ export default React.forwardRef((props: K3sConfigProps, ref) => {
               resolve();
               toastRes(toastId, "OK", "Docker image was created successfully");
               terminalRef.current?.runCommand?.(
-                `docker build . -t ${tag}`,
+                `docker build . -t ${repo}`,
                 data
               );
             })
@@ -170,7 +170,7 @@ export default React.forwardRef((props: K3sConfigProps, ref) => {
               resolve();
               toastRes(toastId, "ERR", "Error with Docker image creation");
               terminalRef.current?.runCommand?.(
-                `docker build . -t ${tag}`,
+                `docker build . -t ${repo}`,
                 err
               );
             });

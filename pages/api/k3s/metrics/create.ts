@@ -36,7 +36,8 @@ export default withIronSession(async function (
               Authorization: `Bear ${access}`,
             },
             body: JSON.stringify({
-              cron_time: "*/10 * * * * *",
+              // cron_time: "*/10 * * * * *",
+              cron_time: "0 0 */4 * * *",
               operation: "metrics-all",
             }),
           }

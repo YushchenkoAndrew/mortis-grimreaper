@@ -219,7 +219,10 @@ export default React.forwardRef((props: K3sConfigProps, ref) => {
           }
         >
           {namespace.map((_, index) => (
-            <div className="col-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 p-0 p-md-2">
+            <div
+              key={index}
+              className="col-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 p-0 p-md-2"
+            >
               <Namespace
                 key={`deployment-${index}`}
                 ref={namespaceRef[index]}
@@ -238,7 +241,10 @@ export default React.forwardRef((props: K3sConfigProps, ref) => {
           }
         >
           {deployment.map((_, index) => (
-            <div className="col-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 p-0 p-md-2">
+            <div
+              key={index}
+              className="col-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 p-0 p-md-2"
+            >
               <Deployment
                 ref={deploymentRef[index]}
                 key={`deployment-${index}`}
@@ -257,7 +263,10 @@ export default React.forwardRef((props: K3sConfigProps, ref) => {
           }
         >
           {service.map((_, index) => (
-            <div className="col-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 p-0 p-md-2">
+            <div
+              key={index}
+              className="col-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 p-0 p-md-2"
+            >
               <Service
                 ref={serviceRef[index]}
                 key={index}
@@ -276,7 +285,10 @@ export default React.forwardRef((props: K3sConfigProps, ref) => {
           }
         >
           {ingress.map((item, index) => (
-            <div className="col-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 p-0 p-md-2">
+            <div
+              key={index}
+              className="col-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 p-0 p-md-2"
+            >
               <Ingress
                 ref={ingressRef[index]}
                 key={index}

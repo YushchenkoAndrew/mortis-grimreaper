@@ -36,7 +36,10 @@ export default React.forwardRef((props: NamespaceProps, ref) => {
         labelClassName="font-weight-bold mx-2"
         label={[
           "Metadata ",
-          <FontAwesomeIcon icon={minimized ? faChevronDown : faChevronRight} />,
+          <FontAwesomeIcon
+            key={"icon-metadata"}
+            icon={minimized ? faChevronDown : faChevronRight}
+          />,
         ]}
         onClick={() => onMinimized(!minimized)}
       >

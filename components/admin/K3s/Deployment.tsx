@@ -96,6 +96,7 @@ export default React.forwardRef((props: DeploymentProps, ref) => {
         label={[
           "Metadata ",
           <FontAwesomeIcon
+            key={"icon-metadata"}
             icon={minimized.metadata ? faChevronDown : faChevronRight}
           />,
         ]}
@@ -157,6 +158,7 @@ export default React.forwardRef((props: DeploymentProps, ref) => {
         label={[
           "Spec ",
           <FontAwesomeIcon
+            key={"icon-spec"}
             icon={minimized.spec ? faChevronDown : faChevronRight}
           />,
         ]}
@@ -219,6 +221,7 @@ export default React.forwardRef((props: DeploymentProps, ref) => {
             label={[
               "MatchLabels ",
               <FontAwesomeIcon
+                key={"icon-match-labels"}
                 icon={minimized.matchLabels ? faChevronDown : faChevronRight}
               />,
             ]}
@@ -277,6 +280,7 @@ export default React.forwardRef((props: DeploymentProps, ref) => {
         label={[
           "Containers ",
           <FontAwesomeIcon
+            key={"icon-containers"}
             icon={minimized.containers ? faChevronDown : faChevronRight}
           />,
         ]}

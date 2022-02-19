@@ -77,6 +77,7 @@ export default React.forwardRef((props: ServiceProps, ref) => {
         label={[
           "Metadata ",
           <FontAwesomeIcon
+            key={"icon-metadata"}
             icon={minimized.metadata ? faChevronDown : faChevronRight}
           />,
         ]}
@@ -139,6 +140,7 @@ export default React.forwardRef((props: ServiceProps, ref) => {
         label={[
           "Spec ",
           <FontAwesomeIcon
+            key={"icon-spec"}
             icon={minimized.spec ? faChevronDown : faChevronRight}
           />,
         ]}
@@ -197,6 +199,7 @@ export default React.forwardRef((props: ServiceProps, ref) => {
             label={[
               "Selector ",
               <FontAwesomeIcon
+                key={"icon-selector"}
                 icon={minimized.selector ? faChevronDown : faChevronRight}
               />,
             ]}
@@ -255,6 +258,7 @@ export default React.forwardRef((props: ServiceProps, ref) => {
         label={[
           "Ports ",
           <FontAwesomeIcon
+            key={"icon-ports"}
             icon={minimized.ports ? faChevronDown : faChevronRight}
           />,
         ]}

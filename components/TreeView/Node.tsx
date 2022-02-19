@@ -60,6 +60,7 @@ function Node(props: NodeProps) {
         <a
           href={props.href ?? "#"}
           target={props.href ? "_blank" : "_self"}
+          rel="noreferrer"
           download={
             props.href && props.href.startsWith("data:")
               ? props.name

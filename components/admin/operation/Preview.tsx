@@ -39,7 +39,7 @@ export interface PreviewRef {
   onLinkSubmit: (data: ProjectData | undefined) => Promise<boolean>;
 }
 
-export default React.forwardRef((props: PreviewProps, ref) => {
+export default React.forwardRef(function Preview(props: PreviewProps, ref) {
   const [img, setImg] = useState(ProjectInfo.img.url);
   const [links, onLinksChange] = useState(props.links);
   const [tag, onTagChange] = useState(props.tag ?? { 0: "", 1: "" });

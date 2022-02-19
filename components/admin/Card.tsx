@@ -34,7 +34,12 @@ export default function Card(props: CardProps) {
           </div>
         </div>
         <div className="container text-center">
-          <a className="text-decoration-none" href={props.href} target="_blank">
+          <a
+            className="text-decoration-none"
+            href={props.href}
+            target="_blank"
+            rel="noreferrer"
+          >
             <div className={`container ${styles["project-link"]}`}>
               <Image
                 className={`${styles["circular"]}`}

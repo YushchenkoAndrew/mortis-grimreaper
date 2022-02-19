@@ -10,7 +10,7 @@ export interface TerminalRef {
   runCommand: (command: string, result?: string) => void;
 }
 
-export default React.forwardRef((props: TerminalProps, ref) => {
+export default React.forwardRef(function Terminal(props: TerminalProps, ref) {
   const cmdRef = useRef<HTMLDivElement>(null);
   const cmdLineRef = useRef<HTMLInputElement>(null);
   const [line, setLine] = useState("");

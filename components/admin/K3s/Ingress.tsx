@@ -67,6 +67,7 @@ export default React.forwardRef((props: IngressProps, ref) => {
         label={[
           "Metadata ",
           <FontAwesomeIcon
+            key={"icon-metadata"}
             icon={minimized.metadata ? faChevronDown : faChevronRight}
           />,
         ]}
@@ -128,6 +129,7 @@ export default React.forwardRef((props: IngressProps, ref) => {
         label={[
           "Rules ",
           <FontAwesomeIcon
+            key={"icon-rules"}
             icon={minimized.rules ? faChevronDown : faChevronRight}
           />,
         ]}

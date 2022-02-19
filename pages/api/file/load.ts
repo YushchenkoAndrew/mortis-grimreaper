@@ -1,11 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { Session } from "next-iron-session";
+import { Session, withIronSession } from "next-iron-session";
 import { apiUrl, localVoidUrl } from "../../../config";
 import redis from "../../../config/redis";
 import { formPath } from "../../../lib/public/files";
 import { createQuery, GetParam } from "../../../lib/api/query";
 import { ApiError, ApiRes, FileData, ProjectData } from "../../../types/api";
 import { DefaultRes, FullResponse } from "../../../types/request";
+import sessionConfig from "../../../config/session";
 
 export function LoadFile(args: { [key: string]: number | string }) {
   return new Promise<FullResponse>((resolve, reject) => {
@@ -65,7 +66,7 @@ export function LoadFile(args: { [key: string]: number | string }) {
   });
 }
 
-export default async function (
+export default withIronSession(async function (
   req: NextApiRequest & { session: Session },
   res: NextApiResponse<DefaultRes>
 ) {
@@ -84,4 +85,5 @@ export default async function (
 
   const { status, send } = await LoadFile({ project, role });
   res.status(status).send(send);
-}
+},
+sessionConfig);

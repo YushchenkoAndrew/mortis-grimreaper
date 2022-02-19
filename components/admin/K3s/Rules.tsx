@@ -71,7 +71,10 @@ export default React.forwardRef((props: RulesProps, ref) => {
         labelClassName="font-weight-bold mx-1"
         label={[
           "Path ",
-          <FontAwesomeIcon icon={minimized ? faChevronDown : faChevronRight} />,
+          <FontAwesomeIcon
+            key={"icon-path"}
+            icon={minimized ? faChevronDown : faChevronRight}
+          />,
         ]}
         onClick={() => onMinimize(!minimized)}
       >

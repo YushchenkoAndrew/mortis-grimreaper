@@ -129,6 +129,7 @@ export default React.forwardRef((props: ContainerProps, ref) => {
         label={[
           "Ports ",
           <FontAwesomeIcon
+            key={"icon-ports"}
             icon={minimized.ports ? faChevronDown : faChevronRight}
           />,
         ]}
@@ -192,6 +193,7 @@ export default React.forwardRef((props: ContainerProps, ref) => {
         label={[
           "Resources ",
           <FontAwesomeIcon
+            key={"icon-resources"}
             icon={minimized.resources ? faChevronDown : faChevronRight}
           />,
         ]}
@@ -262,6 +264,7 @@ export default React.forwardRef((props: ContainerProps, ref) => {
         label={[
           "env ",
           <FontAwesomeIcon
+            key={"icon-env"}
             icon={minimized.env ? faChevronDown : faChevronRight}
           />,
         ]}

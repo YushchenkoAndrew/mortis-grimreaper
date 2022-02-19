@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: webserver
-          image: grimreapermortis/web-nextjs:0.0.2
+          image: grimreapermortis/web-nextjs:0.0.3
           imagePullPolicy: Always
           ports:
             - containerPort: 8000

@@ -10,6 +10,8 @@ import { DefaultRes } from "../types/request";
 import { Bounce, toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastDefault } from "../config/alert";
+import getConfig from "next/config";
+const { publicRuntimeConfig } = getConfig();
 
 export interface ContactMeProps {}
 
@@ -153,7 +155,7 @@ export default function ContactMe(props: ContactMeProps) {
           <ReCAPTCHA
             ref={reCaptchaRef}
             size="invisible"
-            sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_INVISIBLE_SITE_KEY ?? ""}
+            sitekey={publicRuntimeConfig.RECAPTCHA_SITE_KEY}
           />
 
           <div className="d-flex my-4">

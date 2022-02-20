@@ -5,6 +5,7 @@ import DefaultFooter from "../components/default/DefaultFooter";
 import DefaultEmscContainer from "../components/default/DefaultEmscContainer";
 import DefaultProjectInfo from "../components/default/DefaultProjectInfo";
 import { basePath } from "../config";
+import Script from "next/script";
 
 // FIXME: Fix src code in C++ to change position of canvas has issue with small sizes !!!
 export default function ShadowCasting() {
@@ -12,16 +13,16 @@ export default function ShadowCasting() {
     <>
       <DefaultHead>
         <title>Shadow Casting</title>
-        <script
+        <Script
           defer
           type="text/javascript"
           src={`${basePath}/js/index.js`}
-        ></script>
-        <script
+        ></Script>
+        <Script
           async
           type="text/javascript"
           src={`${basePath}/js/ShadowCasting/index.js`}
-        ></script>
+        ></Script>
       </DefaultHead>
 
       <DefaultHeader projects />

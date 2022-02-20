@@ -5,6 +5,7 @@ import { basePath } from "../config";
 
 import "../styles/globals.css";
 import "../styles/bootstrap.min.css";
+import Script from "next/script";
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
@@ -31,20 +32,20 @@ export default function MyApp({ Component, pageProps }: AppProps) {
           as="font"
           crossOrigin=""
         />
-        <script defer src={`${basePath}/js/lib/md5.js`}></script>
-        {/* <script
+      </Head>
+      <Script defer src={`${basePath}/js/lib/md5.js`}></Script>
+      {/* <script
           defer
           src={`${basePath}/js/lib/ip.min.js`}
           id="ip-min-js"
           data-path={basePath}
         ></script> */}
-        <script
-          defer
-          src={`${basePath}/js/ip.js`}
-          id="ip-min-js"
-          data-path={basePath}
-        ></script>
-      </Head>
+      <Script
+        defer
+        src={`${basePath}/js/ip.js`}
+        id="ip-min-js"
+        data-path={basePath}
+      ></Script>
       <Component {...pageProps} />
     </>
   );

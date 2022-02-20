@@ -5,17 +5,18 @@ import DefaultP5Container from "../components/default/DefaultP5Container";
 import DefaultFooter from "../components/default/DefaultFooter";
 import DefaultProjectInfo from "../components/default/DefaultProjectInfo";
 import { basePath } from "../config";
+import Script from "next/script";
 
 export default function ApproximatingPiValue() {
   return (
     <>
       <DefaultHead>
         <title>Approximating Pi Value</title>
-        <script defer src={`${basePath}/js/lib/p5.min.js`}></script>
-        <script
+        <Script defer src={`${basePath}/js/lib/p5.min.js`}></Script>
+        <Script
           defer
           src={`${basePath}/js/ApproximatingPiValue/index.js`}
-        ></script>
+        ></Script>
       </DefaultHead>
 
       <DefaultHeader projects />

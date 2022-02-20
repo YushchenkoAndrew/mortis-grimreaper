@@ -5,17 +5,18 @@ import DefaultFooter from "../components/default/DefaultFooter";
 import DefaultEmscContainer from "../components/default/DefaultEmscContainer";
 import DefaultProjectInfo from "../components/default/DefaultProjectInfo";
 import { basePath } from "../config";
+import Script from "next/script";
 
 export default function HammingCode() {
   return (
     <>
       <DefaultHead>
         <title>Hamming Code</title>
-        <script
+        <Script
           defer
           src={`${basePath}/js/HammingCode/HammingCode.js`}
-        ></script>
-        <script defer src={`${basePath}/js/HammingCode/index.js`}></script>
+        ></Script>
+        <Script defer src={`${basePath}/js/HammingCode/index.js`}></Script>
       </DefaultHead>
 
       <DefaultHeader projects />

@@ -5,22 +5,23 @@ import DefaultFooter from "../components/default/DefaultFooter";
 import DefaultEmscContainer from "../components/default/DefaultEmscContainer";
 import DefaultProjectInfo from "../components/default/DefaultProjectInfo";
 import { basePath } from "../config";
+import Script from "next/script";
 
 export default function ReactionDiffusion() {
   return (
     <>
       <DefaultHead>
         <title>Reaction Diffusion</title>
-        <script
+        <Script
           defer
           type="text/javascript"
           src={`${basePath}/js/index.js`}
-        ></script>
-        <script
+        ></Script>
+        <Script
           async
           type="text/javascript"
           src={`${basePath}/js/ReactionDiffusion/index.js`}
-        ></script>
+        ></Script>
       </DefaultHead>
 
       <DefaultHeader projects />

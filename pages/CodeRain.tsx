@@ -5,16 +5,17 @@ import DefaultFooter from "../components/default/DefaultFooter";
 import DefaultEmscContainer from "../components/default/DefaultEmscContainer";
 import DefaultProjectInfo from "../components/default/DefaultProjectInfo";
 import { basePath } from "../config";
+import Script from "next/script";
 
 export default function CodeRain() {
   return (
     <>
       <DefaultHead>
         <title>Code Rain</title>
-        <script defer src={`${basePath}/js/CodeRain/Char.js`}></script>
-        <script defer src={`${basePath}/js/CodeRain/Stream.js`}></script>
-        <script defer src={`${basePath}/js/CodeRain/CodeRain.js`}></script>
-        <script defer src={`${basePath}/js/CodeRain/index.js`}></script>
+        <Script defer src={`${basePath}/js/CodeRain/Char.js`}></Script>
+        <Script defer src={`${basePath}/js/CodeRain/Stream.js`}></Script>
+        <Script defer src={`${basePath}/js/CodeRain/CodeRain.js`}></Script>
+        <Script defer src={`${basePath}/js/CodeRain/index.js`}></Script>
       </DefaultHead>
 
       <DefaultHeader projects />

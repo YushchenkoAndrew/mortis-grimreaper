@@ -276,7 +276,7 @@ export default React.forwardRef(function Preview(props: PreviewProps, ref) {
             </InputTemplate>
 
             {formData.flag === "Docker" ? (
-              <InputTemplate className="mb-3" label="Link">
+              <InputTemplate className="mb-3" label="Repo">
                 <InputDouble
                   char={["$", ":"]}
                   name={["0", "1"]}

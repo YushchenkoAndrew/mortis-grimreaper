@@ -29,14 +29,15 @@ export interface IngressRef {
 export default React.forwardRef((props: IngressProps, ref) => {
   const [minimized, onMinimize] = useState({
     metadata: true,
+    spec: true,
     rules: true,
   });
 
   const [ingress, onIngressChange] = useState<Ingress>({
-    apiVersion: "networking.k8s.io/v1",
+    apiVersion: "extensions/v1beta1",
     kind: "Ingress",
     metadata: { name: "" },
-    spec: { tls: {} },
+    spec: { tls: [{ secretName: "" }] },
   });
 
   const [rules, onRulesChange] = useState<boolean[]>([]);
@@ -51,9 +52,18 @@ export default React.forwardRef((props: IngressProps, ref) => {
   useImperativeHandle<unknown, IngressRef>(ref, () => ({
     getValue() {
       return {
+        apiVersion: "extensions/v1beta1",
         ...ingress,
         spec: {
           ...ingress.spec,
+          tls: [
+            {
+              ...(ingress.spec?.tls?.[0] ?? {}),
+              hosts: rulesRef.map(
+                (item) => item.current?.getValue?.()?.host ?? ""
+              ),
+            },
+          ],
           rules: rulesRef.map((item) => item.current?.getValue()),
         },
       } as Ingress;
@@ -124,64 +134,106 @@ export default React.forwardRef((props: IngressProps, ref) => {
       </InputTemplate>
 
       <InputTemplate
-        className="mx-1"
-        labelClassName="font-weight-bold mx-1"
+        className="mt-1"
+        labelClassName="font-weight-bold ml-2"
         label={[
-          "Rules ",
+          "Spec ",
           <FontAwesomeIcon
-            key={"icon-rules"}
-            icon={minimized.rules ? faChevronDown : faChevronRight}
+            key={"icon-spec"}
+            icon={minimized.spec ? faChevronDown : faChevronRight}
           />,
         ]}
-        onClick={() => onMinimize({ ...minimized, rules: !minimized.rules })}
+        onClick={() => onMinimize({ ...minimized, spec: !minimized.spec })}
       >
         <div
-          className={`border rounded px-1 py-2 ${
-            minimized.rules ? "" : "d-none"
+          className={`border rounded mx-1 px-2 py-2 ${
+            minimized.spec ? "" : "d-none"
           }`}
         >
-          {rules.map((show, index) => (
-            <div key={index} className={`mb-3 w-100 ${styles["el-index"]}`}>
-              <div className="row mx-1">
-                <label
-                  className="ml-1 mr-auto"
-                  onClick={() => {
-                    onRulesChange({ ...rules, [index]: !rules[index] });
-                  }}
-                >
-                  {`[${index}] `}
-                  <FontAwesomeIcon
-                    icon={show ? faChevronDown : faChevronRight}
-                  />
-                </label>
-                <FontAwesomeIcon
-                  className={`mr-1 ${styles["el-container"]} text-danger`}
-                  icon={faTrashAlt}
-                  size="lg"
-                  fontSize="1rem"
-                  onClick={() => {
-                    onRulesChange([
-                      ...rules.slice(0, index),
-                      ...rules.slice(index + 1),
-                    ]);
-                  }}
-                />
-              </div>
-              <Rules ref={rulesRef[index]} show={show} />
-            </div>
-          ))}
-
-          <div className="container my-2">
-            <a
-              className="btn btn-outline-success w-100"
-              onClick={() => onRulesChange([...rules, true])}
-            >
-              <FontAwesomeIcon
-                className={`text-success ${styles["icon"]}`}
-                icon={faPlus}
+          <InputTemplate label="Secret Name">
+            <div className="input-group">
+              <InputValue
+                name="secretName"
+                required
+                value={`${ingress.spec?.tls?.[0]?.secretName ?? ""}`}
+                placeholder="mortis-tls"
+                onChange={({ target: { name, value } }) => {
+                  onIngressChange({
+                    ...ingress,
+                    spec: {
+                      ...ingress.spec,
+                      tls: [{ [name]: value }],
+                    },
+                  });
+                }}
+                // onBlur={onDataCache}
               />
-            </a>
-          </div>
+            </div>
+          </InputTemplate>
+
+          <InputTemplate
+            className="mx-1"
+            labelClassName="font-weight-bold mx-1"
+            label={[
+              "Rules ",
+              <FontAwesomeIcon
+                key={"icon-rules"}
+                icon={minimized.rules ? faChevronDown : faChevronRight}
+              />,
+            ]}
+            onClick={() =>
+              onMinimize({ ...minimized, rules: !minimized.rules })
+            }
+          >
+            <div
+              className={`border rounded px-1 py-2 ${
+                minimized.rules ? "" : "d-none"
+              }`}
+            >
+              {rules.map((show, index) => (
+                <div key={index} className={`mb-3 w-100 ${styles["el-index"]}`}>
+                  <div className="row mx-1">
+                    <label
+                      className="ml-1 mr-auto"
+                      onClick={() => {
+                        onRulesChange({ ...rules, [index]: !rules[index] });
+                      }}
+                    >
+                      {`[${index}] `}
+                      <FontAwesomeIcon
+                        icon={show ? faChevronDown : faChevronRight}
+                      />
+                    </label>
+                    <FontAwesomeIcon
+                      className={`mr-1 ${styles["el-container"]} text-danger`}
+                      icon={faTrashAlt}
+                      size="lg"
+                      fontSize="1rem"
+                      onClick={() => {
+                        onRulesChange([
+                          ...rules.slice(0, index),
+                          ...rules.slice(index + 1),
+                        ]);
+                      }}
+                    />
+                  </div>
+                  <Rules ref={rulesRef[index]} show={show} />
+                </div>
+              ))}
+
+              <div className="container my-2">
+                <a
+                  className="btn btn-outline-success w-100"
+                  onClick={() => onRulesChange([...rules, true])}
+                >
+                  <FontAwesomeIcon
+                    className={`text-success ${styles["icon"]}`}
+                    icon={faPlus}
+                  />
+                </a>
+              </div>
+            </div>
+          </InputTemplate>
         </div>
       </InputTemplate>
     </div>

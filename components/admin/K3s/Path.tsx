@@ -16,19 +16,21 @@ export interface PathRef {
 export default React.forwardRef((props: PathProps, ref) => {
   const [path, onPathChange] = useState<Path>({
     path: "",
-    pathType: "Prefix",
     backend: {
-      service: {
-        name: "",
-        port: {
-          number: "",
-        },
-      },
+      serviceName: "",
+      servicePort: "",
     },
   });
 
   useImperativeHandle<unknown, PathRef>(ref, () => ({
-    getValue: () => ({ ...path }),
+    getValue: () => ({
+      ...path,
+      path: "/" + path.path,
+      backend: {
+        ...path.backend,
+        servicePort: Number(path.backend?.servicePort),
+      },
+    }),
   }));
 
   return (
@@ -62,19 +64,16 @@ export default React.forwardRef((props: PathProps, ref) => {
       <InputTemplate label="Service Name">
         <div className="input-group">
           <InputValue
-            name="name"
+            name="serviceName"
             className="rounded"
-            value={path.backend?.service?.name ?? ""}
+            value={path.backend?.serviceName ?? ""}
             placeholder={"test"}
             onChange={({ target: { name, value } }) => {
               onPathChange({
                 ...path,
                 backend: {
                   ...path.backend,
-                  service: {
-                    ...path.backend?.service,
-                    [name]: value,
-                  },
+                  [name]: value,
                 },
               } as Path);
             }}
@@ -86,19 +85,16 @@ export default React.forwardRef((props: PathProps, ref) => {
       <InputTemplate label="Service Port">
         <div className="input-group">
           <InputValue
-            name="title"
+            name="servicePort"
             className="rounded"
-            value={path.backend?.service?.port?.number ?? ""}
-            placeholder={"test"}
+            value={`${path.backend?.servicePort ?? ""}`}
+            placeholder="8000"
             onChange={({ target: { name, value } }) => {
               onPathChange({
                 ...path,
                 backend: {
                   ...path.backend,
-                  service: {
-                    ...path.backend?.service,
-                    port: { [name]: value },
-                  },
+                  [name]: value,
                 },
               } as Path);
             }}

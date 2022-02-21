@@ -14,12 +14,13 @@ export class Spec {
   // 'defaultBackend'?: V1IngressBackend;
   "ingressClassName"?: string;
   "rules"?: Rule[];
-  "tls"?: {
-    hosts?: string[];
-    secretName?: string;
-  };
+  "tls"?: TLS[];
 }
 
+export class TLS {
+  hosts?: string[];
+  secretName?: string;
+}
 export class Rule {
   "host"?: string;
   "http"?: { paths: Path[] };
@@ -27,16 +28,10 @@ export class Rule {
 
 export class Path {
   "backend"?: {
-    service?: {
-      name: string;
-      port?: {
-        name?: string;
-        number?: string;
-      };
-    };
+    serviceName?: string;
+    servicePort?: string | number;
   };
   "path"?: string;
-  "pathType"?: string;
 }
 
 export class Stat {}

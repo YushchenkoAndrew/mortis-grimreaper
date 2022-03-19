@@ -4,36 +4,47 @@ import redis from "../../../config/redis";
 import sessionConfig from "../../../config/session";
 import { GetParam } from "../../../lib/api/query";
 import { FullResponse } from "../../../types/request";
+import { compressToBase64, decompressFromBase64 } from "lz-string";
 
 function GetData(id: string) {
-  return new Promise<FullResponse>((resolve, reject) => {
-    redis.get(`CACHE:${id}`, (err, data) => {
-      resolve({
-        status: 200,
-        send: {
-          status: err || !data ? "ERR" : "OK",
-          message: "",
-          result: err || !data ? "" : JSON.parse(data),
-        },
-      });
+  return new Promise<FullResponse>((resolve) => {
+    redis
+      .get(`CACHE:${id}`)
+      .then((data) => {
+        if ((data = data && decompressFromBase64(data)))
+          redis.expire(`CACHE:${id}`, 300);
 
-      if (!err && data) redis.expire(`CACHE:${id}`, 300);
-    });
+        resolve({
+          status: 200,
+          send: {
+            status: data ? "OK" : "ERR",
+            message: data ? "Success" : "Cache is empty",
+            result: data ? JSON.parse(data) : "",
+          },
+        });
+      })
+      .catch((err) => {
+        resolve({
+          status: 200,
+          send: { status: "ERR", message: err.message },
+        });
+      });
   });
 }
 
 function SaveData(id: string, data: string) {
-  return new Promise<FullResponse>((resolve, reject) => {
-    redis.set(`CACHE:${id}`, data, (err, reply) => {
-      resolve({
-        status: 200,
-        send: {
-          status: reply === "OK" ? "OK" : "ERR",
-          message: "",
-        },
-      });
+  return new Promise<FullResponse>((resolve) => {
+    redis
+      .set(`CACHE:${id}`, compressToBase64(data))
+      .finally(() => redis.expire(`CACHE:${id}`, 300));
+
+    resolve({
+      status: 200,
+      send: {
+        status: "OK",
+        message: "Success !!",
+      },
     });
-    redis.expire(`CACHE:${id}`, 300);
   });
 }
 

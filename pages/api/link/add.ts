@@ -114,7 +114,7 @@ export default withIronSession(async function (
   }
 
   const id = Number(GetParam(req.query.id));
-  const body = req.body as { [name: string]: LinkData };
+  const body = req.body as { [name: string]: string } | null;
   if (isNaN(id) || !body) {
     return res.status(400).send({
       status: "ERR",
@@ -122,15 +122,18 @@ export default withIronSession(async function (
     });
   }
 
-  let links = { add: [] as LinkData[], edit: [] as LinkData[] };
-  for (let i in body) {
-    if (body[i].id !== undefined) links.edit.push(body[i]);
-    else links.add.push(body[i]);
-  }
+  // let links = { add: [] as LinkData[], edit: [] as LinkData[] };
+  // for (let i in body) {
+  //   if (body[i].id !== undefined) links.edit.push(body[i]);
+  //   else links.add.push(body[i]);
+  // }
 
-  const { status, send } = await SendData({ id, links });
+  // FIXME: body will contain only new and requried data
+  // there for I'll need to override all LinkData with projectId
+  // const { status, send } = await SendData({ id, links });
 
-  if (send.status == "OK") FlushValue("Project");
-  res.status(status).send(send);
+  // if (send.status == "OK") FlushValue("Project");
+  // res.status(status).send(send);
+  res.status(200).send({ status: "ERR", message: "Not implemented" });
 },
 sessionConfig);

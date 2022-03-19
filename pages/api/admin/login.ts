@@ -13,61 +13,67 @@ import { GetParam } from "../../../lib/api/query";
 const { serverRuntimeConfig } = getConfig();
 function checkUserInfo(id: string, salt: string, user: string, pass: string) {
   return new Promise<FullResponse>((resolve, reject) => {
-    redis.get(`LOGIN:${id}`, (err, tries) => {
-      if (err || !tries) {
-        redis.set(`LOGIN:${id}`, (tries = "1"));
-        redis.expire(id, 8.64e4);
-      } else redis.incr(`LOGIN:${id}`);
+    redis
+      .get(`LOGIN:${id}`)
+      .then((tries) => {
+        if (!tries) {
+          redis.set(`LOGIN:${id}`, (tries = "1"));
+          redis.expire(id, 8.64e4);
+        } else redis.incr(`LOGIN:${id}`);
 
-      if (Number(tries) >= 6) {
-        sendLogs({
-          stat: "ERR",
-          name: "WEB",
-          file: "/pages/api/admin/logs",
-          message: "You can't go EVEN FURTHER BEYOND",
-          desc: `User ${id} surpass limit of password tries`,
-        });
-
-        return resolve({
-          status: 429,
-          send: {
-            status: "ERR",
+        if (Number(tries) >= 6) {
+          sendLogs({
+            stat: "ERR",
+            name: "WEB",
+            file: "/pages/api/admin/logs",
             message: "You can't go EVEN FURTHER BEYOND",
-          },
-        });
-      }
+            desc: `User ${id} surpass limit of password tries`,
+          });
 
-      // Constant time check for userName && passValidation
-      let equal = {
-        user: PassValidate(
-          md5(salt.toString() + (serverRuntimeConfig.ADMIN_USER ?? "")),
-          user
-        ),
-        pass: PassValidate(
-          md5(salt.toString() + (serverRuntimeConfig.ADMIN_PASS ?? "")),
-          pass
-        ),
-      };
+          return resolve({
+            status: 429,
+            send: {
+              status: "ERR",
+              message: "You can't go EVEN FURTHER BEYOND",
+            },
+          });
+        }
 
-      if (!equal.user || !equal.pass) {
+        // Constant time check for userName && passValidation
+        let equal = {
+          user: PassValidate(
+            md5(salt.toString() + (serverRuntimeConfig.ADMIN_USER ?? "")),
+            user
+          ),
+          pass: PassValidate(
+            md5(salt.toString() + (serverRuntimeConfig.ADMIN_PASS ?? "")),
+            pass
+          ),
+        };
+
+        if (!equal.user || !equal.pass) {
+          return resolve({
+            status: 401,
+            send: {
+              status: "ERR",
+              message: `So your name is Ms.[LOGIN], huh...`,
+            },
+          });
+        }
+
+        redis.set(`LOGIN:${id}`, "1");
         return resolve({
-          status: 401,
+          status: 200,
           send: {
-            status: "ERR",
-            message: `So your name is Ms.[LOGIN], huh...`,
+            status: "OK",
+            message: "I guess you can pass",
           },
         });
-      }
-
-      redis.set(`LOGIN:${id}`, "1");
-      return resolve({
-        status: 200,
-        send: {
-          status: "OK",
-          message: "I guess you can pass",
-        },
+      })
+      .catch(() => {
+        redis.set(`LOGIN:${id}`, "1");
+        redis.expire(id, 8.64e4);
       });
-    });
   });
 }
 

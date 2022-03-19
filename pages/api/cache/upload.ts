@@ -36,6 +36,7 @@ export default async function handler(
     return res.status(401).send("");
   }
 
+  // FIXME: !!!
   try {
     const now = formatDate(new Date());
     const access = await ApiAuth();

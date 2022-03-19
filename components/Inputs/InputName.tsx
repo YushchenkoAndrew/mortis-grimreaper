@@ -1,17 +1,14 @@
 import React from "react";
-import { Event } from "../../pages/admin/projects/operation";
-import { ProjectElement } from "../../types/projects";
 import InputValue from "./InputValue";
 
 export interface InputNameProps {
   char: string;
-  name: string;
-  value: string;
-  type?: string;
+  root?: string;
+  prefix: string;
+  type?: React.HTMLInputTypeAttribute;
   required?: boolean;
   placeholder?: string;
-  onChange: (event: Event) => void;
-  onBlur?: (event: Event) => void;
+  className?: string;
 }
 
 export default function InputName(props: InputNameProps) {
@@ -22,13 +19,11 @@ export default function InputName(props: InputNameProps) {
       </div>
       <InputValue
         className="rounded-right"
-        name={props.name}
-        value={props.value}
         type={props.type}
+        root={props.root}
+        prefix={props.prefix}
         required={props.required}
         placeholder={props.placeholder}
-        onChange={props.onChange}
-        onBlur={props.onBlur}
       />
     </div>
   );

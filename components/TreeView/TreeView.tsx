@@ -19,6 +19,7 @@ import {
   faMarkdown,
 } from "@fortawesome/free-brands-svg-icons";
 import { FileData } from "../../types/api";
+import { useDispatch, useSelector } from "react-redux";
 
 const fileType = {
   "image/gif": { icon: faImage, color: "text-primary" },
@@ -41,10 +42,12 @@ const fileType = {
 };
 export interface TreeViewProps {
   name: string;
+  root: string;
+  prefix: string;
   role: string;
   dir?: string;
-  projectTree: TreeObj;
-  onFileSelect: (key: string[]) => void;
+  // projectTree: TreeObj;
+  // onFileSelect: (key: string[]) => void;
 }
 
 //
@@ -52,6 +55,10 @@ export interface TreeViewProps {
 //
 export default function TreeView(props: TreeViewProps) {
   const [showNode, onNodeChange] = useState({} as { [name: string]: boolean });
+  const dispatch = useDispatch();
+  const tree = useSelector((state: any) =>
+    props.prefix.split("_").reduce((acc, curr) => acc[curr], state)
+  );
 
   function ParseTree(
     obj: TreeObj | FileData | null,
@@ -83,9 +90,10 @@ export default function TreeView(props: TreeViewProps) {
             });
           }}
           onSelect={() =>
-            props.onFileSelect(
-              [...path.split("/"), name].filter((item) => item)
-            )
+            dispatch({
+              type: `${props.root}_path_changed`.toUpperCase(),
+              value: [...path.split("/"), name].filter((item) => item),
+            })
           }
         >
           {value.name
@@ -110,7 +118,8 @@ export default function TreeView(props: TreeViewProps) {
         iconClass="text-info"
         open
       >
-        {ParseTree(props.projectTree)}
+        {/* {ParseTree(props.projectTree)} */}
+        {ParseTree(tree)}
       </Node>
     </ul>
   );

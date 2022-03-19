@@ -1,17 +1,14 @@
 import React, { useRef, useState } from "react";
+import { useDispatch } from "react-redux";
 import { convertTypes } from "../../lib/public/files";
-import { Event } from "../../pages/admin/projects/operation";
 import { FileData } from "../../types/api";
-import { ProjectElement } from "../../types/projects";
 
 export interface InputFileProps {
-  name: string;
   role: string;
   type?: string;
   required?: boolean;
   multiple?: boolean;
-  message?: string;
-  onChange: (event: ProjectElement) => void;
+  onUpload: (file: FileData[]) => void;
 }
 
 export default function InputFile(props: InputFileProps) {
@@ -21,7 +18,6 @@ export default function InputFile(props: InputFileProps) {
   return (
     <div className="input-group">
       <input
-        name={props.name}
         type="file"
         ref={fileRef}
         className="d-none"
@@ -64,14 +60,7 @@ export default function InputFile(props: InputFileProps) {
           Promise.all([
             CreateReader("url", "readAsDataURL")(0),
             CreateReader("content", "readAsText")(0),
-          ]).finally(() => {
-            props.onChange({
-              target: {
-                name: props.name,
-                value: files,
-              },
-            });
-          });
+          ]).finally(() => props.onUpload(files));
         }}
       />
       <button

@@ -4,21 +4,23 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useImperativeHandle, useState } from "react";
-import { Namespace } from "../../../types/K3s/Namespace";
+import { Namespace as NamespaceType } from "../../../types/K3s/Namespace";
 import InputName from "../../Inputs/InputName";
 import InputTemplate from "../../Inputs/InputTemplate";
 
 export interface NamespaceProps {
   show?: boolean;
+  root?: string;
+  prefix: string;
 }
 
 export interface NamespaceRef {
-  getValue: () => Namespace;
+  getValue: () => NamespaceType;
 }
 
-export default React.forwardRef((props: NamespaceProps, ref) => {
+export default function Namespace(props: NamespaceProps) {
   const [minimized, onMinimized] = useState(true);
-  const [namespace, onNamespaceChange] = useState<Namespace>({
+  const [namespace, onNamespaceChange] = useState<NamespaceType>({
     apiVersion: "v1",
     kind: "Namespace",
     metadata: { name: "" },
@@ -26,9 +28,9 @@ export default React.forwardRef((props: NamespaceProps, ref) => {
     status: {},
   });
 
-  useImperativeHandle<unknown, NamespaceRef>(ref, () => ({
-    getValue: () => ({ ...namespace }),
-  }));
+  // useImperativeHandle<unknown, NamespaceRef>(ref, () => ({
+  //   getValue: () => ({ ...namespace }),
+  // }));
 
   return (
     <div className={`card px-1 py-3 ${props.show ? "" : "d-none"}`}>
@@ -47,19 +49,21 @@ export default React.forwardRef((props: NamespaceProps, ref) => {
           <InputTemplate className="w-100" label="Name">
             <InputName
               char="@"
-              name="name"
+              root={props.root}
+              prefix={`${props.prefix}_name`}
+              // name="name"
               required
-              value={namespace.metadata?.name ?? ""}
+              // value={namespace.metadata?.name ?? ""}
               placeholder="demo"
-              onChange={({ target: { name, value } }) => {
-                onNamespaceChange({
-                  ...namespace,
-                  metadata: {
-                    ...namespace.metadata,
-                    [name]: value,
-                  },
-                });
-              }}
+              // onChange={({ target: { name, value } }) => {
+              //   onNamespaceChange({
+              //     ...namespace,
+              //     metadata: {
+              //       ...namespace.metadata,
+              //       [name]: value,
+              //     },
+              //   });
+              // }}
               // onBlur={onDataCache}
             />
           </InputTemplate>
@@ -67,4 +71,4 @@ export default React.forwardRef((props: NamespaceProps, ref) => {
       </InputTemplate>
     </div>
   );
-});
+}

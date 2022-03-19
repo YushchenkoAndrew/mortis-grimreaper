@@ -54,6 +54,8 @@ function AddProject(body: string) {
   });
 }
 
+const REQUIRED_FIELDS = ["name", "flag", "title", "desc", "note"];
+
 export default withIronSession(async function (
   req: NextApiRequest & { session: Session },
   res: NextApiResponse<DefaultRes>
@@ -63,23 +65,19 @@ export default withIronSession(async function (
   }
 
   const id = GetParam(req.query.id);
-  const { name, flag, title, desc, note } = req.body as ProjectData;
+  const body = REQUIRED_FIELDS.filter(
+    (key) => key in req.body && req.body[key]
+  ).reduce((acc, curr) => (acc[curr] = req.body[curr]), {
+    note: "Damn it, guess I forgot to put some context here",
+  });
 
-  if (
-    !name ||
-    !flag ||
-    !title ||
-    !desc ||
-    (flag !== "Link" && flag !== "Docker" && !note)
-  ) {
+  if (Object.keys(body).length != REQUIRED_FIELDS.length) {
     return res
       .status(400)
       .send({ status: "ERR", message: "Not all required fields are setted" });
   }
 
-  const { status, send } = await AddProject(
-    JSON.stringify({ name, flag, title, desc, note })
-  );
+  const { status, send } = await AddProject(JSON.stringify(body));
 
   if (send.status === "OK" && id) {
     redis.del(`CACHE:${id}`);

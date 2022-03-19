@@ -252,9 +252,10 @@ export const getServerSideProps = withIronSession(async function ({
 
   try {
     const result = await new Promise<string>((resolve) =>
-      redis.get(`Metrics:${md5(id ?? "")}`, (err, reply) =>
-        resolve(!err && reply ? reply : "")
-      )
+      redis
+        .get(`Metrics:${md5(id ?? "")}`)
+        .then((reply) => resolve(reply || ""))
+        .catch(() => resolve(""))
     );
 
     if (result) return { props: JSON.parse(result) };

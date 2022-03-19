@@ -44,48 +44,55 @@ export default async function handler(
     const results = await Promise.all([
       new Promise((resolve, reject) => {
         waitMutex().then(() => {
-          redis.get("Info:Stat", (err, reply) => {
-            freeMutex();
-            if (!err && reply) return resolve(JSON.parse(reply));
+          redis
+            .get("Info:Stat")
+            .then((reply) => {
+              freeMutex();
+              if (reply) return resolve(JSON.parse(reply));
 
-            fetch(`${apiUrl}/info/sum`)
-              .then((res) => res.json())
-              .then((res: ApiRes<InfoData[]> | ApiError) => {
-                if (res.status == "ERR")
-                  return reject("Idk something wrong happened at the backend");
+              fetch(`${apiUrl}/info/sum`)
+                .then((res) => res.json())
+                .then((res: ApiRes<InfoData[]> | ApiError) => {
+                  if (res.status == "ERR")
+                    return reject(
+                      "Idk something wrong happened at the backend"
+                    );
 
-                const result = res.result.pop();
-                if (!res.items || !result)
-                  return reject("Idk something wrong happened at the backend");
+                  const result = res.result.pop();
+                  if (!res.items || !result)
+                    return reject(
+                      "Idk something wrong happened at the backend"
+                    );
 
-                const stat = {
-                  ctr: result.views ? result.clicks / result.views : 1,
-                  cr_media: result.visitors
-                    ? result.media / result.visitors
-                    : 1,
-                  cr_projects: result.visitors
-                    ? result.clicks / result.visitors
-                    : 1,
-                };
+                  const stat = {
+                    ctr: result.views ? result.clicks / result.views : 1,
+                    cr_media: result.visitors
+                      ? result.media / result.visitors
+                      : 1,
+                    cr_projects: result.visitors
+                      ? result.clicks / result.visitors
+                      : 1,
+                  };
 
-                waitMutex().then(() => {
-                  redis.set("Info:Stat", JSON.stringify(stat), (err, ok) => {
-                    if (ok === "OK") redis.expire("Info:Stat", 2 * 60 * 60);
-                    freeMutex();
+                  waitMutex().then(() => {
+                    redis
+                      .set("Info:Stat", JSON.stringify(stat))
+                      .then(() => redis.expire("Info:Stat", 2 * 60 * 60))
+                      .finally(() => freeMutex());
                   });
-                });
-                return resolve(stat);
-              })
-              .catch((err) => reject(err));
-          });
+                  return resolve(stat);
+                })
+                .catch((err) => reject(err));
+            })
+            .catch((err) => reject(err));
         });
       }),
 
       new Promise((resolve, reject) => {
         waitMutex().then(() => {
-          redis.get("Info:Days", (err, reply) => {
+          redis.get("Info:Days").then((reply) => {
             freeMutex();
-            if (!err && reply && now == date) return resolve(JSON.parse(reply));
+            if (reply && now == date) return resolve(JSON.parse(reply));
 
             let prev = new Date(date);
             prev.setDate(prev.getDate() - 7);
@@ -108,9 +115,9 @@ export default async function handler(
                 );
 
                 waitMutex().then(() => {
-                  redis.set("Info:Days", JSON.stringify(result), () => {
-                    freeMutex();
-                  });
+                  redis
+                    .set("Info:Days", JSON.stringify(result))
+                    .finally(() => freeMutex());
                 });
 
                 if (
@@ -122,11 +129,13 @@ export default async function handler(
 
                 // Add now values from another place in Cache
                 waitMutex().then(() => {
-                  redis.hget("Info:Now", "Visitors", (err, reply) => {
-                    freeMutex();
-                    if (!err && reply) result[now] = +reply;
-                    resolve(result);
-                  });
+                  redis
+                    .hGet("Info:Now", "Visitors")
+                    .then(() => {
+                      if (reply) result[now] = +reply;
+                      resolve(result);
+                    })
+                    .finally(() => freeMutex());
                 });
               })
               .catch((err) => reject(err));

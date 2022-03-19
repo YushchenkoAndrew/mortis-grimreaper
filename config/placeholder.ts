@@ -11,7 +11,7 @@ export const HtmlMarkers = {
   PROJECT_NAME: "{{PROJECT_NAME}}",
 };
 
-export const codeTemplate = {
+export const CODE_TEMPLATE = {
   JS: {
     name: "index.html",
     path: "",
@@ -74,20 +74,12 @@ export const ProjectInfo = {
 };
 
 export const treePlaceholder = {
-  assets: {},
-  src: {},
-  thumbnail: {},
-  styles: {},
-  template: {
-    "index.html": codeTemplate.JS as FileData,
-  },
-  kubernetes: {},
+  //   assets: {},
+  //   src: {},
+  //   thumbnail: {},
+  //   styles: {},
+  //   template: {
+  //     "index.html": codeTemplate.JS as FileData,
+  //   },
+  //   kubernetes: {},
 } as TreeObj;
-
-export const formPlaceholder = {
-  name: "",
-  flag: "JS",
-  title: "",
-  desc: "",
-  note: "",
-} as ProjectData;

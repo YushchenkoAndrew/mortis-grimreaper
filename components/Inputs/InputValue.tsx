@@ -1,29 +1,38 @@
 import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Event } from "../../pages/admin/projects/operation";
 
 export interface InputValueProps {
-  name: string;
-  value: string;
+  root?: string;
+  prefix: string;
   type?: React.HTMLInputTypeAttribute;
   required?: boolean;
   placeholder?: string;
   className?: string;
-  onChange: (event: Event) => void;
-  onBlur?: (event: Event) => void;
 }
 
 export default function InputValue(props: InputValueProps) {
+  const value = useSelector((state: any) =>
+    props.prefix.split("_").reduce((acc, curr) => acc[curr], state)
+  );
+  const dispatch = useDispatch();
+
   return (
     <>
       <input
-        name={props.name}
-        value={props.value}
+        value={value}
         type={props.type ?? "text"}
         className={`form-control ${props.className}`}
         placeholder={props.placeholder ?? ""}
         required={props.required}
-        onChange={props.onChange}
-        onBlur={props.onBlur}
+        onChange={({ target: { value } }) =>
+          dispatch({ type: `${props.prefix.toUpperCase()}_CHANGED`, value })
+        }
+        onBlur={() =>
+          dispatch({
+            type: `${props.root ?? ""}_CACHED`.toUpperCase().replace(/^_/, ""),
+          })
+        }
       />
       {props.required ? (
         <div className="invalid-tooltip">This field is required</div>

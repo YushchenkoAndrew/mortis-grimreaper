@@ -5,14 +5,16 @@ import redis from "../../config/redis";
 import { basePath } from "../../config";
 
 export function checkIfUserExist(sessionID: string) {
-  return new Promise<boolean>((resolve, reject) => {
-    redis.get(`SESSION:${sessionID}`, (err, userID) => {
-      if (err || !userID) return resolve(false);
-      redis.get(`USER:${userID}`, (err, data) => {
-        if (err || !data) return resolve(false);
-        resolve(true);
-      });
-    });
+  return new Promise<boolean>((resolve) => {
+    redis
+      .get(`SESSION:${sessionID}`)
+      .then((userID) => {
+        redis
+          .get(`USER:${userID}`)
+          .then((data) => resolve(!!data))
+          .catch(() => resolve(false));
+      })
+      .catch(() => resolve(false));
   });
 }
 

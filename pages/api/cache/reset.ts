@@ -26,7 +26,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     });
     return res.status(401).send("");
   }
-  redis.hmset("Info:Now", "Views", 0, "Visitors", 0, "Clicks", 0, "Media", 0);
+
+  // FIXME: !!!!
+  // redis.hmset("Info:Now", "Views", 0, "Visitors", 0, "Clicks", 0, "Media", 0);
 
   // The best way just delete those vars
   redis.del("Info:Prev");

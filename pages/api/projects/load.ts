@@ -11,57 +11,60 @@ import sessionConfig from "../../../config/session";
 export function LoadProjects<Type = any>(args: {
   [key: string]: number | string;
 }) {
-  return new Promise<FullResponse<Type[]>>((resolve, reject) => {
+  return new Promise<FullResponse<Type[]>>((resolve) => {
     const query = createQuery(args);
-    redis.get(`Project:${query}`, (err, result) => {
-      if (!err && result) {
-        console.log("HERE " + query);
-
-        return resolve({
-          status: 200,
-          send: {
-            status: "OK",
-            message: "Success",
-            result: JSON.parse(result),
-          },
-        });
-      }
-
-      fetch(`${apiUrl}/project${query}`)
-        .then((res) => res.json())
-        .then((data: ApiRes<Type[]> | ApiError) => {
-          if (data.status !== "OK" || !data.result?.length) {
-            return resolve({
-              status: data.status === "ERR" ? 500 : 416,
-              send: {
-                status: "ERR",
-                message: (data as ApiError).message || "Empty result",
-              },
-            });
-          }
-
-          resolve({
+    redis
+      .get(`Project:${query}`)
+      .then((result) => {
+        if (result) {
+          return resolve({
             status: 200,
             send: {
-              status: data.status,
-              message: data.status === "OK" ? "Success" : "Error",
-              result: data.result as Type[],
+              status: "OK",
+              message: "Success",
+              result: JSON.parse(result),
             },
           });
+        }
 
-          redis.set(`Project:${query}`, JSON.stringify(data.result));
-          redis.expire(`Project:${query}`, 2 * 60 * 60);
-        })
-        .catch((err) => {
-          resolve({
-            status: 500,
-            send: {
-              status: "ERR",
-              message: "Error",
-            },
+        fetch(`${apiUrl}/project${query}`)
+          .then((res) => res.json())
+          .then((data: ApiRes<Type[]> | ApiError) => {
+            if (data.status !== "OK" || !data.result?.length) {
+              return resolve({
+                status: data.status === "ERR" ? 500 : 416,
+                send: {
+                  status: "ERR",
+                  message: (data as ApiError).message || "Empty result",
+                },
+              });
+            }
+
+            resolve({
+              status: 200,
+              send: {
+                status: data.status,
+                message: data.status === "OK" ? "Success" : "Error",
+                result: data.result as Type[],
+              },
+            });
+
+            redis.set(`Project:${query}`, JSON.stringify(data.result));
+            redis.expire(`Project:${query}`, 2 * 60 * 60);
+          })
+          .catch((err) => {
+            resolve({
+              status: 500,
+              send: { status: "ERR", message: err },
+            });
           });
+      })
+      .catch((err) => {
+        return resolve({
+          status: 500,
+          send: { status: "ERR", message: err },
         });
-    });
+      });
   });
 }
 

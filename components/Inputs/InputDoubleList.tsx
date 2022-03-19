@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Event } from "../../pages/admin/projects/operation";
 import { LinkData } from "../../types/api";
 import InputValue from "./InputValue";
@@ -18,15 +19,21 @@ export interface InputValueProps {
 }
 
 export default function InputList(props: InputValueProps) {
-  const [data, onDataChange] = useState({} as { [name: string]: string });
+  // const [data, onDataChange] = useState({} as { [name: string]: string });
 
-  function onChange(event: Event) {
-    onDataChange({
-      ...data,
-      [event.target.name]: event.target.value,
-    });
-  }
+  const value = useSelector((state: any) =>
+    props.prefix.split("_").reduce((acc, curr) => acc[curr], state)
+  );
+  const dispatch = useDispatch();
 
+  // function onChange(event: Event) {
+  //   onDataChange({
+  //     ...data,
+  //     [event.target.name]: event.target.value,
+  //   });
+  // }
+
+  // FIXME: !!!
   return (
     <div className={`row ${props.className ?? ""}`}>
       <div className="input-group col-md-6 order-sm-1 p-2">
@@ -36,11 +43,11 @@ export default function InputList(props: InputValueProps) {
         <InputValue
           className="rounded-right"
           name={props.name[0]}
-          value={data[props.name[0]] ?? ""}
+          // value={data[props.name[0]] ?? ""}
           type={props.type?.[0]}
           required={props.required?.[0]}
           placeholder={props.placeholder?.[0]}
-          onChange={onChange}
+          // onChange={onChange}
         />
       </div>
       <div className="input-group col-md-6 order-sm-2 p-2">
@@ -50,11 +57,11 @@ export default function InputList(props: InputValueProps) {
         <InputValue
           className="rounded-right"
           name={props.name[1]}
-          value={data[props.name[1]] ?? ""}
+          // value={data[props.name[1]] ?? ""}
           type={props.type?.[1]}
           required={props.required?.[1]}
           placeholder={props.placeholder?.[1]}
-          onChange={onChange}
+          // onChange={onChange}
         />
         <div className="input-group-append">
           <a

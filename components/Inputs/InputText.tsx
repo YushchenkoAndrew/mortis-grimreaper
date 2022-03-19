@@ -1,29 +1,36 @@
 import React from "react";
-import { Event } from "../../pages/admin/projects/operation";
-import { ProjectElement } from "../../types/projects";
+import { useDispatch, useSelector } from "react-redux";
 
 export interface InputTextProps {
-  name: string;
-  value: string;
+  root?: string;
+  prefix: string;
   rows?: number;
   required?: boolean;
   placeholder?: string;
-  onChange: (event: Event) => void;
-  onBlur?: (event: Event) => void;
 }
 
 export default function InputText(props: InputTextProps) {
+  const value = useSelector((state: any) =>
+    props.prefix.split("_").reduce((acc, curr) => acc[curr], state)
+  );
+  const dispatch = useDispatch();
+
   return (
     <div className="input-group">
       <textarea
-        name={props.name}
-        value={props.value}
+        value={value}
         className="form-control rounded"
         placeholder={props.placeholder ?? ""}
         rows={props.rows ?? 3}
         required={props.required}
-        onChange={props.onChange}
-        onBlur={props.onBlur}
+        onChange={({ target: { value } }) =>
+          dispatch({ type: `${props.prefix.toUpperCase()}_CHANGED`, value })
+        }
+        onBlur={() =>
+          dispatch({
+            type: `${props.root ?? ""}_CACHED`.toUpperCase().replace(/^_/, ""),
+          })
+        }
       />
       {props.required ? (
         <div className="invalid-tooltip">This field is required</div>

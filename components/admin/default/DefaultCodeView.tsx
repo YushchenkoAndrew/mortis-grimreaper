@@ -64,7 +64,7 @@ export default function DefaultCodeView(props: DefaultCodeViewProps) {
         <div className="col-md-5 order-md-2">
           <InputTemplate label="Role">
             <InputRadio
-              prefix={`${PREFIX}_role`}
+              readFrom={`${PREFIX}_role`}
               options={["assets", "src", "styles", "kubernetes"]}
             />
           </InputTemplate>
@@ -72,7 +72,7 @@ export default function DefaultCodeView(props: DefaultCodeViewProps) {
           <InputTemplate label="Directory">
             <InputValue
               root={PREFIX}
-              prefix={`${PREFIX}_dir`}
+              readFrom={`${PREFIX}_dir`}
               className="rounded"
               placeholder="/lua/"
             />

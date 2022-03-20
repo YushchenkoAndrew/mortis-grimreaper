@@ -7,7 +7,8 @@ export type Overflow = {
   off: { className: string; len: number };
 };
 export interface InputRadioProps {
-  prefix: string;
+  readFrom: string;
+  writeTo?: string;
   className?: string;
   options: string[];
   label?: string;
@@ -18,7 +19,7 @@ export interface InputRadioProps {
 
 export default function InputRadio(props: InputRadioProps) {
   const value = useSelector((state: any) =>
-    props.prefix.split("_").reduce((acc, curr) => acc[curr], state)
+    props.readFrom.split("_").reduce((acc, curr) => acc[curr], state)
   );
   const dispatch = useDispatch();
 
@@ -47,8 +48,11 @@ export default function InputRadio(props: InputRadioProps) {
                   props.onChange
                     ? props.onChange(item)
                     : dispatch({
-                        type: `${props.prefix.toUpperCase()}_CHANGED`,
+                        type: `${(
+                          props.writeTo ?? props.readFrom
+                        ).toUpperCase()}_CHANGED`,
                         value: item,
+                        readFrom: props.readFrom,
                       })
                 }
               />

@@ -11,64 +11,72 @@ import React, {
   useImperativeHandle,
   useState,
 } from "react";
-import { Ingress } from "../../../types/K3s/Ingress";
+import { useDispatch, useSelector } from "react-redux";
+// import { Ingress } from "../../../types/K3s/Ingress";
 import InputName from "../../Inputs/InputName";
 import InputTemplate from "../../Inputs/InputTemplate";
 import InputValue from "../../Inputs/InputValue";
 import styles from "./Default.module.css";
-import Rules, { RulesRef } from "./Rules";
+import Rules from "./Rules";
 
 export interface IngressProps {
   show?: boolean;
+  root?: string;
+  readFrom: string;
+  writeTo: string;
 }
 
-export interface IngressRef {
-  getValue: () => Ingress;
-}
+// export interface IngressRef {
+//   getValue: () => Ingress;
+// }
 
-export default React.forwardRef((props: IngressProps, ref) => {
+export default function Ingress(props: IngressProps) {
   const [minimized, onMinimize] = useState({
     metadata: true,
     spec: true,
-    rules: true,
+    rule: true,
+    rules: [] as boolean[],
   });
 
-  const [ingress, onIngressChange] = useState<Ingress>({
-    apiVersion: "extensions/v1beta1",
-    kind: "Ingress",
-    metadata: { name: "" },
-    spec: { tls: [{ secretName: "" }] },
-  });
+  const dispatch = useDispatch();
+  const rules = useSelector((state: any) =>
+    `${props.readFrom}_spec_rules`
+      .split("_")
+      .reduce((acc, curr) => acc[curr], state)
+  ) as unknown[];
 
-  const [rules, onRulesChange] = useState<boolean[]>([]);
-  const [rulesRef, onRulesRefChange] = useState<React.RefObject<RulesRef>[]>(
-    []
-  );
+  // const [ingress, onIngressChange] = useState<Ingress>({
+  // });
 
-  useEffect(() => {
-    onRulesRefChange(rules.map((_, i) => rulesRef[i] || createRef<RulesRef>()));
-  }, [rules.length]);
+  // const [rules, onRulesChange] = useState<boolean[]>([]);
+  // const [rulesRef, onRulesRefChange] = useState<React.RefObject<RulesRef>[]>(
+  //   []
+  // );
 
-  useImperativeHandle<unknown, IngressRef>(ref, () => ({
-    getValue() {
-      return {
-        apiVersion: "extensions/v1beta1",
-        ...ingress,
-        spec: {
-          ...ingress.spec,
-          tls: [
-            {
-              ...(ingress.spec?.tls?.[0] ?? {}),
-              hosts: rulesRef.map(
-                (item) => item.current?.getValue?.()?.host ?? ""
-              ),
-            },
-          ],
-          rules: rulesRef.map((item) => item.current?.getValue()),
-        },
-      } as Ingress;
-    },
-  }));
+  // useEffect(() => {
+  //   onRulesRefChange(rules.map((_, i) => rulesRef[i] || createRef<RulesRef>()));
+  // }, [rules.length]);
+
+  // useImperativeHandle<unknown, IngressRef>(ref, () => ({
+  //   getValue() {
+  //     return {
+  //       apiVersion: "extensions/v1beta1",
+  //       ...ingress,
+  //       spec: {
+  //         ...ingress.spec,
+  //         tls: [
+  //           {
+  //             ...(ingress.spec?.tls?.[0] ?? {}),
+  //             hosts: rulesRef.map(
+  //               (item) => item.current?.getValue?.()?.host ?? ""
+  //             ),
+  //           },
+  //         ],
+  //         rules: rulesRef.map((item) => item.current?.getValue()),
+  //       },
+  //     } as Ingress;
+  //   },
+  // }));
 
   return (
     <div className={`card px-1 py-3 ${props.show ? "" : "d-none"}`}>
@@ -93,19 +101,21 @@ export default React.forwardRef((props: IngressProps, ref) => {
           <InputTemplate className="col-6" label="Name">
             <InputName
               char="@"
-              name="name"
-              required
-              value={ingress.metadata?.name ?? ""}
+              root={props.root}
+              readFrom={`${props.readFrom}_metadata_name`}
+              writeTo={`${props.writeTo}_metadata_name`}
               placeholder="void-ingress"
-              onChange={({ target: { name, value } }) => {
-                onIngressChange({
-                  ...ingress,
-                  metadata: {
-                    ...ingress.metadata,
-                    [name]: value,
-                  },
-                });
-              }}
+              required
+              // value={ingress.metadata?.name ?? ""}
+              // onChange={({ target: { name, value } }) => {
+              //   onIngressChange({
+              //     ...ingress,
+              //     metadata: {
+              //       ...ingress.metadata,
+              //       [name]: value,
+              //     },
+              //   });
+              // }}
               // onBlur={onDataCache}
             />
           </InputTemplate>
@@ -113,19 +123,22 @@ export default React.forwardRef((props: IngressProps, ref) => {
           <InputTemplate className="col-6" label="Namespace">
             <div className="input-group">
               <InputValue
-                name="namespace"
                 className="rounded"
-                value={ingress.metadata?.namespace ?? ""}
+                root={props.root}
+                readFrom={`${props.readFrom}_metadata_namespace`}
+                writeTo={`${props.writeTo}_metadata_namespace`}
                 placeholder="demo"
-                onChange={({ target: { name, value } }) => {
-                  onIngressChange({
-                    ...ingress,
-                    metadata: {
-                      ...ingress.metadata,
-                      [name]: value,
-                    },
-                  });
-                }}
+                // name="namespace"
+                // value={ingress.metadata?.namespace ?? ""}
+                // onChange={({ target: { name, value } }) => {
+                //   onIngressChange({
+                //     ...ingress,
+                //     metadata: {
+                //       ...ingress.metadata,
+                //       [name]: value,
+                //     },
+                //   });
+                // }}
                 // onBlur={onDataCache}
               />
             </div>
@@ -153,19 +166,22 @@ export default React.forwardRef((props: IngressProps, ref) => {
           <InputTemplate label="Secret Name">
             <div className="input-group">
               <InputValue
-                name="secretName"
-                required
-                value={`${ingress.spec?.tls?.[0]?.secretName ?? ""}`}
+                root={props.root}
+                readFrom={`${props.readFrom}_spec_tls_0_secretName`}
+                writeTo={`${props.writeTo}_spec_tls_secretName`}
                 placeholder="mortis-tls"
-                onChange={({ target: { name, value } }) => {
-                  onIngressChange({
-                    ...ingress,
-                    spec: {
-                      ...ingress.spec,
-                      tls: [{ [name]: value }],
-                    },
-                  });
-                }}
+                required
+                // name="secretName"
+                // value={`${ingress.spec?.tls?.[0]?.secretName ?? ""}`}
+                // onChange={({ target: { name, value } }) => {
+                //   onIngressChange({
+                //     ...ingress,
+                //     spec: {
+                //       ...ingress.spec,
+                //       tls: [{ [name]: value }],
+                //     },
+                //   });
+                // }}
                 // onBlur={onDataCache}
               />
             </div>
@@ -178,30 +194,33 @@ export default React.forwardRef((props: IngressProps, ref) => {
               "Rules ",
               <FontAwesomeIcon
                 key={"icon-rules"}
-                icon={minimized.rules ? faChevronDown : faChevronRight}
+                icon={minimized.rule ? faChevronDown : faChevronRight}
               />,
             ]}
-            onClick={() =>
-              onMinimize({ ...minimized, rules: !minimized.rules })
-            }
+            onClick={() => onMinimize({ ...minimized, rule: !minimized.rules })}
           >
             <div
               className={`border rounded px-1 py-2 ${
-                minimized.rules ? "" : "d-none"
+                minimized.rule ? "" : "d-none"
               }`}
             >
-              {rules.map((show, index) => (
+              {rules.map((_, index) => (
                 <div key={index} className={`mb-3 w-100 ${styles["el-index"]}`}>
                   <div className="row mx-1">
                     <label
                       className="ml-1 mr-auto"
                       onClick={() => {
-                        onRulesChange({ ...rules, [index]: !rules[index] });
+                        onMinimize({
+                          ...minimized,
+                          rules: minimized.rules.map((item, i) =>
+                            i === index ? !item : item
+                          ),
+                        });
                       }}
                     >
                       {`[${index}] `}
                       <FontAwesomeIcon
-                        icon={show ? faChevronDown : faChevronRight}
+                        icon={minimized.rules ? faChevronDown : faChevronRight}
                       />
                     </label>
                     <FontAwesomeIcon
@@ -210,21 +229,42 @@ export default React.forwardRef((props: IngressProps, ref) => {
                       size="lg"
                       fontSize="1rem"
                       onClick={() => {
-                        onRulesChange([
-                          ...rules.slice(0, index),
-                          ...rules.slice(index + 1),
-                        ]);
+                        onMinimize({
+                          ...minimized,
+                          rules: minimized.rules.filter((_, i) => i === index),
+                        });
+
+                        dispatch({
+                          type: `${props.writeTo}_spec_rules_del`.toUpperCase(),
+                          readFrom: `${props.readFrom}_spec_rules`,
+                          index: index,
+                        });
                       }}
                     />
                   </div>
-                  <Rules ref={rulesRef[index]} show={show} />
+                  <Rules
+                    root={props.root}
+                    show={minimized.rules[index]}
+                    readFrom={`${props.readFrom}_spec_rules_${index}`}
+                    writeTo={`${props.writeTo}_spec_rules`}
+                  />
                 </div>
               ))}
 
               <div className="container my-2">
                 <a
                   className="btn btn-outline-success w-100"
-                  onClick={() => onRulesChange([...rules, true])}
+                  onClick={() => {
+                    onMinimize({
+                      ...minimized,
+                      rules: [...minimized.rules, true],
+                    });
+
+                    dispatch({
+                      type: `${props.writeTo}_spec_rules_add`.toUpperCase(),
+                      readFrom: `${props.readFrom}_spec_rules`,
+                    });
+                  }}
                 >
                   <FontAwesomeIcon
                     className={`text-success ${styles["icon"]}`}
@@ -238,4 +278,4 @@ export default React.forwardRef((props: IngressProps, ref) => {
       </InputTemplate>
     </div>
   );
-});
+}

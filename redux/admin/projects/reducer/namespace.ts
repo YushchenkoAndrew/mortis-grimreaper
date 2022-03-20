@@ -1,37 +1,52 @@
 import { AnyAction } from "redux";
-import { basePath } from "../../../../config";
-import { CacheId } from "../../../../lib/public";
+import { UpdateK3sConfig } from "../../../../lib/public/k3s";
+import { Namespace } from "../../../../types/K3s/Namespace";
 
-const PREFIX = "CONFIG";
+export function GetDynamicParams(type: string, readFrom: string) {
+  return type
+    .split("_")
+    .slice(0, -1)
+    .reduce((acc, curr) => acc.replace(curr.toLowerCase(), ""), readFrom)
+    .split("_")
+    .filter((item) => item)
+    .map((item) => Number(item));
+}
 
-const INIT_STATE = {
-  role: "assets",
-  path: "",
-
-  name: "",
-  type: "",
-  content: "",
-};
+const PREFIX = "CONFIG_NAMESPACE";
+const INIT_STATE = [] as Namespace[];
 
 export default function (state = INIT_STATE, action: AnyAction) {
+  const index = GetDynamicParams(action.type, action.readFrom ?? "");
   switch (action.type as string) {
     case `${PREFIX}_INIT`:
       return action.data || state;
 
-    case `${PREFIX}_ROLE_CHANGED`:
-      return { ...state, role: action.value };
+    case `${PREFIX}_ADD`:
+      return [
+        ...state,
+        {
+          apiVersion: "v1",
+          kind: "Namespace",
+          metadata: { name: "" },
+          spec: {},
+          status: {},
+        },
+      ];
 
-    case `${PREFIX}_PATH_CHANGED`:
-      return { ...state, path: action.value };
-
-    case `${PREFIX}_CONTENT_CHANGED`:
-      return { ...state, content: action.value };
+    case `${PREFIX}_METADATA_NAME_CHANGED`:
+      return state.map((item, i) =>
+        i != index[0]
+          ? item
+          : UpdateK3sConfig(item, "metadata_name", {
+              name: action.value,
+            })
+      );
 
     case `${PREFIX}_CACHED`:
-      fetch(`${basePath}/api/projects/cache?id=${CacheId(PREFIX)}`, {
-        method: "POST",
-        body: JSON.stringify(state),
-      }).catch(() => null);
+    //   fetch(`${basePath}/api/projects/cache?id=${CacheId(PREFIX)}`, {
+    //     method: "POST",
+    //     body: JSON.stringify(state),
+    //   }).catch(() => null);
 
     default:
       return state;

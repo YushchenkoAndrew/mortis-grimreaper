@@ -1,6 +1,4 @@
 import React, { useImperativeHandle, useRef, useState } from "react";
-import { Event } from "../../../pages/admin/projects/operation";
-import { Port } from "../../../types/K3s/Service";
 import InputName from "../../Inputs/InputName";
 import InputRadio from "../../Inputs/InputRadio";
 import InputTemplate from "../../Inputs/InputTemplate";
@@ -8,59 +6,67 @@ import InputValue from "../../Inputs/InputValue";
 
 export interface PortProps {
   show?: boolean;
+  root?: string;
+  readFrom: string;
+  writeTo: string;
 }
 
-export interface PortRef {
-  getValue: () => Port;
-}
+// export interface PortRef {
+//   getValue: () => Port;
+// }
 
-export default React.forwardRef((props: PortProps, ref) => {
-  const [port, onPortChange] = useState<Port>({
-    name: "",
-    nodePort: "",
-    port: "",
-    protocol: "TCP",
-    targetPort: "",
-  });
+export default function Port(props: PortProps) {
+  // const [port, onPortChange] = useState<Port>({
+  //   name: "",
+  //   nodePort: "",
+  //   port: "",
+  //   protocol: "TCP",
+  //   targetPort: "",
+  // });
 
-  useImperativeHandle<unknown, PortRef>(ref, () => ({
-    getValue: () =>
-      Object.entries({
-        ...port,
-        port: Number(port.port ?? 0),
-        nodePort: Number(port.nodePort ?? 0),
-        targetPort: Number(port.targetPort ?? 0),
-      } as Port).reduce(
-        (acc, [key, item]) => (item ? { ...acc, [key]: item } : acc),
-        {} as Port
-      ),
-  }));
+  // useImperativeHandle<unknown, PortRef>(ref, () => ({
+  //   getValue: () =>
+  //     Object.entries({
+  //       ...port,
+  //       port: Number(port.port ?? 0),
+  //       nodePort: Number(port.nodePort ?? 0),
+  //       targetPort: Number(port.targetPort ?? 0),
+  //     } as Port).reduce(
+  //       (acc, [key, item]) => (item ? { ...acc, [key]: item } : acc),
+  //       {} as Port
+  //     ),
+  // }));
 
-  function onChange({ target: { name, value } }: Event) {
-    onPortChange({ ...port, [name]: value });
-  }
+  // function onChange({ target: { name, value } }: Event) {
+  //   onPortChange({ ...port, [name]: value });
+  // }
 
   return (
     <div className={`border rounded mx-1 p-2 ${props.show ? "" : "d-none"}`}>
       <InputTemplate label="Name">
         <InputName
           char="@"
-          name="name"
-          value={port.name ?? ""}
+          root={props.root}
+          readFrom={`${props.readFrom}_name`}
+          writeTo={`${props.writeTo}_name`}
           placeholder="void-port"
-          onChange={onChange}
+          // name="name"
+          // value={port.name ?? ""}
+          // onChange={onChange}
           // onBlur={onDataCache}
         />
       </InputTemplate>
 
       <InputTemplate label="Protocol">
         <InputRadio
-          name="protocol"
-          placeholder="TCP"
+          readFrom={`${props.readFrom}_protocol`}
+          writeTo={`${props.writeTo}_protocol`}
           className="btn-group btn-group-sm btn-group-toggle"
           options={["TCP", "UDP", "HTTP", "PROXY"]}
           label="btn-outline-info"
-          onChange={onChange}
+          // name="protocol"
+          // placeholder="TCP"
+          // onChange={onChange}
         />
       </InputTemplate>
 
@@ -68,11 +74,13 @@ export default React.forwardRef((props: PortProps, ref) => {
         <InputTemplate className="col-6" label="Port">
           <div className="input-group">
             <InputValue
-              name="port"
+              root={props.root}
+              readFrom={`${props.readFrom}_port`}
+              writeTo={`${props.writeTo}_port`}
               className="rounded"
-              value={`${port.port ?? ""}`}
               placeholder="8000"
-              onChange={onChange}
+              // name="port"
+              // onChange={onChange}
               // onBlur={onDataCache}
             />
           </div>
@@ -81,11 +89,14 @@ export default React.forwardRef((props: PortProps, ref) => {
         <InputTemplate className="col-6" label="Target Port">
           <div className="input-group">
             <InputValue
-              name="targetPort"
               className="rounded"
-              value={`${port.targetPort ?? ""}`}
+              // name="targetPort"
+              // value={`${port.targetPort ?? ""}`}
+              root={props.root}
+              readFrom={`${props.readFrom}_targetPort`}
+              writeTo={`${props.writeTo}_targetPort`}
               placeholder="3000"
-              onChange={onChange}
+              // onChange={onChange}
               // onBlur={onDataCache}
             />
           </div>
@@ -95,15 +106,18 @@ export default React.forwardRef((props: PortProps, ref) => {
       <InputTemplate label="Node Port">
         <div className="input-group">
           <InputName
-            name="nodePort"
             char="?"
-            value={`${port.nodePort ?? ""}`}
+            root={props.root}
+            readFrom={`${props.readFrom}_nodePort`}
+            writeTo={`${props.writeTo}_nodePort`}
             placeholder="8000"
-            onChange={onChange}
+            // name="nodePort"
+            // value={`${port.nodePort ?? ""}`}
+            // onChange={onChange}
             // onBlur={onDataCache}
           />
         </div>
       </InputTemplate>
     </div>
   );
-});
+}

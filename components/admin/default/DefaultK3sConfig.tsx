@@ -1,33 +1,19 @@
-import React, {
-  createRef,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useImperativeHandle, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { basePath } from "../../../config";
 import { ToastDefault } from "../../../config/alert";
 import { ProjectData } from "../../../types/api";
-import { DefaultRes, Stat } from "../../../types/request";
-import Deployment, { DeploymentRef } from "../K3s/Deployment";
-import Ingress, { IngressRef } from "../K3s/Ingress";
+import Deployment from "../K3s/Deployment";
+import Ingress from "../K3s/Ingress";
 import K3sField from "../K3s/K3sField";
-import Namespace, { NamespaceRef } from "../K3s/Namespace";
-import Service, { ServiceRef } from "../K3s/Service";
+import Namespace from "../K3s/Namespace";
+import Service from "../K3s/Service";
 import Terminal, { TerminalRef } from "../Terminal";
-// import { PreviewRef } from "../default/Preview";
 
 export interface K3sConfigProps {
   show?: boolean;
-  // previewRef: React.RefObject<any>;
 }
-
-export interface K3sConfigRef {
-  onSubmit: (data: ProjectData | undefined) => Promise<any>;
-}
-
-type K3sRef = NamespaceRef | DeploymentRef | ServiceRef | IngressRef;
 
 export default React.forwardRef((props: K3sConfigProps, ref) => {
   const [minimized, onMinimize] = useState({
@@ -38,50 +24,21 @@ export default React.forwardRef((props: K3sConfigProps, ref) => {
     terminal: true,
   });
 
-  const [namespace, onNamespaceChange] = useState<boolean[]>([]);
-  // const [namespaceRef, onNamespaceRefChange] = useState<
-  //   React.RefObject<NamespaceRef>[]
-  // >([]);
+  const namespaces = useSelector(
+    (state: any) => state.config.namespace as unknown[]
+  );
 
-  // useEffect(() => {
-  //   onNamespaceRefChange(
-  //     namespace.map((_, i) => namespaceRef[i] || createRef<NamespaceRef>())
-  //   );
-  // }, [namespace.length]);
+  const deployments = useSelector(
+    (state: any) => state.config.deployment as unknown[]
+  );
 
-  // const [deployment, onDeploymentChange] = useState<boolean[]>([]);
-  // const [deploymentRef, onDeploymentRefChange] = useState<
-  //   React.RefObject<DeploymentRef>[]
-  // >([]);
+  const services = useSelector(
+    (state: any) => state.config.service as unknown[]
+  );
 
-  // useEffect(() => {
-  //   onDeploymentRefChange(
-  //     deployment.map((_, i) => deploymentRef[i] || createRef<DeploymentRef>())
-  //   );
-  // }, [deployment.length]);
-
-  // const [service, onServiceChange] = useState<boolean[]>([]);
-  // const [serviceRef, onServiceRefChange] = useState<
-  //   React.RefObject<ServiceRef>[]
-  // >([]);
-
-  // useEffect(() => {
-  //   onServiceRefChange(
-  //     service.map((_, i) => serviceRef[i] || createRef<ServiceRef>())
-  //   );
-  // }, [service.length]);
-
-  // const [ingress, onIngressChange] = useState<boolean[]>([]);
-  // const [ingressRef, onIngressRefChange] = useState<
-  //   React.RefObject<IngressRef>[]
-  // >([]);
-
-  // useEffect(() => {
-  //   onIngressRefChange(
-  //     ingress.map((_, i) => ingressRef[i] || createRef<IngressRef>())
-  //   );
-  // }, [ingress.length]);
-
+  const ingress = useSelector(
+    (state: any) => state.config.ingress as unknown[]
+  );
   const terminalRef = useRef<TerminalRef>(null);
   // useImperativeHandle<unknown, K3sConfigRef>(ref, () => ({
   //   async onSubmit(data: ProjectData | undefined) {
@@ -213,42 +170,43 @@ export default React.forwardRef((props: K3sConfigProps, ref) => {
         <K3sField
           name="Namespace"
           show={minimized.namespace}
-          onAdd={() => onNamespaceChange([...namespace, true])}
+          writeTo="config_namespace"
           onHide={() =>
             onMinimize({ ...minimized, namespace: !minimized.namespace })
           }
         >
-          {namespace.map((show, index) => (
+          {namespaces.map((_, index) => (
             <div
               key={index}
               className="col-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 p-0 p-md-2"
             >
               <Namespace
-                key={`namespace-${index}`}
-                // root={}
-                prefix="namespace"
-                show={minimized.namespace && show}
+                root="config_namespace"
+                readFrom={`config_namespace_${index}`}
+                writeTo="config_namespace"
+                show={minimized.namespace}
               />
             </div>
           ))}
         </K3sField>
 
-        {/* <K3sField
+        <K3sField
           name="Deployment"
           show={minimized.deployment}
-          onAdd={() => onDeploymentChange([...deployment, true])}
+          writeTo="config_deployment"
           onHide={() =>
             onMinimize({ ...minimized, deployment: !minimized.deployment })
           }
         >
-          {deployment.map((_, index) => (
+          {deployments.map((_, index) => (
             <div
               key={index}
               className="col-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 p-0 p-md-2"
             >
               <Deployment
-                ref={deploymentRef[index]}
-                key={`deployment-${index}`}
+                root="config_deployment"
+                readFrom={`config_deployment_${index}`}
+                writeTo="config_deployment"
                 show={minimized.deployment}
               />
             </div>
@@ -258,19 +216,20 @@ export default React.forwardRef((props: K3sConfigProps, ref) => {
         <K3sField
           name="Service"
           show={minimized.service}
-          onAdd={() => onServiceChange([...service, true])}
+          writeTo="config_service"
           onHide={() =>
             onMinimize({ ...minimized, service: !minimized.service })
           }
         >
-          {service.map((_, index) => (
+          {services.map((_, index) => (
             <div
               key={index}
               className="col-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 p-0 p-md-2"
             >
               <Service
-                ref={serviceRef[index]}
-                key={index}
+                root="config_service"
+                readFrom={`config_service_${index}`}
+                writeTo="config_service"
                 show={minimized.service}
               />
             </div>
@@ -280,24 +239,25 @@ export default React.forwardRef((props: K3sConfigProps, ref) => {
         <K3sField
           name="Ingress"
           show={minimized.ingress}
-          onAdd={() => onIngressChange([...ingress, true])}
+          writeTo="config_ingress"
           onHide={() =>
             onMinimize({ ...minimized, ingress: !minimized.ingress })
           }
         >
-          {ingress.map((item, index) => (
+          {ingress.map((_, index) => (
             <div
               key={index}
               className="col-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 p-0 p-md-2"
             >
               <Ingress
-                ref={ingressRef[index]}
-                key={index}
+                root="config_ingress"
+                readFrom={`config_ingress_${index}`}
+                writeTo="config_ingress"
                 show={minimized.ingress}
               />
             </div>
           ))}
-        </K3sField> */}
+        </K3sField>
 
         <K3sField
           name="Terminal"

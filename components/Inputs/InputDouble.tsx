@@ -1,7 +1,4 @@
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Event } from "../../pages/admin/projects/operation";
-import { LinkData } from "../../types/api";
 import InputValue from "./InputValue";
 
 export type DoubleType<Type> = {
@@ -12,7 +9,8 @@ export interface InputValueProps {
   char: DoubleType<string>;
   className?: string;
   root?: string;
-  prefix: DoubleType<string>;
+  readFrom: DoubleType<string>;
+  writeTo?: DoubleType<string>;
   type?: DoubleType<string>;
   required?: DoubleType<boolean>;
   placeholder?: DoubleType<string>;
@@ -28,7 +26,8 @@ export default function InputDouble(props: InputValueProps) {
         <InputValue
           className="rounded-right"
           root={props.root}
-          prefix={props.prefix[0]}
+          readFrom={props.readFrom[0]}
+          writeTo={props.writeTo?.[0]}
           type={props.type?.[0]}
           required={props.required?.[0]}
           placeholder={props.placeholder?.[0]}
@@ -40,7 +39,8 @@ export default function InputDouble(props: InputValueProps) {
         </div>
         <InputValue
           className="rounded-right"
-          prefix={props.prefix[1]}
+          readFrom={props.readFrom[1]}
+          writeTo={props.writeTo?.[1]}
           root={props.root}
           type={props.type?.[1]}
           required={props.required?.[1]}

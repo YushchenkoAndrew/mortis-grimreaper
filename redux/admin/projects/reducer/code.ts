@@ -82,7 +82,7 @@ export default function (state = INIT_STATE, action: AnyAction) {
       return { ...state, content: action.value };
 
     case `${PREFIX}_FLAG_CHANGED`: {
-      const file = CODE_TEMPLATE[action.value];
+      const file = CODE_TEMPLATE[action.value || "Preview"];
       if (!file) return state;
       return {
         ...state,

@@ -6,13 +6,17 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import styles from "./Default.module.css";
 
 export interface K3sFieldProps {
   name: string;
   show?: boolean;
-  onAdd?: () => void;
-  onDel?: () => void;
+  writeTo?: string;
+  add?: boolean;
+  del?: boolean;
+  // onAdd?: () => void;
+  // onDel?: () => void;
   onHide?: () => void;
   children?: React.ReactNode;
 }
@@ -20,6 +24,7 @@ export interface K3sFieldProps {
 export interface K3sFieldRef {}
 
 export default function K3sField(props: K3sFieldProps) {
+  const dispatch = useDispatch();
   return (
     <>
       {/* <hr className="mb-4" />
@@ -44,10 +49,12 @@ export default function K3sField(props: K3sFieldProps) {
             />
           </span>
           <div className="row mr-1">
-            {props.onAdd ? (
+            {props.writeTo ? (
               <a
                 className={`mr-1 btn btn-outline-info ${styles["el-container-2"]}`}
-                onClick={props.onAdd}
+                onClick={() =>
+                  dispatch({ type: `${props.writeTo}_add`.toUpperCase() })
+                }
               >
                 <FontAwesomeIcon
                   className={`text-info ${styles["icon"]}`}
@@ -60,22 +67,24 @@ export default function K3sField(props: K3sFieldProps) {
               <></>
             )}
 
-            {props.onDel ? (
+            {/* {props.prefix && props.del ? (
               <a
                 className={`mr-1 btn btn-outline-danger ${styles["el-container-2"]}`}
-                onClick={props.onAdd}
+                onClick={() =>
+                  dispatch({ type: `${props.prefix}_del`.toUpperCase() })
+                }
               >
                 <FontAwesomeIcon
                   className={`text-danger ${styles["icon"]}`}
                   icon={faTrashAlt}
                   size="lg"
                   fontSize="1rem"
-                  onClick={props.onDel}
+                  // onClick={props.onDel}
                 />
               </a>
             ) : (
               <></>
-            )}
+            )} */}
           </div>
         </div>
 

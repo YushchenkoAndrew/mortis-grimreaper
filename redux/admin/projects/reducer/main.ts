@@ -21,7 +21,7 @@ export default function (state = INIT_STATE, action: AnyAction) {
       return { ...state, window: action.value };
 
     case `${PREFIX}_FLAG_CHANGED`:
-      return { ...state, disabled: DISABLED_WINDOW[action.value] };
+      return { ...state, disabled: DISABLED_WINDOW[action.value || "Preview"] };
 
     default:
       return state;

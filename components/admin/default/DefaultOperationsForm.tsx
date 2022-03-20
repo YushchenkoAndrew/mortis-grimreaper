@@ -14,7 +14,7 @@ import "react-toastify/dist/ReactToastify.css";
 import InputRadio from "../../Inputs/InputRadio";
 import CodeView from "./DefaultCodeView";
 import { ToastDefault } from "../../../config/alert";
-import K3sConfig, { K3sConfigRef } from "./DefaultK3sConfig";
+import K3sConfig from "./DefaultK3sConfig";
 import { Provider, useDispatch, useSelector } from "react-redux";
 import reducers from "../../../redux/admin/projects/reducer";
 import { devToolsEnhancer } from "redux-devtools-extension";
@@ -198,7 +198,7 @@ export default function DefaultOperationsForm(
           <div className="row">
             <div>
               <InputRadio
-                prefix="main_window"
+                readFrom="main_window"
                 className="btn-group btn-group-sm btn-group-toggle mb-2"
                 options={["Preview", "Code", "Config"]}
                 label="btn-outline-dark"

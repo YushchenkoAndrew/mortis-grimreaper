@@ -84,9 +84,9 @@ export class Container {
 }
 
 export class Port {
-  "containerPort": number | string;
+  "containerPort": number;
   "hostIP"?: string;
-  "hostPort"?: number | string;
+  "hostPort"?: number;
   "name"?: string;
   "protocol"?: string;
 }

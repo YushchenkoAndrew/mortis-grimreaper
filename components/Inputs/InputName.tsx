@@ -4,7 +4,8 @@ import InputValue from "./InputValue";
 export interface InputNameProps {
   char: string;
   root?: string;
-  prefix: string;
+  readFrom: string;
+  writeTo?: string;
   type?: React.HTMLInputTypeAttribute;
   required?: boolean;
   placeholder?: string;
@@ -21,7 +22,8 @@ export default function InputName(props: InputNameProps) {
         className="rounded-right"
         type={props.type}
         root={props.root}
-        prefix={props.prefix}
+        readFrom={props.readFrom}
+        writeTo={props.writeTo}
         required={props.required}
         placeholder={props.placeholder}
       />

@@ -39,6 +39,8 @@ export default function DefaultPreview(props: DefaultPreviewProps) {
       .then((data: DefaultRes) => {
         if (data.status !== "OK") return;
         dispatch({ type: `${PREFIX.toUpperCase()}_INIT`, data: data.result });
+        dispatch({ type: "MAIN_FLAG_CHANGED", value: data.result?.flag });
+        dispatch({ type: "CODE_FLAG_CHANGED", value: data.result?.flag });
       })
       .catch((err) => null);
   }, []);
@@ -61,7 +63,7 @@ export default function DefaultPreview(props: DefaultPreviewProps) {
           <InputTemplate className="mb-3" label="Name">
             <InputName
               root={PREFIX}
-              prefix={`${PREFIX}_name`}
+              readFrom={`${PREFIX}_name`}
               char="@"
               placeholder={ProjectInfo.name}
               required
@@ -72,7 +74,7 @@ export default function DefaultPreview(props: DefaultPreviewProps) {
             <div className="input-group">
               <InputValue
                 root={PREFIX}
-                prefix={`${PREFIX}_title`}
+                readFrom={`${PREFIX}_title`}
                 className="rounded"
                 placeholder={ProjectInfo.title}
                 required
@@ -115,7 +117,7 @@ export default function DefaultPreview(props: DefaultPreviewProps) {
 
             <InputTemplate className="mb-3" label="Flag">
               <InputRadio
-                prefix={`${PREFIX}_flag`}
+                readFrom={`${PREFIX}_flag`}
                 options={["JS", "Markdown", "Link", "Docker"]}
                 overflow={{
                   on: { className: "d-block d-sm-none", len: 4 },

@@ -11,8 +11,9 @@ import React, {
   useImperativeHandle,
   useState,
 } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Metadata } from "../../../types/K3s/Metadata";
-import { Service } from "../../../types/K3s/Service";
+// import { Service } from "../../../types/K3s/Service";
 import InputList from "../../Inputs/InputDoubleList";
 import InputName from "../../Inputs/InputName";
 import InputRadio from "../../Inputs/InputRadio";
@@ -20,55 +21,56 @@ import InputTemplate from "../../Inputs/InputTemplate";
 import InputValue from "../../Inputs/InputValue";
 import ListEntity from "../../Inputs/ListEntity";
 import styles from "./Default.module.css";
-import Port, { PortRef } from "./Port";
+import Port from "./Port";
 
 export interface ServiceProps {
   show?: boolean;
+  root?: string;
+  readFrom: string;
+  writeTo: string;
 }
 
-export interface ServiceRef {
-  getValue: () => Service;
-}
+// export interface ServiceRef {
+//   getValue: () => Service;
+// }
 
-export default React.forwardRef((props: ServiceProps, ref) => {
+export default function Service(props: ServiceProps) {
   const [minimized, onMinimize] = useState({
     metadata: true,
     spec: true,
     selector: true,
-    ports: true,
+    port: true,
+    ports: [] as boolean[],
   });
 
-  const [service, onServiceChange] = useState<Service>({
-    apiVersion: "v1",
-    kind: "Service",
-    metadata: { name: "" },
-    spec: {
-      selector: {},
-      type: "LoadBalancer",
-    },
-  });
+  const dispatch = useDispatch();
+  const ports = useSelector((state: any) =>
+    `${props.readFrom}_spec_ports`
+      .split("_")
+      .reduce((acc, curr) => acc[curr], state)
+  ) as unknown[];
 
-  const [ports, onPortChange] = useState<boolean[]>([]);
-  const [portsRef, onPortRefChange] = useState<React.RefObject<PortRef>[]>([]);
+  // const [ports, onPortChange] = useState<boolean[]>([]);
+  // const [portsRef, onPortRefChange] = useState<React.RefObject<PortRef>[]>([]);
 
-  useEffect(() => {
-    onPortRefChange(ports.map((_, i) => portsRef[i] || createRef<PortRef>()));
-  }, [ports.length]);
+  // useEffect(() => {
+  //   onPortRefChange(ports.map((_, i) => portsRef[i] || createRef<PortRef>()));
+  // }, [ports.length]);
 
-  let [labels, onLabelsChange] = useState({} as { [key: string]: string });
+  // let [labels, onLabelsChange] = useState({} as { [key: string]: string });
 
-  useImperativeHandle<unknown, ServiceRef>(ref, () => ({
-    getValue() {
-      return {
-        ...service,
-        spec: {
-          ...service.spec,
-          selector: { ...labels },
-          ports: portsRef.map((item) => item.current?.getValue()),
-        },
-      } as Service;
-    },
-  }));
+  // useImperativeHandle<unknown, ServiceRef>(ref, () => ({
+  //   getValue() {
+  //     return {
+  //       ...service,
+  //       spec: {
+  //         ...service.spec,
+  //         selector: { ...labels },
+  //         ports: portsRef.map((item) => item.current?.getValue()),
+  //       },
+  //     } as Service;
+  //   },
+  // }));
 
   return (
     <div className={`card px-1 py-3 ${props.show ? "" : "d-none"}`}>
@@ -93,19 +95,21 @@ export default React.forwardRef((props: ServiceProps, ref) => {
           <InputTemplate className="col-6" label="Name">
             <InputName
               char="@"
-              name="name"
-              required
-              value={service.metadata?.name ?? ""}
+              root={`${props.root}`}
+              readFrom={`${props.readFrom}_metadata_name`}
+              writeTo={`${props.writeTo}_metadata_name`}
               placeholder="void-service"
-              onChange={({ target: { name, value } }) => {
-                onServiceChange({
-                  ...service,
-                  metadata: {
-                    ...service.metadata,
-                    [name]: value,
-                  },
-                });
-              }}
+              required
+              // value={service.metadata?.name ?? ""}
+              // onChange={({ target: { name, value } }) => {
+              //   onServiceChange({
+              //     ...service,
+              //     metadata: {
+              //       ...service.metadata,
+              //       [name]: value,
+              //     },
+              //   });
+              // }}
               // onBlur={onDataCache}
             />
           </InputTemplate>
@@ -113,19 +117,22 @@ export default React.forwardRef((props: ServiceProps, ref) => {
           <InputTemplate className="col-6" label="Namespace">
             <div className="input-group">
               <InputValue
-                name="namespace"
+                // name="namespace"
                 className="rounded"
-                value={service.metadata?.namespace ?? ""}
+                // value={service.metadata?.namespace ?? ""}
+                root={`${props.root}`}
+                readFrom={`${props.readFrom}_metadata_namespace`}
+                writeTo={`${props.writeTo}_metadata_namespace`}
                 placeholder="demo"
-                onChange={({ target: { name, value } }) => {
-                  onServiceChange({
-                    ...service,
-                    metadata: {
-                      ...service.metadata,
-                      [name]: value,
-                    },
-                  });
-                }}
+                // onChange={({ target: { name, value } }) => {
+                //   onServiceChange({
+                //     ...service,
+                //     metadata: {
+                //       ...service.metadata,
+                //       [name]: value,
+                //     },
+                //   });
+                // }}
 
                 // onBlur={onDataCache}
               />
@@ -150,27 +157,32 @@ export default React.forwardRef((props: ServiceProps, ref) => {
           <InputTemplate label="Cluster IP">
             <InputName
               char="$"
-              name="clusterIP"
-              value={service.spec?.clusterIP ?? ""}
+              // name="clusterIP"
+              // value={service.spec?.clusterIP ?? ""}
+              root={`${props.root}`}
+              readFrom={`${props.readFrom}_spec_clusterIP`}
+              writeTo={`${props.writeTo}_spec_clusterIP`}
               placeholder="10.0.171.239"
-              onChange={({ target: { name, value } }) => {
-                onServiceChange({
-                  ...service,
-                  spec: {
-                    ...service.spec,
-                    [name]: value,
-                  },
-                });
-              }}
+              // onChange={({ target: { name, value } }) => {
+              //   onServiceChange({
+              //     ...service,
+              //     spec: {
+              //       ...service.spec,
+              //       [name]: value,
+              //     },
+              //   });
+              // }}
               // onBlur={onDataCache}
             />
           </InputTemplate>
 
           <InputTemplate label="Type">
             <InputRadio
-              name="type"
-              placeholder="LoadBalancer"
+              // name="type"
+              // placeholder="LoadBalancer"
               className="btn-group btn-group-sm btn-group-toggle"
+              readFrom={`${props.readFrom}_spec_type`}
+              writeTo={`${props.writeTo}_spec_type`}
               options={[
                 "ClusterIP",
                 "NodePort",
@@ -182,15 +194,15 @@ export default React.forwardRef((props: ServiceProps, ref) => {
                 off: { className: "d-none d-sm-block", len: 0 },
               }}
               label="btn-outline-info"
-              onChange={({ target: { name, value } }) => {
-                onServiceChange({
-                  ...service,
-                  spec: {
-                    ...service.spec,
-                    [name]: value,
-                  },
-                });
-              }}
+              // onChange={({ target: { name, value } }) => {
+              //   onServiceChange({
+              //     ...service,
+              //     spec: {
+              //       ...service.spec,
+              //       [name]: value,
+              //     },
+              //   });
+              // }}
             />
           </InputTemplate>
 
@@ -216,7 +228,7 @@ export default React.forwardRef((props: ServiceProps, ref) => {
               }`}
             >
               <div className="container">
-                <InputList
+                {/* <InputList
                   char={["var", "="]}
                   name={["name", "value"]}
                   placeholder={["app", "void"]}
@@ -245,7 +257,7 @@ export default React.forwardRef((props: ServiceProps, ref) => {
                       />
                     </div>
                   ))}
-                </ul>
+                </ul> */}
               </div>
             </div>
           </InputTemplate>
@@ -259,17 +271,17 @@ export default React.forwardRef((props: ServiceProps, ref) => {
           "Ports ",
           <FontAwesomeIcon
             key={"icon-ports"}
-            icon={minimized.ports ? faChevronDown : faChevronRight}
+            icon={minimized.port ? faChevronDown : faChevronRight}
           />,
         ]}
-        onClick={() => onMinimize({ ...minimized, ports: !minimized.ports })}
+        onClick={() => onMinimize({ ...minimized, port: !minimized.port })}
       >
         <div
           className={`border rounded px-1 py-2 ${
-            minimized.ports ? "" : "d-none"
+            minimized.port ? "" : "d-none"
           }`}
         >
-          {ports.map((show, index) => (
+          {ports.map((_, index) => (
             <div
               key={`port-${index}`}
               className={`mb-3 w-100 ${styles["el-index"]}`}
@@ -278,12 +290,19 @@ export default React.forwardRef((props: ServiceProps, ref) => {
                 <label
                   className="mx-1 mr-auto"
                   onClick={() => {
-                    onPortChange({ ...ports, [index]: !ports[index] });
+                    onMinimize({
+                      ...minimized,
+                      ports: minimized.ports.map((item, i) =>
+                        i === index ? !item : item
+                      ),
+                    });
                   }}
                 >
                   {`[${index}] `}
                   <FontAwesomeIcon
-                    icon={show ? faChevronDown : faChevronRight}
+                    icon={
+                      minimized.ports[index] ? faChevronDown : faChevronRight
+                    }
                   />
                 </label>
                 <FontAwesomeIcon
@@ -292,21 +311,38 @@ export default React.forwardRef((props: ServiceProps, ref) => {
                   size="lg"
                   fontSize="1rem"
                   onClick={() => {
-                    onPortChange([
-                      ...ports.slice(0, index),
-                      ...ports.slice(index + 1),
-                    ]);
+                    onMinimize({
+                      ...minimized,
+                      ports: minimized.ports.filter((item, i) => i !== index),
+                    });
+
+                    dispatch({
+                      type: `${props.writeTo}_spec_ports_del`.toUpperCase(),
+                      readFrom: `${props.readFrom}_spec_ports`,
+                      index: index,
+                    });
                   }}
                 />
               </div>
-              <Port ref={portsRef[index]} show={show} />
+              <Port
+                root={props.root}
+                show={minimized.ports[index]}
+                readFrom={`${props.readFrom}_spec_ports_${index}`}
+                writeTo={`${props.writeTo}_spec_ports`}
+              />
             </div>
           ))}
 
           <div className="container my-2">
             <a
               className="btn btn-outline-success w-100"
-              onClick={() => onPortChange([...ports, true])}
+              onClick={() => {
+                onMinimize({ ...minimized, ports: [...minimized.ports, true] });
+                dispatch({
+                  type: `${props.writeTo}_spec_ports_add`.toUpperCase(),
+                  readFrom: `${props.readFrom}_spec_ports`,
+                });
+              }}
             >
               <FontAwesomeIcon
                 className={`text-success ${styles["icon"]}`}
@@ -318,4 +354,4 @@ export default React.forwardRef((props: ServiceProps, ref) => {
       </InputTemplate>
     </div>
   );
-});
+}

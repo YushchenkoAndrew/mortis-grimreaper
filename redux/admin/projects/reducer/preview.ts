@@ -43,8 +43,8 @@ export default function (state = INIT_STATE, action: AnyAction) {
     case `${PREFIX}_IMG_UPLOADED`:
       return { ...state, img: action.value || state.img };
 
-    case `${PREFIX}_LINK_CHANGED`:
-    case `${PREFIX}_LINK_MAIN_CHANGED`:
+    case `${PREFIX}_LINKS_CHANGED`:
+    case `${PREFIX}_LINKS_MAIN_CHANGED`:
       return {
         ...state,
         links: {

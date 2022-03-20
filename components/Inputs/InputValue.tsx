@@ -1,10 +1,10 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Event } from "../../pages/admin/projects/operation";
 
 export interface InputValueProps {
   root?: string;
-  prefix: string;
+  readFrom: string;
+  writeTo?: string;
   type?: React.HTMLInputTypeAttribute;
   required?: boolean;
   placeholder?: string;
@@ -13,7 +13,7 @@ export interface InputValueProps {
 
 export default function InputValue(props: InputValueProps) {
   const value = useSelector((state: any) =>
-    props.prefix.split("_").reduce((acc, curr) => acc[curr], state)
+    props.readFrom.split("_").reduce((acc, curr) => acc[curr], state)
   );
   const dispatch = useDispatch();
 
@@ -26,7 +26,11 @@ export default function InputValue(props: InputValueProps) {
         placeholder={props.placeholder ?? ""}
         required={props.required}
         onChange={({ target: { value } }) =>
-          dispatch({ type: `${props.prefix.toUpperCase()}_CHANGED`, value })
+          dispatch({
+            type: `${(props.writeTo ?? props.readFrom).toUpperCase()}_CHANGED`,
+            readFrom: props.readFrom,
+            value: value,
+          })
         }
         onBlur={() =>
           dispatch({

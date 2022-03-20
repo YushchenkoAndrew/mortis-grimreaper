@@ -24,7 +24,7 @@ export default function DefaultPreviewFooter(props: DefaultPreviewFooterProps) {
           <InputName
             char="http://"
             root={props.prefix}
-            prefix={`${props.prefix}_links_main`}
+            readFrom={`${props.prefix}_links_main`}
             required
             placeholder={ProjectInfo.link}
           />
@@ -35,7 +35,7 @@ export default function DefaultPreviewFooter(props: DefaultPreviewFooterProps) {
             <InputDouble
               char={["$", ":"]}
               root={props.prefix}
-              prefix={[
+              readFrom={[
                 `${props.prefix}_repo_name`,
                 `${props.prefix}_repo_version`,
               ]}
@@ -61,7 +61,7 @@ export default function DefaultPreviewFooter(props: DefaultPreviewFooterProps) {
           <InputName
             char="http://"
             root={props.prefix}
-            prefix={`${props.prefix}_links_main`}
+            readFrom={`${props.prefix}_links_main`}
             placeholder={ProjectInfo.link}
             required
           />

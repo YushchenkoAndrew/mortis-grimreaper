@@ -6,6 +6,7 @@
     "dev": "next dev -p 8000",
     "build": "next build",
     "start": "next start -p 8000",
+    "cypress": "cypress open",
     "lint": "next lint"
   },
   "dependencies": {
@@ -55,6 +56,7 @@
   },
   "devDependencies": {
     "@types/react": "17.0.33",
+    "cypress": "^9.5.2",
     "eslint": "7.32",
     "eslint-config-next": "12.0.1",
     "redux-devtools-extension": "^2.13.9",

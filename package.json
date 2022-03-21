@@ -6,6 +6,7 @@
     "dev": "next dev -p 8000",
     "build": "next build",
     "start": "next start -p 8000",
+    "test": "ENV=test next dev -p 8000",
     "cypress": "cypress open",
     "lint": "next lint"
   },

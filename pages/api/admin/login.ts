@@ -21,7 +21,7 @@ function checkUserInfo(id: string, salt: string, user: string, pass: string) {
           redis.expire(id, 8.64e4);
         } else redis.incr(`LOGIN:${id}`);
 
-        if (Number(tries) >= 6) {
+        if (Number(tries) >= Number(process.env.ALLOWED_INVALID_LOGIN_REQ)) {
           sendLogs({
             stat: "ERR",
             name: "WEB",
@@ -56,7 +56,7 @@ function checkUserInfo(id: string, salt: string, user: string, pass: string) {
             status: 401,
             send: {
               status: "ERR",
-              message: `So your name is Ms.[LOGIN], huh...`,
+              message: "So your name is Mr.[LOGIN], huh...",
             },
           });
         }

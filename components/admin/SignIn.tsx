@@ -20,6 +20,7 @@ export default function SignIn(props: SignInProps) {
   function onSubmit(event: React.SyntheticEvent) {
     event.preventDefault();
     if (!localStorage.getItem("id")) {
+      reCaptchaRef.current?.reset();
       return onErrHappen("Unauthorized user: Who the heck are you ?");
     }
 
@@ -29,9 +30,10 @@ export default function SignIn(props: SignInProps) {
     };
     const captcha = reCaptchaRef.current?.getValue();
     if (!target.user.value || !target.pass.value || !captcha) {
+      reCaptchaRef.current?.reset();
       return onErrHappen(
         !captcha
-          ? `Please verify that you are not a bot`
+          ? "Please verify that you are not a bot"
           : `${!target.user.value ? "User name" : "Password"} can't be blank`
       );
     }

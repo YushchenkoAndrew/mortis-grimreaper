@@ -43,13 +43,6 @@ export default function DefaultOperationsForm(
   const [validated, setValidated] = useState(false);
   // const dispatch = useDispatch();
 
-  // const [config, onSetConfig] = useState("Preview");
-
-  // const formRef = useRef<HTMLFormElement>(null);
-  // const previewRef = useRef<PreviewRef>(null);
-  // const codeViewRef = useRef<CodeViewRef>(null);
-  // const k3sConfigRef = useRef<K3sConfigRef>(null);
-
   const onSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
     event?.preventDefault();
 

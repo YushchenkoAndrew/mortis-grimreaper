@@ -80,6 +80,7 @@ export default function DefaultCodeView(props: DefaultCodeViewProps) {
 
           <InputTemplate label="File">
             <InputFile
+              name="code_file"
               role={code.role}
               multiple
               onUpload={(value) =>

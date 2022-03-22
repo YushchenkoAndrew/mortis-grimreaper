@@ -135,7 +135,7 @@ export default function Rules(props: RulesProps) {
 
                     dispatch({
                       type: `${props.writeTo}_http_paths_del`.toUpperCase(),
-                      readFrom: `${props.readFrom}_http_paths`,
+                      readFrom: `${props.readFrom}_http_paths_${index}`,
                       index: index,
                     });
                   }}

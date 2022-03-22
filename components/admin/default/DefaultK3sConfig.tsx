@@ -1,5 +1,5 @@
 import React, { useEffect, useImperativeHandle, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { basePath } from "../../../config";
 import { ToastDefault } from "../../../config/alert";
@@ -24,6 +24,7 @@ export default React.forwardRef((props: K3sConfigProps, ref) => {
     terminal: true,
   });
 
+  const dispatch = useDispatch();
   const namespaces = useSelector(
     (state: any) => state.config.namespace as unknown[]
   );
@@ -170,7 +171,7 @@ export default React.forwardRef((props: K3sConfigProps, ref) => {
         <K3sField
           name="Namespace"
           show={minimized.namespace}
-          writeTo="config_namespace"
+          onAdd={() => dispatch({ type: "CONFIG_NAMESPACE_ADD" })}
           onHide={() =>
             onMinimize({ ...minimized, namespace: !minimized.namespace })
           }
@@ -193,7 +194,10 @@ export default React.forwardRef((props: K3sConfigProps, ref) => {
         <K3sField
           name="Deployment"
           show={minimized.deployment}
-          writeTo="config_deployment"
+          onAdd={() => {
+            dispatch({ type: "CONFIG_DEPLOYMENT_ADD" });
+            dispatch({ type: "TEMP_CONFIG_DEPLOYMENT_ADD" });
+          }}
           onHide={() =>
             onMinimize({ ...minimized, deployment: !minimized.deployment })
           }
@@ -216,7 +220,10 @@ export default React.forwardRef((props: K3sConfigProps, ref) => {
         <K3sField
           name="Service"
           show={minimized.service}
-          writeTo="config_service"
+          onAdd={() => {
+            dispatch({ type: "CONFIG_SERVICE_ADD" });
+            dispatch({ type: "TEMP_CONFIG_SERVICE_ADD" });
+          }}
           onHide={() =>
             onMinimize({ ...minimized, service: !minimized.service })
           }
@@ -239,7 +246,7 @@ export default React.forwardRef((props: K3sConfigProps, ref) => {
         <K3sField
           name="Ingress"
           show={minimized.ingress}
-          writeTo="config_ingress"
+          onAdd={() => dispatch({ type: "CONFIG_INGRESS_ADD" })}
           onHide={() =>
             onMinimize({ ...minimized, ingress: !minimized.ingress })
           }

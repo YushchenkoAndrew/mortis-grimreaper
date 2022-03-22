@@ -1,9 +1,9 @@
 import React, { useRef, useState } from "react";
-import { useDispatch } from "react-redux";
 import { convertTypes } from "../../lib/public/files";
 import { FileData } from "../../types/api";
 
 export interface InputFileProps {
+  name: string;
   role: string;
   type?: string;
   required?: boolean;
@@ -68,6 +68,7 @@ export default function InputFile(props: InputFileProps) {
           file && !props.multiple ? "btn-success" : "btn-outline-info"
         }`}
         type="button"
+        name={props.name}
         onClick={() => fileRef.current?.click()}
       >
         {file && !props.multiple ? file : "Upload"}

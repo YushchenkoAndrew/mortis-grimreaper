@@ -48,6 +48,8 @@ export default function ProjectOperation(props: ProjectOperationProps) {
   );
 }
 
+const ALLOWED_PAGES = ["edit", "add"];
+
 export const getServerSideProps = withIronSession(async function ({
   req,
 }: NextSessionArgs) {
@@ -64,9 +66,19 @@ export const getServerSideProps = withIronSession(async function ({
     };
   }
 
-  let type;
   const params = new URLSearchParams((req.url ?? "").split("?")[1] ?? "");
-  if ((type = params.get("type")) === "edit") {
+  const type = params.get("type") || "";
+  if (!ALLOWED_PAGES.includes(type)) {
+    return {
+      redirect: {
+        basePath: false,
+        destination: `${basePath}/admin/projects/operation?type=add`,
+        permanent: false,
+      },
+    };
+  }
+
+  if (type === "edit") {
     if (!params.get("name")) return { notFound: true };
 
     const { send } = await LoadProjects<ProjectData>({

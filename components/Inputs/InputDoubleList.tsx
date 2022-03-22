@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Event } from "../../pages/admin/projects/operation";
-import { LinkData } from "../../types/api";
 import InputValue from "./InputValue";
 
 export type DoubleType<Type> = {
@@ -11,29 +9,26 @@ export type DoubleType<Type> = {
 export interface InputValueProps {
   char: DoubleType<string>;
   className?: string;
-  name: DoubleType<string>;
+  root?: string;
+  readFrom: string;
+  writeTo?: string;
   type?: DoubleType<string>;
   required?: DoubleType<boolean>;
   placeholder?: DoubleType<string>;
-  onChange: (data: any) => boolean;
 }
 
 export default function InputList(props: InputValueProps) {
-  // const [data, onDataChange] = useState({} as { [name: string]: string });
-
-  const value = useSelector((state: any) =>
-    props.prefix.split("_").reduce((acc, curr) => acc[curr], state)
+  const values = useSelector((state: any) =>
+    `temp_${props.readFrom}`.split("_").reduce((acc, curr) => acc[curr], state)
   );
   const dispatch = useDispatch();
 
-  // function onChange(event: Event) {
-  //   onDataChange({
-  //     ...data,
-  //     [event.target.name]: event.target.value,
-  //   });
-  // }
+  const writeTo = `temp_${props.writeTo ?? props.readFrom}`;
+  const readFrom: DoubleType<string> = [
+    `temp_${props.readFrom}_0`,
+    `temp_${props.readFrom}_1`,
+  ];
 
-  // FIXME: !!!
   return (
     <div className={`row ${props.className ?? ""}`}>
       <div className="input-group col-md-6 order-sm-1 p-2">
@@ -42,12 +37,11 @@ export default function InputList(props: InputValueProps) {
         </div>
         <InputValue
           className="rounded-right"
-          name={props.name[0]}
-          // value={data[props.name[0]] ?? ""}
+          readFrom={readFrom[0]}
+          writeTo={writeTo}
           type={props.type?.[0]}
           required={props.required?.[0]}
           placeholder={props.placeholder?.[0]}
-          // onChange={onChange}
         />
       </div>
       <div className="input-group col-md-6 order-sm-2 p-2">
@@ -56,27 +50,39 @@ export default function InputList(props: InputValueProps) {
         </div>
         <InputValue
           className="rounded-right"
-          name={props.name[1]}
-          // value={data[props.name[1]] ?? ""}
+          readFrom={readFrom[1]}
+          writeTo={writeTo}
           type={props.type?.[1]}
           required={props.required?.[1]}
           placeholder={props.placeholder?.[1]}
-          // onChange={onChange}
         />
         <div className="input-group-append">
           <a
             className="btn btn-primary text-light"
             onClick={(e) => {
               e.preventDefault();
-              if (
-                props.onChange({
-                  [props.name[0]]: data[props.name[0]],
-                  [props.name[1]]: data[props.name[1]],
-                })
-              ) {
-                // Reset input on Success
-                onDataChange({ [props.name[0]]: "", [props.name[1]]: "" });
-              }
+              if (!values[0] || !values[1]) return;
+
+              dispatch({
+                type: `${
+                  props.writeTo ?? props.readFrom
+                }_CHANGED`.toUpperCase(),
+                readFrom: props.readFrom,
+                name: values[0],
+                value: values[1],
+              });
+
+              dispatch({
+                type: `${writeTo}_CHANGED`.toUpperCase(),
+                readFrom: readFrom[0],
+                value: "",
+              });
+
+              dispatch({
+                type: `${writeTo}_CHANGED`.toUpperCase(),
+                readFrom: readFrom[1],
+                value: "",
+              });
             }}
           >
             Create

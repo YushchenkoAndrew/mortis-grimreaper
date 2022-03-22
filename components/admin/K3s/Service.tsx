@@ -50,6 +50,12 @@ export default function Service(props: ServiceProps) {
       .reduce((acc, curr) => acc[curr], state)
   ) as unknown[];
 
+  const labels = useSelector((state: any) =>
+    `${props.readFrom}_spec_selector`
+      .split("_")
+      .reduce((acc, curr) => acc[curr], state)
+  ) as { [name: string]: string };
+
   // const [ports, onPortChange] = useState<boolean[]>([]);
   // const [portsRef, onPortRefChange] = useState<React.RefObject<PortRef>[]>([]);
 
@@ -228,20 +234,11 @@ export default function Service(props: ServiceProps) {
               }`}
             >
               <div className="container">
-                {/* <InputList
+                <InputList
                   char={["var", "="]}
-                  name={["name", "value"]}
                   placeholder={["app", "void"]}
-                  onChange={(data) => {
-                    if (!data["name"] || data["value"] === undefined) {
-                      return false;
-                    }
-                    onLabelsChange({
-                      ...labels,
-                      [data["name"]]: data["value"],
-                    });
-                    return true;
-                  }}
+                  readFrom={`${props.readFrom}_spec_selector`}
+                  writeTo={`${props.writeTo}_spec_selector`}
                 />
                 <ul className="list-group">
                   {Object.entries(labels).map(([name, value], i) => (
@@ -250,14 +247,14 @@ export default function Service(props: ServiceProps) {
                         char={["var", "="]}
                         value={[name, value]}
                         onChange={() => {
-                          let temp = { ...labels };
-                          delete temp[name];
-                          onLabelsChange(temp);
+                          // let temp = { ...labels };
+                          // delete temp[name];
+                          // onLabelsChange(temp);
                         }}
                       />
                     </div>
                   ))}
-                </ul> */}
+                </ul>
               </div>
             </div>
           </InputTemplate>
@@ -313,12 +310,12 @@ export default function Service(props: ServiceProps) {
                   onClick={() => {
                     onMinimize({
                       ...minimized,
-                      ports: minimized.ports.filter((item, i) => i !== index),
+                      ports: minimized.ports.filter((_, i) => i !== index),
                     });
 
                     dispatch({
                       type: `${props.writeTo}_spec_ports_del`.toUpperCase(),
-                      readFrom: `${props.readFrom}_spec_ports`,
+                      readFrom: `${props.readFrom}_spec_ports_${index}`,
                       index: index,
                     });
                   }}

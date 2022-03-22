@@ -5,16 +5,8 @@ import {
   faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, {
-  createRef,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-// import { Event } from "../../../pages/admin/projects/operation";
-// import { Container } from "../../../types/K3s/Deployment";
 import InputList from "../../Inputs/InputDoubleList";
 import InputName from "../../Inputs/InputName";
 import InputRadio from "../../Inputs/InputRadio";
@@ -31,10 +23,6 @@ export interface ContainerProps {
   writeTo: string;
 }
 
-// export interface ContainerRef {
-//   getValue: () => Container;
-// }
-
 export default function Container(props: ContainerProps) {
   const [minimized, onMinimize] = useState({
     resources: false,
@@ -43,18 +31,14 @@ export default function Container(props: ContainerProps) {
     ports: [] as boolean[],
   });
 
-  // const [container, onContainerChange] = useState<Container>({
-  //   name: "",
-  //   image: "",
-  //   imagePullPolicy: "Always",
-  //   ports: [],
-  //   resources: {},
-  // });
-
   const dispatch = useDispatch();
   const ports = useSelector((state: any) =>
     `${props.readFrom}_ports`.split("_").reduce((acc, curr) => acc[curr], state)
   ) as unknown[];
+
+  const env = useSelector((state: any) =>
+    `${props.readFrom}_env`.split("_").reduce((acc, curr) => acc[curr], state)
+  ) as { [name: string]: string };
 
   // function onChange({ target: { name, value } }: Event) {
   //   onContainerChange({ ...container, [name]: value });
@@ -182,8 +166,7 @@ export default function Container(props: ContainerProps) {
 
                     dispatch({
                       type: `${props.writeTo}_ports_del`.toUpperCase(),
-                      readFrom: `${props.readFrom}_ports`,
-                      index: index,
+                      readFrom: `${props.readFrom}_ports_${index}`,
                     });
                   }}
                 />
@@ -286,15 +269,11 @@ export default function Container(props: ContainerProps) {
           }`}
         >
           <div className="mb-2 mx-3">
-            {/* <InputList
+            <InputList
               char={["var", "="]}
-              name={["name", "value"]}
+              readFrom={`${props.readFrom}_env`}
+              writeTo={`${props.writeTo}_env`}
               placeholder={["USER", "admin"]}
-              onChange={(data) => {
-                if (!data["name"] || data["value"] === undefined) return false;
-                onEnvAdd({ ...env, [data["name"]]: data["value"] });
-                return true;
-              }}
             />
             <ul className="list-group">
               {Object.entries(env).map(([name, value], i) => (
@@ -303,14 +282,14 @@ export default function Container(props: ContainerProps) {
                     char={["var", "="]}
                     value={[name, value]}
                     onChange={() => {
-                      let temp = { ...env };
-                      delete temp[name];
-                      onEnvAdd(temp);
+                      // let temp = { ...env };
+                      // delete temp[name];
+                      // onEnvAdd(temp);
                     }}
                   />
                 </div>
               ))}
-            </ul> */}
+            </ul>
           </div>
         </div>
       </InputTemplate>

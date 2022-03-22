@@ -1,18 +1,31 @@
 import { AnyAction } from "redux";
 
 const PREFIX = "MAIN";
-const WINDOWS = ["Preview", "Code", "Config"];
 
-const DISABLED_WINDOW = {
-  JS: ["Config"],
-  Markdown: ["Config"],
-  Link: ["Config", "Code"],
-  Docker: [],
+const WINDOW_STATE = {
+  JS: {
+    operations: ["PREVIEW", "LINK", "FILES"],
+    disabled: ["Config"],
+  },
+  Markdown: {
+    operations: ["PREVIEW", "LINK", "FILES"],
+    disabled: ["Config"],
+  },
+  Link: {
+    operations: ["PREVIEW", "LINK"],
+    disabled: ["Config", "Code"],
+  },
+  Docker: {
+    operations: ["PREVIEW", "LINK", "FILES", "K3S"],
+    disabled: [],
+  },
 };
 
 const INIT_STATE = {
+  state: "PREVIEW",
   window: "Preview",
-  disabled: DISABLED_WINDOW.JS,
+  operations: WINDOW_STATE.JS.operations,
+  disabled: WINDOW_STATE.JS.disabled,
 };
 
 export default function (state = INIT_STATE, action: AnyAction) {
@@ -20,8 +33,22 @@ export default function (state = INIT_STATE, action: AnyAction) {
     case `${PREFIX}_WINDOW_CHANGED`:
       return { ...state, window: action.value };
 
-    case `${PREFIX}_FLAG_CHANGED`:
-      return { ...state, disabled: DISABLED_WINDOW[action.value || "Preview"] };
+    case `${PREFIX}_SUBMIT_STATE_CHANGED`:
+      return { ...state, state: action.value };
+
+    case `${PREFIX}_FLAG_CHANGED`: {
+      const len = state.operations.length;
+      const windowState = WINDOW_STATE[action.value || "Preview"];
+      return {
+        ...state,
+        state:
+          state.state === "END" && windowState.operations.length > len
+            ? windowState.operations[len]
+            : state,
+        operations: windowState.operations,
+        disabled: windowState.disabled,
+      };
+    }
 
     default:
       return state;

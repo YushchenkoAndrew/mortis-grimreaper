@@ -3,7 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 
 export interface InputTextProps {
   root?: string;
-  prefix: string;
+  readFrom: string;
+  writeTo?: string;
   rows?: number;
   required?: boolean;
   placeholder?: string;
@@ -11,7 +12,7 @@ export interface InputTextProps {
 
 export default function InputText(props: InputTextProps) {
   const value = useSelector((state: any) =>
-    props.prefix.split("_").reduce((acc, curr) => acc[curr], state)
+    props.readFrom.split("_").reduce((acc, curr) => acc[curr], state)
   );
   const dispatch = useDispatch();
 
@@ -19,12 +20,16 @@ export default function InputText(props: InputTextProps) {
     <div className="input-group">
       <textarea
         value={value}
+        name={props.writeTo ?? props.readFrom}
         className="form-control rounded"
         placeholder={props.placeholder ?? ""}
         rows={props.rows ?? 3}
         required={props.required}
         onChange={({ target: { value } }) =>
-          dispatch({ type: `${props.prefix.toUpperCase()}_CHANGED`, value })
+          dispatch({
+            type: `${props.writeTo ?? props.readFrom}_CHANGED`.toUpperCase(),
+            value,
+          })
         }
         onBlur={() =>
           dispatch({

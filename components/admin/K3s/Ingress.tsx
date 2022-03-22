@@ -236,7 +236,7 @@ export default function Ingress(props: IngressProps) {
 
                         dispatch({
                           type: `${props.writeTo}_spec_rules_del`.toUpperCase(),
-                          readFrom: `${props.readFrom}_spec_rules`,
+                          readFrom: `${props.readFrom}_spec_rules_${index}`,
                           index: index,
                         });
                       }}

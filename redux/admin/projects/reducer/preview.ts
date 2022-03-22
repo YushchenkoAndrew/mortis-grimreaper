@@ -5,6 +5,7 @@ import { CacheId } from "../../../../lib/public";
 const PREFIX = "PREVIEW";
 
 const INIT_STATE = {
+  id: -1,
   name: "",
   flag: "JS",
   title: "",
@@ -21,6 +22,14 @@ export default function (state = INIT_STATE, action: AnyAction) {
   switch (action.type as string) {
     case `${PREFIX}_INIT`:
       return action.data || state;
+
+    case `${PREFIX}_ID_CHANGED`: {
+      const value = Number(action.value);
+      return {
+        ...state,
+        id: Number.isNaN(value) ? state.id : value,
+      };
+    }
 
     case `${PREFIX}_NAME_CHANGED`:
       return {
@@ -54,6 +63,24 @@ export default function (state = INIT_STATE, action: AnyAction) {
             ""
           ),
         },
+      };
+
+    case `${PREFIX}_LINKS_DEL`:
+      return {
+        ...state,
+        links: Object.entries(state.links).reduce(
+          (acc, [key, item]) => (
+            key == action.value ? acc : (acc[key] = item), acc
+          ),
+          {}
+        ),
+        // links: {
+        //   ...state.links,
+        //   [action.name ?? "main"]: action.value.replace(
+        //     /http:\/\/|https:\/\//g,
+        //     ""
+        //   ),
+        // },
       };
 
     case `${PREFIX}_REPO_NAME_CHANGED`:

@@ -22,6 +22,7 @@ export default function InputValue(props: InputValueProps) {
       <input
         value={value}
         type={props.type ?? "text"}
+        name={props.writeTo ?? props.readFrom}
         className={`form-control ${props.className}`}
         placeholder={props.placeholder ?? ""}
         required={props.required}

@@ -1,5 +1,5 @@
 import { AnyAction } from "redux";
-import { UpdateK3sConfig } from "../../../../lib/public/k3s";
+import { DeleteK3sConfig, UpdateK3sConfig } from "../../../../lib/public/k3s";
 import { Service } from "../../../../types/K3s/Service";
 import { GetDynamicParams } from "./namespace";
 
@@ -27,6 +27,20 @@ export default function (state = INIT_STATE, action: AnyAction) {
           },
         },
       ];
+
+    case `${PREFIX}_SPEC_SELECTOR_CHANGED`: {
+      const path = `${action.readFrom}_${action.name}`
+        .replace(`${PREFIX}_${index[0]}_`.toLowerCase(), "")
+        .split("_");
+
+      return state.map((item, i) =>
+        i != index[0]
+          ? item
+          : UpdateK3sConfig(item, path.join("_"), {
+              [action.name]: action.value,
+            })
+      );
+    }
 
     case `${PREFIX}_METADATA_NAME_CHANGED`:
     case `${PREFIX}_METADATA_NAMESPACE_CHANGED`:
@@ -81,6 +95,17 @@ export default function (state = INIT_STATE, action: AnyAction) {
               },
             ])
       );
+
+    case `${PREFIX}_SPEC_PORTS_DEL`: {
+      const path = action.readFrom.replace(
+        `${PREFIX}_${index[0]}_`.toLowerCase(),
+        ""
+      );
+
+      return state.map((item, i) =>
+        i != index[0] ? item : DeleteK3sConfig(item, path)
+      );
+    }
 
     // case `${PREFIX}_CACHED`:
     //   fetch(`${basePath}/api/projects/cache?id=${CacheId(PREFIX)}`, {

@@ -12,10 +12,10 @@ import styles from "./Default.module.css";
 export interface K3sFieldProps {
   name: string;
   show?: boolean;
-  writeTo?: string;
-  add?: boolean;
-  del?: boolean;
-  // onAdd?: () => void;
+  // writeTo?: string;
+  // add?: boolean;
+  // del?: boolean;
+  onAdd?: () => void;
   // onDel?: () => void;
   onHide?: () => void;
   children?: React.ReactNode;
@@ -49,12 +49,11 @@ export default function K3sField(props: K3sFieldProps) {
             />
           </span>
           <div className="row mr-1">
-            {props.writeTo ? (
+            {props.onAdd ? (
               <a
                 className={`mr-1 btn btn-outline-info ${styles["el-container-2"]}`}
-                onClick={() =>
-                  dispatch({ type: `${props.writeTo}_add`.toUpperCase() })
-                }
+                onClick={props.onAdd}
+                // dispatch({ type: `${props.writeTo}_add`.toUpperCase() })
               >
                 <FontAwesomeIcon
                   className={`text-info ${styles["icon"]}`}

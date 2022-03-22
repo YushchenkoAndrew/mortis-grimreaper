@@ -6,7 +6,10 @@ export function GetDynamicParams(type: string, readFrom: string) {
   return type
     .split("_")
     .slice(0, -1)
-    .reduce((acc, curr) => acc.replace(curr.toLowerCase(), ""), readFrom)
+    .reduce(
+      (acc, curr) => acc.replace(curr.toLowerCase(), ""),
+      readFrom.toLowerCase()
+    )
     .split("_")
     .filter((item) => item)
     .map((item) => Number(item));

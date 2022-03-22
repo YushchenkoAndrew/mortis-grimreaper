@@ -85,7 +85,7 @@ export default function DefaultPreview(props: DefaultPreviewProps) {
           <InputTemplate className="mb-3" label="Description">
             <InputText
               root={PREFIX}
-              prefix={`${PREFIX}_desc`}
+              readFrom={`${PREFIX}_desc`}
               placeholder={ProjectInfo.desc}
               required
             />
@@ -94,6 +94,7 @@ export default function DefaultPreview(props: DefaultPreviewProps) {
           <div className="input-group d-flex justify-content-between">
             <InputTemplate className="mb-3" label="Image">
               <InputFile
+                name="preview_thumbnail"
                 role="thumbnail"
                 onUpload={(files) => {
                   dispatch({
@@ -136,7 +137,7 @@ export default function DefaultPreview(props: DefaultPreviewProps) {
       </div>
 
       <hr />
-      <DefaultPreviewFooter prefix={PREFIX} />
+      <DefaultPreviewFooter root={PREFIX} readFrom={PREFIX} />
     </div>
   );
 }

@@ -43,6 +43,12 @@ export default function Deployment(props: DeploymentProps) {
     containers: [] as boolean[],
   });
 
+  const labels = useSelector((state: any) =>
+    `${props.readFrom}_spec_selector_matchLabels`
+      .split("_")
+      .reduce((acc, curr) => acc[curr], state)
+  ) as { [name: string]: string };
+
   const dispatch = useDispatch();
   const containers = useSelector((state: any) =>
     `${props.readFrom}_spec_template_spec_containers`
@@ -133,7 +139,6 @@ export default function Deployment(props: DeploymentProps) {
               root={props.root}
               readFrom={`${props.readFrom}_metadata_name`}
               writeTo={`${props.writeTo}_metadata_name`}
-              // params={{ index: props.index }}
               placeholder="void-deployment"
               // name="name"
               // value={deployment.metadata?.name ?? ""}
@@ -157,7 +162,6 @@ export default function Deployment(props: DeploymentProps) {
                 root={props.root}
                 readFrom={`${props.readFrom}_metadata_namespace`}
                 writeTo={`${props.writeTo}_metadata_namespace`}
-                // params={{ index: props.index }}
                 placeholder="demo"
                 // name="namespace"
                 // value={deployment.metadata?.namespace ?? ""}
@@ -199,13 +203,10 @@ export default function Deployment(props: DeploymentProps) {
               <div className="input-group">
                 <InputName
                   char="$"
-                  // name="replicas"
                   required
-                  // value={`${deployment.spec?.replicas ?? ""}`}
                   root={props.root}
                   readFrom={`${props.readFrom}_spec_replicas`}
                   writeTo={`${props.writeTo}_spec_replicas`}
-                  // params={{ index: props.index }}
                   placeholder="1"
                   // onChange={({ target: { name, value } }) => {
                   //   onDeploymentChange({
@@ -258,20 +259,11 @@ export default function Deployment(props: DeploymentProps) {
               }`}
             >
               <div className="container px-2">
-                {/* <InputList
+                <InputList
                   char={["var", "="]}
-                  name={["name", "value"]}
+                  readFrom={`${props.readFrom}_spec_selector_matchLabels`}
+                  writeTo={`${props.writeTo}_spec_selector_matchLabels`}
                   placeholder={["app", "void"]}
-                  onChange={(data) => {
-                    if (!data["name"] || data["value"] === undefined) {
-                      return false;
-                    }
-                    onLabelsChange({
-                      ...labels,
-                      [data["name"]]: data["value"],
-                    });
-                    return true;
-                  }}
                 />
                 <ul className="list-group">
                   {Object.entries(labels).map(([name, value], i) => (
@@ -280,14 +272,14 @@ export default function Deployment(props: DeploymentProps) {
                         char={["var", "="]}
                         value={[name, value]}
                         onChange={() => {
-                          let temp = { ...labels };
-                          delete temp[name];
-                          onLabelsChange(temp);
+                          // let temp = { ...labels };
+                          // delete temp[name];
+                          // onLabelsChange(temp);
                         }}
                       />
                     </div>
                   ))}
-                </ul> */}
+                </ul>
               </div>
             </div>
           </InputTemplate>
@@ -354,8 +346,7 @@ export default function Deployment(props: DeploymentProps) {
 
                     dispatch({
                       type: `${props.writeTo}_spec_template_spec_containers_del`.toUpperCase(),
-                      readFrom: `${props.readFrom}_spec_template_spec_containers`,
-                      index: index,
+                      readFrom: `${props.readFrom}_spec_template_spec_containers_${index}`,
                     });
                   }}
                 />
@@ -381,6 +372,11 @@ export default function Deployment(props: DeploymentProps) {
                 dispatch({
                   type: `${props.writeTo}_spec_template_spec_containers_add`.toUpperCase(),
                   readFrom: `${props.readFrom}_spec_template_spec_containers`,
+                });
+
+                dispatch({
+                  type: `temp_${props.writeTo}_spec_template_spec_containers_add`.toUpperCase(),
+                  readFrom: `temp_${props.readFrom}_spec_template_spec_containers`,
                 });
               }}
             >

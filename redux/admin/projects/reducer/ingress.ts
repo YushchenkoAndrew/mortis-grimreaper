@@ -1,5 +1,5 @@
 import { AnyAction } from "redux";
-import { UpdateK3sConfig } from "../../../../lib/public/k3s";
+import { DeleteK3sConfig, UpdateK3sConfig } from "../../../../lib/public/k3s";
 import { Ingress } from "../../../../types/K3s/Ingress";
 import { GetDynamicParams } from "./namespace";
 
@@ -87,6 +87,17 @@ export default function (state = INIT_STATE, action: AnyAction) {
             ])
       );
 
+    case `${PREFIX}_SPEC_RULES_DEL`: {
+      const path = action.readFrom.replace(
+        `${PREFIX}_${index[0]}_`.toLowerCase(),
+        ""
+      );
+
+      return state.map((item, i) =>
+        i != index[0] ? item : DeleteK3sConfig(item, path)
+      );
+    }
+
     case `${PREFIX}_SPEC_RULES_HTTP_PATHS_ADD`: {
       const path = action.readFrom.replace(
         `${PREFIX}_${index[0]}_`.toLowerCase(),
@@ -106,6 +117,16 @@ export default function (state = INIT_STATE, action: AnyAction) {
                 },
               },
             ])
+      );
+    }
+    case `${PREFIX}_SPEC_RULES_HTTP_PATHS_DEL`: {
+      const path = action.readFrom.replace(
+        `${PREFIX}_${index[0]}_`.toLowerCase(),
+        ""
+      );
+
+      return state.map((item, i) =>
+        i != index[0] ? item : DeleteK3sConfig(item, path)
       );
     }
 

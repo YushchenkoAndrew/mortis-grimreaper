@@ -41,6 +41,7 @@ export default function InputRadio(props: InputRadioProps) {
               <input
                 type="radio"
                 value={item}
+                name={`${props.writeTo ?? props.readFrom}_${item}`}
                 key={md5(item + Math.random().toString())}
                 autoComplete="off"
                 checked={value === item}

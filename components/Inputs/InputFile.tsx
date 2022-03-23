@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { convertTypes } from "../../lib/public/files";
+import { allowedReader, convertTypes } from "../../lib/public/files";
 import { FileData } from "../../types/api";
 
 export interface InputFileProps {
@@ -20,6 +20,7 @@ export default function InputFile(props: InputFileProps) {
       <input
         type="file"
         ref={fileRef}
+        name={props.name}
         className="d-none"
         required={props.required}
         multiple={props.multiple}
@@ -44,14 +45,19 @@ export default function InputFile(props: InputFileProps) {
           }
 
           function CreateReader(param: string, func: string) {
-            return function ReadFiles(i: number) {
-              return new Promise((resolve) => {
+            return function ReadFiles(i: number): Promise<void> {
+              return new Promise<void>((resolve) => {
+                if (!allowedReader[func].includes(files[i].type)) {
+                  if (++i == files.length) return resolve();
+                  return ReadFiles(i).finally(() => resolve());
+                }
+
                 let reader = new FileReader();
                 reader[func](files[i].file || new Blob());
                 reader.onloadend = (e) => {
                   files[i][param] = String(reader.result);
-                  if (++i == files.length) return resolve(true);
-                  return ReadFiles(i).finally(() => resolve(true));
+                  if (++i == files.length) return resolve();
+                  return ReadFiles(i).finally(() => resolve());
                 };
               });
             };
@@ -68,7 +74,6 @@ export default function InputFile(props: InputFileProps) {
           file && !props.multiple ? "btn-success" : "btn-outline-info"
         }`}
         type="button"
-        name={props.name}
         onClick={() => fileRef.current?.click()}
       >
         {file && !props.multiple ? file : "Upload"}

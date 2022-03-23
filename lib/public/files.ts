@@ -16,12 +16,41 @@ export const convertTypes = {
   "x-application/x-javascript": "text/javascript",
 };
 
+export const allowedReader = {
+  readAsDataURL: [
+    "image/gif",
+    "image/jpg",
+    "image/jpeg",
+    "image/webp",
+    "image/png",
+    "font/ttf",
+  ],
+  readAsText: [
+    "text/markdown",
+    "text/html",
+    "text/css",
+    "text/javascript",
+    "text/dockerfile",
+    "text/yaml",
+    "application/json",
+  ],
+};
+
 export function formFile(file: FileData) {
   return !file.content
     ? (file.file as File)
     : new File([new Blob([file.content], { type: file.type })], file.name, {
         type: file.type,
       });
+}
+export function getFile(
+  tree: TreeObj,
+  path: string[],
+  i: number = 0
+): FileData | null {
+  if (!tree[path[i]]) return null;
+  if (path.length === i + 1) return tree[path[i]] as FileData;
+  return getFile(tree[path[i]] as TreeObj, path, i + 1);
 }
 
 export function addFile(

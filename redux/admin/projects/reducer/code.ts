@@ -3,7 +3,7 @@ import { basePath } from "../../../../config";
 import { CODE_TEMPLATE } from "../../../../config/placeholder";
 // import { codeTemplate } from "../../../../config/placeholder";
 import { CacheId } from "../../../../lib/public";
-import { addFile } from "../../../../lib/public/files";
+import { addFile, getFile } from "../../../../lib/public/files";
 import { parseHTML } from "../../../../lib/public/markers";
 import { FileData } from "../../../../types/api";
 import { TreeObj } from "../../../../types/tree";
@@ -44,15 +44,7 @@ export default function (state = INIT_STATE, action: AnyAction) {
       return { ...state, dir: action.value };
 
     case `${PREFIX}_PATH_CHANGED`: {
-      const file = (function GetFile(
-        tree: TreeObj,
-        i: number
-      ): FileData | null {
-        if (!tree[action.value[i]]) return null;
-        if (action.value.length === i + 1)
-          return tree[action.value[i]] as FileData;
-        return GetFile(tree[action.value[i]] as TreeObj, i + 1);
-      })(state.tree, 0);
+      const file = getFile(state.tree, action.value as string[], 0);
       return {
         ...state,
         path: action.value.join("/"),
@@ -78,8 +70,31 @@ export default function (state = INIT_STATE, action: AnyAction) {
         ),
       };
 
-    case `${PREFIX}_CONTENT_CHANGED`:
-      return { ...state, content: action.value };
+    case `${PREFIX}_CONTENT_CHANGED`: {
+      const file = getFile(
+        state.tree,
+        state.path.split("/").filter((item) => item)
+      );
+
+      if (!file) return state;
+      return {
+        ...state,
+        content: action.value,
+        tree: addFile(
+          state.tree,
+          {
+            dir: file.path,
+            role: file.role,
+          },
+          [
+            {
+              ...file,
+              content: action.value,
+            },
+          ]
+        ),
+      };
+    }
 
     case `${PREFIX}_FLAG_CHANGED`: {
       const file = CODE_TEMPLATE[action.value || "Preview"];

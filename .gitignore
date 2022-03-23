@@ -15,6 +15,8 @@
 # production
 build/
 
+**/downloads
+
 # misc
 .DS_Store
 *.pem

@@ -40,4 +40,18 @@ Cypress.Commands.add("login", (user, pass, recaptcha, err) => {
   }
 });
 
-Cypress.Commands.add("invalidUser", () => {});
+Cypress.Commands.add(
+  "checkInputValue",
+  (name, value, required = false, expect = null) => {
+    cy.get(`input[name=${name}]`)
+      .parent("div")
+      .within(() => {
+        if (required) cy.get("div").should("be.visible");
+        cy.get("input")
+          .clear()
+          .type(value)
+          .should("have.value", expect ?? value)
+          .blur();
+      });
+  }
+);

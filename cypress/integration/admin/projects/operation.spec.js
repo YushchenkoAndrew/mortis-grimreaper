@@ -10,7 +10,7 @@ describe("Check different operations on projects", () => {
     cy.visit("/admin/projects/operation");
     cy.url().should("include", "?type=add");
 
-    const projectName = "test_js5";
+    const projectName = "test_js14";
 
     // Check if submit will failed on empty data
     cy.get("button[type=submit]").realClick();
@@ -94,11 +94,21 @@ describe("Check different operations on projects", () => {
     // Start checking Code window
     cy.get("input[name=main_window_Code]").realClick();
 
+    // Add simple src file
+    cy.get("input[name=code_dir]").clear();
+    cy.get("input[name=code_role_src]").realClick();
+    cy.get("input[name=code_file]")
+      .attachFile("../downloads/test.html")
+      .wait(1000);
+
+    cy.get("input[name=code_role_assets]").realClick();
     cy.get("input[name=code_dir]").clear().type("test").blur();
-    cy.get("input[name=code_file]").attachFile([
-      "../downloads/E1KMKoDVgAM5zII.jpg",
-      "../downloads/5ca927abbd24b66dc7f8ca79d7357356.jpg",
-    ]);
+    cy.get("input[name=code_file]")
+      .attachFile([
+        "../downloads/E1KMKoDVgAM5zII.jpg",
+        "../downloads/5ca927abbd24b66dc7f8ca79d7357356.jpg",
+      ])
+      .wait(1000);
 
     // Check if uploaded files has been visible in the TreeViewer
     cy.get("ul[class^=TreeView]").within(() => {
@@ -106,17 +116,44 @@ describe("Check different operations on projects", () => {
       cy.contains("E1KMKoDVgAM5zII.jpg").should("exist");
       cy.contains("5ca927abbd24b66dc7f8ca79d7357356.jpg").should("exist");
 
+      // cy.contains("thumbnail").parent();
       cy.contains("thumbnail").parent().realClick();
       cy.contains("thumbnail")
         .parent()
         .contains("E1KMKoDVgAM5zII.jpg")
         .should("exist");
+
+      // cy.contains("src").parent().;
+      cy.contains("src").parent().realClick();
+      cy.contains("src").parent().contains("test.html").should("exist");
+
+      cy.contains("template").parent().realClick();
+      cy.contains("template")
+        .parent()
+        .contains("index.html")
+        .should("exist")
+        .realClick();
     });
 
     cy.get("#code-area")
       .clear()
       .type(
-        `<!DOCTYPE html><html><body><div id="HEADER"></div><div id="BODY"><img src="{{FILE_SERVER}}/{{PROJECT_NAME}}/assets/E1KMKoDVgAM5zII.jpg" alt="test1"><img src="{{FILE_SERVER}}/{{PROJECT_NAME}}/assets/5ca927abbd24b66dc7f8ca79d7357356.jpg" alt="test1"></div><div id="FOOTER"></div></body></html>`,
+        `<!DOCTYPE html><html><body><div id="HEADER"></div><div id="BODY"><a href="{{FILE_SERVER}}/{{PROJECT_NAME}}/src/test.html">HELLO WORLD</a><img src="{{FILE_SERVER}}/{{PROJECT_NAME}}/assets/E1KMKoDVgAM5zII.jpg" alt="test1"><img src="{{FILE_SERVER}}/{{PROJECT_NAME}}/assets/5ca927abbd24b66dc7f8ca79d7357356.jpg" alt="test1"></div><div id="FOOTER"></div></body></html>`,
+        { parseSpecialCharSequences: false }
+      );
+
+    cy.get("ul[class^=TreeView]")
+      .contains("src")
+      .parent()
+      .contains("test.html")
+      .parent()
+      .realClick();
+
+    // Add new code to the src/test.html
+    cy.get("#code-area")
+      .clear()
+      .type(
+        `<!DOCTYPE html><html><body><div id="HEADER"></div><div id="BODY">HELLO WORLD</div><div id="FOOTER"></div></body></html>`,
         { parseSpecialCharSequences: false }
       );
 
@@ -132,10 +169,18 @@ describe("Check different operations on projects", () => {
       .should("eq", 200);
 
     cy.visit("/" + projectName);
+
     cy.get(`img[src$="/assets/E1KMKoDVgAM5zII.jpg"]`).should("exist");
     cy.get(`img[src$="/assets/5ca927abbd24b66dc7f8ca79d7357356.jpg"]`).should(
       "exist"
     );
+
+    cy.contains("HELLO WORLD")
+      .should("have.prop", "href")
+      .and("include", "/test.html");
+
+    cy.contains("HELLO WORLD").click();
+    cy.get("#BODY").should("have.text", "HELLO WORLD");
   });
 
   it("Check creation of Markdown project", () => {

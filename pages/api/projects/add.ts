@@ -10,6 +10,7 @@ import { ApiRes, ApiError, ProjectData } from "../../../types/api";
 import { DefaultRes, FullResponse } from "../../../types/request";
 
 function AddProject(body: string) {
+  console.log(body);
   return new Promise<FullResponse>((resolve, reject) => {
     ApiAuth()
       .then((access) => {
@@ -67,7 +68,7 @@ export default withIronSession(async function (
   const id = GetParam(req.query.id);
   const body = REQUIRED_FIELDS.filter(
     (key) => key in req.body && req.body[key]
-  ).reduce((acc, curr) => (acc[curr] = req.body[curr]), {
+  ).reduce((acc, curr) => ((acc[curr] = req.body[curr]), acc), {
     note: "Damn it, guess I forgot to put some context here",
   });
 

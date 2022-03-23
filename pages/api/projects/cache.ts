@@ -34,6 +34,10 @@ function GetData(id: string) {
 
 function SaveData(id: string, data: string) {
   return new Promise<FullResponse>((resolve) => {
+    console.log(
+      `Before - ${data.length}; After - ${compressToBase64(data).length}`
+    );
+
     redis
       .set(`CACHE:${id}`, compressToBase64(data))
       .finally(() => redis.expire(`CACHE:${id}`, 300));

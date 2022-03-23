@@ -31,11 +31,10 @@ export default function InputText(props: InputTextProps) {
             value,
           })
         }
-        onBlur={() =>
-          dispatch({
-            type: `${props.root ?? ""}_CACHED`.toUpperCase().replace(/^_/, ""),
-          })
-        }
+        onBlur={() => {
+          if (!props.root) return;
+          dispatch({ type: `${props.root}_CACHED`.toUpperCase() });
+        }}
       />
       {props.required ? (
         <div className="invalid-tooltip">This field is required</div>

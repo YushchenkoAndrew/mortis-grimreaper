@@ -68,8 +68,8 @@ export default function InputList(props: InputValueProps) {
                   props.writeTo ?? props.readFrom
                 }_CHANGED`.toUpperCase(),
                 readFrom: props.readFrom,
-                name: values[0],
-                value: values[1],
+                name: values[1],
+                value: values[0],
               });
 
               dispatch({
@@ -83,6 +83,9 @@ export default function InputList(props: InputValueProps) {
                 readFrom: readFrom[1],
                 value: "",
               });
+
+              if (!props.root) return;
+              dispatch({ type: `${props.root}_CACHED`.toUpperCase() });
             }}
           >
             Create

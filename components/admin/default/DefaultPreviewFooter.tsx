@@ -62,7 +62,7 @@ export default function DefaultPreviewFooter(props: DefaultPreviewFooterProps) {
         <InputTemplate className="mb-3" label="Link">
           <InputName
             char="http://"
-            root={props.readFrom}
+            root={props.root}
             readFrom={`${props.readFrom}_links_main`}
             placeholder={ProjectInfo.link}
             required
@@ -71,6 +71,7 @@ export default function DefaultPreviewFooter(props: DefaultPreviewFooterProps) {
 
         <InputTemplate className="mb-3" label="Additional Links">
           <InputList
+            root={props.root}
             char={["http://", "@"]}
             readFrom={`${props.readFrom}_links`}
             placeholder={[ProjectInfo.link, ProjectInfo.name]}
@@ -83,7 +84,7 @@ export default function DefaultPreviewFooter(props: DefaultPreviewFooterProps) {
                 <div key={i} className="row">
                   <ListEntity
                     char={["http://", "@"]}
-                    value={[name, link]}
+                    value={[link, name]}
                     onChange={() => {
                       dispatch({
                         type: `${props.readFrom}_links_del`.toUpperCase(),

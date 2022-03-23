@@ -122,6 +122,11 @@ export default withIronSession(async function (
     });
   }
 
+  let links = [] as LinkData[];
+  for (let key in body) {
+    links.push({ name: key, link: body[key] });
+  }
+
   // let links = { add: [] as LinkData[], edit: [] as LinkData[] };
   // for (let i in body) {
   //   if (body[i].id !== undefined) links.edit.push(body[i]);
@@ -130,10 +135,13 @@ export default withIronSession(async function (
 
   // FIXME: body will contain only new and requried data
   // there for I'll need to override all LinkData with projectId
-  // const { status, send } = await SendData({ id, links });
+  const { status, send } = await SendData({
+    id,
+    links: { add: links, edit: [] },
+  });
 
-  // if (send.status == "OK") FlushValue("Project");
-  // res.status(status).send(send);
-  res.status(200).send({ status: "ERR", message: "Not implemented" });
+  if (send.status == "OK") FlushValue("Project");
+  res.status(status).send(send);
+  // res.status(200).send({ status: "ERR", message: "Not implemented" });
 },
 sessionConfig);

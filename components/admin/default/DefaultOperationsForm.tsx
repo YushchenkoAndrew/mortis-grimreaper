@@ -37,10 +37,10 @@ export default function DefaultOperationsForm(
   const [validated, setValidated] = useState(false);
   const dispatch = useDispatch();
 
-  function SubmitStateMachine(state: string) {
+  function SubmitStateMachine(state: string, id: number) {
     switch (state) {
       case "PREVIEW":
-        return new Promise<void>((resolve, reject) => {
+        return new Promise<number>((resolve, reject) => {
           const toastId = toast.loading("Please wait...");
           fetch(`${basePath}/api/projects/${props.type}?id=${CacheId()}`, {
             method: "POST",
@@ -57,11 +57,11 @@ export default function DefaultOperationsForm(
                 });
               }
 
-              resolve();
               dispatch({
                 type: "PREVIEW_ID_CHANGED",
                 value: data.result[0].id,
               });
+              resolve(data.result[0].id as number);
               toast.update(toastId, {
                 render: "Project: Record is created",
                 type: "success",
@@ -79,9 +79,9 @@ export default function DefaultOperationsForm(
         });
 
       case "LINK":
-        return new Promise<void>((resolve, reject) => {
+        return new Promise<number>((resolve, reject) => {
           const toastId = toast.loading("Please wait...");
-          fetch(`${basePath}/api/link/add?id=${root.preview.id}`, {
+          fetch(`${basePath}/api/link/add?id=${id}`, {
             method: "POST",
             headers: { "content-type": "application/json" },
             body: JSON.stringify(root.preview.links),
@@ -91,12 +91,12 @@ export default function DefaultOperationsForm(
               if (data.status !== "OK") {
                 return reject({
                   id: toastId,
-                  state: "PREVIEW",
+                  state: "LINK",
                   message: data.message,
                 });
               }
 
-              resolve();
+              resolve(id);
               return toast.update(toastId, {
                 render: `Link: ${data.message}`,
                 type: "success",
@@ -115,14 +115,16 @@ export default function DefaultOperationsForm(
 
       case "FILES":
         return (function parseTree(tree: TreeObj | FileData | null) {
-          return new Promise<void>(async (resolve, reject) => {
+          return new Promise<number>(async (resolve, reject) => {
             // Check if obj is FileData and if File not exist then break
-            if (!tree?.name || !tree.file) {
-              if (tree && tree.name) return resolve();
+            if (!tree?.name) {
+              if (tree && tree.name) return resolve(id);
+              console.log(Object.entries(tree || {}));
+
               for (let [_, value] of Object.entries(tree || {})) {
                 await parseTree(value);
               }
-              return resolve();
+              return resolve(id);
             }
 
             const toastId = toast.loading("Please wait...");
@@ -130,7 +132,7 @@ export default function DefaultOperationsForm(
             body.append("file", formFile(tree as FileData));
 
             return fetch(
-              `${basePath}/api/file/add?id=${root.preview.id}&project=${
+              `${basePath}/api/file/add?id=${id}&project=${
                 root.preview.name
               }&role=${tree.role}${getPath(tree.path as string | undefined)}${
                 tree.id ? `&file_id=${tree.id}` : ""
@@ -147,7 +149,7 @@ export default function DefaultOperationsForm(
                   });
                 }
 
-                resolve();
+                resolve(id);
                 toast.update(toastId, {
                   render: `File [${tree.name}]: ${data.message}`,
                   type: "success",
@@ -166,10 +168,10 @@ export default function DefaultOperationsForm(
         })(root.code.tree);
 
       case "K3S":
-        return new Promise<void>((resolve) => resolve());
+        return new Promise<number>((resolve) => resolve(id));
 
       default:
-        return new Promise<void>((resolve) => resolve());
+        return new Promise<number>((resolve) => resolve(id));
     }
   }
 
@@ -194,8 +196,9 @@ export default function DefaultOperationsForm(
             });
           }
 
+          let id = root.preview.id;
           for (let state of root.main.operations.slice(index)) {
-            await SubmitStateMachine(state);
+            id = await SubmitStateMachine(state, id);
           }
 
           dispatch({ type: "MAIN_SUBMIT_STATE_CHANGED", value: "END" });

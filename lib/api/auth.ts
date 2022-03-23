@@ -33,12 +33,12 @@ export function DeleteTokens() {
 
 export function ApiAuth() {
   return new Promise<string>((resolve, reject) => {
-    redis.get("API:Access", (err, reply) => {
-      if (!err && reply) return resolve(reply);
+    redis.get("API:Access").then((reply) => {
+      if (reply) return resolve(reply);
 
       // If Access token expired, then refresh token
-      redis.get("API:Refresh", (err, reply) => {
-        if (!err && reply) {
+      redis.get("API:Refresh").then((reply) => {
+        if (reply) {
           return fetch(`${apiUrl}/refresh`, {
             method: "POST",
             headers: {

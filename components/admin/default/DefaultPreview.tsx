@@ -60,6 +60,7 @@ export default function DefaultPreview(props: DefaultPreviewProps) {
         </div>
         <div className="col-md-7 order-md-1">
           <h4 className="font-weight-bold mb-3">Thumbnail</h4>
+          {/* TODO: Check before sending request if such name already exists */}
           <InputTemplate className="mb-3" label="Name">
             <InputName
               root={PREFIX}
@@ -105,7 +106,7 @@ export default function DefaultPreview(props: DefaultPreviewProps) {
                   dispatch({
                     type: "CODE_FILE_UPLOADED",
                     value: files,
-                    info: { path: "", role: "" },
+                    info: { dir: "", role: "" },
                   });
                 }}
                 type="image/*"

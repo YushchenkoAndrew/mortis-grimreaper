@@ -30,6 +30,11 @@ const INIT_STATE = {
 
 export default function (state = INIT_STATE, action: AnyAction) {
   switch (action.type) {
+    // TODO:
+    // * SAVE main value in cache !!!
+    // * Delete all cache after some specific request
+    // * Revisit some api routes and delete func 'FlushValue'
+
     case `${PREFIX}_WINDOW_CHANGED`:
       return { ...state, window: action.value };
 
@@ -44,7 +49,7 @@ export default function (state = INIT_STATE, action: AnyAction) {
         state:
           state.state === "END" && windowState.operations.length > len
             ? windowState.operations[len]
-            : state,
+            : state.state,
         operations: windowState.operations,
         disabled: windowState.disabled,
       };

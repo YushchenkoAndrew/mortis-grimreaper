@@ -22,7 +22,7 @@ export default function InputValue(props: InputValueProps) {
       <input
         value={value}
         type={props.type ?? "text"}
-        name={props.writeTo ?? props.readFrom}
+        name={props.readFrom}
         className={`form-control ${props.className}`}
         placeholder={props.placeholder ?? ""}
         required={props.required}
@@ -33,11 +33,10 @@ export default function InputValue(props: InputValueProps) {
             value: value,
           })
         }
-        onBlur={() =>
-          dispatch({
-            type: `${props.root ?? ""}_CACHED`.toUpperCase().replace(/^_/, ""),
-          })
-        }
+        onBlur={() => {
+          if (!props.root) return;
+          dispatch({ type: `${props.root}_CACHED`.toUpperCase() });
+        }}
       />
       {props.required ? (
         <div className="invalid-tooltip">This field is required</div>

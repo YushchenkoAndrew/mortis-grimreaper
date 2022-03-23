@@ -40,6 +40,7 @@ describe("Admin login page", () => {
   });
 
   it("Check admin auth", () => {
+    cy.visit("/admin");
     cy.wait(5000);
 
     cy.login("", "", false, "Please verify that you are not a bot");
@@ -57,5 +58,23 @@ describe("Admin login page", () => {
 
     cy.visit("/admin/login");
     cy.url().should("not.include", "/admin/login");
+  });
+
+  it("Check admin logout", () => {
+    cy.visit("/admin");
+    cy.url().should("include", "/admin/login");
+
+    cy.login(Cypress.env("ADMIN_USER"), Cypress.env("ADMIN_PASS"), true);
+    cy.url().should("not.include", "/admin/login");
+
+    cy.visit("/admin/logout");
+    cy.url().should("not.include", "/admin");
+
+    EXISTED_ADMIN_PAGES.forEach((path) => {
+      cy.visit(path);
+
+      // Should be created a redirect to the login page
+      cy.url().should("include", "/admin/login");
+    });
   });
 });

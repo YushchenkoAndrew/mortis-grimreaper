@@ -1,14 +1,13 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import { Session, withIronSession } from "next-iron-session";
 import redis from "../../../config/redis";
 import { PassValidate } from "../../../lib/api/auth";
 import { sendLogs } from "../../../lib/api/bot";
 import md5 from "../../../lib/md5";
 import { LoginRequest } from "../../../types/admin";
-import { DefaultRes, FullResponse } from "../../../types/request";
+import { FullResponse } from "../../../types/request";
 import getConfig from "next/config";
 import { checkCaptcha } from "../../../lib/api/captcha";
 import { GetParam } from "../../../lib/api/query";
+import { withIronSessionApiRoute } from "iron-session/next";
 
 const { serverRuntimeConfig } = getConfig();
 function checkUserInfo(id: string, salt: string, user: string, pass: string) {
@@ -77,11 +76,8 @@ function checkUserInfo(id: string, salt: string, user: string, pass: string) {
   });
 }
 
-export default withIronSession(
-  async function (
-    req: NextApiRequest & { session: Session },
-    res: NextApiResponse<DefaultRes>
-  ) {
+export default withIronSessionApiRoute(
+  async function (req, res) {
     if (req.method !== "POST") {
       return res.status(405).send({ status: "ERR", message: "Unknown method" });
     }
@@ -118,8 +114,7 @@ export default withIronSession(
         Number(serverRuntimeConfig.SESSION_TTL ?? 3600)
       );
 
-      req.session.set("user", sessionID);
-
+      req.session.user = sessionID;
       await req.session.save();
     }
 

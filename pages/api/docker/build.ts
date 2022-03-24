@@ -1,17 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { Session, withIronSession } from "next-iron-session";
 import getConfig from "next/config";
 import { localVoidUrl } from "../../../config";
 import sessionConfig from "../../../config/session";
 import { GetParam } from "../../../lib/api/query";
 import { GetServerIP } from "../../../lib/api/ip";
+import { DockerAuth, VoidAuth } from "../../../lib/api/auth";
+import { withIronSessionApiRoute } from "iron-session/next/dist";
 
 const { serverRuntimeConfig } = getConfig();
 
-export default withIronSession(async function (
-  req: NextApiRequest & { session: Session },
-  res: NextApiResponse<string>
-) {
+export default withIronSessionApiRoute(async function (req, res) {
   if (req.method !== "POST") return res.status(405).send("");
 
   const tag = GetParam(req.query.tag);
@@ -35,29 +33,17 @@ export default withIronSession(async function (
   });
 
   if (!data) return res.send(data);
-  await new Promise<void>((resolve) => {
-    GetServerIP().then((serveraddress) => {
-      fetch(`${localVoidUrl}/docker/push?t=${tag}&`, {
+  await new Promise<void>(async (resolve) => {
+    try {
+      await fetch(`${localVoidUrl}/docker/push?t=${tag}&`, {
         method: "POST",
         headers: {
-          Authorization:
-            "Basic " +
-            Buffer.from(serverRuntimeConfig.VOID_AUTH ?? "").toString("base64"),
-          "X-Registry-Auth": Buffer.from(
-            JSON.stringify({
-              username: serverRuntimeConfig.DOCKER_USER,
-              password: serverRuntimeConfig.DOCKER_PASS,
-              email: serverRuntimeConfig.DOCKER_EMAIL,
-              serveraddress,
-            })
-          ).toString("base64"),
+          Authorization: `Basic ${VoidAuth()}`,
+          "X-Registry-Auth": await DockerAuth(),
         },
-      })
-        .then(() => resolve())
-        .catch(() => resolve());
-    });
+      });
+    } catch (err) {}
   });
 
   res.send(data);
-},
-sessionConfig);
+}, sessionConfig);

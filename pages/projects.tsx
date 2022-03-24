@@ -6,10 +6,10 @@ import DefaultHead from "../components/default/DefaultHead";
 import DefaultHeader from "../components/default/DefaultHeader";
 import DefaultNav from "../components/default/DefaultNav";
 import { basePath, voidUrl } from "../config";
+import { LoadProjects } from "../lib/api/project";
 import { formPath } from "../lib/public/files";
 import { loadProjectsThumbnail } from "../lib/public/projects";
 import { ProjectData } from "../types/api";
-import { LoadProjects } from "./api/projects/load";
 
 let page = 1;
 export interface ProjectsListPageProps {
@@ -159,11 +159,12 @@ export default function ProjectsListPage(props: ProjectsListPageProps) {
 }
 
 export const getServerSideProps = async () => {
-  const { send } = await LoadProjects<ProjectData>({
+  const project = await LoadProjects<ProjectData>({
     page: 0,
     role: "thumbnail",
   });
-  if (send.status === "ERR" || !send.result?.length) {
+
+  if (!project) {
     return {
       props: {
         hasMore: false,
@@ -172,15 +173,14 @@ export const getServerSideProps = async () => {
     };
   }
 
-  console.log(send);
-  const chunk = send.result.length / 3;
+  const chunk = project.length / 3;
   return {
     props: {
       hasMore: true,
       projects: [
-        send.result.slice(0, chunk),
-        send.result.slice(chunk, 2 * chunk),
-        send.result.slice(2 * chunk),
+        project.slice(0, chunk),
+        project.slice(chunk, 2 * chunk),
+        project.slice(2 * chunk),
       ],
     } as ProjectsListPageProps,
   };

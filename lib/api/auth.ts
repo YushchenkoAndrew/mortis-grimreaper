@@ -3,6 +3,7 @@ import getConfig from "next/config";
 import redis from "../../config/redis";
 import { ApiError, ApiTokens } from "../../types/api";
 import md5 from "../md5";
+import { GetServerIP } from "./ip";
 
 const { serverRuntimeConfig } = getConfig();
 export function PassValidate(pass: string, pass2: string) {
@@ -95,4 +96,20 @@ export function ApiAuth() {
       });
     });
   });
+}
+
+export function VoidAuth() {
+  return Buffer.from(serverRuntimeConfig.VOID_AUTH ?? "").toString("base64");
+}
+
+export async function DockerAuth() {
+  const ip = await GetServerIP();
+  return Buffer.from(
+    JSON.stringify({
+      username: serverRuntimeConfig.DOCKER_USER,
+      password: serverRuntimeConfig.DOCKER_PASS,
+      email: serverRuntimeConfig.DOCKER_EMAIL,
+      serveraddress: ip,
+    })
+  ).toString("base64");
 }

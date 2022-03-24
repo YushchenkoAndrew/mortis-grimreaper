@@ -73,13 +73,11 @@ export const ProjectInfo = {
   link: "github.com/YushchenkoAndrew/template/tree/master/JS/CodeRain",
 };
 
-export const treePlaceholder = {
-  //   assets: {},
-  //   src: {},
-  //   thumbnail: {},
-  //   styles: {},
-  //   template: {
-  //     "index.html": codeTemplate.JS as FileData,
-  //   },
-  //   kubernetes: {},
+export const PROJECT_TREE = {
+  assets: {},
+  src: {},
+  thumbnail: {},
+  styles: {},
+  template: { "index.html": CODE_TEMPLATE.JS },
+  kubernetes: {},
 } as TreeObj;

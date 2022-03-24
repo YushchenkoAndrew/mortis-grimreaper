@@ -4,7 +4,7 @@ export function CacheId(prefix: string = "") {
   return md5(
     (localStorage.getItem("salt") ?? "") +
       (localStorage.getItem("id") ?? "") +
-      window.location.href +
+      window.location.pathname +
       prefix
   );
 }

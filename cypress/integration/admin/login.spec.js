@@ -3,14 +3,14 @@ const EXISTED_ADMIN_PAGES = [
   "/admin/logout",
   "/admin/settings",
   "/admin/projects",
-  "/admin/projects/metrics",
-  "/admin/projects/operation",
+  // "/admin/projects/metrics",
+  "/admin/projects/create",
 ];
 
 const NOT_EXISTED_ADMIN_PAGES = [
   "/admin/index",
   "/admin/check2",
-  "/admin/projects/index",
+  // "/admin/projects/index",
 ];
 
 describe("Admin login page", () => {

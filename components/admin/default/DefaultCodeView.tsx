@@ -17,6 +17,7 @@ import "prismjs/components/prism-javascript";
 import "prismjs/components/prism-markdown";
 import "prismjs/components/prism-docker";
 import "prismjs/themes/prism-coy.css";
+import { TreeObj } from "../../../types/tree";
 
 const highlightTypes: { [name: string]: [Grammar, string] } = {
   html: [languages.html, "html"],
@@ -28,6 +29,7 @@ const highlightTypes: { [name: string]: [Grammar, string] } = {
 
 export interface DefaultCodeViewProps {
   show?: boolean;
+  code?: { tree: TreeObj };
 }
 
 const PREFIX = "code";
@@ -38,13 +40,13 @@ export default function DefaultCodeView(props: DefaultCodeViewProps) {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    fetch(`${basePath}/api/projects/cache?id=${CacheId(PREFIX.toUpperCase())}`)
+    fetch(`${basePath}/api/admin/cache?id=${CacheId(PREFIX.toUpperCase())}`)
       .then((res) => res.json())
-      .then((data: DefaultRes) => {
-        if (data.status !== "OK") return;
-        dispatch({ type: `${PREFIX.toUpperCase()}_INIT`, data: data.result });
+      .then((data) => {
+        if (!(data = data.result || props.code)) return;
+        dispatch({ type: `${PREFIX.toUpperCase()}_INIT`, value: data });
       })
-      .catch((err) => null);
+      .catch(() => null);
   }, []);
 
   return (

@@ -2,7 +2,7 @@ import { NextApiRequest } from "next";
 
 export function createQuery(obj: any) {
   const result = Object.entries(obj)
-    .filter(([key, value]) => value)
+    .filter(([_, value]) => value)
     .map(([key, value]) => `${key}=${value}`)
     .join("&");
 

@@ -1,48 +1,38 @@
-import { FormEvent, useState } from "react";
+import { useState } from "react";
 import { TreeObj } from "../../../types/tree";
 import { basePath } from "../../../config";
-import { FileData, LinkData, ProjectData } from "../../../types/api";
+import { FileData, ProjectData } from "../../../types/api";
 import { formFile, getPath } from "../../../lib/public/files";
 import { Bounce, toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import InputRadio from "../../Inputs/InputRadio";
-import CodeView from "./DefaultCodeView";
+import DefaultPreview from "./DefaultPreview";
+import DefaultCodeView from "./DefaultCodeView";
+import DefaultK3sConfig from "./DefaultK3sConfig";
 import { ToastDefault } from "../../../config/alert";
-import K3sConfig from "./DefaultK3sConfig";
 import { useDispatch, useSelector } from "react-redux";
-import reducers from "../../../redux/admin/projects/reducer";
-import { devToolsEnhancer } from "redux-devtools-extension";
-import { createStore } from "redux";
 import { CacheId } from "../../../lib/public";
 import { DefaultRes } from "../../../types/request";
-import DefaultPreview from "./DefaultPreview";
-
-export const store = createStore(
-  reducers,
-  devToolsEnhancer({ serialize: { map: true } })
-);
 
 export interface DefaultOperationsFormProps {
-  type: string;
-  formData: ProjectData;
-  treeStructure: TreeObj;
-  template: FileData;
-  links: { [name: string]: LinkData };
+  operation: string;
+  preview?: { [name: string]: any };
+  code?: { tree: TreeObj };
 }
 
 export default function DefaultOperationsForm(
   props: DefaultOperationsFormProps
 ) {
+  const dispatch = useDispatch();
   const root = useSelector((state: any) => state);
   const [validated, setValidated] = useState(false);
-  const dispatch = useDispatch();
 
   function SubmitStateMachine(state: string, id: number) {
     switch (state) {
       case "PREVIEW":
         return new Promise<number>((resolve, reject) => {
           const toastId = toast.loading("Please wait...");
-          fetch(`${basePath}/api/projects/${props.type}?id=${CacheId()}`, {
+          fetch(`${basePath}/api/projects/${props.operation}?id=${CacheId()}`, {
             method: "POST",
             headers: { "content-type": "application/json" },
             body: JSON.stringify(root.preview),
@@ -81,7 +71,7 @@ export default function DefaultOperationsForm(
       case "LINK":
         return new Promise<number>((resolve, reject) => {
           const toastId = toast.loading("Please wait...");
-          fetch(`${basePath}/api/link/add?id=${id}`, {
+          fetch(`${basePath}/api/link/${props.operation}?id=${id}`, {
             method: "POST",
             headers: { "content-type": "application/json" },
             body: JSON.stringify(root.preview.links),
@@ -132,7 +122,7 @@ export default function DefaultOperationsForm(
             body.append("file", formFile(tree as FileData));
 
             return fetch(
-              `${basePath}/api/file/add?id=${id}&project=${
+              `${basePath}/api/file/${props.operation}?id=${id}&project=${
                 root.preview.name
               }&role=${tree.role}${getPath(tree.path as string | undefined)}${
                 tree.id ? `&file_id=${tree.id}` : ""
@@ -256,9 +246,12 @@ export default function DefaultOperationsForm(
         </div>
       </div>
 
-      <DefaultPreview show={root.main.window === "Preview"} />
-      <CodeView show={root.main.window === "Code"} />
-      <K3sConfig show={root.main.window === "Config"} />
+      <DefaultPreview
+        show={root.main.window === "Preview"}
+        preview={props.preview}
+      />
+      <DefaultCodeView show={root.main.window === "Code"} code={props.code} />
+      <DefaultK3sConfig show={root.main.window === "Config"} />
     </form>
   );
 }

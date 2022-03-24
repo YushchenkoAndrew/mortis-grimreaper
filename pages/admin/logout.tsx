@@ -1,30 +1,28 @@
-import { withIronSession } from "next-iron-session";
-import React from "react";
-import DefaultHead from "../../components/default/DefaultHead";
-import sessionConfig from "../../config/session";
-import { NextSessionArgs } from "../../types/session";
-import { checkIfUserExist } from "../../lib/api/session";
 import redis from "../../config/redis";
+import sessionConfig from "../../config/session";
+import { checkIfUserExist } from "../../lib/api/session";
 import { basePath } from "../../config";
+import { withIronSessionSsr } from "iron-session/next";
 
 export default function Logout() {
-  return (
-    <>
-      <DefaultHead>
-        <title>Logout</title>
-      </DefaultHead>
-    </>
-  );
+  return <></>;
 }
 
-export const getServerSideProps = withIronSession(async function ({
-  req,
-  res,
-}: NextSessionArgs) {
-  const sessionID = req.session.get("user");
-  const isOk = await checkIfUserExist(sessionID);
+export const getServerSideProps = withIronSessionSsr(
+  async function getServerSideProps({ req }) {
+    if (req.session.user && (await checkIfUserExist(req.session.user))) {
+      redis.del(`SESSION:${req.session.user}`);
+      await req.session.destroy();
 
-  if (!sessionID || !isOk) {
+      return {
+        redirect: {
+          basePath: false,
+          destination: basePath,
+          permanent: false,
+        },
+      };
+    }
+
     return {
       redirect: {
         basePath: false,
@@ -32,17 +30,6 @@ export const getServerSideProps = withIronSession(async function ({
         permanent: false,
       },
     };
-  }
-
-  redis.del(`SESSION:${sessionID}`);
-  await req.session.destroy();
-
-  return {
-    redirect: {
-      basePath: false,
-      destination: basePath,
-      permanent: false,
-    },
-  };
-},
-sessionConfig);
+  },
+  sessionConfig
+);

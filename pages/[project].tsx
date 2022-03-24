@@ -4,14 +4,14 @@ import DefaultHeader from "../components/default/DefaultHeader";
 import DefaultFooter from "../components/default/DefaultFooter";
 import DefaultProjectInfo from "../components/default/DefaultProjectInfo";
 import { GetServerSidePropsContext } from "next";
-import { LoadProjects } from "./api/projects/load";
 import { LinkData, ProjectData } from "../types/api";
 import { FlagType } from "../types/flag";
 import DefaultJsProject from "../components/default/DefaultJsProject";
 import DefaultMarkdownProject from "../components/default/DefaultMarkdownProject";
-import { LoadFile } from "./api/file/load";
+import { LoadProjects } from "../lib/api/project";
+import { LoadFile } from "../lib/api/file";
 export interface ProjectPageProps {
-  project: string;
+  name: string;
   title: string;
   flag: FlagType;
   note: string;
@@ -28,12 +28,9 @@ export default function ProjectPage(props: ProjectPageProps) {
       <DefaultHeader name={props.title} projects />
 
       {props.flag == "JS" ? (
-        <DefaultJsProject project={props.project} template={props.template} />
+        <DefaultJsProject name={props.name} template={props.template} />
       ) : (
-        <DefaultMarkdownProject
-          project={props.project}
-          template={props.template}
-        />
+        <DefaultMarkdownProject name={props.name} template={props.template} />
       )}
 
       <DefaultFooter name={props.title}>
@@ -55,33 +52,33 @@ export const getServerSideProps = async (
   const name = context.params?.project as string | undefined;
   if (!name) return { notFound: true };
 
-  const { send } = await LoadProjects({ name });
-  if (send.status === "ERR" || !send.result?.length) return { notFound: true };
-  const project = send.result[0] as ProjectData;
-  if (project.flag === "Link" || project.flag === "Docker") {
+  const project = await LoadProjects<ProjectData>({ name, link_name: "main" });
+  if (!project) return { notFound: true };
+
+  if (["Link", "Docker"].includes(project[0].flag)) {
+    console.log(project);
+
+    // const main =
     return {
       redirect: {
         basePath: false,
-        destination: "http://" + project.links[0].link,
+        destination: "http://" + project[0].links[0].link,
         permanent: false,
       },
     };
   }
 
+  console.log(project);
   const template = await LoadFile({
     project: name,
-    project_id: project.id || 0,
+    project_id: project[0].id,
     role: "template",
   });
 
   return {
     props: {
-      project: name,
-      title: project.title,
-      note: project.note,
-      flag: project.flag,
-      template: template.send.result,
-      links: project.links,
-    } as ProjectPageProps,
+      ...project[0],
+      template: template || "",
+    },
   };
 };

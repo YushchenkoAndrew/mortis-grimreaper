@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { basePath } from "../../../config";
 import { ProjectInfo } from "../../../config/placeholder";
 import { CacheId } from "../../../lib/public";
+import { ProjectData } from "../../../types/api";
 import { DefaultRes } from "../../../types/request";
 import Card from "../../Card";
 import DefaultProjectInfo from "../../default/DefaultProjectInfo";
@@ -19,30 +20,25 @@ import DefaultPreviewFooter from "./DefaultPreviewFooter";
 
 export interface DefaultPreviewProps {
   show?: boolean;
+  preview?: { [name: string]: any };
 }
 
 const PREFIX = "preview";
 
 export default function DefaultPreview(props: DefaultPreviewProps) {
-  // const [img, setImg] = useState(ProjectInfo.img.url);
-  // const [links, onLinksChange] = useState(props.links);
-  // const [tag, onTagChange] = useState(props.tag ?? { 0: "", 1: "" });
-  // const [formData, onFormChange] = useState(props.formData);
-
-  // FIXME:
-  const preview = useSelector((state: any) => state[PREFIX] as any);
+  const preview = useSelector((state) => state[PREFIX]);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    fetch(`${basePath}/api/projects/cache?id=${CacheId(PREFIX.toUpperCase())}`)
+    fetch(`${basePath}/api/admin/cache?id=${CacheId(PREFIX.toUpperCase())}`)
       .then((res) => res.json())
-      .then((data: DefaultRes) => {
-        if (data.status !== "OK") return;
-        dispatch({ type: `${PREFIX.toUpperCase()}_INIT`, data: data.result });
-        dispatch({ type: "MAIN_FLAG_CHANGED", value: data.result?.flag });
-        dispatch({ type: "CODE_FLAG_CHANGED", value: data.result?.flag });
+      .then((data) => {
+        if (!(data = data.result || props.preview)) return;
+        dispatch({ type: `${PREFIX.toUpperCase()}_INIT`, value: data });
+        dispatch({ type: "MAIN_FLAG_CHANGED", value: data.flag });
+        dispatch({ type: "CODE_FLAG_CHANGED", value: data.flag });
       })
-      .catch((err) => null);
+      .catch(() => null);
   }, []);
 
   return (

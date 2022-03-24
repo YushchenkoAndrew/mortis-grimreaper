@@ -1,9 +1,9 @@
-import { withIronSession } from "next-iron-session";
+import { withIronSessionSsr } from "iron-session/next";
+
 import React from "react";
 import SignIn from "../../components/admin/SignIn";
 import DefaultHead from "../../components/default/DefaultHead";
 import sessionConfig from "../../config/session";
-import { NextSessionArgs } from "../../types/session";
 import { checkIfUserExist } from "../../lib/api/session";
 import { basePath } from "../../config";
 
@@ -23,14 +23,12 @@ export default function Login() {
   );
 }
 
-export const getServerSideProps = withIronSession(async function ({
-  req,
-  res,
-}: NextSessionArgs) {
-  const sessionID = req.session.get("user");
-  const isOk = await checkIfUserExist(sessionID);
+export const getServerSideProps = withIronSessionSsr(
+  async function getServerSideProps({ req }) {
+    if (!req.session.user || !(await checkIfUserExist(req.session.user))) {
+      return { props: {} };
+    }
 
-  if (sessionID && isOk) {
     return {
       redirect: {
         basePath: false,
@@ -38,8 +36,6 @@ export const getServerSideProps = withIronSession(async function ({
         permanent: false,
       },
     };
-  }
-
-  return { props: {} };
-},
-sessionConfig);
+  },
+  sessionConfig
+);

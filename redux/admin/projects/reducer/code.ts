@@ -10,7 +10,7 @@ import { TreeObj } from "../../../../types/tree";
 
 const PREFIX = "CODE";
 
-const INIT_STATE = {
+export const INIT_STATE = {
   // Add new file
   role: "assets",
   dir: "",
@@ -35,7 +35,10 @@ const INIT_STATE = {
 export default function (state = INIT_STATE, action: AnyAction) {
   switch (action.type as string) {
     case `${PREFIX}_INIT`:
-      return action.data || state;
+      return {
+        ...state,
+        ...(action.value || {}),
+      };
 
     case `${PREFIX}_ROLE_CHANGED`:
       return { ...state, role: action.value };
@@ -117,7 +120,7 @@ export default function (state = INIT_STATE, action: AnyAction) {
     }
 
     case `${PREFIX}_CACHED`:
-      fetch(`${basePath}/api/projects/cache?id=${CacheId(PREFIX)}`, {
+      fetch(`${basePath}/api/admin/cache?id=${CacheId(PREFIX)}`, {
         method: "POST",
         body: JSON.stringify(state),
       }).catch(() => null);

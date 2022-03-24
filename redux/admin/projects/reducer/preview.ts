@@ -21,7 +21,10 @@ const INIT_STATE = {
 export default function (state = INIT_STATE, action: AnyAction) {
   switch (action.type as string) {
     case `${PREFIX}_INIT`:
-      return action.data || state;
+      return {
+        ...state,
+        ...(action.value || {}),
+      };
 
     case `${PREFIX}_ID_CHANGED`: {
       const value = Number(action.value);
@@ -90,7 +93,7 @@ export default function (state = INIT_STATE, action: AnyAction) {
       return { ...state, repo: { ...state.repo, version: action.value } };
 
     case `${PREFIX}_CACHED`:
-      fetch(`${basePath}/api/projects/cache?id=${CacheId(PREFIX)}`, {
+      fetch(`${basePath}/api/admin/cache?id=${CacheId(PREFIX)}`, {
         method: "POST",
         body: JSON.stringify({
           ...state,

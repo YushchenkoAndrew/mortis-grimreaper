@@ -3,7 +3,9 @@ import { TreeObj } from "../../types/tree";
 
 export function formPath(file?: FileData) {
   if (!file) return "";
-  return `/${file.role}/${file.path}${file.name}`;
+  return [file.role, file.path, file.name]
+    .filter((item) => item && item != "/")
+    .join("/");
 }
 
 export function getPath(path: string | undefined) {
@@ -36,12 +38,21 @@ export const allowedReader = {
   ],
 };
 
-export function formFile(file: FileData) {
-  return !file.content
-    ? (file.file as File)
-    : new File([new Blob([file.content], { type: file.type })], file.name, {
-        type: file.type,
-      });
+export async function formFile(file: FileData) {
+  if (file.content) {
+    return new File(
+      [new Blob([file.content], { type: file.type })],
+      file.name,
+      { type: file.type }
+    );
+  }
+
+  if (file.file) return file.file;
+
+  const res = await fetch(file.url || "", { mode: "cors" });
+  return new File([await res.blob()], file.name, {
+    type: file.type,
+  });
 }
 export function getFile(
   tree: TreeObj,

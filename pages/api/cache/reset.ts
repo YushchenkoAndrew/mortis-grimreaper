@@ -1,10 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import redis, { FlushValue } from "../../../config/redis";
+import redis from "../../../config/redis";
 import { PassValidate } from "../../../lib/api/auth";
 import { sendLogs } from "../../../lib/api/bot";
 import getConfig from "next/config";
 import md5 from "../../../lib/md5";
 import { GetParam } from "../../../lib/api/query";
+import { FlushValue } from "../../../lib/api/cache";
 
 const { serverRuntimeConfig } = getConfig();
 export default function handler(req: NextApiRequest, res: NextApiResponse) {

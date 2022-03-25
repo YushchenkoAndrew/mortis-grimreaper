@@ -78,19 +78,16 @@ export const getServerSideProps = withIronSessionSsr(
 
         let tree = PROJECT_TREE;
         for (let file of project[0].files) {
-          const content = await LoadFile({
-            project_id: project[0]?.id ?? 0,
-            project: operations[1],
-            role: file.role,
-          });
+          let content: string | null = null;
+          if (allowedReader.readAsText.includes(file.type)) {
+            content = await LoadFile({ id: file.id });
+          }
 
           tree = addFile(tree, { dir: file.path, role: file.role }, [
             {
               ...file,
-              url: `${voidUrl}/${project[0].name}${formPath(file)}`,
-              ...(allowedReader.readAsText.includes(file.type) && content
-                ? { content }
-                : {}),
+              url: `${voidUrl}/${project[0].name}/${formPath(file)}`,
+              content: content,
             },
           ]);
         }

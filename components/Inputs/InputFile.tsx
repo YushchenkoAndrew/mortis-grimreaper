@@ -54,7 +54,7 @@ export default function InputFile(props: InputFileProps) {
 
                 let reader = new FileReader();
                 reader[func](files[i].file || new Blob());
-                reader.onloadend = (e) => {
+                reader.onloadend = (_) => {
                   files[i][param] = String(reader.result);
                   if (++i == files.length) return resolve();
                   return ReadFiles(i).finally(() => resolve());

@@ -1,190 +1,29 @@
 import fs from "fs";
 import { File, IncomingForm } from "formidable";
-import type { NextApiRequest, NextApiResponse } from "next";
 import sessionConfig from "../../../config/session";
 import FormData from "form-data";
-import { DefaultRes, FullResponse } from "../../../types/request";
+import { FullResponse } from "../../../types/request";
 import { apiUrl, localVoidUrl } from "../../../config";
-import { sendLogs } from "../../../lib/api/bot";
-import md5 from "../../../lib/md5";
 import { ApiAuth, VoidAuth } from "../../../lib/api/auth";
-import { ApiError, ApiRes, FileData } from "../../../types/api";
-import getConfig from "next/config";
-import { DelFileRecord } from "./del";
-import { FlushValue } from "../../../config/redis";
+import { ApiError, ApiOk, ApiRes, FileData } from "../../../types/api";
 import { GetParam } from "../../../lib/api/query";
-import { withIronSessionApiRoute } from "iron-session/next/dist";
+import { withIronSessionApiRoute } from "iron-session/next";
+import { DeleteFile } from "../../../lib/api/file";
+import { FlushFilter } from "../../../lib/api/cache";
 
-const { serverRuntimeConfig } = getConfig();
-// type ArgsType = {
-//   id: number;
-//   project: string;
-//   path: string;
-//   role: string;
-//   fileId: number | null;
-// };
+export const config = { api: { bodyParser: false } };
 
-export function AddFileRecord(file: File, args: ArgsType) {
-  return new Promise<FullResponse>((resolve, reject) => {
-    ApiAuth()
-      .then((access) => {
-        fetch(`${apiUrl}/file/${args.fileId || args.id}`, {
-          method: args.fileId ? "PUT" : "POST",
-          headers: {
-            "content-type": "application/json",
-            Authorization: `Bear ${access}`,
-          },
-          body: JSON.stringify({
-            name: file.name ?? md5(Math.random().toString()),
-            role: args.role,
-            path: args.path,
-            type: file.type ?? "",
-          } as FileData),
-        })
-          .then((res) => res.json())
-          .then((data: ApiRes<FileData[]> | ApiError) => {
-            resolve({
-              status: data.status ? 500 : 200,
-              send: {
-                status: data.status,
-                message: data.status ? (data as ApiError).message : "Success",
-                result: data.result ?? [],
-              },
-            });
-          })
-          .catch((err) => reject());
-      })
-      .catch((err) => {
-        reject();
-        sendLogs({
-          stat: "ERR",
-          name: "WEB",
-          file: "/api/admin/file.ts",
-          message: "Bruhh, something is broken and it's not me!!!",
-          desc: err,
-        });
-      });
-  });
-}
-
-function UploadFile(file: File, args: ArgsType) {
-  return new Promise<FullResponse>((resolve, reject) => {
-    const formData = new FormData();
-    formData.append(
-      "file",
-      fs.createReadStream(file.path),
-      file.name ?? md5(Math.random().toString())
-    );
-
-    fetch(`${localVoidUrl}?path=/${args.project}/${args.role + args.path}`, {
-      method: "POST",
-      headers: {
-        Authorization:
-          "Basic " +
-          Buffer.from(serverRuntimeConfig.VOID_AUTH ?? "").toString("base64"),
-      },
-      body: formData as any,
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-
-        resolve({
-          status: 200,
-          send: {
-            status: data.status ?? "ERR",
-            message: data.message ?? "What's wrong with you, File Server",
-          },
-        });
-      })
-      .catch((err) => {
-        resolve({
-          status: 500,
-          send: {
-            status: "ERR",
-            message: "Ohhh come on, another one ...",
-          },
-        });
-
-        sendLogs({
-          stat: "ERR",
-          name: "API",
-          file: "/pages/api/admin/file.ts",
-          message: "And they dont stop coming and they dont stop coming...",
-          desc: err,
-        });
-      });
-  });
-}
-
-function SendFile(req: NextApiRequest & { session: Session }, args: ArgsType) {
-  return new Promise<FullResponse>((resolve) => {
-    const form = new IncomingForm({
-      multiples: false,
-    });
-
-    form.parse(req, (err, fields, files) => {
-      if (err || !files.file) {
-        return resolve({
-          status: 500,
-          send: {
-            status: "ERR",
-            message: "Something went wrong with file paring",
-          },
-        });
-      }
-
-      AddFileRecord(files.file as File, args)
-        .then((res: FullResponse) => {
-          if (res.send.status !== "OK") return resolve(res);
-          UploadFile(files.file as File, args)
-            .then((res) => {
-              if (res.send.status === "OK") return resolve(res);
-              DelFileRecord(
-                `?project_id=${args.id}&name=${(files.file as File).name}`
-              );
-            })
-            .catch(() => {
-              resolve({
-                status: 500,
-                send: {
-                  status: "ERR",
-                  message: "Ohhh come on, another one ...",
-                },
-              });
-            });
-        })
-        .catch(() => {
-          resolve({
-            status: 500,
-            send: {
-              status: "ERR",
-              message: "Something went wrong with file adding",
-            },
-          });
-        });
-    });
-  });
-}
-
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
-const REQUIRED_FIELDS = ["id", "project", "role", "path"];
+const REQUIRED_FIELDS = ["id", "project", "role", "path", "project_id"];
 export default withIronSessionApiRoute(async function (req, res) {
   if (req.method !== "POST") {
     return res.status(405).send({ status: "ERR", message: "Unknown method" });
   }
 
   const body = REQUIRED_FIELDS.filter(
-    (key) => key in req.body && req.body[key]
-  ).reduce(
-    (acc, curr) => ((acc[curr] = GetParam(req.query[curr])), acc),
-    {} as { [name: string]: any }
-  );
+    (key) => key in req.query && req.query[key]
+  ).reduce((acc, curr) => ((acc[curr] = GetParam(req.query[curr])), acc), {
+    id: -1,
+  } as { [name: string]: any });
 
   if (Object.keys(body).length != REQUIRED_FIELDS.length) {
     return res.status(400).send({
@@ -204,23 +43,49 @@ export default withIronSessionApiRoute(async function (req, res) {
         });
 
         const token = await ApiAuth();
-        let res = await fetch(`${apiUrl}/file/`, {
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
-            Authorization: `Bear ${token}`,
-          },
-          body: JSON.stringify({
-            ...body,
-            name: file.name,
-            type: file.type ?? "text/plain",
-          }),
-        });
+        let res = await (function () {
+          switch (GetParam(req.query.handler)) {
+            case "create":
+              return fetch(`${apiUrl}/file/${body.project_id}`, {
+                method: "POST",
+                headers: {
+                  "content-type": "application/json",
+                  Authorization: `Bear ${token}`,
+                },
+                body: JSON.stringify({
+                  ...body,
+                  name: file.name,
+                  type: file.type ?? "text/plain",
+                }),
+              });
+
+            case "update":
+              return fetch(`${apiUrl}/file/${body.id}`, {
+                method: "PUT",
+                headers: {
+                  "content-type": "application/json",
+                  Authorization: `Bear ${token}`,
+                },
+                body: JSON.stringify({
+                  ...body,
+                  name: file.name,
+                  type: file.type ?? "text/plain",
+                }),
+              });
+
+            default:
+              return new Promise<Response>((_, reject) =>
+                reject("Unknown handler")
+              );
+          }
+        })();
 
         const data = (await res.json()) as ApiRes<FileData[]> | ApiError;
         if (data.status === "ERR") {
           return resolve({ status: 500, send: data });
         }
+
+        console.log(data);
 
         const formData = new FormData();
         formData.append(
@@ -230,23 +95,21 @@ export default withIronSessionApiRoute(async function (req, res) {
         );
 
         res = await fetch(
-          `${localVoidUrl}?path=/${body.project}/${args.role + args.path}`,
+          `${localVoidUrl}?path=/${body.project}/${body.role + body.path}`,
           {
             method: "POST",
-            headers: { Authorization: `Basic ${VoidAuth}` },
+            headers: { Authorization: `Basic ${VoidAuth()}` },
             body: formData as any,
           }
         );
 
-        // FIXME: !!!!
-        const result = await res.json();
-        resolve({
-          status: 200,
-          send: {
-            status: data.status ?? "ERR",
-            message: data.message ?? "What's wrong with you, File Server",
-          },
-        });
+        const result = (await res.json()) as ApiOk | ApiError;
+        if (result.status !== "OK") {
+          await DeleteFile({ id: data.result[0].id, name: file.name });
+          return resolve({ status: 500, send: result });
+        }
+
+        resolve({ status: 200, send: result });
       } catch (err: any) {
         resolve({
           status: 500,
@@ -256,15 +119,6 @@ export default withIronSessionApiRoute(async function (req, res) {
     });
   })();
 
-  // const { status, send } = await SendFile(req, {
-  //   id,
-  //   project,
-  //   path,
-  //   role,
-  //   fileId: req.query.file_id ? Number(GetParam(req.query.file_id)) : null,
-  // });
-
-  // if (send.status == "OK") FlushValue("Project");
-  // res.status(status).send(send);
-  res.status(200).send("");
+  FlushFilter(["File", "page"]);
+  res.status(status).send(send);
 }, sessionConfig);

@@ -18,15 +18,6 @@ client.on("error", function (error) {
   });
 });
 
-export function FlushValue(key: string) {
-  client
-    .keys(`${key}:*`)
-    .then((keys) => {
-      keys.map((item) => client.del(item));
-    })
-    .catch((err) => {});
-}
-
 (async () => await client.connect())();
 
 // Test connection

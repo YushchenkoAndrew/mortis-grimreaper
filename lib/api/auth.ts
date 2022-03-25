@@ -4,6 +4,7 @@ import redis from "../../config/redis";
 import { ApiError, ApiTokens } from "../../types/api";
 import md5 from "../md5";
 import { GetServerIP } from "./ip";
+import { freeMutex, waitMutex } from "./mutex";
 
 const { serverRuntimeConfig } = getConfig();
 export function PassValidate(pass: string, pass2: string) {
@@ -32,70 +33,63 @@ export function DeleteTokens() {
   redis.del("API:Refresh");
 }
 
-export function ApiAuth() {
-  return new Promise<string>((resolve, reject) => {
-    redis.get("API:Access").then((reply) => {
-      if (reply) return resolve(reply);
+export function ApiAuth(retry: boolean = true): Promise<string> {
+  return new Promise<string>(async (resolve, reject) => {
+    try {
+      // await waitMutex();
+      const access = await redis.get("API:Access");
+      if (access) return resolve(access);
 
       // If Access token expired, then refresh token
-      redis.get("API:Refresh").then((reply) => {
-        if (reply) {
-          return fetch(`${apiUrl}/refresh`, {
-            method: "POST",
-            headers: {
-              "content-type": "application/json",
-            },
-            body: JSON.stringify({
-              refresh_token: reply,
-            }),
-          })
-            .then((res) => res.json())
-            .then((data: ApiTokens | ApiError) => {
-              // If something wrong with keys or refresh token already
-              // has been expired then just delete them and try again
-              if (data.status == "ERR") {
-                DeleteTokens();
-                return ApiAuth()
-                  .then((res) => resolve(res))
-                  .catch((err) => reject(err));
-              }
+      const refresh = await redis.get("API:Refresh");
+      if (!refresh) {
+        const res = await fetch(`${apiUrl}/refresh`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ refresh_token: refresh }),
+        });
 
-              UpdateTokens(data);
-              resolve(data.access_token);
-            })
-            .catch((err) => reject(err));
+        const data = (await res.json()) as ApiTokens | ApiError;
+        // If something wrong with keys or refresh token already
+        // has been expired then just delete them and try again
+        if (data.status == "ERR") {
+          DeleteTokens();
+          return resolve(await ApiAuth());
         }
 
-        // If Refresh token expired, then relogin
-        const salt = md5((Math.random() * 10000 + 500).toString());
-        fetch(`${apiUrl}/login`, {
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
-          },
-          body: JSON.stringify({
-            user: serverRuntimeConfig.API_USER ?? "",
-            pass:
-              salt +
-              "$" +
-              md5(
-                salt +
-                  serverRuntimeConfig.API_PEPPER +
-                  serverRuntimeConfig.API_PASS
-              ),
-          }),
-        })
-          .then((res) => res.json())
-          .then((data: ApiTokens | ApiError) => {
-            if (data.status === "ERR") return reject("Incorrect user or pass");
+        UpdateTokens(data);
+        resolve(data.access_token);
+      }
 
-            UpdateTokens(data);
-            resolve(data.access_token);
-          })
-          .catch((err) => reject(err));
+      // If Refresh token expired, then relogin
+      const salt = md5((Math.random() * 10000 + 500).toString());
+      const res = await fetch(`${apiUrl}/login`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          user: serverRuntimeConfig.API_USER ?? "",
+          pass:
+            salt +
+            "$" +
+            md5(
+              salt +
+                serverRuntimeConfig.API_PEPPER +
+                serverRuntimeConfig.API_PASS
+            ),
+        }),
       });
-    });
+
+      const data = (await res.json()) as ApiTokens | ApiError;
+      if (data.status === "ERR") return reject("Incorrect user or pass");
+
+      UpdateTokens(data);
+      resolve(data.access_token);
+    } catch (err) {
+      if (!retry) return reject(err);
+      ApiAuth(false);
+    }
   });
+  // .finally(() => freeMutex());
 }
 
 export function VoidAuth() {

@@ -124,6 +124,12 @@ export default function (state = INIT_STATE, action: AnyAction) {
         method: "POST",
         body: JSON.stringify(state),
       }).catch(() => null);
+      return state;
+
+    case `${PREFIX}_CACHE_FLUSH`:
+      fetch(`${basePath}/api/admin/cache?id=${CacheId(PREFIX)}`, {
+        method: "DELETE",
+      });
 
     default:
       return state;

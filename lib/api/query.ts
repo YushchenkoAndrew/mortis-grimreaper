@@ -1,9 +1,10 @@
-import { NextApiRequest } from "next";
-
-export function createQuery(obj: any) {
+export function createQuery(obj: { [key: string]: any }) {
   const result = Object.entries(obj)
     .filter(([_, value]) => value)
-    .map(([key, value]) => `${key}=${value}`)
+    .map(
+      ([key, value]) =>
+        `${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+    )
     .join("&");
 
   return result === "" ? "" : "?" + result;

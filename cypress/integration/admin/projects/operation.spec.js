@@ -7,10 +7,10 @@ describe("Check different operations on projects", () => {
   });
 
   it("Check creation of JS project", () => {
-    cy.visit("/admin/projects/operation");
-    cy.url().should("include", "?type=add");
+    cy.visit("/admin/projects/create");
+    cy.url().should("include", "/create");
 
-    const projectName = "test_js14";
+    const projectName = "test_js20";
 
     // Check if submit will failed on empty data
     cy.get("button[type=submit]").realClick();
@@ -161,7 +161,7 @@ describe("Check different operations on projects", () => {
     cy.get("button[type=submit]").realClick();
 
     // FIXME: Somehow to check toastify
-    cy.wait(5000);
+    cy.wait(10000);
 
     // Check if project exists and there not any server errors
     cy.request({ url: "/" + projectName, failOnStatusCode: false })

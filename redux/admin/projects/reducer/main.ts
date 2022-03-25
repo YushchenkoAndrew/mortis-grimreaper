@@ -32,14 +32,12 @@ export default function (state = INIT_STATE, action: AnyAction) {
   switch (action.type) {
     // TODO:
     // * SAVE main value in cache !!!
-    // * Delete all cache after some specific request
-    // * Revisit some api routes and delete func 'FlushValue'
 
     case `${PREFIX}_WINDOW_CHANGED`:
       return { ...state, window: action.value };
 
     case `${PREFIX}_SUBMIT_STATE_CHANGED`:
-      return { ...state, state: action.value };
+      return { ...state, value: action.value };
 
     case `${PREFIX}_FLAG_CHANGED`: {
       const len = state.operations.length;

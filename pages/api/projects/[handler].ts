@@ -1,7 +1,8 @@
-import { withIronSessionApiRoute } from "iron-session/next/dist";
+import { withIronSessionApiRoute } from "iron-session/next";
 import { apiUrl } from "../../../config";
 import sessionConfig from "../../../config/session";
 import { ApiAuth } from "../../../lib/api/auth";
+import { FlushFilter } from "../../../lib/api/cache";
 import { ApiRes, ApiError, ProjectData, ApiResult } from "../../../types/api";
 import { FullResponse } from "../../../types/request";
 
@@ -28,7 +29,7 @@ export default withIronSessionApiRoute(async function (req, res) {
   const { status, send } = await (function () {
     return new Promise<FullResponse>(async (resolve) => {
       try {
-        const token = ApiAuth();
+        const token = await ApiAuth();
         const res = await (function () {
           switch (req.query.handler) {
             case "create":
@@ -76,5 +77,6 @@ export default withIronSessionApiRoute(async function (req, res) {
     });
   })();
 
+  FlushFilter(["Project", "page"]);
   res.status(status).send(send);
 }, sessionConfig);

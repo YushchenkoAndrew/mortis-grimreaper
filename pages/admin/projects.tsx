@@ -111,7 +111,7 @@ export default function AdminProjects(props: AdminProjectsProps) {
             </div>
           }
         >
-          <AddCard href={`${basePath}/admin/projects/operation?type=add`} />
+          <AddCard href={`${basePath}/admin/projects/create`} />
           {projects.map((item, i) => {
             return (
               <Card
@@ -120,7 +120,7 @@ export default function AdminProjects(props: AdminProjectsProps) {
                 title={item.title}
                 flag={item.flag as FlagType}
                 href={`/projects/${item.name}`}
-                img={`${voidUrl}/${item.name}${formPath(item.files[0])}`}
+                img={`${voidUrl}/${item.name}/${formPath(item.files[0])}`}
                 desc={item.desc}
                 event={{
                   metrics: {

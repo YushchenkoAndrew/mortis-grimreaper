@@ -1,5 +1,11 @@
 import { Stat } from "./request";
 
+export type ApiOk<T = null> = {
+  status: "OK";
+  message: string;
+  result: T;
+};
+
 export type ApiError = {
   status: "ERR";
   result: string[];
@@ -55,7 +61,7 @@ export type FileData = {
   project_id?: number;
 
   file?: File;
-  content?: string;
+  content?: string | null;
   url?: string;
 };
 

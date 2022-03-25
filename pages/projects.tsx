@@ -129,7 +129,7 @@ export default function ProjectsListPage(props: ProjectsListPageProps) {
                       <Card
                         key={j}
                         title={item.title}
-                        img={`${voidUrl}/${item.name}${formPath(
+                        img={`${voidUrl}/${item.name}/${formPath(
                           item.files[0]
                         )}`}
                         target={

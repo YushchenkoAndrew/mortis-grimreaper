@@ -13,6 +13,7 @@ import { ToastDefault } from "../../../config/alert";
 import { useDispatch, useSelector } from "react-redux";
 import { CacheId } from "../../../lib/public";
 import { DefaultRes } from "../../../types/request";
+import { createQuery } from "../../../lib/api/query";
 
 export interface DefaultOperationsFormProps {
   operation: string;
@@ -30,46 +31,52 @@ export default function DefaultOperationsForm(
   function SubmitStateMachine(state: string, id: number) {
     switch (state) {
       case "PREVIEW":
-        return new Promise<number>((resolve, reject) => {
+        return new Promise<number>(async (resolve, reject) => {
           const toastId = toast.loading("Please wait...");
-          fetch(`${basePath}/api/projects/${props.operation}?id=${CacheId()}`, {
-            method: "POST",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify(root.preview),
-          })
-            .then((res) => res.json())
-            .then((data: DefaultRes<ProjectData[]>) => {
-              if (data.status !== "OK" || !data.result?.[0]) {
-                return reject({
-                  id: toastId,
-                  state: "PREVIEW",
-                  message: data.message,
-                });
-              }
 
-              dispatch({
-                type: "PREVIEW_ID_CHANGED",
-                value: data.result[0].id,
-              });
-              resolve(data.result[0].id as number);
-              toast.update(toastId, {
-                render: "Project: Record is created",
-                type: "success",
-                isLoading: false,
-                ...ToastDefault,
-              });
-            })
-            .catch(() =>
-              reject({
+          try {
+            const res = await fetch(
+              `${basePath}/api/projects/${props.operation}?id=${CacheId()}`,
+              {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify(root.preview),
+              }
+            );
+            const data = (await res.json()) as DefaultRes<ProjectData[]>;
+            if (data.status !== "OK" || !data.result?.[0]) {
+              return reject({
                 id: toastId,
                 state: "PREVIEW",
-                message: "Project: Server error",
-              })
-            );
+                message: data.message,
+              });
+            }
+
+            dispatch({
+              type: "PREVIEW_ID_CHANGED",
+              value: data.result[0].id || id,
+            });
+            resolve(data.result[0].id || id);
+            toast.update(toastId, {
+              render: "Project: Record is created",
+              type: "success",
+              isLoading: false,
+              ...ToastDefault,
+            });
+          } catch (err) {
+            reject({
+              id: toastId,
+              state: "PREVIEW",
+              message: "Project: Server error",
+            });
+          }
         });
 
       case "LINK":
         return new Promise<number>((resolve, reject) => {
+          return resolve(id);
+
+          // FIXME:
           const toastId = toast.loading("Please wait...");
           fetch(`${basePath}/api/link/${props.operation}?id=${id}`, {
             method: "POST",
@@ -106,54 +113,55 @@ export default function DefaultOperationsForm(
       case "FILES":
         return (function parseTree(tree: TreeObj | FileData | null) {
           return new Promise<number>(async (resolve, reject) => {
-            // Check if obj is FileData and if File not exist then break
-            if (!tree?.name) {
-              if (tree && tree.name) return resolve(id);
-              console.log(Object.entries(tree || {}));
-
-              for (let [_, value] of Object.entries(tree || {})) {
-                await parseTree(value);
-              }
-              return resolve(id);
-            }
-
-            const toastId = toast.loading("Please wait...");
-            const body = new FormData();
-            body.append("file", formFile(tree as FileData));
-
-            return fetch(
-              `${basePath}/api/file/${props.operation}?id=${id}&project=${
-                root.preview.name
-              }&role=${tree.role}${getPath(tree.path as string | undefined)}${
-                tree.id ? `&file_id=${tree.id}` : ""
-              }`,
-              { method: "POST", body }
-            )
-              .then((res) => res.json())
-              .then((data: DefaultRes) => {
-                if (data.status !== "OK") {
-                  return reject({
-                    id: toastId,
-                    state: "FILES",
-                    message: data.message,
-                  });
+            try {
+              // Check if obj is FileData and if File not exist then break
+              if (!tree?.name) {
+                if (tree && tree.name) return resolve(id);
+                for (let [_, value] of Object.entries(tree || {})) {
+                  await parseTree(value);
                 }
 
-                resolve(id);
-                toast.update(toastId, {
-                  render: `File [${tree.name}]: ${data.message}`,
-                  type: "success",
-                  isLoading: false,
-                  ...ToastDefault,
-                });
-              })
-              .catch(() => {
-                reject({
+                return resolve(id);
+              }
+
+              const body = new FormData();
+              body.append("file", await formFile(tree as FileData));
+              const toastId = toast.loading("Please wait...");
+
+              const res = await fetch(
+                `${basePath}/api/file/${props.operation}` +
+                  createQuery({
+                    project_id: id,
+                    role: tree.role,
+                    id: tree.id ?? -1,
+                    project: root.preview.name,
+                    path:
+                      "/" + ((tree.path as string) ?? "").replace(/^\//, ""),
+                  }),
+                { method: "POST", body }
+              );
+
+              const data = (await res.json()) as DefaultRes;
+              if (data.status !== "OK") {
+                return reject({
                   id: toastId,
                   state: "FILES",
-                  message: `File [${tree.name}]: crashed at upload`,
+                  message: data.message,
                 });
+              }
+
+              toast.update(toastId, {
+                render: `File [${tree.name}]: ${data.message}`,
+                type: "success",
+                isLoading: false,
+                ...ToastDefault,
               });
+
+              return resolve(id);
+            } catch (err: any) {
+              if (err.id) return reject(err);
+              reject({ state: "FILES" });
+            }
           });
         })(root.code.tree);
 
@@ -188,10 +196,15 @@ export default function DefaultOperationsForm(
 
           let id = root.preview.id;
           for (let state of root.main.operations.slice(index)) {
+            console.log(state);
+
             id = await SubmitStateMachine(state, id);
           }
 
           dispatch({ type: "MAIN_SUBMIT_STATE_CHANGED", value: "END" });
+
+          dispatch({ type: "PREVIEW_CACHE_FLUSH" });
+          dispatch({ type: "CODE_CACHE_FLUSH" });
 
           // FIXME: Was commented only for debug propose
           // setTimeout(
@@ -199,9 +212,10 @@ export default function DefaultOperationsForm(
           //   2000
           // );
         } catch (err: any) {
-          if (!err) return;
-
+          if (!err?.state) return;
           dispatch({ type: "MAIN_SUBMIT_STATE_CHANGED", value: err.state });
+
+          if (!err?.id) return;
           toast.update(err.id, {
             render: err.message ?? "Client error",
             type: "error",

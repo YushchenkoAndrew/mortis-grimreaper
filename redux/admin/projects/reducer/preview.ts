@@ -100,6 +100,12 @@ export default function (state = INIT_STATE, action: AnyAction) {
           img: `${basePath}/img/CodeRain.webp`,
         }),
       }).catch(() => null);
+      return state;
+
+    case `${PREFIX}_CACHE_FLUSH`:
+      fetch(`${basePath}/api/admin/cache?id=${CacheId(PREFIX)}`, {
+        method: "DELETE",
+      }).catch(() => null);
 
     default:
       return state;

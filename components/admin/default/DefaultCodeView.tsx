@@ -39,16 +39,6 @@ export default function DefaultCodeView(props: DefaultCodeViewProps) {
   const code = useSelector((state: any) => state[PREFIX] as any);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    fetch(`${basePath}/api/admin/cache?id=${CacheId(PREFIX.toUpperCase())}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (!(data = data.result || props.code)) return;
-        dispatch({ type: `${PREFIX.toUpperCase()}_INIT`, value: data });
-      })
-      .catch(() => null);
-  }, []);
-
   return (
     <div className={props.show ? "" : "d-none"}>
       <hr />

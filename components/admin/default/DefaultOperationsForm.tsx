@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { ReactText, useEffect, useState } from "react";
 import { TreeObj } from "../../../types/tree";
 import { basePath } from "../../../config";
 import { FileData, ProjectData } from "../../../types/api";
-import { formFile, getPath } from "../../../lib/public/files";
+import { formFile } from "../../../lib/public/files";
 import { Bounce, toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import InputRadio from "../../Inputs/InputRadio";
@@ -27,6 +27,29 @@ export default function DefaultOperationsForm(
   const dispatch = useDispatch();
   const root = useSelector((state: any) => state);
   const [validated, setValidated] = useState(false);
+
+  useEffect(() => {
+    (async function () {
+      // Load Cache in order
+      await fetch(`${basePath}/api/admin/cache?id=${CacheId("PREVIEW")}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (!(data = data.result || props.preview)) return;
+          dispatch({ type: `PREVIEW_INIT`, value: data });
+          dispatch({ type: "MAIN_FLAG_CHANGED", value: data.flag });
+          dispatch({ type: "CODE_FLAG_CHANGED", value: data.flag });
+        })
+        .catch(() => null);
+
+      await fetch(`${basePath}/api/admin/cache?id=${CacheId("CODE")}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (!(data = data.result || props.code)) return;
+          dispatch({ type: `CODE_INIT`, value: data });
+        })
+        .catch(() => null);
+    })();
+  }, []);
 
   function SubmitStateMachine(state: string, id: number) {
     switch (state) {
@@ -56,6 +79,7 @@ export default function DefaultOperationsForm(
               type: "PREVIEW_ID_CHANGED",
               value: data.result[0].id || id,
             });
+
             resolve(data.result[0].id || id);
             toast.update(toastId, {
               render: "Project: Record is created",
@@ -73,45 +97,47 @@ export default function DefaultOperationsForm(
         });
 
       case "LINK":
-        return new Promise<number>((resolve, reject) => {
+        return new Promise<number>(async (resolve, reject) => {
           return resolve(id);
-
-          // FIXME:
           const toastId = toast.loading("Please wait...");
-          fetch(`${basePath}/api/link/${props.operation}?id=${id}`, {
-            method: "POST",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify(root.preview.links),
-          })
-            .then((res) => res.json())
-            .then((data: DefaultRes) => {
-              if (data.status !== "OK") {
-                return reject({
-                  id: toastId,
-                  state: "LINK",
-                  message: data.message,
-                });
-              }
 
-              resolve(id);
-              return toast.update(toastId, {
-                render: `Link: ${data.message}`,
-                type: "success",
-                isLoading: false,
-                ...ToastDefault,
-              });
-            })
-            .catch(() =>
-              reject({
+          try {
+            const res = await fetch(
+              `${basePath}/api/link/${props.operation}?id=${id}`,
+              {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify(root.preview.links),
+              }
+            );
+            const data = (await res.json()) as DefaultRes;
+            if (data.status !== "OK") {
+              return reject({
                 id: toastId,
                 state: "LINK",
-                message: "Link: Server error",
-              })
-            );
+                message: data.message,
+              });
+            }
+
+            resolve(id);
+            return toast.update(toastId, {
+              render: `Link: ${data.message}`,
+              type: "success",
+              isLoading: false,
+              ...ToastDefault,
+            });
+          } catch (err) {
+            reject({
+              id: toastId,
+              state: "LINK",
+              message: "Link: Server error",
+            });
+          }
         });
 
       case "FILES":
         return (function parseTree(tree: TreeObj | FileData | null) {
+          let toastId: ReactText | null = null;
           return new Promise<number>(async (resolve, reject) => {
             try {
               // Check if obj is FileData and if File not exist then break
@@ -124,9 +150,11 @@ export default function DefaultOperationsForm(
                 return resolve(id);
               }
 
+              toastId = toast.loading("Please wait...");
+              const file = await formFile(tree as FileData, root.preview.name);
+
               const body = new FormData();
-              body.append("file", await formFile(tree as FileData));
-              const toastId = toast.loading("Please wait...");
+              body.append("file", file);
 
               const res = await fetch(
                 `${basePath}/api/file/${props.operation}` +
@@ -160,7 +188,7 @@ export default function DefaultOperationsForm(
               return resolve(id);
             } catch (err: any) {
               if (err.id) return reject(err);
-              reject({ state: "FILES" });
+              reject({ id: toastId, state: "FILES", message: err });
             }
           });
         })(root.code.tree);

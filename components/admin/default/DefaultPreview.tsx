@@ -29,18 +29,6 @@ export default function DefaultPreview(props: DefaultPreviewProps) {
   const preview = useSelector((state) => state[PREFIX]);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    fetch(`${basePath}/api/admin/cache?id=${CacheId(PREFIX.toUpperCase())}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (!(data = data.result || props.preview)) return;
-        dispatch({ type: `${PREFIX.toUpperCase()}_INIT`, value: data });
-        dispatch({ type: "MAIN_FLAG_CHANGED", value: data.flag });
-        dispatch({ type: "CODE_FLAG_CHANGED", value: data.flag });
-      })
-      .catch(() => null);
-  }, []);
-
   return (
     <div className={props.show ? "" : "d-none"}>
       <hr />

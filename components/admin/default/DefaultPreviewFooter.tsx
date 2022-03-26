@@ -75,8 +75,6 @@ export default function DefaultPreviewFooter(props: DefaultPreviewFooterProps) {
             char={["http://", "@"]}
             readFrom={`${props.readFrom}_links`}
             placeholder={[ProjectInfo.link, ProjectInfo.name]}
-            // name={["link", "name"]}
-            // onChange={onNewLinkAdd}
           />
           <ul className="list-group">
             {Object.entries(preview.links).map(([name, link], i) =>
@@ -102,7 +100,7 @@ export default function DefaultPreviewFooter(props: DefaultPreviewFooterProps) {
           <DefaultProjectInfo
             links={Object.entries(preview.links).map(([name, link]) => ({
               name,
-              link: link && `http://${link}`,
+              link: `http://${link || "#"}`,
             }))}
             description={preview.note || ProjectInfo.note}
           />

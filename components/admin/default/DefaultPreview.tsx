@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { basePath } from "../../../config";
 import { ProjectInfo } from "../../../config/placeholder";
 import { CacheId } from "../../../lib/public";
+import { tmpFile } from "../../../lib/public/files";
 import { ProjectData } from "../../../types/api";
 import { DefaultRes } from "../../../types/request";
 import Card from "../../Card";
@@ -81,7 +82,10 @@ export default function DefaultPreview(props: DefaultPreviewProps) {
               <InputFile
                 name="preview_thumbnail"
                 role="thumbnail"
+                onURL={(file) => tmpFile(file, { role: "thumbnail", dir: "" })}
                 onUpload={(files) => {
+                  if (!Array.isArray(files)) return;
+
                   dispatch({
                     type: "PREVIEW_IMG_UPLOADED",
                     value: files[0]?.url,
@@ -90,8 +94,11 @@ export default function DefaultPreview(props: DefaultPreviewProps) {
                   dispatch({
                     type: "CODE_FILE_UPLOADED",
                     value: files,
-                    info: { dir: "", role: "" },
+                    info: { dir: "", role: "thumbnail" },
                   });
+
+                  dispatch({ type: "PREVIEW_CACHED" });
+                  dispatch({ type: "CODE_CACHED" });
                 }}
                 type="image/*"
                 // onChange={(e) => {

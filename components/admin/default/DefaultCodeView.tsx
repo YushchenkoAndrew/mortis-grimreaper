@@ -1,4 +1,3 @@
-import React, { useEffect, useImperativeHandle, useState } from "react";
 import { ProjectInfo } from "../../../config/placeholder";
 import InputFile from "../../Inputs/InputFile";
 import InputRadio from "../../Inputs/InputRadio";
@@ -7,10 +6,7 @@ import InputValue from "../../Inputs/InputValue";
 import TreeView from "../../TreeView/TreeView";
 import Editor from "react-simple-code-editor";
 import { Grammar, highlight, languages } from "prismjs";
-import { basePath } from "../../../config";
-import { DefaultRes } from "../../../types/request";
 import { useDispatch, useSelector } from "react-redux";
-import { CacheId } from "../../../lib/public";
 import "prismjs/components/prism-markup";
 import "prismjs/components/prism-css";
 import "prismjs/components/prism-javascript";
@@ -18,6 +14,7 @@ import "prismjs/components/prism-markdown";
 import "prismjs/components/prism-docker";
 import "prismjs/themes/prism-coy.css";
 import { TreeObj } from "../../../types/tree";
+import { tmpFile } from "../../../lib/public/files";
 
 const highlightTypes: { [name: string]: [Grammar, string] } = {
   html: [languages.html, "html"],
@@ -75,9 +72,13 @@ export default function DefaultCodeView(props: DefaultCodeViewProps) {
               name="code_file"
               role={code.role}
               multiple
-              onUpload={(value) =>
-                dispatch({ type: "CODE_FILE_UPLOADED", value })
-              }
+              onURL={(file) => tmpFile(file, code)}
+              onUpload={(files) => {
+                if (!Array.isArray(files)) return;
+                dispatch({ type: "CODE_FILE_UPLOADED", value: files });
+
+                dispatch({ type: "CODE_CACHED" });
+              }}
             />
           </InputTemplate>
         </div>

@@ -10,7 +10,7 @@ describe("Check different operations on projects", () => {
     cy.visit("/admin/projects/create");
     cy.url().should("include", "/create");
 
-    const projectName = "test_js20";
+    const projectName = "test_js22";
 
     // Check if submit will failed on empty data
     cy.get("button[type=submit]").realClick();
@@ -36,10 +36,9 @@ describe("Check different operations on projects", () => {
 
     cy.get(".card div").contains("js_desc").should("exist");
 
-    // TODO: Add caching functionality to the file !!!
-    // cy.get("input[name=preview_thumbnail]").attachFile(
-    //   "../downloads/E1KMKoDVgAM5zII.jpg"
-    // );
+    cy.get("input[name=preview_thumbnail]")
+      .attachFile("../downloads/E1KMKoDVgAM5zII.jpg")
+      .wait(500);
 
     // Check if setting different flag will change window mode
     cy.get("input[name=preview_flag_JS]").realClick();
@@ -85,11 +84,6 @@ describe("Check different operations on projects", () => {
       .contains("link2")
       .should("have.prop", "href")
       .and("equal", "http://link/");
-
-    // FIXME: Somehow save uploaded file
-    cy.get("input[name=preview_thumbnail]")
-      .attachFile("../downloads/E1KMKoDVgAM5zII.jpg")
-      .wait(500);
 
     // Start checking Code window
     cy.get("input[name=main_window_Code]").realClick();

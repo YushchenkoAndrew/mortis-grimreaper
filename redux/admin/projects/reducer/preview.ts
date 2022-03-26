@@ -95,10 +95,7 @@ export default function (state = INIT_STATE, action: AnyAction) {
     case `${PREFIX}_CACHED`:
       fetch(`${basePath}/api/admin/cache?id=${CacheId(PREFIX)}`, {
         method: "POST",
-        body: JSON.stringify({
-          ...state,
-          img: `${basePath}/img/CodeRain.webp`,
-        }),
+        body: JSON.stringify({ ...state }),
       }).catch(() => null);
       return state;
 

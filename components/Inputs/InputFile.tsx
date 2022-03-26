@@ -9,6 +9,7 @@ export interface InputFileProps {
   required?: boolean;
   multiple?: boolean;
   onUpload: (file: FileData[]) => void;
+  onURL?: (file: File) => Promise<string | undefined>;
 }
 
 export default function InputFile(props: InputFileProps) {
@@ -27,14 +28,13 @@ export default function InputFile(props: InputFileProps) {
         accept={props.type}
         onChange={() => {
           if (!fileRef.current?.files?.[0]) return;
-          onFileUpload(fileRef.current.files[0].name);
 
-          let files = [] as FileData[];
-          for (let i = 0; i < fileRef.current.files.length; i++) {
-            const form = new FormData();
-            form.append("file", fileRef.current.files[i]);
-            files.push({
-              file: fileRef.current.files[i],
+          const files = fileRef.current.files;
+          onFileUpload(files[0].name);
+
+          let data = [] as FileData[];
+          for (let i = 0; i < files.length; i++) {
+            data.push({
               name: fileRef.current.files[i].name,
               type:
                 convertTypes[fileRef.current.files[i].type] ??
@@ -44,29 +44,22 @@ export default function InputFile(props: InputFileProps) {
             });
           }
 
-          function CreateReader(param: string, func: string) {
-            return function ReadFiles(i: number): Promise<void> {
-              return new Promise<void>((resolve) => {
-                if (!allowedReader[func].includes(files[i].type)) {
-                  if (++i == files.length) return resolve();
-                  return ReadFiles(i).finally(() => resolve());
-                }
+          (async function () {
+            for (let i in data) {
+              if (!allowedReader.includes(files[i].type)) {
+                data[i].url = await props.onURL?.(files[i]);
+                continue;
+              }
 
+              await new Promise<void>((resolve) => {
                 let reader = new FileReader();
-                reader[func](files[i].file || new Blob());
-                reader.onloadend = (_) => {
-                  files[i][param] = String(reader.result);
-                  if (++i == files.length) return resolve();
-                  return ReadFiles(i).finally(() => resolve());
-                };
+                reader.readAsText(files[i]);
+                (reader.onloadend = (_) =>
+                  (data[i].content = String(reader.result))),
+                  resolve();
               });
-            };
-          }
-
-          Promise.all([
-            CreateReader("url", "readAsDataURL")(0),
-            CreateReader("content", "readAsText")(0),
-          ]).finally(() => props.onUpload(files));
+            }
+          })().finally(() => props.onUpload(data));
         }}
       />
       <button

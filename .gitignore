@@ -15,7 +15,9 @@
 # production
 build/
 
+# cypress
 **/downloads
+**/screenshots
 
 # misc
 .DS_Store

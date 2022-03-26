@@ -1,16 +1,22 @@
+import { basePath, voidUrl } from "../../config";
 import { FileData, ProjectData } from "../../types/api";
 import { TreeObj } from "../../types/tree";
+import { createQuery } from "../api/query";
+import md5 from "../md5";
 
-export function formPath(file?: FileData) {
-  if (!file) return "";
-  return [file.role, file.path, file.name]
-    .filter((item) => item && item != "/")
+export function formPath(obj?: FileData | string[]) {
+  if (!obj) return "";
+  if (Array.isArray(obj)) {
+    return obj
+      .map((item) => item?.replace?.(/^\//, ""))
+      .filter((item) => item)
+      .join("/");
+  }
+
+  return [obj.role, obj.path, obj.name]
+    .map((item) => item?.replace?.(/^\//, ""))
+    .filter((item) => item)
     .join("/");
-}
-
-export function getPath(path: string | undefined) {
-  if (!path) return "";
-  return "&path=" + (path[0] !== "/" ? "/" + path : path);
 }
 
 export const convertTypes = {
@@ -18,27 +24,27 @@ export const convertTypes = {
   "x-application/x-javascript": "text/javascript",
 };
 
-export const allowedReader = {
-  readAsDataURL: [
-    "image/gif",
-    "image/jpg",
-    "image/jpeg",
-    "image/webp",
-    "image/png",
-    "font/ttf",
-  ],
-  readAsText: [
-    "text/markdown",
-    "text/html",
-    "text/css",
-    "text/javascript",
-    "text/dockerfile",
-    "text/yaml",
-    "application/json",
-  ],
-};
+export const allowedReader = [
+  // readAsDataURL: [
+  //   "image/gif",
+  //   "image/jpg",
+  //   "image/jpeg",
+  //   "image/webp",
+  //   "image/png",
+  //   "font/ttf",
+  // ],
+  // readAsText: [
+  "text/markdown",
+  "text/html",
+  "text/css",
+  "text/javascript",
+  "text/dockerfile",
+  "text/yaml",
+  "application/json",
+  // ],
+];
 
-export async function formFile(file: FileData) {
+export async function formFile(file: FileData, project: string) {
   if (file.content) {
     return new File(
       [new Blob([file.content], { type: file.type })],
@@ -47,9 +53,13 @@ export async function formFile(file: FileData) {
     );
   }
 
-  if (file.file) return file.file;
+  // if (file.file) return file.file;
 
-  const res = await fetch(file.url || "", { mode: "cors" });
+  const res = await fetch(
+    `${basePath}/api/file/load?path=` +
+      (file.url?.replace?.(`${voidUrl}/`, "") ||
+        formPath([project, file.role, file.path, file.name]))
+  );
   return new File([await res.blob()], file.name, {
     type: file.type,
   });
@@ -98,4 +108,21 @@ export function addFile(
         : { [path[i]]: { ...body, ...combine(body, i + 1) } };
     })(tree),
   };
+}
+
+export async function tmpFile(file: File, info: { role: string; dir: string }) {
+  const body = new FormData();
+  body.append("file", file);
+
+  try {
+    await fetch(`${basePath}/api/file/tmp` + createQuery(info), {
+      method: "POST",
+      body: body,
+    });
+
+    return (
+      `${voidUrl}/tmp/` +
+      md5(formPath([info.role, info.dir, file.name]).replace(/\//g, ""))
+    );
+  } catch (err) {}
 }

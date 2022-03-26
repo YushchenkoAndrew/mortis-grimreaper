@@ -3,10 +3,9 @@ import DefaultHead from "../../../components/default/DefaultHead";
 import { checkIfUserExist } from "../../../lib/api/session";
 import { TreeObj } from "../../../types/tree";
 import { basePath, voidUrl } from "../../../config";
-import { FileData, LinkData, ProjectData } from "../../../types/api";
+import { ProjectData } from "../../../types/api";
 import sessionConfig from "../../../config/session";
 import { PROJECT_TREE } from "../../../config/placeholder";
-import "react-toastify/dist/ReactToastify.css";
 import { Provider } from "react-redux";
 import { withIronSessionSsr } from "iron-session/next";
 import { useRouter } from "next/router";
@@ -77,18 +76,19 @@ export const getServerSideProps = withIronSessionSsr(
         if (!project || !project.length) break;
 
         let tree = PROJECT_TREE;
+        let img = `${basePath}/img/CodeRain.webp`;
+
         for (let file of project[0].files) {
+          const url = `${voidUrl}/${project[0].name}/${formPath(file)}`;
+          if (file.role === "thumbnail") img = url;
+
           let content: string | null = null;
-          if (allowedReader.readAsText.includes(file.type)) {
+          if (allowedReader.includes(file.type)) {
             content = await LoadFile({ id: file.id });
           }
 
           tree = addFile(tree, { dir: file.path, role: file.role }, [
-            {
-              ...file,
-              url: `${voidUrl}/${project[0].name}/${formPath(file)}`,
-              content: content,
-            },
+            { ...file, url, content },
           ]);
         }
 
@@ -97,7 +97,7 @@ export const getServerSideProps = withIronSessionSsr(
             preview: {
               ...["id", "name", "flag", "title", "desc", "note"].reduce(
                 (acc, key) => ({ ...acc, [key]: project[0][key] }),
-                {}
+                { img }
               ),
 
               links: project[0].links.reduce(

@@ -1,14 +1,30 @@
 import { apiUrl, localVoidUrl } from "../../config";
+import { File } from "formidable";
 import redis from "../../config/redis";
 import { formPath } from "../public/files";
 import { createQuery } from "../../lib/api/query";
-import { ApiError, ApiRes, FileData } from "../../types/api";
+import { ApiError, ApiOk, ApiRes, FileData } from "../../types/api";
 import {
   compressToBase64 as compress,
   decompressFromBase64 as decompress,
 } from "lz-string";
+import FormData from "form-data";
 import { sendLogs } from "./bot";
-import { ApiAuth } from "./auth";
+import { ApiAuth, VoidAuth } from "./auth";
+import { createReadStream } from "fs";
+
+export async function SendFile(file: File, path: string) {
+  const formData = new FormData();
+  formData.append("file", createReadStream(file.path), file.name || "");
+
+  const res = await fetch(`${localVoidUrl}?path=/${path}`, {
+    method: "POST",
+    headers: { Authorization: `Basic ${VoidAuth()}` },
+    body: formData as any,
+  });
+
+  return (await res.json()) as ApiOk | ApiError;
+}
 
 export function LoadFile(args: { [key: string]: any }) {
   return new Promise<string | null>(async (resolve) => {

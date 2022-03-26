@@ -1,10 +1,9 @@
 import { AnyAction } from "redux";
 import { basePath } from "../../../../config";
 import { CODE_TEMPLATE } from "../../../../config/placeholder";
-// import { codeTemplate } from "../../../../config/placeholder";
+import { createQuery } from "../../../../lib/api/query";
 import { CacheId } from "../../../../lib/public";
 import { addFile, getFile } from "../../../../lib/public/files";
-import { parseHTML } from "../../../../lib/public/markers";
 import { FileData } from "../../../../types/api";
 import { TreeObj } from "../../../../types/tree";
 
@@ -16,7 +15,6 @@ export const INIT_STATE = {
   dir: "",
 
   // Curr showed file
-  // name: CODE_TEMPLATE.JS.name,
   type: CODE_TEMPLATE.JS.type,
   path: `${CODE_TEMPLATE.JS.role}/${CODE_TEMPLATE.JS.name}`,
   content: CODE_TEMPLATE.JS.content,
@@ -58,20 +56,12 @@ export default function (state = INIT_STATE, action: AnyAction) {
     }
 
     case `${PREFIX}_FILE_UPLOADED`:
-      if (!Array.isArray(action.value)) return state;
-
       // FIXME: ???
       // const html = parseHTML(state.content, action.value);
       // if (html) setFile({ ...file, content: html });
 
-      return {
-        ...state,
-        tree: addFile(
-          state.tree,
-          action.info ?? { dir: state.dir, role: state.role },
-          action.value
-        ),
-      };
+      const info = action.info ?? { dir: state.dir, role: state.role };
+      return { ...state, tree: addFile(state.tree, info, action.value) };
 
     case `${PREFIX}_CONTENT_CHANGED`: {
       const file = getFile(
@@ -106,7 +96,6 @@ export default function (state = INIT_STATE, action: AnyAction) {
         ...state,
         type: file.type,
         path: `${file.role}/${file.name}`.replace(/^\//, ""),
-
         content: file.content,
         tree: addFile(
           state.tree,

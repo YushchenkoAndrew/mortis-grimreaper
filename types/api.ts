@@ -60,7 +60,7 @@ export type FileData = {
   role: string;
   project_id?: number;
 
-  file?: File;
+  // file?: File;
   content?: string | null;
   url?: string;
 };

@@ -1,15 +1,14 @@
-import fs from "fs";
 import { File, IncomingForm } from "formidable";
 import sessionConfig from "../../../config/session";
-import FormData from "form-data";
 import { FullResponse } from "../../../types/request";
-import { apiUrl, localVoidUrl } from "../../../config";
-import { ApiAuth, VoidAuth } from "../../../lib/api/auth";
-import { ApiError, ApiOk, ApiRes, FileData } from "../../../types/api";
+import { apiUrl } from "../../../config";
+import { ApiAuth } from "../../../lib/api/auth";
+import { ApiError, ApiRes, FileData } from "../../../types/api";
 import { GetParam } from "../../../lib/api/query";
 import { withIronSessionApiRoute } from "iron-session/next";
-import { DeleteFile } from "../../../lib/api/file";
+import { DeleteFile, SendFile } from "../../../lib/api/file";
 import { FlushFilter } from "../../../lib/api/cache";
+import { formPath } from "../../../lib/public/files";
 
 export const config = { api: { bodyParser: false } };
 
@@ -85,25 +84,11 @@ export default withIronSessionApiRoute(async function (req, res) {
           return resolve({ status: 500, send: data });
         }
 
-        console.log(data);
-
-        const formData = new FormData();
-        formData.append(
-          "file",
-          fs.createReadStream(file.path),
-          file.name || ""
+        const result = await SendFile(
+          file,
+          `${body.project}/${formPath(body as FileData)}`
         );
 
-        res = await fetch(
-          `${localVoidUrl}?path=/${body.project}/${body.role + body.path}`,
-          {
-            method: "POST",
-            headers: { Authorization: `Basic ${VoidAuth()}` },
-            body: formData as any,
-          }
-        );
-
-        const result = (await res.json()) as ApiOk | ApiError;
         if (result.status !== "OK") {
           await DeleteFile({ id: data.result[0].id, name: file.name });
           return resolve({ status: 500, send: result });

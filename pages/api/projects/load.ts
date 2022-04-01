@@ -4,20 +4,21 @@ import { DefaultRes } from "../../../types/request";
 import sessionConfig from "../../../config/session";
 import { LoadProjects } from "../../../lib/api/project";
 
+const REQUIRED_FIELDS = ["id", "file[role]", "page"];
 export default withIronSessionApiRoute(async function (req, res) {
   if (req.method !== "GET") {
     return res.status(405).send({ status: "ERR", message: "Unknown method" });
   }
 
-  const role = GetParam(req.query.role);
-  const id = Number(GetParam(req.query.id));
-  const page = Number(GetParam(req.query.page));
+  const query = REQUIRED_FIELDS.filter(
+    (key) => key in req.query && req.query[key]
+  ).reduce((acc, curr) => ((acc[curr] = GetParam(req.query[curr])), acc), {
+    id: null,
+  });
 
-  if (isNaN(page) && isNaN(id)) {
-    return res.status(400).send({ status: "ERR", message: "Bad 'page' param" });
-  }
+  console.log(req.query);
 
-  const projects = await LoadProjects({ id, role, page });
+  const projects = await LoadProjects(query);
   if (!projects) {
     return res
       .status(500)

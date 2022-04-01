@@ -13,11 +13,9 @@ import { formPath } from "../../lib/public/files";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { loadProjectsThumbnail } from "../../lib/public/projects";
 import sessionConfig from "../../config/session";
-// import { LoadProjects } from "../api/projects/load";
 import { DefaultRes } from "../../types/request";
 import { Bounce, toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { ToastDefault } from "../../config/alert";
 import { withIronSessionSsr } from "iron-session/next";
 import { LoadProjects } from "../../lib/api/project";
 
@@ -179,7 +177,7 @@ export const getServerSideProps = withIronSessionSsr(
       };
     }
 
-    const projects = await LoadProjects({ page: 0, role: "thumbnail" });
+    const projects = await LoadProjects({ page: 0, "file[role]": "thumbnail" });
 
     return {
       props: {

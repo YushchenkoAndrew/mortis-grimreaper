@@ -79,18 +79,19 @@ export const getServerSideProps = withIronSessionSsr(
         let img = `${basePath}/img/CodeRain.webp`;
 
         for (let file of project[0].files) {
-          const url = `${voidUrl}/${project[0].name}/${formPath(file)}`;
-          if (file.role === "thumbnail") img = url;
+          const path = `${project[0].name}/${formPath(file)}`;
+          if (file.role === "thumbnail") img = `${voidUrl}/${path}`;
 
-          let content: string | null = null;
-          if (allowedReader.includes(file.type)) {
-            content = await LoadFile({ id: file.id });
-          }
+          const content = allowedReader.includes(file.type)
+            ? await LoadFile(path)
+            : null;
 
           tree = addFile(tree, { dir: file.path, role: file.role }, [
-            { ...file, url, content },
+            { ...file, url: `${voidUrl}/${path}`, content },
           ]);
         }
+
+        console.dir(project, { depth: null });
 
         return {
           props: {

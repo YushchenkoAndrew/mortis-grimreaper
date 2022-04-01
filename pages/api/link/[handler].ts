@@ -4,7 +4,7 @@ import { apiUrl } from "../../../config";
 import { ApiAuth } from "../../../lib/api/auth";
 import { ApiError, ApiRes, LinkData } from "../../../types/api";
 import { GetParam } from "../../../lib/api/query";
-import { withIronSessionApiRoute } from "iron-session/next/dist";
+import { withIronSessionApiRoute } from "iron-session/next";
 import { FlushFilter } from "../../../lib/api/cache";
 
 // const REQUIRED_FIELDS = ["id", "project", "role", "path", "project_id"];
@@ -30,7 +30,7 @@ export default withIronSessionApiRoute(async function (req, res) {
           switch (GetParam(req.query.handler)) {
             case "create":
             case "update":
-              return fetch(`${apiUrl}/link/${GetParam(req.query.id)}`, {
+              return fetch(`${apiUrl}/link/list/${GetParam(req.query.id)}`, {
                 method: "POST",
                 headers: {
                   "content-type": "application/json",

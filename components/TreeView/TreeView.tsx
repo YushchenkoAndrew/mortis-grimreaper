@@ -50,11 +50,9 @@ export interface TreeViewProps {
   // onFileSelect: (key: string[]) => void;
 }
 
-//
-// TODO: Add functionality to delete file/folder
-//
 export default function TreeView(props: TreeViewProps) {
   const [showNode, onNodeChange] = useState({} as { [name: string]: boolean });
+
   const dispatch = useDispatch();
   const tree = useSelector((state: any) =>
     props.prefix.split("_").reduce((acc, curr) => acc[curr], state)
@@ -84,17 +82,15 @@ export default function TreeView(props: TreeViewProps) {
           iconClass={color}
           href={value.url}
           onChange={(key: string) => {
-            onNodeChange({
-              ...showNode,
-              [key]: !showNode[key],
-            });
+            onNodeChange({ ...showNode, [key]: !showNode[key] });
           }}
-          onSelect={() =>
+          onSelect={() => {
+            if (!value.content) return;
             dispatch({
               type: `${props.root}_path_changed`.toUpperCase(),
               value: [...path.split("/"), name].filter((item) => item),
-            })
-          }
+            });
+          }}
         >
           {value.name
             ? null
@@ -118,7 +114,6 @@ export default function TreeView(props: TreeViewProps) {
         iconClass="text-info"
         open
       >
-        {/* {ParseTree(props.projectTree)} */}
         {ParseTree(tree)}
       </Node>
     </ul>

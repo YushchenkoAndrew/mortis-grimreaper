@@ -53,6 +53,11 @@ export default function DefaultOperationsForm(
 
   function SubmitStateMachine(state: string, id: number) {
     switch (state) {
+      case "CHECK_NAME":
+        return new Promise<number>(async (resolve, reject) => {
+          resolve(id);
+        });
+
       case "PREVIEW":
         return new Promise<number>(async (resolve, reject) => {
           const toastId = toast.loading("Please wait...");
@@ -98,7 +103,6 @@ export default function DefaultOperationsForm(
 
       case "LINK":
         return new Promise<number>(async (resolve, reject) => {
-          return resolve(id);
           const toastId = toast.loading("Please wait...");
 
           try {

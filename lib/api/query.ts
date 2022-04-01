@@ -1,6 +1,6 @@
 export function createQuery(obj: { [key: string]: any }) {
   const result = Object.entries(obj)
-    .filter(([_, value]) => value)
+    .filter(([_, value]) => value || value === 0)
     .map(
       ([key, value]) =>
         `${encodeURIComponent(key)}=${encodeURIComponent(value)}`

@@ -1,3 +1,6 @@
+const JS_PROJECT = "test_js7";
+const MARKDOWN_PROJECT = "test_markdown";
+
 describe("Check different operations on projects", () => {
   beforeEach(() => {
     cy.visit("/admin");
@@ -10,13 +13,11 @@ describe("Check different operations on projects", () => {
     cy.visit("/admin/projects/create");
     cy.url().should("include", "/create");
 
-    const projectName = "test_js22";
-
     // Check if submit will failed on empty data
     cy.get("button[type=submit]").realClick();
 
     // Check if required error will show up
-    cy.checkInputValue("preview_name", projectName, true);
+    cy.checkInputValue("preview_name", JS_PROJECT, true);
 
     // Check if required error will show up and thumbnail card will be updated
     cy.checkInputValue("preview_title", "js_title", true);
@@ -71,7 +72,7 @@ describe("Check different operations on projects", () => {
     cy.wait(2000).reload().wait(2000);
 
     // Check caching !!
-    cy.get("input[name=preview_name]").should("have.value", projectName);
+    cy.get("input[name=preview_name]").should("have.value", JS_PROJECT);
     cy.get("input[name=preview_title]").should("have.value", "js_title");
     cy.get("textarea[name=preview_desc]").should("have.value", "js_desc");
     cy.get("input[name=preview_links_main]").should("have.value", "js_link");
@@ -155,14 +156,14 @@ describe("Check different operations on projects", () => {
     cy.get("button[type=submit]").realClick();
 
     // FIXME: Somehow to check toastify
-    cy.wait(10000);
+    cy.wait(15000);
 
     // Check if project exists and there not any server errors
-    cy.request({ url: "/" + projectName, failOnStatusCode: false })
+    cy.request({ url: "/" + JS_PROJECT, failOnStatusCode: false })
       .its("status")
       .should("eq", 200);
 
-    cy.visit("/" + projectName);
+    cy.visit("/" + JS_PROJECT);
 
     cy.get(`img[src$="/assets/E1KMKoDVgAM5zII.jpg"]`).should("exist");
     cy.get(`img[src$="/assets/5ca927abbd24b66dc7f8ca79d7357356.jpg"]`).should(
@@ -179,15 +180,13 @@ describe("Check different operations on projects", () => {
 
   it("Check creation of Markdown project", () => {
     cy.visit("/admin/projects/operation");
-    cy.url().should("include", "?type=add");
-
-    const projectName = "test_markdown";
+    cy.url().should("include", "/create");
 
     // Check if submit will failed on empty data
     cy.get("button[type=submit]").realClick();
 
     // Check if required error will show up
-    cy.checkInputValue("preview_name", projectName, true);
+    cy.checkInputValue("preview_name", MARKDOWN_PROJECT, true);
 
     // Check if required error will show up and thumbnail card will be updated
     cy.checkInputValue("preview_title", "markdown_title", true);
@@ -243,7 +242,7 @@ describe("Check different operations on projects", () => {
     cy.wait(2000).reload().wait(2000);
 
     // Check caching !!
-    cy.get("input[name=preview_name]").should("have.value", projectName);
+    cy.get("input[name=preview_name]").should("have.value", MARKDOWN_PROJECT);
     cy.get("input[name=preview_title]").should("have.value", "markdown_title");
     cy.get("textarea[name=preview_desc]").should("have.value", "markdown_desc");
     cy.get("input[name=preview_links_main]").should("have.value", "m_link");

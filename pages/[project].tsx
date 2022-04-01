@@ -10,6 +10,7 @@ import DefaultJsProject from "../components/default/DefaultJsProject";
 import DefaultMarkdownProject from "../components/default/DefaultMarkdownProject";
 import { LoadProjects } from "../lib/api/project";
 import { LoadFile } from "../lib/api/file";
+import { formPath } from "../lib/public/files";
 export interface ProjectPageProps {
   name: string;
   title: string;
@@ -46,39 +47,32 @@ export default function ProjectPage(props: ProjectPageProps) {
   );
 }
 
-export const getServerSideProps = async (
-  context: GetServerSidePropsContext
-) => {
-  const name = context.params?.project as string | undefined;
-  if (!name) return { notFound: true };
+export const getServerSideProps = async ({
+  params,
+}: GetServerSidePropsContext) => {
+  const project = await LoadProjects<ProjectData>({
+    name: params?.project || "",
+    "link[name]": "main",
+    "file[role]": "template",
+  });
 
-  const project = await LoadProjects<ProjectData>({ name, link_name: "main" });
   if (!project) return { notFound: true };
-
   if (["Link", "Docker"].includes(project[0].flag)) {
-    console.log(project);
-
-    // const main =
     return {
       redirect: {
         basePath: false,
-        destination: "http://" + project[0].links[0].link,
+        destination: `http://${project[0].links[0].link}`,
         permanent: false,
       },
     };
   }
 
-  console.log(project);
-  const template = await LoadFile({
-    project: name,
-    project_id: project[0].id,
-    role: "template",
-  });
-
   return {
     props: {
       ...project[0],
-      template: template || "",
+      template: await LoadFile(
+        `${project[0].name}/${formPath(project[0].files[0])}`
+      ),
     },
   };
 };

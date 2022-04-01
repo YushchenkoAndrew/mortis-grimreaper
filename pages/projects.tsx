@@ -31,7 +31,7 @@ export default function ProjectsListPage(props: ProjectsListPageProps) {
           [...projects[2], ...data.slice(2 * chunk)],
         ]);
       })
-      .catch((err) => onReachEnd(false));
+      .catch(() => onReachEnd(false));
   }
 
   return (
@@ -161,7 +161,7 @@ export default function ProjectsListPage(props: ProjectsListPageProps) {
 export const getServerSideProps = async () => {
   const project = await LoadProjects<ProjectData>({
     page: 0,
-    role: "thumbnail",
+    "file[role]": "thumbnail",
   });
 
   if (!project) {

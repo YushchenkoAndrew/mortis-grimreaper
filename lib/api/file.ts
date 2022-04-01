@@ -1,7 +1,6 @@
 import { apiUrl, localVoidUrl } from "../../config";
 import { File } from "formidable";
 import redis from "../../config/redis";
-import { formPath } from "../public/files";
 import { createQuery } from "../../lib/api/query";
 import { ApiError, ApiOk, ApiRes, FileData } from "../../types/api";
 import {
@@ -26,32 +25,24 @@ export async function SendFile(file: File, path: string) {
   return (await res.json()) as ApiOk | ApiError;
 }
 
-export function LoadFile(args: { [key: string]: any }) {
+export function LoadFile(path: string) {
   return new Promise<string | null>(async (resolve) => {
     try {
-      const query = createQuery(args);
-      let result = decompress((await redis.get(`File:${query}`)) || "");
-      if (result) return resolve(result);
+      const reply = await redis.get(`FILE:${path}`);
+      if (reply) {
+        redis.expire(`FILE:${path}`, 2 * 60 * 60);
+        return resolve(decompress(reply));
+      }
 
-      let res = await fetch(`${apiUrl}/file${query}`);
-      const data = (await res.json()) as ApiRes<FileData[]> | ApiError;
-      if (data.status === "ERR") return null;
-
-      res = await fetch(
-        `${localVoidUrl}/${args.project}/${formPath(data.result[0])}`
-      );
-
+      const res = await fetch(`${localVoidUrl}/${path}`);
       const text = await res.text();
+
       resolve(text);
-
-      const compressed = compress(text);
-      if (!compressed) return;
-
       redis
-        .set(`File:${query}`, compressed)
-        .finally(() => redis.expire(`File:${query}`, 2 * 60 * 60));
+        .set(`FILE:${path}`, compress(text))
+        .finally(() => redis.expire(`FILE:${path}`, 2 * 60 * 60));
     } catch (err: any) {
-      resolve(null);
+      resolve("");
     }
   });
 }

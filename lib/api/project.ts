@@ -19,11 +19,8 @@ export function LoadProjects<Type = any>(args: { [key: string]: any }) {
       if (data.status === "ERR") return resolve(null);
       resolve(data.result);
 
-      const compressed = compress(JSON.stringify(data.result));
-      if (!compressed) return;
-
       redis
-        .set(`Project:${query}`, compressed)
+        .set(`Project:${query}`, compress(JSON.stringify(data.result)))
         .finally(() => redis.expire(`Project:${query}`, 2 * 60 * 60));
     } catch (err: any) {
       resolve(null);

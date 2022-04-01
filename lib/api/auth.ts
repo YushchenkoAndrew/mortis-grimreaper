@@ -21,28 +21,28 @@ export function PassValidate(pass: string, pass2: string) {
 }
 
 export function UpdateTokens(data: ApiTokens) {
-  redis.set("API:Access", data.access_token);
-  redis.set("API:Refresh", data.refresh_token);
+  redis.set("API:ACCESS", data.access_token);
+  redis.set("API:REFRESH", data.refresh_token);
 
-  redis.expire("API:Access", 15 * 60);
-  redis.expire("API:Refresh", 7 * 24 * 60 * 60);
+  redis.expire("API:ACCESS", 15 * 60);
+  redis.expire("API:REFRESH", 7 * 24 * 60 * 60);
 }
 
 export function DeleteTokens() {
-  redis.del("API:Access");
-  redis.del("API:Refresh");
+  redis.del("API:ACCESS");
+  redis.del("API:REFRESH");
 }
 
 export function ApiAuth(retry: boolean = true): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
       // await waitMutex();
-      const access = await redis.get("API:Access");
+      const access = await redis.get("API:ACCESS");
       if (access) return resolve(access);
 
       // If Access token expired, then refresh token
-      const refresh = await redis.get("API:Refresh");
-      if (!refresh) {
+      const refresh = await redis.get("API:REFRESH");
+      if (refresh) {
         const res = await fetch(`${apiUrl}/refresh`, {
           method: "POST",
           headers: { "content-type": "application/json" },
@@ -86,7 +86,7 @@ export function ApiAuth(retry: boolean = true): Promise<string> {
       resolve(data.access_token);
     } catch (err) {
       if (!retry) return reject(err);
-      ApiAuth(false);
+      resolve(await ApiAuth(false));
     }
   });
   // .finally(() => freeMutex());

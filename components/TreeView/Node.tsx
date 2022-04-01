@@ -57,23 +57,16 @@ function Node(props: NodeProps) {
             fontSize="1rem"
           />
         </a>
-        <a
-          href={props.href ?? "#"}
-          target={props.href ? "_blank" : "_self"}
-          rel="noreferrer"
-          download={
-            props.href && props.href.startsWith("data:")
-              ? props.name
-              : undefined
-          }
-        >
-          <FontAwesomeIcon
-            className={`ml-1 mr-1 ${styles["el-prop"]} text-primary`}
-            icon={faExternalLinkAlt}
-            size="lg"
-            fontSize="1rem"
-          />
-        </a>
+        {props.href ? (
+          <a href={props.href} target="_blank" rel="noreferrer">
+            <FontAwesomeIcon
+              className={`ml-1 mr-1 ${styles["el-prop"]} text-primary`}
+              icon={faExternalLinkAlt}
+              size="lg"
+              fontSize="1rem"
+            />
+          </a>
+        ) : null}
         <a>
           <FontAwesomeIcon
             className={`ml-1 mr-2 ${styles["el-prop"]} text-danger `}

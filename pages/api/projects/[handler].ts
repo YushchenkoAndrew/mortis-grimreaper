@@ -17,7 +17,7 @@ export default withIronSessionApiRoute(async function (req, res) {
   ).reduce((acc, curr) => ((acc[curr] = req.body[curr]), acc), {
     id: -1,
     note: "Damn it, guess I forgot to put some context here",
-  });
+  } as { [key: string]: any });
 
   if (Object.keys(body).length != REQUIRED_FIELDS.length) {
     return res.status(400).send({
@@ -43,7 +43,7 @@ export default withIronSessionApiRoute(async function (req, res) {
               });
 
             case "update":
-              return fetch(`${apiUrl}/project?id=${body.id}`, {
+              return fetch(`${apiUrl}/project/${body.name}`, {
                 method: "PUT",
                 headers: {
                   "content-type": "application/json",

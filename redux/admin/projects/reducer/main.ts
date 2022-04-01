@@ -4,25 +4,25 @@ const PREFIX = "MAIN";
 
 const WINDOW_STATE = {
   JS: {
-    operations: ["PREVIEW", "LINK", "FILES"],
+    operations: ["CHECK_NAME", "PREVIEW", "LINK", "FILES"],
     disabled: ["Config"],
   },
   Markdown: {
-    operations: ["PREVIEW", "LINK", "FILES"],
+    operations: ["CHECK_NAME", "PREVIEW", "LINK", "FILES"],
     disabled: ["Config"],
   },
   Link: {
-    operations: ["PREVIEW", "LINK"],
+    operations: ["CHECK_NAME", "PREVIEW", "LINK"],
     disabled: ["Config", "Code"],
   },
   Docker: {
-    operations: ["PREVIEW", "LINK", "FILES", "K3S"],
+    operations: ["CHECK_NAME", "PREVIEW", "LINK", "FILES", "K3S"],
     disabled: [],
   },
 };
 
 const INIT_STATE = {
-  state: "PREVIEW",
+  state: "CHECK_NAME",
   window: "Preview",
   operations: WINDOW_STATE.JS.operations,
   disabled: WINDOW_STATE.JS.disabled,
@@ -37,7 +37,7 @@ export default function (state = INIT_STATE, action: AnyAction) {
       return { ...state, window: action.value };
 
     case `${PREFIX}_SUBMIT_STATE_CHANGED`:
-      return { ...state, value: action.value };
+      return { ...state, state: action.value };
 
     case `${PREFIX}_FLAG_CHANGED`: {
       const len = state.operations.length;

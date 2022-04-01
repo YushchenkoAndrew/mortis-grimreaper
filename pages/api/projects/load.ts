@@ -4,7 +4,7 @@ import { DefaultRes } from "../../../types/request";
 import sessionConfig from "../../../config/session";
 import { LoadProjects } from "../../../lib/api/project";
 
-const REQUIRED_FIELDS = ["id", "file[role]", "page"];
+const REQUIRED_FIELDS = ["id", "name", "file[role]", "page"];
 export default withIronSessionApiRoute(async function (req, res) {
   if (req.method !== "GET") {
     return res.status(405).send({ status: "ERR", message: "Unknown method" });

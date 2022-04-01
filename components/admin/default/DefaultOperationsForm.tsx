@@ -55,7 +55,32 @@ export default function DefaultOperationsForm(
     switch (state) {
       case "CHECK_NAME":
         return new Promise<number>(async (resolve, reject) => {
-          resolve(id);
+          const toastId = toast.loading("Please wait...");
+
+          try {
+            const res = await fetch(
+              `${basePath}/api/projects/load?name=${root.preview.name}`
+            );
+
+            const data = (await res.json()) as DefaultRes<ProjectData[]>;
+            console.log(data);
+
+            if (!data.result?.length || props.operation === "update") {
+              resolve(id);
+              return toast.update(toastId, {
+                render: "Project name: OK",
+                type: "success",
+                isLoading: false,
+                ...ToastDefault,
+              });
+            }
+          } catch (err) {}
+
+          reject({
+            id: toastId,
+            state: "CHECK_NAME",
+            message: `Project name '${root.preview.name}' already in use`,
+          });
         });
 
       case "PREVIEW":

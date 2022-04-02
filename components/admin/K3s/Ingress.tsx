@@ -26,10 +26,6 @@ export interface IngressProps {
   writeTo: string;
 }
 
-// export interface IngressRef {
-//   getValue: () => Ingress;
-// }
-
 export default function Ingress(props: IngressProps) {
   const [minimized, onMinimize] = useState({
     metadata: true,
@@ -79,8 +75,9 @@ export default function Ingress(props: IngressProps) {
   // }));
 
   return (
-    <div className={`card px-1 py-3 ${props.show ? "" : "d-none"}`}>
+    <div className={`card py-3 ${props.show ? "" : "d-none"}`}>
       <InputTemplate
+        className="px-2"
         labelClassName="font-weight-bold mx-2"
         label={[
           "Metadata ",
@@ -94,11 +91,11 @@ export default function Ingress(props: IngressProps) {
         }
       >
         <div
-          className={`row border rounded px-1 mx-1 py-2 ${
+          className={`row border rounded mx-0 py-2 ${
             minimized.metadata ? "" : "d-none"
           }`}
         >
-          <InputTemplate className="col-6" label="Name">
+          <InputTemplate className="col-6 px-2" label="Name">
             <InputName
               char="@"
               root={props.root}
@@ -106,17 +103,6 @@ export default function Ingress(props: IngressProps) {
               writeTo={`${props.writeTo}_metadata_name`}
               placeholder="void-ingress"
               required
-              // value={ingress.metadata?.name ?? ""}
-              // onChange={({ target: { name, value } }) => {
-              //   onIngressChange({
-              //     ...ingress,
-              //     metadata: {
-              //       ...ingress.metadata,
-              //       [name]: value,
-              //     },
-              //   });
-              // }}
-              // onBlur={onDataCache}
             />
           </InputTemplate>
 
@@ -128,18 +114,6 @@ export default function Ingress(props: IngressProps) {
                 readFrom={`${props.readFrom}_metadata_namespace`}
                 writeTo={`${props.writeTo}_metadata_namespace`}
                 placeholder="demo"
-                // name="namespace"
-                // value={ingress.metadata?.namespace ?? ""}
-                // onChange={({ target: { name, value } }) => {
-                //   onIngressChange({
-                //     ...ingress,
-                //     metadata: {
-                //       ...ingress.metadata,
-                //       [name]: value,
-                //     },
-                //   });
-                // }}
-                // onBlur={onDataCache}
               />
             </div>
           </InputTemplate>
@@ -147,7 +121,7 @@ export default function Ingress(props: IngressProps) {
       </InputTemplate>
 
       <InputTemplate
-        className="mt-1"
+        className="mt-1 px-1"
         labelClassName="font-weight-bold ml-2"
         label={[
           "Spec ",
@@ -159,11 +133,11 @@ export default function Ingress(props: IngressProps) {
         onClick={() => onMinimize({ ...minimized, spec: !minimized.spec })}
       >
         <div
-          className={`border rounded mx-1 px-2 py-2 ${
+          className={`border rounded mx-1 py-2 ${
             minimized.spec ? "" : "d-none"
           }`}
         >
-          <InputTemplate label="Secret Name">
+          <InputTemplate label="Secret Name" className="px-2">
             <div className="input-group">
               <InputValue
                 root={props.root}
@@ -171,24 +145,12 @@ export default function Ingress(props: IngressProps) {
                 writeTo={`${props.writeTo}_spec_tls_secretName`}
                 placeholder="mortis-tls"
                 required
-                // name="secretName"
-                // value={`${ingress.spec?.tls?.[0]?.secretName ?? ""}`}
-                // onChange={({ target: { name, value } }) => {
-                //   onIngressChange({
-                //     ...ingress,
-                //     spec: {
-                //       ...ingress.spec,
-                //       tls: [{ [name]: value }],
-                //     },
-                //   });
-                // }}
-                // onBlur={onDataCache}
               />
             </div>
           </InputTemplate>
 
           <InputTemplate
-            className="mx-1"
+            className="px-2"
             labelClassName="font-weight-bold mx-1"
             label={[
               "Rules ",

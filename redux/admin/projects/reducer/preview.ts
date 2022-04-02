@@ -11,7 +11,8 @@ const INIT_STATE = {
   title: "",
   desc: "",
   note: "",
-  img: `${basePath}/img/CodeRain.webp`,
+  // img: `${basePath}/img/CodeRain.webp`,
+  img: null,
 
   repo: { name: "", version: "" },
 

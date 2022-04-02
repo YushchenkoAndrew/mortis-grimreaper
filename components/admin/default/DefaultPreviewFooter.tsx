@@ -1,3 +1,4 @@
+import { Col, Form, ListGroup, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { ProjectInfo } from "../../../config/placeholder";
 import DefaultFooter from "../../default/DefaultFooter";
@@ -20,7 +21,7 @@ export default function DefaultPreviewFooter(props: DefaultPreviewFooterProps) {
 
   return preview.flag === "Link" || preview.flag === "Docker" ? (
     <div className="d-flex justify-content-center mb-3">
-      <div className="w-100">
+      <Form.Group as={Col} className="w-100 px-0">
         <h4 className="font-weight-bold mb-3">Redirect</h4>
         <InputTemplate className="mb-3" label="Link">
           <InputName
@@ -45,11 +46,11 @@ export default function DefaultPreviewFooter(props: DefaultPreviewFooterProps) {
             />
           </InputTemplate>
         ) : null}
-      </div>
+      </Form.Group>
     </div>
   ) : (
     <div className="d-flex justify-content-center mb-3">
-      <div className="w-100">
+      <Form.Group as={Col} className="w-100 px-0">
         <h4 className="font-weight-bold mb-3">Footer</h4>
         <InputTemplate className="mb-3" label="Note">
           <InputText
@@ -76,10 +77,10 @@ export default function DefaultPreviewFooter(props: DefaultPreviewFooterProps) {
             readFrom={`${props.readFrom}_links`}
             placeholder={[ProjectInfo.link, ProjectInfo.name]}
           />
-          <ul className="list-group">
+          <ListGroup className="px-2">
             {Object.entries(preview.links).map(([name, link], i) =>
               name != "main" ? (
-                <div key={i} className="row">
+                <Row key={i}>
                   <ListEntity
                     char={["http://", "@"]}
                     value={[link, name]}
@@ -90,10 +91,10 @@ export default function DefaultPreviewFooter(props: DefaultPreviewFooterProps) {
                       });
                     }}
                   />
-                </div>
+                </Row>
               ) : null
             )}
-          </ul>
+          </ListGroup>
         </InputTemplate>
 
         <DefaultFooter name={preview.name || ProjectInfo.name}>
@@ -105,7 +106,7 @@ export default function DefaultPreviewFooter(props: DefaultPreviewFooterProps) {
             description={preview.note || ProjectInfo.note}
           />
         </DefaultFooter>
-      </div>
+      </Form.Group>
     </div>
   );
 }

@@ -5,12 +5,8 @@ import {
   faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, {
-  createRef,
-  useEffect,
-  useImperativeHandle,
-  useState,
-} from "react";
+import { useState } from "react";
+import { InputGroup, ListGroup, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 // import { Deployment, Spec, Status } from "../../../types/K3s/Deployment";
 import { Metadata } from "../../../types/K3s/Metadata";
@@ -115,6 +111,7 @@ export default function Deployment(props: DeploymentProps) {
   return (
     <div className={`card px-1 py-3 ${props.show ? "" : "d-none"}`}>
       <InputTemplate
+        className="px-0"
         labelClassName="font-weight-bold ml-2"
         label={[
           "Metadata ",
@@ -127,12 +124,12 @@ export default function Deployment(props: DeploymentProps) {
           onMinimize({ ...minimized, metadata: !minimized.metadata })
         }
       >
-        <div
-          className={`row border rounded mx-1 py-2 ${
+        <Row
+          className={`border rounded mx-1 px-1 py-2 ${
             minimized.metadata ? "" : "d-none"
           }`}
         >
-          <InputTemplate className="col-6" label="Name">
+          <InputTemplate className="col-6 px-2" label="Name">
             <InputName
               char="@"
               required
@@ -140,49 +137,25 @@ export default function Deployment(props: DeploymentProps) {
               readFrom={`${props.readFrom}_metadata_name`}
               writeTo={`${props.writeTo}_metadata_name`}
               placeholder="void-deployment"
-              // name="name"
-              // value={deployment.metadata?.name ?? ""}
-              // onChange={({ target: { name, value } }) => {
-              //   onDeploymentChange({
-              //     ...deployment,
-              //     metadata: {
-              //       ...deployment.metadata,
-              //       [name]: value,
-              //     },
-              //   });
-              // }}
-              // onBlur={onDataCache}
             />
           </InputTemplate>
 
           <InputTemplate className="col-6" label="Namespace">
-            <div className="input-group">
+            <InputGroup>
               <InputValue
                 className="rounded"
                 root={props.root}
                 readFrom={`${props.readFrom}_metadata_namespace`}
                 writeTo={`${props.writeTo}_metadata_namespace`}
                 placeholder="demo"
-                // name="namespace"
-                // value={deployment.metadata?.namespace ?? ""}
-                // onChange={({ target: { name, value } }) => {
-                //   onDeploymentChange({
-                //     ...deployment,
-                //     metadata: {
-                //       ...deployment.metadata,
-                //       [name]: value,
-                //     },
-                //   });
-                // }}
-                // onBlur={onDataCache}
               />
-            </div>
+            </InputGroup>
           </InputTemplate>
-        </div>
+        </Row>
       </InputTemplate>
 
       <InputTemplate
-        className="mt-1"
+        className="mt-1 px-0"
         labelClassName="font-weight-bold ml-2"
         label={[
           "Spec ",
@@ -198,9 +171,9 @@ export default function Deployment(props: DeploymentProps) {
             minimized.spec ? "" : "d-none"
           }`}
         >
-          <div className="row">
+          <Row className="px-1">
             <InputTemplate className="col-6" label="Replicas">
-              <div className="input-group">
+              <InputGroup>
                 <InputName
                   char="$"
                   required
@@ -208,21 +181,11 @@ export default function Deployment(props: DeploymentProps) {
                   readFrom={`${props.readFrom}_spec_replicas`}
                   writeTo={`${props.writeTo}_spec_replicas`}
                   placeholder="1"
-                  // onChange={({ target: { name, value } }) => {
-                  //   onDeploymentChange({
-                  //     ...deployment,
-                  //     spec: {
-                  //       ...deployment.spec,
-                  //       [name]: value,
-                  //     } as Spec,
-                  //   });
-                  // }}
-                  // onBlur={onDataCache}
                 />
-              </div>
+              </InputGroup>
             </InputTemplate>
 
-            <InputTemplate className="col-6" label="Strategy">
+            <InputTemplate className="col-6 px-0" label="Strategy">
               <InputRadio
                 readFrom={`${props.readFrom}_spec_strategy_type`}
                 writeTo={`${props.writeTo}_spec_strategy_type`}
@@ -235,10 +198,10 @@ export default function Deployment(props: DeploymentProps) {
                 }}
               />
             </InputTemplate>
-          </div>
+          </Row>
 
           <InputTemplate
-            className="mt-1"
+            className="mt-1 px-0"
             label={[
               "MatchLabels ",
               <FontAwesomeIcon
@@ -254,7 +217,7 @@ export default function Deployment(props: DeploymentProps) {
             }
           >
             <div
-              className={`border rounded px-2 py-2 ${
+              className={`border rounded px-0 py-2 ${
                 minimized.matchLabels ? "" : "d-none"
               }`}
             >
@@ -265,21 +228,17 @@ export default function Deployment(props: DeploymentProps) {
                   writeTo={`${props.writeTo}_spec_selector_matchLabels`}
                   placeholder={["app", "void"]}
                 />
-                <ul className="list-group">
+                <ListGroup>
                   {Object.entries(labels).map(([name, value], i) => (
-                    <div key={`matchLabels-${i}`} className="row">
+                    <Row key={`matchLabels-${i}`} className="px-2">
                       <ListEntity
                         char={["var", "="]}
                         value={[name, value]}
-                        onChange={() => {
-                          // let temp = { ...labels };
-                          // delete temp[name];
-                          // onLabelsChange(temp);
-                        }}
+                        onChange={() => {}}
                       />
-                    </div>
+                    </Row>
                   ))}
-                </ul>
+                </ListGroup>
               </div>
             </div>
           </InputTemplate>
@@ -287,7 +246,7 @@ export default function Deployment(props: DeploymentProps) {
       </InputTemplate>
 
       <InputTemplate
-        className="mt-1"
+        className="mt-1 px-0"
         labelClassName="font-weight-bold ml-2"
         label={[
           "Containers ",
@@ -310,7 +269,7 @@ export default function Deployment(props: DeploymentProps) {
               key={`container-${index}`}
               className={`mb-3 w-100 ${styles["el-index"]}`}
             >
-              <div className="row mx-1">
+              <Row className="mx-1">
                 <label
                   className="ml-1 mr-auto"
                   onClick={() =>
@@ -350,7 +309,7 @@ export default function Deployment(props: DeploymentProps) {
                     });
                   }}
                 />
-              </div>
+              </Row>
               <Container
                 root={props.root}
                 show={minimized.containers[index]}

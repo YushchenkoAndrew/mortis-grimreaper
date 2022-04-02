@@ -18,10 +18,11 @@ export default function DefaultMarkdownProject(
           className="jumbotron container bg-white"
           id="CanvasContainer0"
           dangerouslySetInnerHTML={{
-            __html: marked
-              .parse(props.template)
-              .replace(new RegExp(HtmlMarkers.FILE_SERVER, "g"), voidUrl)
-              .replace(new RegExp(HtmlMarkers.PROJECT_NAME, "g"), props.name),
+            __html: marked.parse(
+              props.template
+                .replace(new RegExp(HtmlMarkers.FILE_SERVER, "g"), voidUrl)
+                .replace(new RegExp(HtmlMarkers.PROJECT_NAME, "g"), props.name)
+            ),
           }}
         ></div>
       </main>

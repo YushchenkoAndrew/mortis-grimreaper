@@ -6,6 +6,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
+import { InputGroup, ListGroup, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import InputList from "../../Inputs/InputDoubleList";
 import InputName from "../../Inputs/InputName";
@@ -76,8 +77,8 @@ export default function Container(props: ContainerProps) {
     <div
       className={`border rounded mx-1 px-1 py-2 ${props.show ? "" : "d-none"}`}
     >
-      <InputTemplate className="mx-1" label="Name">
-        <div className="input-group">
+      <InputTemplate className="mx-1 pl-1 pr-2" label="Name">
+        <InputGroup>
           <InputName
             char="#"
             root={props.root}
@@ -86,10 +87,10 @@ export default function Container(props: ContainerProps) {
             placeholder="void"
             required
           />
-        </div>
+        </InputGroup>
       </InputTemplate>
-      <InputTemplate className="mx-1" label="Image">
-        <div className="input-group">
+      <InputTemplate className="mx-1 pl-1 pr-2" label="Image">
+        <InputGroup>
           <InputName
             char="#"
             root={props.root}
@@ -98,10 +99,10 @@ export default function Container(props: ContainerProps) {
             placeholder="grimreapermortis/void:0.0.2"
             required
           />
-        </div>
+        </InputGroup>
       </InputTemplate>
 
-      <InputTemplate className="mx-2" label="ImagePullPolicy">
+      <InputTemplate className="mx-2 px-1" label="ImagePullPolicy">
         <InputRadio
           label="btn-outline-info"
           className="btn-group btn-group-sm btn-group-toggle"
@@ -201,7 +202,8 @@ export default function Container(props: ContainerProps) {
       </InputTemplate>
 
       <InputTemplate
-        labelClassName="mx-1 mt-1"
+        labelClassName="px-1"
+        className="px-1"
         label={[
           "Resources ",
           <FontAwesomeIcon
@@ -216,13 +218,13 @@ export default function Container(props: ContainerProps) {
           })
         }
       >
-        <div
-          className={`row border rounded mx-1 py-2 ${
+        <Row
+          className={`row border rounded mx-0 py-2 ${
             minimized.resources ? "" : "d-none"
           }`}
         >
-          <InputTemplate className="col-6" label="CPU">
-            <div className="input-group">
+          <InputTemplate className="col-6 px-2" label="CPU">
+            <InputGroup>
               <InputValue
                 root={props.root}
                 readFrom={`${props.readFrom}_resources_requests_cpu`}
@@ -230,10 +232,10 @@ export default function Container(props: ContainerProps) {
                 className="rounded"
                 placeholder="100m"
               />
-            </div>
+            </InputGroup>
           </InputTemplate>
-          <InputTemplate className="col-6" label="RAM">
-            <div className="input-group">
+          <InputTemplate className="col-6 px-2" label="RAM">
+            <InputGroup>
               <InputValue
                 root={props.root}
                 readFrom={`${props.readFrom}_resources_requests_memory`}
@@ -241,14 +243,14 @@ export default function Container(props: ContainerProps) {
                 className="rounded"
                 placeholder="100Mi"
               />
-            </div>
+            </InputGroup>
           </InputTemplate>
-        </div>
+        </Row>
       </InputTemplate>
 
       <InputTemplate
-        className="mt-1"
-        labelClassName="mx-1"
+        labelClassName="px-1"
+        className="px-1"
         label={[
           "env ",
           <FontAwesomeIcon
@@ -263,33 +265,25 @@ export default function Container(props: ContainerProps) {
           })
         }
       >
-        <div
-          className={`border rounded mx-1 py-2 ${
-            minimized.env ? "" : "d-none"
-          }`}
-        >
-          <div className="mb-2 mx-3">
+        <div className={`border rounded py-2 ${minimized.env ? "" : "d-none"}`}>
+          <div className="mb-2 mx-2">
             <InputList
               char={["var", "="]}
               readFrom={`${props.readFrom}_env`}
               writeTo={`${props.writeTo}_env`}
               placeholder={["USER", "admin"]}
             />
-            <ul className="list-group">
+            <ListGroup>
               {Object.entries(env).map(([name, value], i) => (
-                <div key={i} className="row">
+                <Row key={i} className="px-2">
                   <ListEntity
                     char={["var", "="]}
                     value={[name, value]}
-                    onChange={() => {
-                      // let temp = { ...env };
-                      // delete temp[name];
-                      // onEnvAdd(temp);
-                    }}
+                    onChange={() => {}}
                   />
-                </div>
+                </Row>
               ))}
-            </ul>
+            </ListGroup>
           </div>
         </div>
       </InputTemplate>

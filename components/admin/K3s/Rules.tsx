@@ -5,14 +5,9 @@ import {
   faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, {
-  createRef,
-  useEffect,
-  useImperativeHandle,
-  useState,
-} from "react";
+import { useState } from "react";
+import { Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { Rule } from "../../../types/K3s/Ingress";
 import InputName from "../../Inputs/InputName";
 import InputTemplate from "../../Inputs/InputTemplate";
 import styles from "./Default.module.css";
@@ -24,10 +19,6 @@ export interface RulesProps {
   readFrom: string;
   writeTo: string;
 }
-
-// export interface RulesRef {
-//   getValue: () => Rule;
-// }
 
 export default function Rules(props: RulesProps) {
   const [minimized, onMinimize] = useState({
@@ -67,24 +58,18 @@ export default function Rules(props: RulesProps) {
 
   return (
     <div className={`border rounded mx-1 py-2 ${props.show ? "" : "d-none"}`}>
-      <InputTemplate className="mx-2" label="Host">
+      <InputTemplate className="px-2" label="Host">
         <InputName
           char="http://"
           root={props.root}
           readFrom={`${props.readFrom}_host`}
           writeTo={`${props.writeTo}_host`}
           placeholder="mortis-grimreaper.ddns.net"
-          // name="host"
-          // value={rule.host ?? ""}
-          // onChange={({ target: { name, value } }) => {
-          //   onRuleChange({ ...rule, [name]: value });
-          // }}
-          // onBlur={onDataCache}
         />
       </InputTemplate>
 
       <InputTemplate
-        className="mx-1"
+        className="px-2"
         labelClassName="font-weight-bold mx-1"
         label={[
           "Path ",
@@ -100,10 +85,10 @@ export default function Rules(props: RulesProps) {
           })
         }
       >
-        <div className={`border rounded mx-1 p-2 ${minimized ? "" : "d-none"}`}>
+        <div className={`border rounded p-2 ${minimized ? "" : "d-none"}`}>
           {paths.map((_, index) => (
             <div key={index} className={`mb-3 w-100 ${styles["el-index"]}`}>
-              <div className="row mx-1">
+              <Row className="mx-0">
                 <label
                   className="ml-1 mr-auto"
                   onClick={() => {
@@ -140,7 +125,7 @@ export default function Rules(props: RulesProps) {
                     });
                   }}
                 />
-              </div>
+              </Row>
               <Path
                 root={props.root}
                 show={minimized.paths[index]}

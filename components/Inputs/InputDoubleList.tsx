@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Button, Col, Form, InputGroup, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import InputValue from "./InputValue";
 
@@ -30,11 +31,11 @@ export default function InputList(props: InputValueProps) {
   ];
 
   return (
-    <div className={`row ${props.className ?? ""}`}>
-      <div className="input-group col-md-6 order-sm-1 p-2">
-        <div className="input-group-prepend">
-          <span className="input-group-text">{props.char[0]}</span>
-        </div>
+    <Form.Row className={props.className}>
+      <InputGroup as={Col} md="6" sm={{ order: 1 }} className="p-2">
+        <InputGroup.Prepend>
+          <InputGroup.Text>{props.char[0]}</InputGroup.Text>
+        </InputGroup.Prepend>
         <InputValue
           className="rounded-right"
           readFrom={readFrom[0]}
@@ -43,11 +44,11 @@ export default function InputList(props: InputValueProps) {
           required={props.required?.[0]}
           placeholder={props.placeholder?.[0]}
         />
-      </div>
-      <div className="input-group col-md-6 order-sm-2 p-2">
-        <div className="input-group-prepend">
-          <span className="input-group-text">{props.char[1]}</span>
-        </div>
+      </InputGroup>
+      <InputGroup as={Col} md="6" sm={{ order: 2 }} className="p-2">
+        <InputGroup.Prepend>
+          <InputGroup.Text>{props.char[1]}</InputGroup.Text>
+        </InputGroup.Prepend>
         <InputValue
           className="rounded-right"
           readFrom={readFrom[1]}
@@ -56,9 +57,9 @@ export default function InputList(props: InputValueProps) {
           required={props.required?.[1]}
           placeholder={props.placeholder?.[1]}
         />
-        <div className="input-group-append">
-          <a
-            className="btn btn-primary text-light"
+        <InputGroup.Append>
+          <Button
+            variant="primary"
             onClick={(e) => {
               e.preventDefault();
               if (!values[0] || !values[1]) return;
@@ -89,9 +90,9 @@ export default function InputList(props: InputValueProps) {
             }}
           >
             Create
-          </a>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </InputGroup.Append>
+      </InputGroup>
+    </Form.Row>
   );
 }

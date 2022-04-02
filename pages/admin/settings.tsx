@@ -1,4 +1,3 @@
-import React from "react";
 import DefaultHeader from "../../components/admin/default/DefaultHeader";
 import DefaultHead from "../../components/default/DefaultHead";
 import defaultServerSideHandler from "../../lib/api/session";

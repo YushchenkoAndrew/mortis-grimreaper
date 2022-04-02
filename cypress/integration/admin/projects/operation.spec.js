@@ -1,5 +1,6 @@
-const JS_PROJECT = "test_js7";
-const MARKDOWN_PROJECT = "test_markdown";
+const JS_PROJECT = "test_js9";
+const MARKDOWN_PROJECT = "test_markdown1";
+const LINK_PROJECT = "test_link1";
 
 describe("Check different operations on projects", () => {
   beforeEach(() => {
@@ -9,7 +10,7 @@ describe("Check different operations on projects", () => {
     cy.url().should("not.include", "/admin/login");
   });
 
-  it("Check creation of JS project", () => {
+  it.skip("Check creation of JS project", () => {
     cy.visit("/admin/projects/create");
     cy.url().should("include", "/create");
 
@@ -156,7 +157,7 @@ describe("Check different operations on projects", () => {
     cy.get("button[type=submit]").realClick();
 
     // FIXME: Somehow to check toastify
-    cy.wait(15000);
+    cy.wait(10000);
 
     // Check if project exists and there not any server errors
     cy.request({ url: "/" + JS_PROJECT, failOnStatusCode: false })
@@ -178,8 +179,8 @@ describe("Check different operations on projects", () => {
     cy.get("#BODY").should("have.text", "HELLO WORLD");
   });
 
-  it("Check creation of Markdown project", () => {
-    cy.visit("/admin/projects/operation");
+  it.skip("Check creation of Markdown project", () => {
+    cy.visit("/admin/projects/create");
     cy.url().should("include", "/create");
 
     // Check if submit will failed on empty data
@@ -206,10 +207,9 @@ describe("Check different operations on projects", () => {
 
     cy.get(".card div").contains("markdown_desc").should("exist");
 
-    // TODO: Add caching functionality to the file !!!
-    // cy.get("input[name=preview_thumbnail]").attachFile(
-    //   "../downloads/E1KMKoDVgAM5zII.jpg"
-    // );
+    cy.get("input[name=preview_thumbnail]")
+      .attachFile("../downloads/E1KMKoDVgAM5zII.jpg")
+      .wait(500);
 
     // Check if setting different flag will change window mode
     cy.get("input[name=preview_flag_Markdown]").realClick();
@@ -238,29 +238,6 @@ describe("Check different operations on projects", () => {
       .should("have.prop", "href")
       .and("equal", "http://link/");
 
-    // Make a small delay for cached data to be saved successfully
-    cy.wait(2000).reload().wait(2000);
-
-    // Check caching !!
-    cy.get("input[name=preview_name]").should("have.value", MARKDOWN_PROJECT);
-    cy.get("input[name=preview_title]").should("have.value", "markdown_title");
-    cy.get("textarea[name=preview_desc]").should("have.value", "markdown_desc");
-    cy.get("input[name=preview_links_main]").should("have.value", "m_link");
-    cy.get("textarea[name=preview_note]").should("have.value", "markdown_note");
-
-    cy.get(".list-group li").contains("link").should("exist");
-    cy.get(".list-group li").contains("link2").should("exist");
-
-    cy.get("footer")
-      .contains("link2")
-      .should("have.prop", "href")
-      .and("equal", "http://link/");
-
-    // FIXME: Somehow save uploaded file
-    cy.get("input[name=preview_thumbnail]")
-      .attachFile("../downloads/E1KMKoDVgAM5zII.jpg")
-      .wait(500);
-
     // Start checking Code window
     cy.get("input[name=main_window_Code]").realClick();
 
@@ -283,29 +260,107 @@ describe("Check different operations on projects", () => {
         .should("exist");
     });
 
-    // TODO: !!!
-    // cy.get("#code-area")
-    //   .clear()
-    //   .type(
-    //     `<!DOCTYPE html><html><body><div id="HEADER"></div><div id="BODY"><img src="{{FILE_SERVER}}/{{PROJECT_NAME}}/assets/E1KMKoDVgAM5zII.jpg" alt="test1"><img src="{{FILE_SERVER}}/{{PROJECT_NAME}}/assets/5ca927abbd24b66dc7f8ca79d7357356.jpg" alt="test1"></div><div id="FOOTER"></div></body></html>`,
-    //     { parseSpecialCharSequences: false }
-    //   );
+    cy.get("#code-area")
+      .clear()
+      .type(
+        `# {{PROJECT_NAME}}
 
-    // // Submit project
-    // cy.get("button[type=submit]").realClick();
+HELLO WORLD 
 
-    // // FIXME: Somehow to check toastify
-    // cy.wait(5000);
+## Look this is an image
+![image info]({{FILE_SERVER}}/{{PROJECT_NAME}}/assets/E1KMKoDVgAM5zII.jpg)
 
-    // // Check if project exists and there not any server errors
-    // cy.request({ url: "/" + projectName, failOnStatusCode: false })
-    //   .its("status")
-    //   .should("eq", 200);
+## Look this is a link
+* [READ MORE]({{FILE_SERVER}}/{{PROJECT_NAME}}/assets/5ca927abbd24b66dc7f8ca79d7357356.jpg)
+`,
+        { parseSpecialCharSequences: false }
+      );
 
-    // cy.visit("/" + projectName);
-    // cy.get(`img[src$="/assets/E1KMKoDVgAM5zII.jpg"]`).should("exist");
-    // cy.get(`img[src$="/assets/5ca927abbd24b66dc7f8ca79d7357356.jpg"]`).should(
-    //   "exist"
-    // );
+    // Submit project
+    cy.get("button[type=submit]").realClick();
+
+    // FIXME: Somehow to check toastify
+    cy.wait(10000);
+
+    // Check if project exists and there not any server errors
+    cy.request({ url: "/" + MARKDOWN_PROJECT, failOnStatusCode: false })
+      .its("status")
+      .should("eq", 200);
+
+    cy.visit("/" + MARKDOWN_PROJECT);
+
+    cy.get(`img[src$="/assets/E1KMKoDVgAM5zII.jpg"]`).should("exist");
+    cy.contains("HELLO WORLD").should("exist");
+
+    cy.contains("READ MORE")
+      .should("have.prop", "href")
+      .and("include", "/assets/5ca927abbd24b66dc7f8ca79d7357356.jpg");
+
+    cy.contains("h1", MARKDOWN_PROJECT).should("exist");
+    cy.contains("p", "HELLO WORLD").should("exist");
+  });
+
+  it("Check creation of Link project", () => {
+    cy.visit("/admin/projects/create");
+    cy.url().should("include", "/create");
+
+    // Check if submit will failed on empty data
+    cy.get("button[type=submit]").realClick();
+
+    // Check if required error will show up
+    cy.checkInputValue("preview_name", LINK_PROJECT, true);
+
+    // Check if required error will show up and thumbnail card will be updated
+    cy.checkInputValue("preview_title", "link_title", true);
+    cy.get(".card div").contains("link_title").should("exist");
+
+    // Check if required error will show up and thumbnail card will be updated
+    cy.get(`textarea[name=preview_desc]`)
+      .parent("div")
+      .within(() => {
+        cy.get("div").should("be.visible");
+        cy.get("textarea")
+          .clear()
+          .type("link_desc")
+          .should("have.value", "link_desc")
+          .blur();
+      });
+
+    cy.get(".card div").contains("link_desc").should("exist");
+
+    cy.get("input[name=preview_thumbnail]")
+      .attachFile("../downloads/E1KMKoDVgAM5zII.jpg")
+      .wait(500);
+
+    // Check if setting different flag will change window mode
+    cy.get("input[name=preview_flag_Link]").realClick();
+    cy.get("input[name=main_window_Code]").should("not.exist");
+    cy.get("input[name=main_window_Config]").should("not.exist");
+
+    // Check if by changing note field will show it preview in footer
+    cy.contains("textarea[preview_note]").should("not.exist");
+
+    // Check if by changing note field will show it preview in footer
+    cy.checkInputValue(
+      "preview_links_main",
+      `{{FILE_SERVER}}/${JS_PROJECT}/src/test.html`,
+      true,
+      `{{FILE_SERVER}}/${JS_PROJECT}/src/test.html`
+    );
+    cy.contains("footer").should("not.exist");
+
+    // Submit project
+    cy.get("button[type=submit]").realClick();
+
+    // FIXME: Somehow to check toastify
+    cy.wait(10000);
+
+    // Check if project exists and there not any server errors
+    cy.request({ url: "/" + LINK_PROJECT, followRedirect: false }).then(
+      (res) => {
+        expect(res.status).equal(307);
+        expect(res.headers.location).not.include("{{FILE_SERVER}}");
+      }
+    );
   });
 });

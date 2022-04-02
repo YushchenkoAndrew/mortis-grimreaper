@@ -37,38 +37,27 @@ export default function Path(props: PathProps) {
 
   return (
     <div className={`border rounded p-2 ${props.show ? "" : "d-none"}`}>
-      <InputTemplate label="Path">
+      <InputTemplate label="Path" className="px-1">
         <InputName
           char="/"
           root={props.root}
           readFrom={`${props.readFrom}_path`}
           writeTo={`${props.writeTo}_path`}
           placeholder={"void"}
-          // name="path"
-          // value={path.path ?? ""}
-          // onChange={({ target: { name, value } }) => {
-          //   onPathChange({ ...path, [name]: value });
-          // }}
-          // onBlur={onDataCache}
         />
       </InputTemplate>
 
-      <InputTemplate label="Path Type">
+      <InputTemplate label="Path Type" className="px-1">
         <InputRadio
-          // name="pathType"
-          // placeholder="Prefix"
           readFrom={`${props.readFrom}_pathType`}
           writeTo={`${props.writeTo}_pathType`}
           className="btn-group btn-group-sm btn-group-toggle"
           options={["ImplementationSpecific", "Exact", "Prefix"]}
           label="btn-outline-info"
-          // onChange={({ target: { name, value } }) => {
-          //   onPathChange({ ...path, [name]: value });
-          // }}
         />
       </InputTemplate>
 
-      <InputTemplate label="Service Name">
+      <InputTemplate label="Service Name" className="px-1">
         <div className="input-group">
           <InputValue
             className="rounded"
@@ -76,23 +65,11 @@ export default function Path(props: PathProps) {
             readFrom={`${props.readFrom}_backend_serviceName`}
             writeTo={`${props.writeTo}_backend_serviceName`}
             placeholder={"test"}
-            // name="serviceName"
-            // value={path.backend?.serviceName ?? ""}
-            // onChange={({ target: { name, value } }) => {
-            //   onPathChange({
-            //     ...path,
-            //     backend: {
-            //       ...path.backend,
-            //       [name]: value,
-            //     },
-            //   } as Path);
-            // }}
-            // onBlur={onDataCache}
           />
         </div>
       </InputTemplate>
 
-      <InputTemplate label="Service Port">
+      <InputTemplate label="Service Port" className="px-1">
         <div className="input-group">
           <InputValue
             className="rounded"
@@ -100,18 +77,6 @@ export default function Path(props: PathProps) {
             readFrom={`${props.readFrom}_backend_servicePort`}
             writeTo={`${props.writeTo}_backend_servicePort`}
             placeholder="8000"
-            // name="servicePort"
-            // value={`${path.backend?.servicePort ?? ""}`}
-            // onChange={({ target: { name, value } }) => {
-            //   onPathChange({
-            //     ...path,
-            //     backend: {
-            //       ...path.backend,
-            //       [name]: value,
-            //     },
-            //   } as Path);
-            // }}
-            // onBlur={onDataCache}
           />
         </div>
       </InputTemplate>

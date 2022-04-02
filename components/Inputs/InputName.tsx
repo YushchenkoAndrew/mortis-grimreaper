@@ -1,4 +1,5 @@
 import React from "react";
+import { InputGroup } from "react-bootstrap";
 import InputValue from "./InputValue";
 
 export interface InputNameProps {
@@ -10,23 +11,17 @@ export interface InputNameProps {
   required?: boolean;
   placeholder?: string;
   className?: string;
+  disabled?: boolean;
+  isInvalid?: () => Promise<string | undefined>;
 }
 
 export default function InputName(props: InputNameProps) {
   return (
-    <div className="input-group">
-      <div className="input-group-prepend">
-        <span className="input-group-text">{props.char}</span>
-      </div>
-      <InputValue
-        className="rounded-right"
-        type={props.type}
-        root={props.root}
-        readFrom={props.readFrom}
-        writeTo={props.writeTo}
-        required={props.required}
-        placeholder={props.placeholder}
-      />
-    </div>
+    <InputGroup hasValidation>
+      <InputGroup.Prepend>
+        <InputGroup.Text>{props.char}</InputGroup.Text>
+      </InputGroup.Prepend>
+      <InputValue {...props} className="rounded-right" />
+    </InputGroup>
   );
 }

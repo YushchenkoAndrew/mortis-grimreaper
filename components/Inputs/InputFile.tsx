@@ -1,4 +1,5 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
+import { Button, Form, InputGroup } from "react-bootstrap";
 import { allowedReader, convertTypes } from "../../lib/public/files";
 import { FileData } from "../../types/api";
 
@@ -17,8 +18,8 @@ export default function InputFile(props: InputFileProps) {
   const [file, onFileUpload] = useState<string | null>(null);
 
   return (
-    <div className="input-group">
-      <input
+    <InputGroup hasValidation>
+      <Form.Control
         type="file"
         ref={fileRef}
         name={props.name}
@@ -46,7 +47,7 @@ export default function InputFile(props: InputFileProps) {
 
           (async function () {
             for (let i in data) {
-              if (!allowedReader.includes(files[i].type)) {
+              if (!allowedReader.includes(data[i].type)) {
                 data[i].url = await props.onURL?.(files[i]);
                 continue;
               }
@@ -54,26 +55,25 @@ export default function InputFile(props: InputFileProps) {
               await new Promise<void>((resolve) => {
                 let reader = new FileReader();
                 reader.readAsText(files[i]);
-                (reader.onloadend = (_) =>
-                  (data[i].content = String(reader.result))),
+                reader.onloadend = () => {
+                  data[i].content = String(reader.result);
                   resolve();
+                };
               });
             }
           })().finally(() => props.onUpload(data));
         }}
       />
-      <button
-        className={`btn ${
-          file && !props.multiple ? "btn-success" : "btn-outline-info"
-        }`}
+      <Button
         type="button"
+        variant={file && !props.multiple ? "success" : "outline-info"}
         onClick={() => fileRef.current?.click()}
       >
         {file && !props.multiple ? file : "Upload"}
-      </button>
-      {props.required ? (
-        <div className="invalid-tooltip">Thing field is required</div>
-      ) : null}
-    </div>
+      </Button>
+      <Form.Control.Feedback hidden={!props.required} type="invalid" tooltip>
+        Please upload file
+      </Form.Control.Feedback>
+    </InputGroup>
   );
 }

@@ -11,6 +11,8 @@ import DefaultMarkdownProject from "../components/default/DefaultMarkdownProject
 import { LoadProjects } from "../lib/api/project";
 import { LoadFile } from "../lib/api/file";
 import { formPath } from "../lib/public/files";
+import { HtmlMarkers } from "../config/placeholder";
+import { voidUrl } from "../config";
 export interface ProjectPageProps {
   name: string;
   title: string;
@@ -38,7 +40,12 @@ export default function ProjectPage(props: ProjectPageProps) {
         <DefaultProjectInfo
           links={props.links.map(({ link, name }) => ({
             name: name,
-            link: `http://${link}`,
+            link:
+              "http://" +
+              link
+                .replace(new RegExp(HtmlMarkers.FILE_SERVER, "g"), voidUrl)
+                .replace(new RegExp(HtmlMarkers.PROJECT_NAME, "g"), props.name)
+                .replace(/http:\/\/|https:\/\//g, ""),
           }))}
           description={props.note}
         />
@@ -61,8 +68,13 @@ export const getServerSideProps = async ({
     return {
       redirect: {
         basePath: false,
-        destination: `http://${project[0].links[0].link}`,
         permanent: false,
+        destination:
+          "http://" +
+          project[0].links[0].link
+            .replace(new RegExp(HtmlMarkers.FILE_SERVER, "g"), voidUrl)
+            .replace(new RegExp(HtmlMarkers.PROJECT_NAME, "g"), project[0].name)
+            .replace(/http:\/\/|https:\/\//g, ""),
       },
     };
   }

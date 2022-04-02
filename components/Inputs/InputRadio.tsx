@@ -1,3 +1,4 @@
+import { Form, InputGroup } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import md5 from "../../lib/md5";
 
@@ -24,7 +25,7 @@ export default function InputRadio(props: InputRadioProps) {
   const dispatch = useDispatch();
 
   return (
-    <div className="input-group">
+    <InputGroup>
       <div
         className={props.className ?? "btn-group btn-group-toggle"}
         data-toggle="buttons"
@@ -33,16 +34,15 @@ export default function InputRadio(props: InputRadioProps) {
           .filter((item) => !(props.disabled ?? []).includes(item))
           .map((item) => (
             <label
-              key={md5(item + Math.random().toString())}
+              key={`${props.readFrom}_${item}`}
               className={`btn ${props.label ?? "btn-outline-dark"} ${
                 value === item ? "active" : ""
               }`}
             >
-              <input
+              <Form.Control
                 type="radio"
                 value={item}
                 name={`${props.writeTo ?? props.readFrom}_${item}`}
-                key={md5(item + Math.random().toString())}
                 autoComplete="off"
                 checked={value === item}
                 onChange={() =>
@@ -78,6 +78,6 @@ export default function InputRadio(props: InputRadioProps) {
             </label>
           ))}
       </div>
-    </div>
+    </InputGroup>
   );
 }

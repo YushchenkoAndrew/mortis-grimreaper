@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { CacheId } from "../../../lib/public";
 import { DefaultRes } from "../../../types/request";
 import { createQuery } from "../../../lib/api/query";
+import { Button, Form } from "react-bootstrap";
 
 export interface DefaultOperationsFormProps {
   operation: string;
@@ -53,36 +54,6 @@ export default function DefaultOperationsForm(
 
   function SubmitStateMachine(state: string, id: number) {
     switch (state) {
-      case "CHECK_NAME":
-        return new Promise<number>(async (resolve, reject) => {
-          const toastId = toast.loading("Please wait...");
-
-          try {
-            const res = await fetch(
-              `${basePath}/api/projects/load?name=${root.preview.name}`
-            );
-
-            const data = (await res.json()) as DefaultRes<ProjectData[]>;
-            console.log(data);
-
-            if (!data.result?.length || props.operation === "update") {
-              resolve(id);
-              return toast.update(toastId, {
-                render: "Project name: OK",
-                type: "success",
-                isLoading: false,
-                ...ToastDefault,
-              });
-            }
-          } catch (err) {}
-
-          reject({
-            id: toastId,
-            state: "CHECK_NAME",
-            message: `Project name '${root.preview.name}' already in use`,
-          });
-        });
-
       case "PREVIEW":
         return new Promise<number>(async (resolve, reject) => {
           const toastId = toast.loading("Please wait...");
@@ -231,14 +202,14 @@ export default function DefaultOperationsForm(
   }
 
   return (
-    <form
-      className={`container needs-validation ${
-        validated ? "was-validated" : ""
-      }  mt-3`}
+    <Form
       noValidate
+      validated={validated}
+      className={`container mt-3`}
       onSubmit={async (event) => {
         event?.preventDefault();
-        if (!event?.currentTarget?.checkValidity()) {
+        if (!event.currentTarget.checkValidity()) {
+          event.stopPropagation();
           return setValidated(true);
         }
 
@@ -307,22 +278,24 @@ export default function DefaultOperationsForm(
               />
             </div>
 
-            <button
+            <Button
+              size="sm"
               type="submit"
-              className="btn btn-sm btn-outline-success mb-2 ml-4"
+              variant="outline-success"
+              className="mb-2 ml-4"
             >
               Submit
-            </button>
+            </Button>
           </div>
         </div>
       </div>
 
       <DefaultPreview
         show={root.main.window === "Preview"}
-        preview={props.preview}
+        update={props.operation === "update"}
       />
-      <DefaultCodeView show={root.main.window === "Code"} code={props.code} />
+      <DefaultCodeView show={root.main.window === "Code"} />
       <DefaultK3sConfig show={root.main.window === "Config"} />
-    </form>
+    </Form>
   );
 }

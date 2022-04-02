@@ -49,7 +49,7 @@ Cypress.Commands.add(
         if (required) cy.get("div").should("be.visible");
         cy.get("input")
           .clear()
-          .type(value)
+          .type(value, { parseSpecialCharSequences: false })
           .should("have.value", expect ?? value)
           .blur();
       });

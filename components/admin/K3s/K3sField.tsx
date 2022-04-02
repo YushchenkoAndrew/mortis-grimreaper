@@ -2,10 +2,9 @@ import {
   faChevronDown,
   faChevronRight,
   faPlus,
-  faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useState } from "react";
+import { Container, Row } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import styles from "./Default.module.css";
 
@@ -27,28 +26,17 @@ export default function K3sField(props: K3sFieldProps) {
   const dispatch = useDispatch();
   return (
     <>
-      {/* <hr className="mb-4" />
-      <div className="row" onClick={props.onHide}>
-        <h4 className="font-weight-bold mr-2">}</h4>
-        <FontAwesomeIcon
-          icon={props.show ? faChevronDown : faChevronRight}
-          className="my-1"
-          fontSize="1rem"
-        />
-      </div>
-      <div className="row justify-content-center">{props.children}</div> */}
-
       <hr className="mb-4" />
-      <div className={`container ${styles["el-index-2"]} px-0 px-sm-3`}>
+      <Container className={`${styles["el-index-2"]} px-0 px-sm-3`}>
         <div className="row px-3">
-          <span className="row mr-auto" onClick={props.onHide}>
+          <Row className="mr-auto" onClick={props.onHide}>
             <h4 className="mr-2">{props.name}</h4>
             <FontAwesomeIcon
               className="my-2"
               icon={props.show ? faChevronDown : faChevronRight}
             />
-          </span>
-          <div className="row mr-1">
+          </Row>
+          <Row className="mr-1">
             {props.onAdd ? (
               <a
                 className={`mr-1 btn btn-outline-info ${styles["el-container-2"]}`}
@@ -84,14 +72,11 @@ export default function K3sField(props: K3sFieldProps) {
             ) : (
               <></>
             )} */}
-          </div>
+          </Row>
         </div>
 
-        <div className="row justify-content-center mb-2">
-          {props.children}
-          {/* </div> */}
-        </div>
-      </div>
+        <Row className="justify-content-center mb-2">{props.children}</Row>
+      </Container>
     </>
   );
 }

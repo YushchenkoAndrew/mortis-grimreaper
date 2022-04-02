@@ -4,8 +4,8 @@ import InputRadio from "../../Inputs/InputRadio";
 import InputTemplate from "../../Inputs/InputTemplate";
 import InputValue from "../../Inputs/InputValue";
 import TreeView from "../../TreeView/TreeView";
-import Editor from "react-simple-code-editor";
 import { Grammar, highlight, languages } from "prismjs";
+import { Col, Container, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import "prismjs/components/prism-markup";
 import "prismjs/components/prism-css";
@@ -15,6 +15,7 @@ import "prismjs/components/prism-docker";
 import "prismjs/themes/prism-coy.css";
 import { TreeObj } from "../../../types/tree";
 import { tmpFile } from "../../../lib/public/files";
+import Editor from "react-simple-code-editor";
 
 const highlightTypes: { [name: string]: [Grammar, string] } = {
   html: [languages.html, "html"],
@@ -26,7 +27,6 @@ const highlightTypes: { [name: string]: [Grammar, string] } = {
 
 export interface DefaultCodeViewProps {
   show?: boolean;
-  code?: { tree: TreeObj };
 }
 
 const PREFIX = "code";
@@ -39,8 +39,8 @@ export default function DefaultCodeView(props: DefaultCodeViewProps) {
   return (
     <div className={props.show ? "" : "d-none"}>
       <hr />
-      <div className="row">
-        <div className="col-md-7 order-md-1 mb-4">
+      <Row>
+        <Col md={{ span: 7, order: 1 }} className="mb-4">
           <h4 className="font-weight-bold mb-3">Projects Files Structure</h4>
           <TreeView
             name={preview.name || ProjectInfo.name}
@@ -49,8 +49,9 @@ export default function DefaultCodeView(props: DefaultCodeViewProps) {
             root={PREFIX}
             prefix={`${PREFIX}_tree`}
           />
-        </div>
-        <div className="col-md-5 order-md-2">
+        </Col>
+
+        <Col md={{ span: 5, order: 2 }}>
           <InputTemplate label="Role">
             <InputRadio
               readFrom={`${PREFIX}_role`}
@@ -81,20 +82,20 @@ export default function DefaultCodeView(props: DefaultCodeViewProps) {
               }}
             />
           </InputTemplate>
-        </div>
-      </div>
+        </Col>
+      </Row>
 
       <hr />
       <div className="d-flex justify-content-center mb-3">
-        <div className="col-md-11">
-          <div className="row">
+        <Col md="11">
+          <Row>
             <h5 className="font-weight-bold mr-2">File:</h5>
             <p className="font-italic">{code.path}</p>
-          </div>
+          </Row>
 
-          <div>
+          <Container>
             <Editor
-              className="form-control editor"
+              className="form-control editor h-100"
               value={code.content}
               onValueChange={(value) =>
                 dispatch({
@@ -128,8 +129,8 @@ export default function DefaultCodeView(props: DefaultCodeViewProps) {
                 outline: 0,
               }}
             />
-          </div>
-        </div>
+          </Container>
+        </Col>
       </div>
     </div>
   );

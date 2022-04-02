@@ -1,4 +1,5 @@
 import React from "react";
+import { Form, InputGroup } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 
 export interface InputTextProps {
@@ -17,8 +18,9 @@ export default function InputText(props: InputTextProps) {
   const dispatch = useDispatch();
 
   return (
-    <div className="input-group">
-      <textarea
+    <InputGroup>
+      <Form.Control
+        as="textarea"
         value={value}
         name={props.writeTo ?? props.readFrom}
         className="form-control rounded"
@@ -36,9 +38,9 @@ export default function InputText(props: InputTextProps) {
           dispatch({ type: `${props.root}_CACHED`.toUpperCase() });
         }}
       />
-      {props.required ? (
-        <div className="invalid-tooltip">This field is required</div>
-      ) : null}
-    </div>
+      <Form.Control.Feedback hidden={!props.required} type="invalid" tooltip>
+        This field is required
+      </Form.Control.Feedback>
+    </InputGroup>
   );
 }

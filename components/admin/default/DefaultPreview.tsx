@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Col, Form, InputGroup, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { basePath } from "../../../config";
 import { ProjectInfo } from "../../../config/placeholder";
@@ -21,7 +22,7 @@ import DefaultPreviewFooter from "./DefaultPreviewFooter";
 
 export interface DefaultPreviewProps {
   show?: boolean;
-  preview?: { [name: string]: any };
+  update?: boolean;
 }
 
 const PREFIX = "preview";
@@ -33,31 +34,45 @@ export default function DefaultPreview(props: DefaultPreviewProps) {
   return (
     <div className={props.show ? "" : "d-none"}>
       <hr />
-      <div className="row">
-        <div className="col-md-5 order-md-2 mb-4">
+      <Form.Row>
+        <Form.Group as={Col} md={{ order: 2, span: 5 }} mb="4">
           <Card
             href="#"
             size="title-lg"
-            img={preview.img}
+            img={preview.img || ProjectInfo.img}
             title={preview.title || ProjectInfo.title}
             description={preview.desc || ProjectInfo.desc}
           />
-        </div>
-        <div className="col-md-7 order-md-1">
+        </Form.Group>
+        <Form.Group as={Col} md={{ order: 1, span: 7 }}>
           <h4 className="font-weight-bold mb-3">Thumbnail</h4>
-          {/* TODO: Check before sending request if such name already exists */}
           <InputTemplate className="mb-3" label="Name">
             <InputName
               root={PREFIX}
               readFrom={`${PREFIX}_name`}
               char="@"
+              disabled={props.update}
               placeholder={ProjectInfo.name}
               required
+              isInvalid={async () => {
+                try {
+                  const res = await fetch(
+                    `${basePath}/api/projects/load?name=${preview.name}`
+                  );
+
+                  dispatch({ type: "MAIN_VALIDATION_RESET" });
+                  const data = (await res.json()) as DefaultRes<ProjectData[]>;
+
+                  if (data.result?.length) {
+                    return `Project name '${preview.name}' already in use`;
+                  }
+                } catch (err) {}
+              }}
             />
           </InputTemplate>
 
           <InputTemplate className="mb-3" label="Title">
-            <div className="input-group">
+            <InputGroup>
               <InputValue
                 root={PREFIX}
                 readFrom={`${PREFIX}_title`}
@@ -65,7 +80,7 @@ export default function DefaultPreview(props: DefaultPreviewProps) {
                 placeholder={ProjectInfo.title}
                 required
               />
-            </div>
+            </InputGroup>
           </InputTemplate>
 
           <InputTemplate className="mb-3" label="Description">
@@ -77,11 +92,14 @@ export default function DefaultPreview(props: DefaultPreviewProps) {
             />
           </InputTemplate>
 
-          <div className="input-group d-flex justify-content-between">
+          <InputGroup className="d-flex justify-content-between">
             <InputTemplate className="mb-3" label="Image">
               <InputFile
                 name="preview_thumbnail"
                 role="thumbnail"
+                // FIXME:
+                // required
+                // value={preview.img || undefined}
                 onURL={(file) => tmpFile(file, { role: "thumbnail", dir: "" })}
                 onUpload={(files) => {
                   if (!Array.isArray(files)) return;
@@ -101,10 +119,6 @@ export default function DefaultPreview(props: DefaultPreviewProps) {
                   dispatch({ type: "CODE_CACHED" });
                 }}
                 type="image/*"
-                // onChange={(e) => {
-                //   setImg(e.target.value[0]?.url ?? img);
-                //   props.codeViewRef?.current?.onUpload(e);
-                // }}
               />
             </InputTemplate>
 
@@ -124,10 +138,9 @@ export default function DefaultPreview(props: DefaultPreviewProps) {
                 }}
               />
             </InputTemplate>
-          </div>
-        </div>
-      </div>
-
+          </InputGroup>
+        </Form.Group>
+      </Form.Row>
       <hr />
       <DefaultPreviewFooter root={PREFIX} readFrom={PREFIX} />
     </div>

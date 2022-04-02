@@ -11,6 +11,7 @@ import React, {
   useImperativeHandle,
   useState,
 } from "react";
+import { ListGroup, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { Metadata } from "../../../types/K3s/Metadata";
 // import { Service } from "../../../types/K3s/Service";
@@ -81,6 +82,7 @@ export default function Service(props: ServiceProps) {
   return (
     <div className={`card px-1 py-3 ${props.show ? "" : "d-none"}`}>
       <InputTemplate
+        className="px-0"
         labelClassName="font-weight-bold mx-2"
         label={[
           "Metadata ",
@@ -98,7 +100,7 @@ export default function Service(props: ServiceProps) {
             minimized.metadata ? "" : "d-none"
           }`}
         >
-          <InputTemplate className="col-6" label="Name">
+          <InputTemplate className="col-6 px-2" label="Name">
             <InputName
               char="@"
               root={`${props.root}`}
@@ -106,41 +108,17 @@ export default function Service(props: ServiceProps) {
               writeTo={`${props.writeTo}_metadata_name`}
               placeholder="void-service"
               required
-              // value={service.metadata?.name ?? ""}
-              // onChange={({ target: { name, value } }) => {
-              //   onServiceChange({
-              //     ...service,
-              //     metadata: {
-              //       ...service.metadata,
-              //       [name]: value,
-              //     },
-              //   });
-              // }}
-              // onBlur={onDataCache}
             />
           </InputTemplate>
 
-          <InputTemplate className="col-6" label="Namespace">
+          <InputTemplate className="col-6 px-2" label="Namespace">
             <div className="input-group">
               <InputValue
-                // name="namespace"
                 className="rounded"
-                // value={service.metadata?.namespace ?? ""}
                 root={`${props.root}`}
                 readFrom={`${props.readFrom}_metadata_namespace`}
                 writeTo={`${props.writeTo}_metadata_namespace`}
                 placeholder="demo"
-                // onChange={({ target: { name, value } }) => {
-                //   onServiceChange({
-                //     ...service,
-                //     metadata: {
-                //       ...service.metadata,
-                //       [name]: value,
-                //     },
-                //   });
-                // }}
-
-                // onBlur={onDataCache}
               />
             </div>
           </InputTemplate>
@@ -148,7 +126,7 @@ export default function Service(props: ServiceProps) {
       </InputTemplate>
 
       <InputTemplate
-        className="mx-1"
+        className="px-1"
         labelClassName="font-weight-bold mx-1"
         label={[
           "Spec ",
@@ -160,32 +138,18 @@ export default function Service(props: ServiceProps) {
         onClick={() => onMinimize({ ...minimized, spec: !minimized.spec })}
       >
         <div className={`border rounded p-2 ${minimized.spec ? "" : "d-none"}`}>
-          <InputTemplate label="Cluster IP">
+          <InputTemplate className="px-1" label="Cluster IP">
             <InputName
               char="$"
-              // name="clusterIP"
-              // value={service.spec?.clusterIP ?? ""}
               root={`${props.root}`}
               readFrom={`${props.readFrom}_spec_clusterIP`}
               writeTo={`${props.writeTo}_spec_clusterIP`}
               placeholder="10.0.171.239"
-              // onChange={({ target: { name, value } }) => {
-              //   onServiceChange({
-              //     ...service,
-              //     spec: {
-              //       ...service.spec,
-              //       [name]: value,
-              //     },
-              //   });
-              // }}
-              // onBlur={onDataCache}
             />
           </InputTemplate>
 
-          <InputTemplate label="Type">
+          <InputTemplate className="px-1" label="Type">
             <InputRadio
-              // name="type"
-              // placeholder="LoadBalancer"
               className="btn-group btn-group-sm btn-group-toggle"
               readFrom={`${props.readFrom}_spec_type`}
               writeTo={`${props.writeTo}_spec_type`}
@@ -200,20 +164,11 @@ export default function Service(props: ServiceProps) {
                 off: { className: "d-none d-sm-block", len: 0 },
               }}
               label="btn-outline-info"
-              // onChange={({ target: { name, value } }) => {
-              //   onServiceChange({
-              //     ...service,
-              //     spec: {
-              //       ...service.spec,
-              //       [name]: value,
-              //     },
-              //   });
-              // }}
             />
           </InputTemplate>
 
           <InputTemplate
-            className="mt-1"
+            className="mt-1 px-0"
             label={[
               "Selector ",
               <FontAwesomeIcon
@@ -233,28 +188,24 @@ export default function Service(props: ServiceProps) {
                 minimized.selector ? "" : "d-none"
               }`}
             >
-              <div className="container">
+              <div className="container px-2">
                 <InputList
                   char={["var", "="]}
                   placeholder={["app", "void"]}
                   readFrom={`${props.readFrom}_spec_selector`}
                   writeTo={`${props.writeTo}_spec_selector`}
                 />
-                <ul className="list-group">
+                <ListGroup>
                   {Object.entries(labels).map(([name, value], i) => (
-                    <div key={`matchLabels-${i}`} className="row">
+                    <Row key={`matchLabels-${i}`} className="px-2">
                       <ListEntity
                         char={["var", "="]}
                         value={[name, value]}
-                        onChange={() => {
-                          // let temp = { ...labels };
-                          // delete temp[name];
-                          // onLabelsChange(temp);
-                        }}
+                        onChange={() => {}}
                       />
-                    </div>
+                    </Row>
                   ))}
-                </ul>
+                </ListGroup>
               </div>
             </div>
           </InputTemplate>
@@ -262,7 +213,7 @@ export default function Service(props: ServiceProps) {
       </InputTemplate>
 
       <InputTemplate
-        className="mx-1"
+        className="px-1"
         labelClassName="font-weight-bold mx-1"
         label={[
           "Ports ",

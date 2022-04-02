@@ -1,4 +1,3 @@
-import React from "react";
 import { basePath } from "../../config";
 import { LinkData } from "../../types/api";
 export interface DefaultProjectInfoProps {

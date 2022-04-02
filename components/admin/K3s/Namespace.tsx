@@ -20,6 +20,7 @@ export default function Namespace(props: NamespaceProps) {
   return (
     <div className={`card px-1 py-3 ${props.show ? "" : "d-none"}`}>
       <InputTemplate
+        className="px-0"
         labelClassName="font-weight-bold mx-2"
         label={[
           "Metadata ",
@@ -31,7 +32,7 @@ export default function Namespace(props: NamespaceProps) {
         onClick={() => onMinimized(!minimized)}
       >
         <div className={`border rounded mx-1 p-2 ${minimized ? "" : "d-none"}`}>
-          <InputTemplate className="w-100" label="Name">
+          <InputTemplate className="w-100 px-1" label="Name">
             <InputName
               char="@"
               root={props.root}

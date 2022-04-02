@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Button, Col, Form, InputGroup } from "react-bootstrap";
 import { DoubleType } from "./InputDoubleList";
 
 export interface ListEntityProps {
@@ -11,29 +12,25 @@ export interface ListEntityProps {
 export default function ListEntity(props: ListEntityProps) {
   return (
     <>
-      <div className="input-group col-md-6 order-sm-1 p-2">
-        <div className="input-group-prepend">
-          <span className="input-group-text">{props.char[0]}</span>
-        </div>
+      <InputGroup as={Col} md="6" sm={{ order: 1 }} className="p-2">
+        <InputGroup.Prepend>
+          <InputGroup.Text>{props.char[0]}</InputGroup.Text>
+        </InputGroup.Prepend>
         <li className="form-control">{props.value[0]}</li>
-      </div>
+      </InputGroup>
 
-      <div className="input-group col-md-6 order-sm-2 p-2">
-        <div className="input-group-prepend">
-          <span className="input-group-text">{props.char[1]}</span>
-        </div>
+      <InputGroup as={Col} md="6" sm={{ order: 2 }} className="p-2">
+        <InputGroup.Prepend>
+          <InputGroup.Text>{props.char[1]}</InputGroup.Text>
+        </InputGroup.Prepend>
         <li className="form-control">{props.value[1]}</li>
 
-        <div className="input-group-append">
-          <button
-            className="btn btn-outline-danger"
-            type="button"
-            onClick={() => props.onChange()}
-          >
+        <InputGroup.Append>
+          <Button variant="outline-danger" onClick={() => props.onChange()}>
             Delete
-          </button>
-        </div>
-      </div>
+          </Button>
+        </InputGroup.Append>
+      </InputGroup>
     </>
   );
 }

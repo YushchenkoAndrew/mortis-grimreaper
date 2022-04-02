@@ -4,25 +4,25 @@ const PREFIX = "MAIN";
 
 const WINDOW_STATE = {
   JS: {
-    operations: ["CHECK_NAME", "PREVIEW", "LINK", "FILES"],
+    operations: ["PREVIEW", "LINK", "FILES"],
     disabled: ["Config"],
   },
   Markdown: {
-    operations: ["CHECK_NAME", "PREVIEW", "LINK", "FILES"],
+    operations: ["PREVIEW", "LINK", "FILES"],
     disabled: ["Config"],
   },
   Link: {
-    operations: ["CHECK_NAME", "PREVIEW", "LINK"],
+    operations: ["PREVIEW", "LINK", "FILES"],
     disabled: ["Config", "Code"],
   },
   Docker: {
-    operations: ["CHECK_NAME", "PREVIEW", "LINK", "FILES", "K3S"],
+    operations: ["PREVIEW", "LINK", "FILES", "K3S"],
     disabled: [],
   },
 };
 
 const INIT_STATE = {
-  state: "CHECK_NAME",
+  state: "PREVIEW",
   window: "Preview",
   operations: WINDOW_STATE.JS.operations,
   disabled: WINDOW_STATE.JS.disabled,

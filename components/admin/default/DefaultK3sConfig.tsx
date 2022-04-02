@@ -1,4 +1,5 @@
 import React, { useEffect, useImperativeHandle, useRef, useState } from "react";
+import { Container } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { basePath } from "../../../config";
@@ -167,7 +168,7 @@ export default React.forwardRef((props: K3sConfigProps, ref) => {
 
   return (
     <div className={`${props.show ? "" : "d-none"}`}>
-      <div className="container mb-5">
+      <Container className="mb-5">
         <K3sField
           name="Namespace"
           show={minimized.namespace}
@@ -275,7 +276,7 @@ export default React.forwardRef((props: K3sConfigProps, ref) => {
         >
           <Terminal ref={terminalRef} show={minimized.terminal} />
         </K3sField>
-      </div>
+      </Container>
     </div>
   );
 });

@@ -41,7 +41,7 @@ Cypress.Commands.add("login", (user, pass, recaptcha, err) => {
 });
 
 Cypress.Commands.add(
-  "checkInputValue",
+  "inputValue",
   (name, value, required = false, expect = null) => {
     cy.get(`input[name=${name}]`)
       .parent("div")
@@ -55,3 +55,7 @@ Cypress.Commands.add(
       });
   }
 );
+
+Cypress.Commands.add("checkValue", (name, expect) => {
+  cy.get(`input[name=${name}]`).should("have.value", expect);
+});

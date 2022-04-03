@@ -96,6 +96,7 @@ export function addFile(
             [curr.name]: {
               ...curr,
               type: convertTypes[curr.type] ?? curr.type,
+              path: path.slice(1).join("/"),
             },
           }),
           {} as TreeObj

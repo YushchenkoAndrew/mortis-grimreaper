@@ -11,7 +11,7 @@ export function LoadProjects<Type = any>(args: { [key: string]: any }) {
   return new Promise<Type[] | null>(async (resolve) => {
     try {
       const query = createQuery(args);
-      const result = decompress((await redis.get(`Project:${query}`)) || "");
+      const result = decompress((await redis.get(`PROJECT:${query}`)) || "");
       if (result) return resolve(JSON.parse(result));
 
       const res = await fetch(`${apiUrl}/project${query}`);
@@ -20,8 +20,8 @@ export function LoadProjects<Type = any>(args: { [key: string]: any }) {
       resolve(data.result);
 
       redis
-        .set(`Project:${query}`, compress(JSON.stringify(data.result)))
-        .finally(() => redis.expire(`Project:${query}`, 2 * 60 * 60));
+        .set(`PROJECT:${query}`, compress(JSON.stringify(data.result)))
+        .finally(() => redis.expire(`PROJECT:${query}`, 2 * 60 * 60));
     } catch (err: any) {
       resolve(null);
     }

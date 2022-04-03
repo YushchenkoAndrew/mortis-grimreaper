@@ -157,7 +157,7 @@ export default function DefaultOperationsForm(
               body.append("file", file);
 
               const res = await fetch(
-                `${basePath}/api/file/${props.operation}` +
+                `${basePath}/api/file/${tree.id ? props.operation : "create"}` +
                   createQuery({
                     project_id: id,
                     role: tree.role,

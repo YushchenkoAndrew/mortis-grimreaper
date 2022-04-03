@@ -77,6 +77,8 @@ export default withIronSessionApiRoute(async function (req, res) {
     });
   })();
 
-  FlushFilter(["Project", "page"]);
+  // Flush all projects precached values
+  FlushFilter(["page", `name=${body.name}`], "PROJECT:*");
+
   res.status(status).send(send);
 }, sessionConfig);

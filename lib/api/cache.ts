@@ -5,9 +5,13 @@ export async function FlushValue(key: string) {
   keys.forEach((item) => redis.del(item));
 }
 
-export async function FlushFilter(params: string[]) {
-  const keys = await redis.keys("*");
-  return params.forEach((key) =>
-    keys.filter((item) => item.includes(key)).forEach((item) => redis.del(item))
-  );
+export async function FlushFilter(params: string[], match = "*") {
+  for await (const key of await redis.scanIterator({ MATCH: match })) {
+    for (const item of params) {
+      if (!key.includes(item)) continue;
+
+      redis.del(key);
+      break;
+    }
+  }
 }

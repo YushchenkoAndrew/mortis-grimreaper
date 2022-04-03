@@ -104,6 +104,8 @@ export default withIronSessionApiRoute(async function (req, res) {
     });
   })();
 
-  FlushFilter(["File", "page"]);
+  // Flush all file precached values
+  FlushFilter([body.project], "FILE:*");
+
   res.status(status).send(send);
 }, sessionConfig);

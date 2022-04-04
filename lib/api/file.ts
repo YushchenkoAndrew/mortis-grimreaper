@@ -16,10 +16,15 @@ export async function SendFile(file: File, path: string) {
   const formData = new FormData();
   formData.append("file", createReadStream(file.path), file.name || "");
 
+  const ctl = new AbortController();
+  setTimeout(() => ctl.abort(), Number(process.env.FETCH_TIMEOUT));
+
   const res = await fetch(`${localVoidUrl}?path=/${path}`, {
     method: "POST",
     headers: { Authorization: `Basic ${VoidAuth()}` },
     body: formData as any,
+
+    signal: ctl.signal,
   });
 
   return (await res.json()) as ApiOk | ApiError;
@@ -34,7 +39,13 @@ export function LoadFile(path: string) {
         return resolve(decompress(reply));
       }
 
-      const res = await fetch(`${localVoidUrl}/${path}`);
+      const ctl = new AbortController();
+      setTimeout(() => ctl.abort(), Number(process.env.FETCH_TIMEOUT));
+
+      const res = await fetch(`${localVoidUrl}/${path}`, {
+        signal: ctl.signal,
+      });
+
       const text = await res.text();
 
       resolve(text);
@@ -42,7 +53,7 @@ export function LoadFile(path: string) {
         .set(`FILE:${path}`, compress(text))
         .finally(() => redis.expire(`FILE:${path}`, 2 * 60 * 60));
     } catch (err: any) {
-      resolve("");
+      resolve(null);
     }
   });
 }
@@ -50,6 +61,9 @@ export function LoadFile(path: string) {
 export function DeleteFile(args: { [key: string]: any }) {
   return new Promise<void>(async (resolve, reject) => {
     try {
+      const ctl = new AbortController();
+      setTimeout(() => ctl.abort(), Number(process.env.FETCH_TIMEOUT));
+
       const token = await ApiAuth();
       const res = await fetch(`${apiUrl}/file/${createQuery(args)}`, {
         method: "DELETE",
@@ -57,6 +71,8 @@ export function DeleteFile(args: { [key: string]: any }) {
           "content-type": "application/json",
           Authorization: `Bear ${token}`,
         },
+
+        signal: ctl.signal,
       });
 
       const data = (await res.json()) as ApiRes<FileData[]> | ApiError;

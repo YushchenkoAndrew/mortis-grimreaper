@@ -17,7 +17,10 @@ export const INIT_STATE = {
   // Curr showed file
   type: CODE_TEMPLATE.JS.type,
   path: `${CODE_TEMPLATE.JS.role}/${CODE_TEMPLATE.JS.name}`,
+  template: "Code",
+
   content: CODE_TEMPLATE.JS.content,
+  terminal: [],
 
   // Project Tree
   tree: {
@@ -37,6 +40,12 @@ export default function (state = INIT_STATE, action: AnyAction) {
         ...state,
         ...(action.value || {}),
       };
+
+    case `${PREFIX}_TEMPLATE_CHANGED`:
+      return { ...state, template: action.value };
+
+    case `${PREFIX}_TERMINAL_CHANGED`:
+      return { ...state, terminal: [...state.terminal, action.value] };
 
     case `${PREFIX}_ROLE_CHANGED`:
       return { ...state, role: action.value };

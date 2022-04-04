@@ -14,6 +14,16 @@ export default withIronSessionApiRoute(async function (req, res) {
       .send({ status: "ERR", message: "Bad request params" });
   }
 
-  const resp = await fetch(`${localVoidUrl}/${GetParam(req.query.path)}`);
-  res.send(Buffer.from(await resp.arrayBuffer()));
+  try {
+    const ctl = new AbortController();
+    setTimeout(() => ctl.abort(), Number(process.env.FETCH_TIMEOUT) + 15);
+
+    const resp = await fetch(`${localVoidUrl}/${GetParam(req.query.path)}`, {
+      signal: ctl.signal,
+    });
+
+    res.send(Buffer.from(await resp.arrayBuffer()));
+  } catch (_) {
+    res.status(408).send("");
+  }
 }, sessionConfig);

@@ -100,40 +100,6 @@ export default React.forwardRef((props: K3sConfigProps, ref) => {
 
   //     try {
   //       await new Promise<void>((resolve) => {
-  //         // NOTE: If tag was not setted then just don't build a project
-  //         // because it's doesn't contains anything except of thumbnail img
-  //         const tag = props.previewRef?.current?.tag;
-  //         if (!tag?.[0] || !tag?.[1]) return resolve();
-  //         const repo = `${tag[0]}:${tag[1]}`;
-
-  //         const toastId = toast.loading("Please wait...");
-  //         fetch(
-  //           `${basePath}/api/docker/build?tag=${repo}&path=/${
-  //             props.previewRef?.current?.formData?.name ?? ""
-  //           }`,
-  //           {
-  //             method: "POST",
-  //             headers: { "content-type": "application/json" },
-  //           }
-  //         )
-  //           .then((res) => res.text())
-  //           .then((data) => {
-  //             resolve();
-  //             toastRes(toastId, "OK", "Docker image was created successfully");
-  //             terminalRef.current?.runCommand?.(
-  //               `docker build . -t ${repo}`,
-  //               data
-  //             );
-  //           })
-  //           .catch((err) => {
-  //             resolve();
-  //             toastRes(toastId, "ERR", "Error with Docker image creation");
-  //             terminalRef.current?.runCommand?.(
-  //               `docker build . -t ${repo}`,
-  //               err
-  //             );
-  //           });
-  //       });
 
   //       await Promise.all(sendAll("namespace", namespaceRef));
   //       await Promise.all(sendAll("deployment", deploymentRef));
@@ -274,7 +240,11 @@ export default React.forwardRef((props: K3sConfigProps, ref) => {
             onMinimize({ ...minimized, terminal: !minimized.terminal })
           }
         >
-          <Terminal ref={terminalRef} show={minimized.terminal} />
+          <Terminal
+            ref={terminalRef}
+            show={minimized.terminal}
+            readFrom="code_terminal"
+          />
         </K3sField>
       </Container>
     </div>

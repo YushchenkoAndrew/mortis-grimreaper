@@ -27,6 +27,9 @@ export default withIronSessionApiRoute(async function (req, res) {
       try {
         const token = await ApiAuth();
         let res = await (function () {
+          const ctl = new AbortController();
+          setTimeout(() => ctl.abort(), Number(process.env.FETCH_TIMEOUT));
+
           switch (GetParam(req.query.handler)) {
             case "create":
             case "update":
@@ -45,6 +48,8 @@ export default withIronSessionApiRoute(async function (req, res) {
                     [] as LinkData[]
                   )
                 ),
+
+                signal: ctl.signal,
               });
 
             default:

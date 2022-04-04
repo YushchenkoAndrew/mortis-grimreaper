@@ -31,6 +31,9 @@ export default withIronSessionApiRoute(async function (req, res) {
       try {
         const token = await ApiAuth();
         const res = await (function () {
+          const ctl = new AbortController();
+          setTimeout(() => ctl.abort(), Number(process.env.FETCH_TIMEOUT));
+
           switch (req.query.handler) {
             case "create":
               return fetch(`${apiUrl}/project`, {
@@ -40,6 +43,8 @@ export default withIronSessionApiRoute(async function (req, res) {
                   Authorization: `Bear ${token}`,
                 },
                 body: JSON.stringify(body),
+
+                signal: ctl.signal,
               });
 
             case "update":
@@ -50,6 +55,8 @@ export default withIronSessionApiRoute(async function (req, res) {
                   Authorization: `Bear ${token}`,
                 },
                 body: JSON.stringify(body),
+
+                signal: ctl.signal,
               });
 
             default:

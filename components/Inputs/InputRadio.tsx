@@ -8,6 +8,7 @@ export type Overflow = {
   off: { className: string; len: number };
 };
 export interface InputRadioProps {
+  hidden?: boolean;
   readFrom: string;
   writeTo?: string;
   className?: string;
@@ -25,7 +26,7 @@ export default function InputRadio(props: InputRadioProps) {
   const dispatch = useDispatch();
 
   return (
-    <InputGroup>
+    <InputGroup hidden={props.hidden}>
       <div
         className={props.className ?? "btn-group btn-group-toggle"}
         data-toggle="buttons"

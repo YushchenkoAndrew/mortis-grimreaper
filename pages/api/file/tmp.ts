@@ -42,8 +42,6 @@ export default withIronSessionApiRoute(async function (req, res) {
           formPath(["tmp", body.role, body.dir])
         );
 
-        console.log(result);
-
         resolve({ status: result.status === "OK" ? 200 : 500, send: result });
       } catch (err: any) {
         resolve({

@@ -18,6 +18,7 @@ import { Bounce, toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { withIronSessionSsr } from "iron-session/next";
 import { LoadProjects } from "../../lib/api/project";
+import { Col, Container, Spinner } from "react-bootstrap";
 
 let page = 1;
 
@@ -91,7 +92,7 @@ export default function AdminProjects(props: AdminProjectsProps) {
         draggable
       />
 
-      <div className="container mt-4">
+      <Container className="mt-4">
         <InfiniteScroll
           className="row"
           dataLength={projects.length}
@@ -102,15 +103,21 @@ export default function AdminProjects(props: AdminProjectsProps) {
           }
           hasMore={hasMore}
           loader={
-            <div className="d-flex justify-content-center">
-              <div className="spinner-border" role="status">
-                <span className="sr-only">Loading...</span>
-              </div>
-            </div>
+            <Col lg="4" md="6" sm="11" className="my-3 text-center p-4">
+              <Container className="d-flex h-100 w-80">
+                <Col className="align-self-center text-center">
+                  <Spinner animation="border" role="status">
+                    <span className="sr-only">Loading...</span>
+                  </Spinner>
+                </Col>
+              </Container>
+            </Col>
           }
         >
           <AddCard href={`${basePath}/admin/projects/create`} />
           {projects.map((item, i) => {
+            console.log(item);
+
             return (
               <Card
                 key={i}
@@ -154,7 +161,7 @@ export default function AdminProjects(props: AdminProjectsProps) {
             );
           })}
         </InfiniteScroll>
-      </div>
+      </Container>
 
       <DefaultFooter name="Menu">
         <ul className="list-unstyled">

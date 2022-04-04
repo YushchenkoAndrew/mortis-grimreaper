@@ -43,6 +43,9 @@ export default withIronSessionApiRoute(async function (req, res) {
 
         const token = await ApiAuth();
         let res = await (function () {
+          const ctl = new AbortController();
+          setTimeout(() => ctl.abort(), Number(process.env.FETCH_TIMEOUT));
+
           switch (GetParam(req.query.handler)) {
             case "create":
               return fetch(`${apiUrl}/file/${body.project_id}`, {
@@ -56,6 +59,8 @@ export default withIronSessionApiRoute(async function (req, res) {
                   name: file.name,
                   type: file.type ?? "text/plain",
                 }),
+
+                signal: ctl.signal,
               });
 
             case "update":
@@ -70,6 +75,8 @@ export default withIronSessionApiRoute(async function (req, res) {
                   name: file.name,
                   type: file.type ?? "text/plain",
                 }),
+
+                signal: ctl.signal,
               });
 
             default:

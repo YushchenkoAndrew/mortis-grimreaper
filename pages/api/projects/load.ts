@@ -16,8 +16,6 @@ export default withIronSessionApiRoute(async function (req, res) {
     id: null,
   });
 
-  console.log(req.query);
-
   const projects = await LoadProjects(query);
   if (!projects) {
     return res

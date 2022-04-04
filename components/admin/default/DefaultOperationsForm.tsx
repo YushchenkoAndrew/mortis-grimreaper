@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { CacheId } from "../../../lib/public";
 import { DefaultRes } from "../../../types/request";
 import { createQuery } from "../../../lib/api/query";
-import { Button, Form } from "react-bootstrap";
+import { Button, Container, Form, Row } from "react-bootstrap";
 
 export interface DefaultOperationsFormProps {
   operation: string;
@@ -49,6 +49,28 @@ export default function DefaultOperationsForm(
           dispatch({ type: `CODE_INIT`, value: data });
         })
         .catch(() => null);
+
+      //
+      // NOTE: FOR TESTING !!
+      //
+      // await fetch(
+      //   `${basePath}/api/docker/build?tag=grimreapermortis/demo2:demo&push=true&path=/test`,
+      //   {
+      //     method: "POST",
+      //     headers: { "content-type": "application/json" },
+      //   }
+      // );
+
+      // if (!res.body) return;
+      // const reader = res.body.getReader();
+
+      // while (true) {
+      //   const { value, done } = await reader.read();
+      //   if (done) break;
+      //   console.log("Received ", value);
+      // }
+
+      // console.log("Response fully received");
     })();
   }, []);
 
@@ -161,7 +183,7 @@ export default function DefaultOperationsForm(
                   createQuery({
                     project_id: id,
                     role: tree.role,
-                    id: tree.id ?? -1,
+                    id: tree.id ?? null,
                     project: root.preview.name,
                     path:
                       "/" + ((tree.path as string) ?? "").replace(/^\//, ""),
@@ -192,6 +214,53 @@ export default function DefaultOperationsForm(
             }
           });
         })(root.code.tree);
+
+      case "DOCKER":
+        return new Promise<number>(async (resolve, reject) => {
+          // NOTE: If tag was not setted then just don't build a project
+          // because it's doesn't contains anything except of thumbnail img
+          if (!root.preview.repo.name || root.preview.repo.version) {
+            return resolve(id);
+          }
+
+          const toastId = toast.loading("Please wait...");
+
+          try {
+            const res = await fetch(
+              `${basePath}/api/docker/build?tag=${root.preview.repo.name}:${root.preview.repo.version}&path=/${root.preview.name}`,
+              {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+              }
+            );
+          } catch (err) {
+            reject({
+              id: toastId,
+              state: "DOCKER",
+              message: "Docker: Server error",
+            });
+          }
+        });
+
+      //         const toastId = toast.loading("Please wait...");
+      //           .then((res) => res.text())
+      //           .then((data) => {
+      //             resolve();
+      //             toastRes(toastId, "OK", "Docker image was created successfully");
+      //             terminalRef.current?.runCommand?.(
+      //               `docker build . -t ${repo}`,
+      //               data
+      //             );
+      //           })
+      //           .catch((err) => {
+      //             resolve();
+      //             toastRes(toastId, "ERR", "Error with Docker image creation");
+      //             terminalRef.current?.runCommand?.(
+      //               `docker build . -t ${repo}`,
+      //               err
+      //             );
+      //           });
+      //       });
 
       case "K3S":
         return new Promise<number>((resolve) => resolve(id));
@@ -264,10 +333,10 @@ export default function DefaultOperationsForm(
         draggable
       />
 
-      <div className="container mb-1">
-        <div className="row w-100 d-flex justify-content-between">
+      <Container className="mb-1">
+        <Row className="w-100 d-flex justify-content-between">
           <span></span>
-          <div className="row">
+          <Row>
             <div>
               <InputRadio
                 readFrom="main_window"
@@ -286,9 +355,9 @@ export default function DefaultOperationsForm(
             >
               Submit
             </Button>
-          </div>
-        </div>
-      </div>
+          </Row>
+        </Row>
+      </Container>
 
       <DefaultPreview
         show={root.main.window === "Preview"}

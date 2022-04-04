@@ -40,6 +40,8 @@ module.exports = {
     NEXT_PUBLIC_VOID_URL: process.env.NEXT_PUBLIC_VOID_URL,
     // NEXT_PUBLIC_RECAPTCHA_INVISIBLE_SITE_KEY:
     //   process.env.RECAPTCHA_INVISIBLE_SITE_KEY,
+
+    FETCH_TIMEOUT: 5000,
     ALLOWED_INVALID_LOGIN_REQ: process.env.ENV === "test" ? 20 : 6,
     K3S_ALLOWED_TYPES: [
       "deployment",

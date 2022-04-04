@@ -13,9 +13,9 @@ import "prismjs/components/prism-javascript";
 import "prismjs/components/prism-markdown";
 import "prismjs/components/prism-docker";
 import "prismjs/themes/prism-coy.css";
-import { TreeObj } from "../../../types/tree";
 import { tmpFile } from "../../../lib/public/files";
 import Editor from "react-simple-code-editor";
+import DefaultMarkdownProject from "../../default/DefaultMarkdownProject";
 
 const highlightTypes: { [name: string]: [Grammar, string] } = {
   html: [languages.html, "html"],
@@ -88,12 +88,32 @@ export default function DefaultCodeView(props: DefaultCodeViewProps) {
       <hr />
       <div className="d-flex justify-content-center mb-3">
         <Col md="11">
-          <Row>
-            <h5 className="font-weight-bold mr-2">File:</h5>
-            <p className="font-italic">{code.path}</p>
+          <Row className="w-100 d-flex justify-content-between">
+            <Row>
+              <h5 className="font-weight-bold mr-2">File:</h5>
+              <p className="font-italic">{code.path}</p>
+            </Row>
+            <Row className="mr-1">
+              <InputRadio
+                readFrom="code_template"
+                hidden={code.type !== "text/markdown"}
+                className="btn-group btn-group-sm btn-group-toggle mb-2"
+                options={["Code", "Preview"]}
+                label="btn-outline-dark"
+              />
+            </Row>
           </Row>
 
-          <Container>
+          <DefaultMarkdownProject
+            hidden={code.type !== "text/markdown" || code.template === "Code"}
+            className="border rounded mt-3"
+            name={preview.name}
+            template={code.content}
+          />
+
+          <Container
+            hidden={code.type === "text/markdown" && code.template !== "Code"}
+          >
             <Editor
               className="form-control editor h-100"
               value={code.content}
@@ -120,6 +140,7 @@ export default function DefaultCodeView(props: DefaultCodeViewProps) {
                   .join("\n");
               }}
               tabSize={2}
+              spellCheck={true}
               textareaId="code-area"
               padding={10}
               style={{

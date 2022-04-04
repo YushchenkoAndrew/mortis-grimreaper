@@ -6,7 +6,6 @@ export function loadProjectsThumbnail(page: number) {
     fetch(`${basePath}/api/projects/load?page=${page}&file[role]=thumbnail`)
       .then((res) => res.json())
       .then((data: ApiRes<ProjectData[]> | ApiError) => {
-        console.log(data);
         if (data.status === "ERR" || !data.result.length) return reject();
 
         resolve(data.result);

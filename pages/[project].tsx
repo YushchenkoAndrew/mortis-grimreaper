@@ -1,4 +1,3 @@
-import React from "react";
 import DefaultHead from "../components/default/DefaultHead";
 import DefaultHeader from "../components/default/DefaultHeader";
 import DefaultFooter from "../components/default/DefaultFooter";
@@ -6,13 +5,12 @@ import DefaultProjectInfo from "../components/default/DefaultProjectInfo";
 import { GetServerSidePropsContext } from "next";
 import { LinkData, ProjectData } from "../types/api";
 import { FlagType } from "../types/flag";
-import DefaultJsProject from "../components/default/DefaultJsProject";
-import DefaultMarkdownProject from "../components/default/DefaultMarkdownProject";
 import { LoadProjects } from "../lib/api/project";
 import { LoadFile } from "../lib/api/file";
 import { formPath } from "../lib/public/files";
 import { HtmlMarkers } from "../config/placeholder";
 import { voidUrl } from "../config";
+import DefaultTemplate from "../components/default/DefaultTemplate";
 export interface ProjectPageProps {
   name: string;
   title: string;
@@ -30,11 +28,11 @@ export default function ProjectPage(props: ProjectPageProps) {
       </DefaultHead>
       <DefaultHeader name={props.title} projects />
 
-      {props.flag == "JS" ? (
-        <DefaultJsProject name={props.name} template={props.template} />
-      ) : (
-        <DefaultMarkdownProject name={props.name} template={props.template} />
-      )}
+      <DefaultTemplate
+        flag={props.flag}
+        name={props.name}
+        template={props.template}
+      />
 
       <DefaultFooter name={props.title}>
         <DefaultProjectInfo

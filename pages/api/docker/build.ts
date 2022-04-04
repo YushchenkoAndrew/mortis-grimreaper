@@ -5,7 +5,7 @@ import sessionConfig from "../../../config/session";
 import { GetParam } from "../../../lib/api/query";
 import { GetServerIP } from "../../../lib/api/ip";
 import { DockerAuth, VoidAuth } from "../../../lib/api/auth";
-import { withIronSessionApiRoute } from "iron-session/next/dist";
+import { withIronSessionApiRoute } from "iron-session/next";
 
 const { serverRuntimeConfig } = getConfig();
 
@@ -18,32 +18,56 @@ export default withIronSessionApiRoute(async function (req, res) {
     return res.status(400).send("");
   }
 
-  const data = await new Promise<string>((resolve) => {
-    fetch(`${localVoidUrl}/docker?path=/${path}&t=${tag}&push`, {
-      method: "POST",
-      headers: {
-        Authorization:
-          "Basic " +
-          Buffer.from(serverRuntimeConfig.VOID_AUTH ?? "").toString("base64"),
-      },
-    })
-      .then((res) => res.text())
-      .then((data) => resolve(data))
-      .catch(() => resolve(""));
-  });
+  // const data = await new Promise<string>((resolve) => {
+  //   fetch(`${localVoidUrl}/docker?path=/${path}&t=${tag}&push`, {
+  //     method: "POST",
+  //     headers: {
+  //       Authorization:
+  //         "Basic " +
+  //         Buffer.from(serverRuntimeConfig.VOID_AUTH ?? "").toString("base64"),
+  //     },
+  //   }).then((res) => {
+  //     // res.body.
+  //     // res.body?.pipeTo()
+  //   });
+  //   // .then((res) => res.text())
+  //   // .then((data) => resolve(data))
+  //   // .catch(() => resolve(""));
+  // });
 
-  if (!data) return res.send(data);
-  await new Promise<void>(async (resolve) => {
-    try {
-      await fetch(`${localVoidUrl}/docker/push?t=${tag}&`, {
+  // if (!data) return res.send(data);
+  // // await new Promise<void>(async (resolve) => {
+  // //   try {
+  // //     await fetch(`${localVoidUrl}/docker/push?t=${tag}&`, {
+  // //       method: "POST",
+  // //       headers: {
+  // //         Authorization: `Basic ${VoidAuth()}`,
+  // //         "X-Registry-Auth": await DockerAuth(),
+  // //       },
+  // //     });
+  // //   } catch (err) {}
+  // // });
+
+  // res.send(data);
+
+  try {
+    // const ctl = new AbortController();
+    // setTimeout(() => ctl.abort(), Number(process.env.FETCH_TIMEOUT));
+
+    const resp = await fetch(
+      `${localVoidUrl}/docker?path=/${path}&t=${tag}&push`,
+      {
         method: "POST",
-        headers: {
-          Authorization: `Basic ${VoidAuth()}`,
-          "X-Registry-Auth": await DockerAuth(),
-        },
-      });
-    } catch (err) {}
-  });
+        headers: { Authorization: `Basic ${VoidAuth()}` },
+      }
+    );
 
-  res.send(data);
+    const data = await resp.arrayBuffer();
+    console.log(data);
+    console.log(Buffer.from(data).toString());
+
+    res.send(Buffer.from(data));
+  } catch (_) {
+    res.status(408).send("");
+  }
 }, sessionConfig);

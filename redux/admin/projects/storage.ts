@@ -9,7 +9,6 @@ import namespaceReducer from "./reducer/namespace";
 import deploymentReducer from "./reducer/deployment";
 import serviceReducer from "./reducer/service";
 import ingressReducer from "./reducer/ingress";
-import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 
 export const store = createStore(
   combineReducers({

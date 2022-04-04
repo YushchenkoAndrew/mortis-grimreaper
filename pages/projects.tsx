@@ -164,6 +164,8 @@ export const getServerSideProps = async () => {
     "file[role]": "thumbnail",
   });
 
+  console.dir(project, { depth: null });
+
   if (!project) {
     return {
       props: {

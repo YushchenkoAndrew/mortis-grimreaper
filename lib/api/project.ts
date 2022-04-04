@@ -14,7 +14,13 @@ export function LoadProjects<Type = any>(args: { [key: string]: any }) {
       const result = decompress((await redis.get(`PROJECT:${query}`)) || "");
       if (result) return resolve(JSON.parse(result));
 
-      const res = await fetch(`${apiUrl}/project${query}`);
+      const ctl = new AbortController();
+      setTimeout(() => ctl.abort(), Number(process.env.FETCH_TIMEOUT));
+
+      const res = await fetch(`${apiUrl}/project${query}`, {
+        signal: ctl.signal,
+      });
+
       const data = (await res.json()) as ApiRes<Type[]> | ApiError;
       if (data.status === "ERR") return resolve(null);
       resolve(data.result);

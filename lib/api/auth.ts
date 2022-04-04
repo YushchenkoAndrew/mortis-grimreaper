@@ -43,10 +43,15 @@ export function ApiAuth(retry: boolean = true): Promise<string> {
       // If Access token expired, then refresh token
       const refresh = await redis.get("API:REFRESH");
       if (refresh) {
+        const ctl = new AbortController();
+        setTimeout(() => ctl.abort(), Number(process.env.FETCH_TIMEOUT));
+
         const res = await fetch(`${apiUrl}/refresh`, {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ refresh_token: refresh }),
+
+          signal: ctl.signal,
         });
 
         const data = (await res.json()) as ApiTokens | ApiError;
@@ -60,6 +65,9 @@ export function ApiAuth(retry: boolean = true): Promise<string> {
         UpdateTokens(data);
         resolve(data.access_token);
       }
+
+      const ctl = new AbortController();
+      setTimeout(() => ctl.abort(), Number(process.env.FETCH_TIMEOUT));
 
       // If Refresh token expired, then relogin
       const salt = md5((Math.random() * 10000 + 500).toString());
@@ -77,6 +85,8 @@ export function ApiAuth(retry: boolean = true): Promise<string> {
                 serverRuntimeConfig.API_PASS
             ),
         }),
+
+        signal: ctl.signal,
       });
 
       const data = (await res.json()) as ApiTokens | ApiError;

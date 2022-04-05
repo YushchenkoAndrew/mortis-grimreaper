@@ -7,7 +7,7 @@ import InputValue from "../../Inputs/InputValue";
 
 export interface PortProps {
   show?: boolean;
-  root?: string;
+  root?: string | (() => void);
   readFrom: string;
   writeTo: string;
 }

@@ -1,18 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { DefaultRes } from "../../../types/request";
-import YAML from "yaml";
+import { parse } from "yaml";
 
-export default function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<DefaultRes>
-) {
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST" || req.headers["content-type"] !== "text/plain") {
-    return res.status(405).send({ status: "ERR", message: "Unknown method" });
+    return res.status(405).send({});
   }
 
-  res.status(200).json({
-    status: "OK",
-    message: "Success!!",
-    result: YAML.parse(req.body ?? ""),
-  });
+  res.status(200).send(parse(req.body ?? ""));
 }

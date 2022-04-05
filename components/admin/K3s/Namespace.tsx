@@ -9,7 +9,7 @@ import InputTemplate from "../../Inputs/InputTemplate";
 
 export interface NamespaceProps {
   show?: boolean;
-  root?: string;
+  root?: string | (() => void);
   readFrom: string;
   writeTo: string;
 }

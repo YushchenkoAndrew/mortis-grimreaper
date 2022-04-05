@@ -22,7 +22,7 @@ import styles from "./Default.module.css";
 export interface DeploymentProps {
   show?: boolean;
   // index: number;
-  root?: string;
+  root?: string | (() => void);
   readFrom: string;
   writeTo: string;
 }

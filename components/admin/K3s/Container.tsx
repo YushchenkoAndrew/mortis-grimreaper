@@ -19,7 +19,7 @@ import styles from "./Default.module.css";
 
 export interface ContainerProps {
   show?: boolean;
-  root?: string;
+  root?: string | (() => void);
   readFrom: string;
   writeTo: string;
 }

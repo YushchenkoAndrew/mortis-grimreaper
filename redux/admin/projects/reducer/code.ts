@@ -117,6 +117,82 @@ export default function (state = INIT_STATE, action: AnyAction) {
       };
     }
 
+    case `${PREFIX}_NAMESPACE_PARSED`:
+      return {
+        ...state,
+        content:
+          state.path === "kubernetes/namespace.yaml"
+            ? action.value
+            : state.content,
+
+        tree: addFile(state.tree, { dir: "", role: "kubernetes" }, [
+          {
+            name: "namespace.yaml",
+            path: "",
+            type: "text/yaml",
+            role: "kubernetes",
+            content: action.value,
+          },
+        ]),
+      };
+
+    case `${PREFIX}_DEPLOYMENT_PARSED`:
+      return {
+        ...state,
+        content:
+          state.path === "kubernetes/deployment.yaml"
+            ? action.value
+            : state.content,
+
+        tree: addFile(state.tree, { dir: "", role: "kubernetes" }, [
+          {
+            name: "deployment.yaml",
+            path: "",
+            type: "text/yaml",
+            role: "kubernetes",
+            content: action.value,
+          },
+        ]),
+      };
+
+    case `${PREFIX}_SERVICE_PARSED`:
+      return {
+        ...state,
+        content:
+          state.path === "kubernetes/service.yaml"
+            ? action.value
+            : state.content,
+
+        tree: addFile(state.tree, { dir: "", role: "kubernetes" }, [
+          {
+            name: "service.yaml",
+            path: "",
+            type: "text/yaml",
+            role: "kubernetes",
+            content: action.value,
+          },
+        ]),
+      };
+
+    case `${PREFIX}_INGRESS_PARSED`:
+      return {
+        ...state,
+        content:
+          state.path === "kubernetes/ingress.yaml"
+            ? action.value
+            : state.content,
+
+        tree: addFile(state.tree, { dir: "", role: "kubernetes" }, [
+          {
+            name: "ingress.yaml",
+            path: "",
+            type: "text/yaml",
+            role: "kubernetes",
+            content: action.value,
+          },
+        ]),
+      };
+
     case `${PREFIX}_CACHED`:
       fetch(`${basePath}/api/admin/cache?id=${CacheId(PREFIX)}`, {
         method: "POST",

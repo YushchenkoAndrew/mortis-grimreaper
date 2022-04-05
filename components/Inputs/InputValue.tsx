@@ -3,7 +3,7 @@ import { Form } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 
 export interface InputValueProps {
-  root?: string;
+  root?: string | (() => void);
   readFrom: string;
   writeTo?: string;
   type?: React.HTMLInputTypeAttribute;
@@ -41,8 +41,9 @@ export default function InputValue(props: InputValueProps) {
         }
         onBlur={async () => {
           onValidation(await props.isInvalid?.());
-
           if (!props.root) return;
+
+          if (typeof props.root === "function") return props.root();
           dispatch({ type: `${props.root}_CACHED`.toUpperCase() });
         }}
         isInvalid={!!invalid}

@@ -26,7 +26,7 @@ import Port from "./Port";
 
 export interface ServiceProps {
   show?: boolean;
-  root?: string;
+  root?: string | (() => void);
   readFrom: string;
   writeTo: string;
 }

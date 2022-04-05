@@ -10,7 +10,7 @@ import InputValue from "../../Inputs/InputValue";
 export interface ContainerPortProps {
   show?: boolean;
 
-  root?: string;
+  root?: string | (() => void);
   readFrom: string;
   writeTo: string;
 }

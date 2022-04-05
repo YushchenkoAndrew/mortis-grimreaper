@@ -4,7 +4,7 @@ import InputValue from "./InputValue";
 
 export interface InputNameProps {
   char: string;
-  root?: string;
+  root?: string | (() => void);
   readFrom: string;
   writeTo?: string;
   type?: React.HTMLInputTypeAttribute;

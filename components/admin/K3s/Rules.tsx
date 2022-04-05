@@ -15,7 +15,7 @@ import Path from "./Path";
 
 export interface RulesProps {
   show?: boolean;
-  root?: string;
+  root?: string | (() => void);
   readFrom: string;
   writeTo: string;
 }

@@ -123,9 +123,14 @@ export default function DefaultCodeView(props: DefaultCodeViewProps) {
                   value: value,
                 })
               }
-              onBlur={() =>
-                dispatch({ type: `${PREFIX.toUpperCase()}_CACHED` })
-              }
+              onBlur={() => {
+                dispatch({ type: `${PREFIX.toUpperCase()}_CACHED` });
+
+                // TODO:
+                // * Check if file was from k3s config
+                // * If so then send a request to /api/yaml/json
+                // * And put parsed result into config tree
+              }}
               highlight={(content) => {
                 return highlight(
                   content,

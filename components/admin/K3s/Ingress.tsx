@@ -21,7 +21,7 @@ import Rules from "./Rules";
 
 export interface IngressProps {
   show?: boolean;
-  root?: string;
+  root?: string | (() => void);
   readFrom: string;
   writeTo: string;
 }

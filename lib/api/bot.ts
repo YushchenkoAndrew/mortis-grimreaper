@@ -15,10 +15,7 @@ export function sendLogs(body: LogMessage) {
     )}`,
     {
       method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "X-Custom-Header": salt.toString(),
-      },
+      headers: { "content-type": "application/json", "X-Custom-Header": salt },
       body: JSON.stringify(body),
 
       signal: ctl.signal,

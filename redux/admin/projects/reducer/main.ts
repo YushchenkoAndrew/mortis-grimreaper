@@ -16,7 +16,8 @@ const WINDOW_STATE = {
     disabled: ["Config", "Code"],
   },
   Docker: {
-    operations: ["PREVIEW", "LINK", "FILES", "K3S"],
+    // operations: ["PREVIEW", "LINK", "FILES", "K3S"],
+    operations: ["PREVIEW", "LINK", "FILES", "DOCKER", "DOCKER_PUSH"],
     disabled: [],
   },
 };

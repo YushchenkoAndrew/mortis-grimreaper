@@ -49,28 +49,6 @@ export default function DefaultOperationsForm(
           dispatch({ type: `CODE_INIT`, value: data });
         })
         .catch(() => null);
-
-      //
-      // NOTE: FOR TESTING !!
-      //
-      // await fetch(
-      //   `${basePath}/api/docker/build?tag=grimreapermortis/demo2:demo&push=true&path=/test`,
-      //   {
-      //     method: "POST",
-      //     headers: { "content-type": "application/json" },
-      //   }
-      // );
-
-      // if (!res.body) return;
-      // const reader = res.body.getReader();
-
-      // while (true) {
-      //   const { value, done } = await reader.read();
-      //   if (done) break;
-      //   console.log("Received ", value);
-      // }
-
-      // console.log("Response fully received");
     })();
   }, []);
 
@@ -219,48 +197,108 @@ export default function DefaultOperationsForm(
         return new Promise<number>(async (resolve, reject) => {
           // NOTE: If tag was not setted then just don't build a project
           // because it's doesn't contains anything except of thumbnail img
-          if (!root.preview.repo.name || root.preview.repo.version) {
+          const { repo, name } = root.preview;
+          if (!repo.name || !repo.version) {
             return resolve(id);
           }
 
-          const toastId = toast.loading("Please wait...");
+          const toastId = toast.loading("Building docker image...");
+          dispatch({
+            type: "CODE_TERMINAL_CHANGED",
+            value: `> docker build . -t ${repo.name}:${repo.version}`,
+          });
 
           try {
             const res = await fetch(
-              `${basePath}/api/docker/build?tag=${root.preview.repo.name}:${root.preview.repo.version}&path=/${root.preview.name}`,
-              {
-                method: "POST",
-                headers: { "content-type": "application/json" },
-              }
+              `${basePath}/api/docker/build?tag=${repo.name}:${repo.version}&path=/${name}`,
+              { method: "POST" }
             );
+
+            if (!res.body) return;
+            const reader = res.body.getReader();
+
+            reader.read().then(function next({ done, value }) {
+              if (done) {
+                resolve(id);
+                return toast.update(toastId, {
+                  render: `Docker image '${repo.name}:${repo.version}' was builded successfully`,
+                  type: "success",
+                  isLoading: false,
+                  ...ToastDefault,
+                });
+              }
+
+              reader.read().then(next);
+              dispatch({
+                type: "CODE_TERMINAL_CHANGED",
+                value: Buffer.from(value).toString(),
+              });
+            });
           } catch (err) {
             reject({
               id: toastId,
               state: "DOCKER",
-              message: "Docker: Server error",
+              message: "Docker: Server side error",
+            });
+
+            dispatch({
+              type: "CODE_TERMINAL_CHANGED",
+              value: String(err),
             });
           }
         });
 
-      //         const toastId = toast.loading("Please wait...");
-      //           .then((res) => res.text())
-      //           .then((data) => {
-      //             resolve();
-      //             toastRes(toastId, "OK", "Docker image was created successfully");
-      //             terminalRef.current?.runCommand?.(
-      //               `docker build . -t ${repo}`,
-      //               data
-      //             );
-      //           })
-      //           .catch((err) => {
-      //             resolve();
-      //             toastRes(toastId, "ERR", "Error with Docker image creation");
-      //             terminalRef.current?.runCommand?.(
-      //               `docker build . -t ${repo}`,
-      //               err
-      //             );
-      //           });
-      //       });
+      case "DOCKER_PUSH":
+        return new Promise<number>(async (resolve, reject) => {
+          // NOTE: If tag was not setted then just don't build a project
+          // because it's doesn't contains anything except of thumbnail img
+          const { name, version } = root.preview.repo;
+          if (!name || version) {
+            return resolve(id);
+          }
+
+          const toastId = toast.loading("Pushing docker image...");
+          dispatch({
+            type: "CODE_TERMINAL_CHANGED",
+            value: `> docker push ${name}:${version}`,
+          });
+
+          try {
+            const res = await fetch(
+              `${basePath}/api/docker/push?tag=${name}:${version}`,
+              { method: "POST" }
+            );
+
+            const data = (await res.json()) as DefaultRes;
+            if (data.status !== "OK") {
+              return reject({
+                id: toastId,
+                state: "DOCKER_PUSH",
+                message: data.message,
+              });
+            }
+
+            resolve(id);
+            dispatch({ type: "CODE_TERMINAL_CHANGED", value: "Success !!" });
+            toast.update(toastId, {
+              render: `Docker image '${name}:${version}' was pushed successfully`,
+              type: "success",
+              isLoading: false,
+              ...ToastDefault,
+            });
+          } catch (err) {
+            reject({
+              id: toastId,
+              state: "DOCKER_PUSH",
+              message: "Docker: Server side error",
+            });
+
+            dispatch({
+              type: "CODE_TERMINAL_CHANGED",
+              value: String(err),
+            });
+          }
+        });
 
       case "K3S":
         return new Promise<number>((resolve) => resolve(id));

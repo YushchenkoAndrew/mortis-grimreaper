@@ -22,6 +22,7 @@ export default withIronSessionApiRoute(async function (req, res) {
     (key) => key in req.query && req.query[key]
   ).reduce((acc, curr) => ((acc[curr] = GetParam(req.query[curr])), acc), {
     id: -1,
+    role: "",
   } as { [name: string]: any });
 
   if (Object.keys(body).length != REQUIRED_FIELDS.length) {

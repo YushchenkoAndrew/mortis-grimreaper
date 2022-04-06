@@ -1,10 +1,7 @@
-import React, { useEffect, useImperativeHandle, useRef, useState } from "react";
+import { forwardRef, useRef, useState } from "react";
 import { Container } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
 import { basePath } from "../../../config";
-import { ToastDefault } from "../../../config/alert";
-import { ProjectData } from "../../../types/api";
 import Deployment from "../K3s/Deployment";
 import Ingress from "../K3s/Ingress";
 import K3sField from "../K3s/K3sField";
@@ -16,7 +13,7 @@ export interface K3sConfigProps {
   show?: boolean;
 }
 
-export default React.forwardRef((props: K3sConfigProps, ref) => {
+export default forwardRef((props: K3sConfigProps, ref) => {
   const [minimized, onMinimize] = useState({
     namespace: true,
     deployment: true,
@@ -42,95 +39,6 @@ export default React.forwardRef((props: K3sConfigProps, ref) => {
     (state: any) => state.config.ingress as unknown[]
   );
   const terminalRef = useRef<TerminalRef>(null);
-  // useImperativeHandle<unknown, K3sConfigRef>(ref, () => ({
-  //   async onSubmit(data: ProjectData | undefined) {
-  //     const formData = props.previewRef?.current?.formData;
-  //     if (!formData || !data) {
-  //       return new Promise((_, reject) => reject(null));
-  //     }
-
-  //     function toastRes(id: React.ReactText, status: Stat, name: string) {
-  //       toast.update(id, {
-  //         render: status === "OK" ? `Created ${name}` : `${name}: Server Error`,
-  //         type: status === "OK" ? "success" : "error",
-  //         isLoading: false,
-  //         ...ToastDefault,
-  //       });
-  //     }
-
-  //     function resolvePromise(name: string, promise: Promise<Response>) {
-  //       return new Promise((resolve, reject) => {
-  //         const toastId = toast.loading("Please wait...");
-  //         promise
-  //           .then((res) => res.json())
-  //           .then((data: DefaultRes) => {
-  //             toastRes(toastId, data.status, name);
-  //             resolve(data);
-  //           })
-  //           .catch((err) => {
-  //             toastRes(toastId, "ERR", name);
-  //             reject(err);
-  //           });
-  //       });
-  //     }
-
-  //     function sendAll(
-  //       name: string,
-  //       ref: React.RefObject<K3sRef>[]
-  //     ): Promise<unknown>[] {
-  //       return ref
-  //         .filter((item) => item?.current)
-  //         .map((item) => {
-  //           const value = item.current?.getValue();
-  //           const namespace = value?.metadata?.namespace ?? "";
-  //           return resolvePromise(
-  //             `${name} [${value?.metadata?.name ?? ""}]`,
-  //             fetch(
-  //               `${basePath}/api/k3s/create?type=${name}` +
-  //                 (namespace ? `&namespace=${namespace}` : ""),
-  //               {
-  //                 method: "POST",
-  //                 headers: { "content-type": "application/json" },
-  //                 body: JSON.stringify(value),
-  //               }
-  //             )
-  //           );
-  //         });
-  //     }
-
-  //     try {
-  //       await new Promise<void>((resolve) => {
-
-  //       await Promise.all(sendAll("namespace", namespaceRef));
-  //       await Promise.all(sendAll("deployment", deploymentRef));
-  //       await Promise.all(sendAll("service", serviceRef));
-  //       await Promise.all(sendAll("ingress", ingressRef));
-
-  //       // Create Metrics ....
-  //       await Promise.all(
-  //         deploymentRef
-  //           .filter((item) => item?.current)
-  //           .map((item) => {
-  //             const id = data.id || formData.id;
-  //             const value = item.current?.getValue();
-  //             const namespace = value?.metadata?.namespace ?? "";
-  //             return (value?.spec?.template?.spec?.containers ?? []).map(
-  //               (item) =>
-  //                 resolvePromise(
-  //                   `metrics [${item.name}]`,
-  //                   fetch(
-  //                     `${basePath}/api/k3s/metrics/create?prefix=${item.name}&namespace=${namespace}&id=${id}`,
-  //                     { method: "POST" }
-  //                   )
-  //                 )
-  //             );
-  //           })
-  //       );
-  //     } catch (err) {
-  //       console.log(err);
-  //     }
-  //   },
-  // }));
 
   async function ParseConfig(configs: unknown[], writeTo: string) {
     try {

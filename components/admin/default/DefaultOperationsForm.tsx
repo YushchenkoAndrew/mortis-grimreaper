@@ -19,6 +19,7 @@ import { Namespace } from "../../../types/K3s/Namespace";
 import { Deployment } from "../../../types/K3s/Deployment";
 import { Ingress } from "../../../types/K3s/Ingress";
 import { Service } from "../../../types/K3s/Service";
+import { CapitalizeString } from "../../../lib/public/string";
 
 export interface DefaultOperationsFormProps {
   operation: string;
@@ -79,11 +80,7 @@ export default function DefaultOperationsForm(
             );
             const data = (await res.json()) as DefaultRes<ProjectData[]>;
             if (data.status !== "OK" || !data.result?.[0]) {
-              return reject({
-                id: toastId,
-                state: "PREVIEW",
-                message: data.message,
-              });
+              return reject({ id: toastId, state, message: data.message });
             }
 
             dispatch({
@@ -99,11 +96,7 @@ export default function DefaultOperationsForm(
               ...ToastDefault,
             });
           } catch (err) {
-            reject({
-              id: toastId,
-              state: "PREVIEW",
-              message: "Project: Server error",
-            });
+            reject({ id: toastId, state, message: "Project: Server error" });
           }
         });
 
@@ -122,11 +115,7 @@ export default function DefaultOperationsForm(
             );
             const data = (await res.json()) as DefaultRes;
             if (data.status !== "OK") {
-              return reject({
-                id: toastId,
-                state: "LINK",
-                message: data.message,
-              });
+              return reject({ id: toastId, state, message: data.message });
             }
 
             resolve(id);
@@ -137,11 +126,7 @@ export default function DefaultOperationsForm(
               ...ToastDefault,
             });
           } catch (err) {
-            reject({
-              id: toastId,
-              state: "LINK",
-              message: "Link: Server error",
-            });
+            reject({ id: toastId, state, message: "Link: Server error" });
           }
         });
 
@@ -181,11 +166,7 @@ export default function DefaultOperationsForm(
 
               const data = (await res.json()) as DefaultRes;
               if (data.status !== "OK") {
-                return reject({
-                  id: toastId,
-                  state: "FILES",
-                  message: data.message,
-                });
+                return reject({ id: toastId, state, message: data.message });
               }
 
               toast.update(toastId, {
@@ -198,7 +179,7 @@ export default function DefaultOperationsForm(
               return resolve(id);
             } catch (err: any) {
               if (err.id) return reject(err);
-              reject({ id: toastId, state: "FILES", message: err });
+              reject({ id: toastId, state, message: err });
             }
           });
         })(root.code.tree);
@@ -247,7 +228,7 @@ export default function DefaultOperationsForm(
           } catch (err) {
             reject({
               id: toastId,
-              state: "DOCKER",
+              state,
               message: "Docker: Server side error",
             });
 
@@ -281,11 +262,7 @@ export default function DefaultOperationsForm(
 
             const data = (await res.json()) as DefaultRes;
             if (data.status !== "OK") {
-              return reject({
-                id: toastId,
-                state: "DOCKER_PUSH",
-                message: data.message,
-              });
+              return reject({ id: toastId, state, message: data.message });
             }
 
             resolve(id);
@@ -299,7 +276,7 @@ export default function DefaultOperationsForm(
           } catch (err) {
             reject({
               id: toastId,
-              state: "DOCKER_PUSH",
+              state,
               message: "Docker: Server side error",
             });
 
@@ -310,8 +287,110 @@ export default function DefaultOperationsForm(
           }
         });
 
-      case "K3S":
-        return new Promise<number>((resolve) => resolve(id));
+      case "K3S_NAMESPACE":
+      case "K3S_DEPLOYMENT":
+      case "K3S_SERVICE":
+      case "K3S_INGRESS":
+        return new Promise<number>(async (resolve, reject) => {
+          let index = root.stateIndex;
+          const name = state.replace(/K3S_/, "").toLowerCase();
+          const toastId = toast.loading("Please wait...");
+
+          try {
+            for (; index < root.config[name].length; index++) {
+              const res = await fetch(
+                `${basePath}/api/k3s/${props.operation}${createQuery({
+                  type: name,
+                  namespace: root.config[name][index].metadata.namespace,
+                })}`,
+                {
+                  method: "POST",
+                  headers: { "content-type": "application/json" },
+                  body: JSON.stringify(root.config[name][index]),
+                }
+              );
+
+              const data = (await res.json()) as DefaultRes;
+              if (data.status === "ERR") {
+                return reject({
+                  id: toastId,
+                  state,
+                  index,
+                  message: `${CapitalizeString(name)}: Error ${data.message}`,
+                });
+              }
+            }
+
+            resolve(id);
+            toast.update(toastId, {
+              render: `${CapitalizeString(name)} was created successfully`,
+              type: "success",
+              isLoading: false,
+              ...ToastDefault,
+            });
+          } catch (err) {
+            reject({
+              id: toastId,
+              state,
+              index,
+              message: `${CapitalizeString(name)}: Server side error`,
+            });
+          }
+        });
+
+      case "K3S_PODS_METRICS":
+        return new Promise<number>(async (resolve, reject) => {
+          let index = root.stateIndex;
+          const toastId = toast.loading("Please wait...");
+          const { sec, min, hour, day, month, week } = root.preview.cron;
+
+          try {
+            for (; index < root.config.deployment.length; index++) {
+              // FIXME: Loop in loop !!
+              const res = await fetch(
+                // `${basePath}/api/k3s/create?prefix=${item.name}&namespace=${namespace}&id=${id}`,
+                `${basePath}/api/k3s/metrics/${props.operation}${createQuery({
+                  id: id,
+                  // type: name,
+                  // prefix: ,
+                  namespace: root.config.deployment[index].metadata.namespace,
+                })}`,
+                {
+                  method: "POST",
+                  body: `${sec} ${min} ${hour} ${day} ${month} ${week}`,
+                }
+              );
+
+              // TODO:
+              // // Create Metrics ....
+              // await Promise.all(
+              //   deploymentRef
+              //     .filter((item) => item?.current)
+              //     .map((item) => {
+              //       const id = data.id || formData.id;
+              //       const value = item.current?.getValue();
+              //       const namespace = value?.metadata?.namespace ?? "";
+              //       return (value?.spec?.template?.spec?.containers ?? []).map(
+              //         (item) =>
+              //           resolvePromise(
+              //             `metrics [${item.name}]`,
+              //             fetch(
+              //               `${basePath}/api/k3s/metrics/create?prefix=${item.name}&namespace=${namespace}&id=${id}`,
+              //               { method: "POST" }
+              //             )
+              //           )
+              //       );
+              //     })
+            }
+          } catch (err) {
+            reject({
+              id: toastId,
+              state,
+              index,
+              message: `: Server side error`,
+            });
+          }
+        });
 
       default:
         return new Promise<number>((resolve) => resolve(id));
@@ -358,7 +437,10 @@ export default function DefaultOperationsForm(
           // );
         } catch (err: any) {
           if (!err?.state) return;
-          dispatch({ type: "MAIN_SUBMIT_STATE_CHANGED", value: err.state });
+          dispatch({
+            type: "MAIN_SUBMIT_STATE_CHANGED",
+            value: { state: err.state, stateIndex: err.index ?? 0 },
+          });
 
           if (!err?.id) return;
           toast.update(err.id, {

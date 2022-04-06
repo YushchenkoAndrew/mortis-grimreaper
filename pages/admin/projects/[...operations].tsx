@@ -18,6 +18,7 @@ import { Deployment } from "../../../types/K3s/Deployment";
 import { Namespace } from "../../../types/K3s/Namespace";
 import { Service } from "../../../types/K3s/Service";
 import { Ingress } from "../../../types/K3s/Ingress";
+import { CapitalizeString } from "../../../lib/public/string";
 
 export interface ProjectOperationProps {
   code?: { tree: TreeObj };
@@ -28,10 +29,6 @@ export interface ProjectOperationProps {
     service: Service[];
     ingress: Ingress[];
   };
-}
-
-function CapitalizeString([first, ...rest]: string) {
-  return first.toUpperCase() + rest.join("");
 }
 
 export default function ProjectOperation(props: ProjectOperationProps) {

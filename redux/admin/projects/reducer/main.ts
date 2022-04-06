@@ -16,14 +16,26 @@ const WINDOW_STATE = {
     disabled: ["Config", "Code"],
   },
   Docker: {
-    // operations: ["PREVIEW", "LINK", "FILES", "K3S"],
-    operations: ["PREVIEW", "LINK", "FILES", "DOCKER", "DOCKER_PUSH"],
+    operations: [
+      "PREVIEW",
+      "LINK",
+      "FILES",
+      "DOCKER",
+      "DOCKER_PUSH",
+      "K3S_NAMESPACE",
+      "K3S_DEPLOYMENT",
+      "K3S_SERVICE",
+      "K3S_INGRESS",
+      "K3S_PODS_METRICS",
+    ],
     disabled: [],
   },
 };
 
 const INIT_STATE = {
   state: "PREVIEW",
+  stateIndex: 0,
+
   window: "Preview",
   operations: WINDOW_STATE.JS.operations,
   disabled: WINDOW_STATE.JS.disabled,
@@ -38,7 +50,7 @@ export default function (state = INIT_STATE, action: AnyAction) {
       return { ...state, window: action.value };
 
     case `${PREFIX}_SUBMIT_STATE_CHANGED`:
-      return { ...state, state: action.value };
+      return { ...state, ...action.value };
 
     case `${PREFIX}_FLAG_CHANGED`: {
       const len = state.operations.length;

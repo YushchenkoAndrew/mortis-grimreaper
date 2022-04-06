@@ -15,6 +15,7 @@ const INIT_STATE = {
   img: null,
 
   repo: { name: "", version: "" },
+  cron: { week: "*", month: "*", day: "*", hour: "*", min: "*", sec: "*" },
 
   links: { main: "" },
 };
@@ -92,6 +93,24 @@ export default function (state = INIT_STATE, action: AnyAction) {
 
     case `${PREFIX}_REPO_VERSION_CHANGED`:
       return { ...state, repo: { ...state.repo, version: action.value } };
+
+    case `${PREFIX}_CRON_WEEK_CHANGED`:
+      return { ...state, cron: { ...state.cron, week: action.value } };
+
+    case `${PREFIX}_CRON_MONTH_CHANGED`:
+      return { ...state, cron: { ...state.cron, month: action.value } };
+
+    case `${PREFIX}_CRON_DAY_CHANGED`:
+      return { ...state, cron: { ...state.cron, day: action.value } };
+
+    case `${PREFIX}_CRON_HOUR_CHANGED`:
+      return { ...state, cron: { ...state.cron, hour: action.value } };
+
+    case `${PREFIX}_CRON_MIN_CHANGED`:
+      return { ...state, cron: { ...state.cron, min: action.value } };
+
+    case `${PREFIX}_CRON_SEC_CHANGED`:
+      return { ...state, cron: { ...state.cron, sec: action.value } };
 
     case `${PREFIX}_CACHED`:
       fetch(`${basePath}/api/admin/cache?id=${CacheId(PREFIX)}`, {

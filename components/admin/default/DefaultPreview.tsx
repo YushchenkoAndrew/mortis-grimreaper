@@ -1,23 +1,17 @@
-import { useEffect, useState } from "react";
 import { Col, Form, InputGroup, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { basePath } from "../../../config";
 import { ProjectInfo } from "../../../config/placeholder";
-import { CacheId } from "../../../lib/public";
 import { tmpFile } from "../../../lib/public/files";
 import { ProjectData } from "../../../types/api";
 import { DefaultRes } from "../../../types/request";
 import Card from "../../Card";
-import DefaultProjectInfo from "../../default/DefaultProjectInfo";
-import InputDouble from "../../Inputs/InputDouble";
-import InputList from "../../Inputs/InputDoubleList";
 import InputFile from "../../Inputs/InputFile";
 import InputName from "../../Inputs/InputName";
 import InputRadio from "../../Inputs/InputRadio";
 import InputTemplate from "../../Inputs/InputTemplate";
 import InputText from "../../Inputs/InputText";
 import InputValue from "../../Inputs/InputValue";
-import ListEntity from "../../Inputs/ListEntity";
 import DefaultPreviewFooter from "./DefaultPreviewFooter";
 
 export interface DefaultPreviewProps {

@@ -107,6 +107,8 @@ export default function (state = INIT_STATE, action: AnyAction) {
       );
     }
 
+    // NOTE: Dont need this because curr config
+    // will be stored in yaml file
     // case `${PREFIX}_CACHED`:
     //   fetch(`${basePath}/api/projects/cache?id=${CacheId(PREFIX)}`, {
     //     method: "POST",

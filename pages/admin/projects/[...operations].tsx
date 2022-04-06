@@ -14,10 +14,20 @@ import { store } from "../../../redux/admin/projects/storage";
 import { LoadProjects } from "../../../lib/api/project";
 import { addFile, allowedReader, formPath } from "../../../lib/public/files";
 import { LoadFile } from "../../../lib/api/file";
+import { Deployment } from "../../../types/K3s/Deployment";
+import { Namespace } from "../../../types/K3s/Namespace";
+import { Service } from "../../../types/K3s/Service";
+import { Ingress } from "../../../types/K3s/Ingress";
 
 export interface ProjectOperationProps {
   code?: { tree: TreeObj };
   preview?: { [name: string]: any };
+  config?: {
+    namespace: Namespace[];
+    deployment: Deployment[];
+    service: Service[];
+    ingress: Ingress[];
+  };
 }
 
 function CapitalizeString([first, ...rest]: string) {
@@ -45,6 +55,7 @@ export default function ProjectOperation(props: ProjectOperationProps) {
         operation={router.query?.operations?.[0] ?? "create"}
         preview={props.preview}
         code={props.code}
+        config={props.config}
       />
     </Provider>
   );
@@ -107,6 +118,16 @@ export const getServerSideProps = withIronSessionSsr(
               ),
             },
             code: { tree },
+
+            // TODO:
+            // * Add k3s config parser
+            //
+            // config?: {
+            //   namespace: Namespace[];
+            //   deployment: Deployment[];
+            //   service: Service[];
+            //   ingress: Ingress[];
+            // };
           },
         };
     }

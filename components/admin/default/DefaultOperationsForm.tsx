@@ -15,11 +15,21 @@ import { CacheId } from "../../../lib/public";
 import { DefaultRes } from "../../../types/request";
 import { createQuery } from "../../../lib/api/query";
 import { Button, Container, Form, Row } from "react-bootstrap";
+import { Namespace } from "../../../types/K3s/Namespace";
+import { Deployment } from "../../../types/K3s/Deployment";
+import { Ingress } from "../../../types/K3s/Ingress";
+import { Service } from "../../../types/K3s/Service";
 
 export interface DefaultOperationsFormProps {
   operation: string;
   preview?: { [name: string]: any };
   code?: { tree: TreeObj };
+  config?: {
+    namespace: Namespace[];
+    deployment: Deployment[];
+    service: Service[];
+    ingress: Ingress[];
+  };
 }
 
 export default function DefaultOperationsForm(

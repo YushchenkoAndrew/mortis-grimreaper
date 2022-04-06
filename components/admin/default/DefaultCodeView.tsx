@@ -16,6 +16,8 @@ import "prismjs/themes/prism-coy.css";
 import { tmpFile } from "../../../lib/public/files";
 import Editor from "react-simple-code-editor";
 import DefaultMarkdownProject from "../../default/DefaultMarkdownProject";
+import { basePath } from "../../../config";
+import { YamlToJson } from "../../../lib/public/yaml";
 
 const highlightTypes: { [name: string]: [Grammar, string] } = {
   html: [languages.html, "html"],
@@ -126,10 +128,25 @@ export default function DefaultCodeView(props: DefaultCodeViewProps) {
               onBlur={() => {
                 dispatch({ type: `${PREFIX.toUpperCase()}_CACHED` });
 
-                // TODO:
                 // * Check if file was from k3s config
                 // * If so then send a request to /api/yaml/json
                 // * And put parsed result into config tree
+                (async function () {
+                  switch (code.path) {
+                    case "kubernetes/namespace.yaml":
+                    case "kubernetes/deployment.yaml":
+                    case "kubernetes/service.yaml":
+                    case "kubernetes/ingress.yaml": {
+                      return dispatch({
+                        type: `CONFIG_${code.path.replace(
+                          /kubernetes\/|.yaml/g,
+                          ""
+                        )}_PARSED`.toUpperCase(),
+                        value: await YamlToJson(code.content),
+                      });
+                    }
+                  }
+                })();
               }}
               highlight={(content) => {
                 return highlight(

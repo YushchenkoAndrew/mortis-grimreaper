@@ -1,5 +1,9 @@
 import { AnyAction } from "redux";
-import { DeleteK3sConfig, UpdateK3sConfig } from "../../../../lib/public/k3s";
+import {
+  CombineK3sConfig,
+  DeleteK3sConfig,
+  UpdateK3sConfig,
+} from "../../../../lib/public/k3s";
 import { Deployment } from "../../../../types/K3s/Deployment";
 import { GetDynamicParams } from "./namespace";
 
@@ -154,6 +158,15 @@ export default function (state = INIT_STATE, action: AnyAction) {
       return state.map((item, i) =>
         i != index[0] ? item : DeleteK3sConfig(item, path)
       );
+    }
+
+    case `${PREFIX}_PARSED`: {
+      // TODO:
+      // * Write function for combining two k3s config in one
+
+      // console.log(CombineK3sConfig(state, action.value));
+
+      return state;
     }
 
     // case `${PREFIX}_CACHED`:

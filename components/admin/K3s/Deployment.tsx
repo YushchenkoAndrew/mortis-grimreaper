@@ -21,14 +21,10 @@ import styles from "./Default.module.css";
 
 export interface DeploymentProps {
   show?: boolean;
-  // index: number;
   root?: string | (() => void);
   readFrom: string;
   writeTo: string;
 }
-// export interface DeploymentRef {
-//   getValue: () => Deployment;
-// }
 
 export default function Deployment(props: DeploymentProps) {
   const [minimized, onMinimize] = useState({
@@ -51,62 +47,6 @@ export default function Deployment(props: DeploymentProps) {
       .split("_")
       .reduce((acc, curr) => acc[curr], state)
   ) as unknown[];
-
-  // const [deployment, onDeploymentChange] = useState<Deployment>({
-  //   apiVersion: "app/v1",
-  //   kind: "Deployment",
-  //   metadata: {},
-  //   spec: {
-  //     selector: { matchLabels: {} },
-  //     template: {
-  //       metadata: {},
-  //       spec: {
-  //         containers: [],
-  //       },
-  //     },
-  //   },
-  // });
-
-  // const containers = useSelector((state: any) =>
-  //   props.readFrom.split("_").reduce((acc, curr) => acc[curr], state)
-  // );
-
-  // const [containers, onContainerChange] = useState<boolean[]>([]);
-  // const [containersRef, onContainerRefChange] = useState<
-  //   React.RefObject<ContainerRef>[]
-  // >([]);
-
-  // useEffect(() => {
-  //   onContainerChange(
-  //     containers.map((_, i) => containersRef[i] || createRef<ContainerRef>())
-  //   );
-  // }, [deployment.spec.template.spec.containers.length]);
-
-  // let [labels, onLabelsChange] = useState({} as { [key: string]: string });
-
-  // useImperativeHandle<unknown, DeploymentRef>(ref, () => ({
-  //   getValue() {
-  //     return {
-  //       ...deployment,
-  //       spec: {
-  //         ...deployment.spec,
-  //         replicas: Number(deployment.spec?.replicas ?? 1),
-  //         selector: { matchLabels: { ...labels } },
-  //         template: {
-  //           ...deployment.spec?.template,
-  //           metadata: {
-  //             ...deployment.spec?.template?.metadata,
-  //             labels: { ...labels },
-  //           },
-  //           spec: {
-  //             ...deployment.spec?.template?.spec,
-  //             containers: containersRef.map((item) => item.current?.getValue()),
-  //           },
-  //         },
-  //       },
-  //     } as Deployment;
-  //   },
-  // }));
 
   return (
     <div className={`card px-1 py-3 ${props.show ? "" : "d-none"}`}>
@@ -234,7 +174,12 @@ export default function Deployment(props: DeploymentProps) {
                       <ListEntity
                         char={["var", "="]}
                         value={[name, value]}
-                        onChange={() => {}}
+                        onChange={() => {
+                          dispatch({
+                            type: `${props.readFrom}_spec_selector_matchLabels_del`.toUpperCase(),
+                            value: name,
+                          });
+                        }}
                       />
                     </Row>
                   ))}

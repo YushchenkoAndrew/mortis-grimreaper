@@ -58,15 +58,20 @@ export default function (state = INIT_STATE, action: AnyAction) {
       return { ...state, img: action.value || state.img };
 
     case `${PREFIX}_LINKS_CHANGED`:
+      return {
+        ...state,
+        links: {
+          ...state.links,
+          [action.value]: action.name.replace(/http:\/\/|https:\/\//g, ""),
+        },
+      };
+
     case `${PREFIX}_LINKS_MAIN_CHANGED`:
       return {
         ...state,
         links: {
           ...state.links,
-          [action.name ?? "main"]: action.value.replace(
-            /http:\/\/|https:\/\//g,
-            ""
-          ),
+          main: action.value.replace(/http:\/\/|https:\/\//g, ""),
         },
       };
 

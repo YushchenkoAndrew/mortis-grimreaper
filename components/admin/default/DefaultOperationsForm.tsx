@@ -346,48 +346,49 @@ export default function DefaultOperationsForm(
 
           try {
             for (; index < root.config.deployment.length; index++) {
-              // FIXME: Loop in loop !!
-              const res = await fetch(
-                // `${basePath}/api/k3s/create?prefix=${item.name}&namespace=${namespace}&id=${id}`,
-                `${basePath}/api/k3s/metrics/${props.operation}${createQuery({
-                  id: id,
-                  // type: name,
-                  // prefix: ,
-                  namespace: root.config.deployment[index].metadata.namespace,
-                })}`,
-                {
-                  method: "POST",
-                  body: `${sec} ${min} ${hour} ${day} ${month} ${week}`,
-                }
-              );
+              const matchLabels =
+                root.config.deployment[index].spec?.selector?.matchLabels;
+              if (!matchLabels) continue;
 
-              // TODO:
-              // // Create Metrics ....
-              // await Promise.all(
-              //   deploymentRef
-              //     .filter((item) => item?.current)
-              //     .map((item) => {
-              //       const id = data.id || formData.id;
-              //       const value = item.current?.getValue();
-              //       const namespace = value?.metadata?.namespace ?? "";
-              //       return (value?.spec?.template?.spec?.containers ?? []).map(
-              //         (item) =>
-              //           resolvePromise(
-              //             `metrics [${item.name}]`,
-              //             fetch(
-              //               `${basePath}/api/k3s/metrics/create?prefix=${item.name}&namespace=${namespace}&id=${id}`,
-              //               { method: "POST" }
-              //             )
-              //           )
-              //       );
-              //     })
+              // FIXME: Somehow save this key on error
+              for (const name in matchLabels) {
+                const res = await fetch(
+                  `${basePath}/api/k3s/metrics/${props.operation}${createQuery({
+                    id: id,
+                    label: `${name}=${matchLabels[name]}`,
+                    namespace: root.config.deployment[index].metadata.namespace,
+                  })}`,
+                  {
+                    method: "POST",
+                    body: `${sec} ${min} ${hour} ${day} ${month} ${week}`,
+                  }
+                );
+
+                const data = (await res.json()) as DefaultRes;
+                if (data.status === "ERR") {
+                  return reject({
+                    id: toastId,
+                    state,
+                    index,
+                    message: `Metrics: Error ${data.message}`,
+                  });
+                }
+              }
             }
+
+            resolve(id);
+            toast.update(toastId, {
+              render: "Metrics was created successfully",
+              type: "success",
+              isLoading: false,
+              ...ToastDefault,
+            });
           } catch (err) {
             reject({
               id: toastId,
               state,
               index,
-              message: `: Server side error`,
+              message: "Metrics: Server side error",
             });
           }
         });

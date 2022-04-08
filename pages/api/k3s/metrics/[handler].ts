@@ -5,7 +5,7 @@ import { ApiAuth } from "../../../../lib/api/auth";
 import { GetParam } from "../../../../lib/api/query";
 import { DefaultRes, FullResponse } from "../../../../types/request";
 
-const REQUIRED_FIELDS = ["id", "prefix", "namespace"];
+const REQUIRED_FIELDS = ["id", "label", "namespace"];
 export default withIronSessionApiRoute(async function (req, res) {
   if (req.method !== "POST") {
     return res.status(405).send({ status: "ERR", message: "Unknown method" });
@@ -36,7 +36,7 @@ export default withIronSessionApiRoute(async function (req, res) {
           switch (req.query.handler) {
             case "create":
               return fetch(
-                `${apiUrl}/subscription?prefix=${body.prefix}&namespace=${body.namespace}&id=${body.id}`,
+                `${apiUrl}/subscription?label=${body.label}&namespace=${body.namespace}&id=${body.id}`,
                 {
                   method: "POST",
                   headers: {

@@ -52,6 +52,29 @@ export default function (state = INIT_STATE, action: AnyAction) {
       );
     }
 
+    case `${PREFIX}_SPEC_SELECTOR_MATCHLABELS_DEL`: {
+      const path = `${action.readFrom}_${action.name}`
+        .replace(`${PREFIX}_${index[0]}_`.toLowerCase(), "")
+        .split("_");
+
+      // FIXME: !!!
+      return state;
+      // return state.map((item, i) =>
+      //   i != index[0]
+      //     ? item
+      //     : // : UpdateK3sConfig(item, path.join("_"), {
+      //       //     [action.name]: action.value,
+      //       //   })
+
+      //       DeleteK3sConfig(item, path.join("_"))
+      // );
+
+      // links: Object.entries(state.links).reduce(
+      //   (acc, [key, item]) => (
+      //     key == action.value ? acc : (acc[key] = item), acc
+      //   ),
+    }
+
     case `${PREFIX}_METADATA_NAME_CHANGED`:
     case `${PREFIX}_METADATA_NAMESPACE_CHANGED`:
 

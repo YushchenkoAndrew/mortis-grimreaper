@@ -79,39 +79,34 @@ function VoidDelFile(files: FileData[], args: ArgsType) {
 }
 
 export function DelFileRecord(query: string) {
-  return new Promise<FullResponse>((resolve, reject) => {
-    ApiAuth()
-      .then((access) => {
-        fetch(`${apiUrl}/file/${query}`, {
-          method: "DELETE",
-          headers: {
-            "content-type": "application/json",
-            Authorization: `Bear ${access}`,
-          },
-        })
-          .then((res) => res.json())
-          .then((data: ApiRes<FileData[]> | ApiError) => {
-            resolve({
-              status: data.status === "OK" ? 200 : 500,
-              send: {
-                status: data.status,
-                message:
-                  data.status === "OK" ? "Success" : (data as ApiError).message,
-              },
-            });
-          })
-          .catch((err) => reject());
-      })
-      .catch((err) => {
-        reject();
-        sendLogs({
-          stat: "ERR",
-          name: "WEB",
-          file: "/api/admin/file.ts",
-          message: "Bruhh, something is broken and it's not me!!!",
-          desc: err,
-        });
+  return new Promise<FullResponse>(async (resolve, reject) => {
+    try {
+      const token = await ApiAuth();
+      const res = await fetch(`${apiUrl}/file/${query}`, {
+        method: "DELETE",
+        headers: {
+          "content-type": "application/json",
+          Authorization: `Bear ${token}`,
+        },
       });
+
+      const data = (await res.json()) as ApiRes<FileData[]> | ApiError;
+      if (data.status === "ERR") return reject(data.message);
+
+      resolve({
+        status: 200,
+        send: { status: data.status, message: "Success" },
+      });
+    } catch (err) {
+      reject(err);
+      sendLogs({
+        stat: "ERR",
+        name: "WEB",
+        file: "/api/admin/file.ts",
+        message: "Bruhh, something is broken and it's not me!!!",
+        desc: err,
+      });
+    }
   });
 }
 

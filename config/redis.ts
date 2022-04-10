@@ -1,4 +1,4 @@
-import redis from "redis";
+import { createClient } from "redis";
 import getConfig from "next/config";
 import { sendLogs } from "../lib/api/bot";
 
@@ -6,7 +6,7 @@ const { serverRuntimeConfig } = getConfig();
 const PORT = Number(serverRuntimeConfig.REDIS_PORT ?? 6379);
 const HOST = serverRuntimeConfig.REDIS_HOST ?? "127.0.0.1";
 
-const client = redis.createClient(PORT, HOST);
+const client = createClient({ url: `redis://${HOST}:${PORT}` });
 
 client.on("error", function (error) {
   sendLogs({
@@ -18,13 +18,8 @@ client.on("error", function (error) {
   });
 });
 
-export function FlushValue(key: string) {
-  client.keys(`${key}:*`, function (err, keys) {
-    if (err || !keys) return;
-    keys.map((item) => client.del(item));
-  });
-}
+(async () => await client.connect())();
 
 // Test connection
-client.ping();
+client.ping().catch((err) => console.log(err));
 export default client;

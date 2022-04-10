@@ -5,13 +5,10 @@ import {
   faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, {
-  createRef,
-  useEffect,
-  useImperativeHandle,
-  useState,
-} from "react";
-import { Deployment, Spec, Status } from "../../../types/K3s/Deployment";
+import { useState } from "react";
+import { Button, InputGroup, ListGroup, Row } from "react-bootstrap";
+import { useDispatch, useSelector } from "react-redux";
+// import { Deployment, Spec, Status } from "../../../types/K3s/Deployment";
 import { Metadata } from "../../../types/K3s/Metadata";
 import InputList from "../../Inputs/InputDoubleList";
 import InputName from "../../Inputs/InputName";
@@ -19,79 +16,42 @@ import InputRadio from "../../Inputs/InputRadio";
 import InputTemplate from "../../Inputs/InputTemplate";
 import InputValue from "../../Inputs/InputValue";
 import ListEntity from "../../Inputs/ListEntity";
-import Container, { ContainerRef } from "./Container";
+import Container from "./Container";
 import styles from "./Default.module.css";
 
 export interface DeploymentProps {
   show?: boolean;
-}
-export interface DeploymentRef {
-  getValue: () => Deployment;
+  root?: string | (() => void);
+  readFrom: string;
+  writeTo: string;
 }
 
-export default React.forwardRef((props: DeploymentProps, ref) => {
+export default function Deployment(props: DeploymentProps) {
   const [minimized, onMinimize] = useState({
     metadata: true,
     spec: true,
     matchLabels: true,
-    containers: true,
+    container: true,
+    containers: [] as boolean[],
   });
 
-  const [deployment, onDeploymentChange] = useState<Deployment>({
-    apiVersion: "app/v1",
-    kind: "Deployment",
-    metadata: {},
-    spec: {
-      selector: { matchLabels: {} },
-      template: {
-        metadata: {},
-        spec: {
-          containers: [],
-        },
-      },
-    },
-  });
+  const labels = useSelector((state: any) =>
+    `${props.readFrom}_spec_selector_matchLabels`
+      .split("_")
+      .reduce((acc, curr) => acc[curr], state)
+  ) as { [name: string]: string };
 
-  const [containers, onContainerChange] = useState<boolean[]>([]);
-  const [containersRef, onContainerRefChange] = useState<
-    React.RefObject<ContainerRef>[]
-  >([]);
-
-  useEffect(() => {
-    onContainerRefChange(
-      containers.map((_, i) => containersRef[i] || createRef<ContainerRef>())
-    );
-  }, [containers.length]);
-
-  let [labels, onLabelsChange] = useState({} as { [key: string]: string });
-
-  useImperativeHandle<unknown, DeploymentRef>(ref, () => ({
-    getValue() {
-      return {
-        ...deployment,
-        spec: {
-          ...deployment.spec,
-          replicas: Number(deployment.spec?.replicas ?? 1),
-          selector: { matchLabels: { ...labels } },
-          template: {
-            ...deployment.spec?.template,
-            metadata: {
-              ...deployment.spec?.template?.metadata,
-              labels: { ...labels },
-            },
-            spec: {
-              ...deployment.spec?.template?.spec,
-              containers: containersRef.map((item) => item.current?.getValue()),
-            },
-          },
-        },
-      } as Deployment;
-    },
-  }));
+  const dispatch = useDispatch();
+  const containers = useSelector((state: any) =>
+    `${props.readFrom}_spec_template_spec_containers`
+      .split("_")
+      .reduce((acc, curr) => acc[curr], state)
+  ) as unknown[];
 
   return (
     <div className={`card px-1 py-3 ${props.show ? "" : "d-none"}`}>
       <InputTemplate
+        className="px-0"
         labelClassName="font-weight-bold ml-2"
         label={[
           "Metadata ",
@@ -104,56 +64,38 @@ export default React.forwardRef((props: DeploymentProps, ref) => {
           onMinimize({ ...minimized, metadata: !minimized.metadata })
         }
       >
-        <div
-          className={`row border rounded mx-1 py-2 ${
+        <Row
+          className={`border rounded mx-1 px-1 py-2 ${
             minimized.metadata ? "" : "d-none"
           }`}
         >
-          <InputTemplate className="col-6" label="Name">
+          <InputTemplate className="col-6 px-2" label="Name">
             <InputName
               char="@"
-              name="name"
               required
-              value={deployment.metadata?.name ?? ""}
+              root={props.root}
+              readFrom={`${props.readFrom}_metadata_name`}
+              writeTo={`${props.writeTo}_metadata_name`}
               placeholder="void-deployment"
-              onChange={({ target: { name, value } }) => {
-                onDeploymentChange({
-                  ...deployment,
-                  metadata: {
-                    ...deployment.metadata,
-                    [name]: value,
-                  },
-                });
-              }}
-              // onBlur={onDataCache}
             />
           </InputTemplate>
 
           <InputTemplate className="col-6" label="Namespace">
-            <div className="input-group">
+            <InputGroup>
               <InputValue
-                name="namespace"
                 className="rounded"
-                value={deployment.metadata?.namespace ?? ""}
+                root={props.root}
+                readFrom={`${props.readFrom}_metadata_namespace`}
+                writeTo={`${props.writeTo}_metadata_namespace`}
                 placeholder="demo"
-                onChange={({ target: { name, value } }) => {
-                  onDeploymentChange({
-                    ...deployment,
-                    metadata: {
-                      ...deployment.metadata,
-                      [name]: value,
-                    },
-                  });
-                }}
-                // onBlur={onDataCache}
               />
-            </div>
+            </InputGroup>
           </InputTemplate>
-        </div>
+        </Row>
       </InputTemplate>
 
       <InputTemplate
-        className="mt-1"
+        className="mt-1 px-0"
         labelClassName="font-weight-bold ml-2"
         label={[
           "Spec ",
@@ -169,33 +111,24 @@ export default React.forwardRef((props: DeploymentProps, ref) => {
             minimized.spec ? "" : "d-none"
           }`}
         >
-          <div className="row">
+          <Row className="px-1">
             <InputTemplate className="col-6" label="Replicas">
-              <div className="input-group">
+              <InputGroup>
                 <InputName
                   char="$"
-                  name="replicas"
                   required
-                  value={`${deployment.spec?.replicas ?? ""}`}
+                  root={props.root}
+                  readFrom={`${props.readFrom}_spec_replicas`}
+                  writeTo={`${props.writeTo}_spec_replicas`}
                   placeholder="1"
-                  onChange={({ target: { name, value } }) => {
-                    onDeploymentChange({
-                      ...deployment,
-                      spec: {
-                        ...deployment.spec,
-                        [name]: value,
-                      } as Spec,
-                    });
-                  }}
-                  // onBlur={onDataCache}
                 />
-              </div>
+              </InputGroup>
             </InputTemplate>
 
-            <InputTemplate className="col-6" label="Strategy">
+            <InputTemplate className="col-6 px-0" label="Strategy">
               <InputRadio
-                name="strategy"
-                placeholder="RollingUpdate"
+                readFrom={`${props.readFrom}_spec_strategy_type`}
+                writeTo={`${props.writeTo}_spec_strategy_type`}
                 className="btn-group btn-group-sm btn-group-toggle"
                 options={["RollingUpdate", "Recreate"]}
                 label="btn-outline-info"
@@ -203,21 +136,12 @@ export default React.forwardRef((props: DeploymentProps, ref) => {
                   on: { className: "d-block d-sm-none", len: 6 },
                   off: { className: "d-none d-sm-block", len: 0 },
                 }}
-                onChange={({ target: { name, value } }) => {
-                  onDeploymentChange({
-                    ...deployment,
-                    spec: {
-                      ...deployment.spec,
-                      strategy: { type: value },
-                    } as Spec,
-                  });
-                }}
               />
             </InputTemplate>
-          </div>
+          </Row>
 
           <InputTemplate
-            className="mt-1"
+            className="mt-1 px-0"
             label={[
               "MatchLabels ",
               <FontAwesomeIcon
@@ -233,41 +157,44 @@ export default React.forwardRef((props: DeploymentProps, ref) => {
             }
           >
             <div
-              className={`border rounded px-2 py-2 ${
+              className={`border rounded px-0 py-2 ${
                 minimized.matchLabels ? "" : "d-none"
               }`}
             >
               <div className="container px-2">
                 <InputList
+                  root={props.root}
                   char={["var", "="]}
-                  name={["name", "value"]}
+                  readFrom={`${props.readFrom}_spec_selector_matchLabels`}
+                  writeTo={`${props.writeTo}_spec_selector_matchLabels`}
+                  changeIn={[
+                    {
+                      readFrom: `${props.readFrom}_spec_template_metadata_labels`,
+                      writeTo: `${props.writeTo}_spec_template_metadata_labels`,
+                    },
+                  ]}
                   placeholder={["app", "void"]}
-                  onChange={(data) => {
-                    if (!data["name"] || data["value"] === undefined) {
-                      return false;
-                    }
-                    onLabelsChange({
-                      ...labels,
-                      [data["name"]]: data["value"],
-                    });
-                    return true;
-                  }}
                 />
-                <ul className="list-group">
+                <ListGroup>
                   {Object.entries(labels).map(([name, value], i) => (
-                    <div key={`matchLabels-${i}`} className="row">
+                    <Row key={`matchLabels-${i}`} className="px-2">
                       <ListEntity
                         char={["var", "="]}
                         value={[name, value]}
                         onChange={() => {
-                          let temp = { ...labels };
-                          delete temp[name];
-                          onLabelsChange(temp);
+                          dispatch({
+                            type: `${props.readFrom}_spec_selector_matchLabels_del`.toUpperCase(),
+                            value: name,
+                          });
+                          dispatch({
+                            type: `${props.readFrom}_spec_template_metadata_labels_del`.toUpperCase(),
+                            value: name,
+                          });
                         }}
                       />
-                    </div>
+                    </Row>
                   ))}
-                </ul>
+                </ListGroup>
               </div>
             </div>
           </InputTemplate>
@@ -275,42 +202,48 @@ export default React.forwardRef((props: DeploymentProps, ref) => {
       </InputTemplate>
 
       <InputTemplate
-        className="mt-1"
+        className="mt-1 px-0"
         labelClassName="font-weight-bold ml-2"
         label={[
           "Containers ",
           <FontAwesomeIcon
-            key={"icon-containers"}
-            icon={minimized.containers ? faChevronDown : faChevronRight}
+            key="icon-containers"
+            icon={minimized.container ? faChevronDown : faChevronRight}
           />,
         ]}
         onClick={() =>
-          onMinimize({ ...minimized, containers: !minimized.containers })
+          onMinimize({ ...minimized, container: !minimized.container })
         }
       >
         <div
           className={`border rounded px-1 py-2 mx-1 ${
-            minimized.containers ? "" : "d-none"
+            minimized.container ? "" : "d-none"
           }`}
         >
-          {containers.map((show, index) => (
+          {containers.map((_, index) => (
             <div
               key={`container-${index}`}
               className={`mb-3 w-100 ${styles["el-index"]}`}
             >
-              <div className="row mx-1">
+              <Row className="mx-1">
                 <label
                   className="ml-1 mr-auto"
-                  onClick={() => {
-                    onContainerChange({
-                      ...containers,
-                      [index]: !containers[index],
-                    });
-                  }}
+                  onClick={() =>
+                    onMinimize({
+                      ...minimized,
+                      containers: minimized.containers.map((item, i) =>
+                        i != index ? item : !item
+                      ),
+                    })
+                  }
                 >
                   {`[${index}] `}
                   <FontAwesomeIcon
-                    icon={show ? faChevronDown : faChevronRight}
+                    icon={
+                      minimized.containers[index]
+                        ? faChevronDown
+                        : faChevronRight
+                    }
                   />
                 </label>
                 <FontAwesomeIcon
@@ -319,30 +252,59 @@ export default React.forwardRef((props: DeploymentProps, ref) => {
                   size="lg"
                   fontSize="1rem"
                   onClick={() => {
-                    onContainerChange([
-                      ...containers.slice(0, index),
-                      ...containers.slice(index + 1),
-                    ]);
+                    onMinimize({
+                      ...minimized,
+                      containers: minimized.containers.filter(
+                        (_, i) => i != index
+                      ),
+                    });
+
+                    dispatch({
+                      type: `${props.writeTo}_spec_template_spec_containers_del`.toUpperCase(),
+                      readFrom: `${props.readFrom}_spec_template_spec_containers_${index}`,
+                    });
                   }}
                 />
-              </div>
-              <Container ref={containersRef[index]} show={show} />
+              </Row>
+              <Container
+                root={props.root}
+                show={minimized.containers[index]}
+                readFrom={`${props.readFrom}_spec_template_spec_containers_${index}`}
+                writeTo={`${props.writeTo}_spec_template_spec_containers`}
+              />
             </div>
           ))}
 
           <div className="container my-2">
-            <a
-              className="btn btn-outline-success w-100"
-              onClick={() => onContainerChange([...containers, true])}
+            <Button
+              className="w-100"
+              name={`${props.readFrom}_container_add`}
+              variant="outline-success"
+              onClick={() => {
+                onMinimize({
+                  ...minimized,
+                  containers: [...minimized.containers, true],
+                });
+
+                dispatch({
+                  type: `${props.writeTo}_spec_template_spec_containers_add`.toUpperCase(),
+                  readFrom: `${props.readFrom}_spec_template_spec_containers`,
+                });
+
+                dispatch({
+                  type: `temp_${props.writeTo}_spec_template_spec_containers_add`.toUpperCase(),
+                  readFrom: `temp_${props.readFrom}_spec_template_spec_containers`,
+                });
+              }}
             >
               <FontAwesomeIcon
                 className={`text-success ${styles["icon"]}`}
                 icon={faPlus}
               />
-            </a>
+            </Button>
           </div>
         </div>
       </InputTemplate>
     </div>
   );
-});
+}

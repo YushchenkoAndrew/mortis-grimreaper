@@ -1,33 +1,61 @@
-import React from "react";
-import { Event } from "../../pages/admin/projects/operation";
+import React, { useState } from "react";
+import { Form } from "react-bootstrap";
+import { useDispatch, useSelector } from "react-redux";
 
 export interface InputValueProps {
-  name: string;
-  value: string;
+  root?: string | (() => void);
+  readFrom: string;
+  writeTo?: string;
   type?: React.HTMLInputTypeAttribute;
   required?: boolean;
   placeholder?: string;
   className?: string;
-  onChange: (event: Event) => void;
-  onBlur?: (event: Event) => void;
+  disabled?: boolean;
+  isInvalid?: () => Promise<string | undefined>;
 }
 
 export default function InputValue(props: InputValueProps) {
+  const [invalid, onValidation] = useState<string | undefined>(undefined);
+
+  const dispatch = useDispatch();
+  const value = useSelector((state: any) =>
+    props.readFrom.split("_").reduce((acc, curr) => acc[curr], state)
+  );
+
   return (
     <>
-      <input
-        name={props.name}
-        value={props.value}
+      <Form.Control
+        value={value || ""}
         type={props.type ?? "text"}
-        className={`form-control ${props.className}`}
+        name={props.readFrom}
+        disabled={props.disabled}
+        className={props.className}
         placeholder={props.placeholder ?? ""}
         required={props.required}
-        onChange={props.onChange}
-        onBlur={props.onBlur}
+        onChange={({ target: { value } }) =>
+          dispatch({
+            type: `${(props.writeTo ?? props.readFrom).toUpperCase()}_CHANGED`,
+            readFrom: props.readFrom,
+            value: value,
+          })
+        }
+        onBlur={async () => {
+          onValidation(await props.isInvalid?.());
+          if (!props.root) return;
+
+          if (typeof props.root === "function") return props.root();
+          dispatch({ type: `${props.root}_CACHED`.toUpperCase() });
+        }}
+        isInvalid={!!invalid}
       />
-      {props.required ? (
-        <div className="invalid-tooltip">This field is required</div>
-      ) : null}
+
+      <Form.Control.Feedback
+        hidden={!props.required && !invalid}
+        type="invalid"
+        tooltip
+      >
+        {invalid ?? "This field is required"}
+      </Form.Control.Feedback>
     </>
   );
 }

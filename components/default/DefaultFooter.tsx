@@ -1,5 +1,4 @@
-import next from "next";
-import React, { useEffect, useRef, useState } from "react";
+import { Col, Container, Row } from "react-bootstrap";
 import styles from "./DefaultFooter.module.css";
 import DefaultLinks from "./DefaultLinks";
 
@@ -12,7 +11,7 @@ export interface DefaultFooterProps {
 
 export default function DefaultFooter(props: DefaultFooterProps) {
   return (
-    <div className="container">
+    <Container>
       <footer
         id={props.background ? styles["pattern6"] : undefined}
         className={props.className ?? `pt-4 mt-md-5 pt-md-5 border-top py-2`}
@@ -23,10 +22,10 @@ export default function DefaultFooter(props: DefaultFooterProps) {
             : undefined,
         }}
       >
-        <div className="row justify-content-center">
-          <div className="col-11">
-            <div className="row">
-              <div className="col col-md-5 col-sm-7 mx-sm-auto">
+        <Row className="justify-content-center">
+          <Col xs="11">
+            <Row>
+              <Col md="5" sm="7" className="mx-sm-auto">
                 <div className="d-flex flex-column h-100">
                   <h3
                     className={`text-dark row justify-content-sm-center ${styles["author"]}`}
@@ -35,26 +34,27 @@ export default function DefaultFooter(props: DefaultFooterProps) {
                   </h3>
 
                   <div className="d-none d-sm-block d-md-block d-lg-block d-xl-block mt-auto">
-                    <div className="row justify-content-center">
+                    <Row className="justify-content-center">
                       <DefaultLinks />
-                    </div>
+                    </Row>
                   </div>
                 </div>
-              </div>
-              <div className="col-9 col-md-4 col-sm-5">
-                <h6 className="mb-3 mb-lg-4 bold-text ">
+              </Col>
+
+              <Col xs="9" md="4" sm="5">
+                <h6 className="mb-3 mb-lg-4 bold-text">
                   <b>{props.name}</b>
                 </h6>
                 {props.children}
-              </div>
-            </div>
+              </Col>
+            </Row>
 
-            <div className="d-sm-none row justify-content-center">
+            <Row className="d-sm-none justify-content-center">
               <DefaultLinks />
-            </div>
-          </div>
-        </div>
+            </Row>
+          </Col>
+        </Row>
       </footer>
-    </div>
+    </Container>
   );
 }

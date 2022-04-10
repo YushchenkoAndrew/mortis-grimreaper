@@ -1,9 +1,10 @@
 import md5 from "../md5";
 
-export function CacheId(name: string = "") {
+export function CacheId(prefix: string = "") {
   return md5(
     (localStorage.getItem("salt") ?? "") +
       (localStorage.getItem("id") ?? "") +
-      name
+      window.location.pathname +
+      prefix
   );
 }

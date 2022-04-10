@@ -1,33 +1,46 @@
 import React from "react";
-import { Event } from "../../pages/admin/projects/operation";
-import { ProjectElement } from "../../types/projects";
+import { Form, InputGroup } from "react-bootstrap";
+import { useDispatch, useSelector } from "react-redux";
 
 export interface InputTextProps {
-  name: string;
-  value: string;
+  root?: string;
+  readFrom: string;
+  writeTo?: string;
   rows?: number;
   required?: boolean;
   placeholder?: string;
-  onChange: (event: Event) => void;
-  onBlur?: (event: Event) => void;
 }
 
 export default function InputText(props: InputTextProps) {
+  const value = useSelector((state: any) =>
+    props.readFrom.split("_").reduce((acc, curr) => acc[curr], state)
+  );
+  const dispatch = useDispatch();
+
   return (
-    <div className="input-group">
-      <textarea
-        name={props.name}
-        value={props.value}
+    <InputGroup>
+      <Form.Control
+        as="textarea"
+        value={value || ""}
+        name={props.writeTo ?? props.readFrom}
         className="form-control rounded"
         placeholder={props.placeholder ?? ""}
         rows={props.rows ?? 3}
         required={props.required}
-        onChange={props.onChange}
-        onBlur={props.onBlur}
+        onChange={({ target: { value } }) =>
+          dispatch({
+            type: `${props.writeTo ?? props.readFrom}_CHANGED`.toUpperCase(),
+            value,
+          })
+        }
+        onBlur={() => {
+          if (!props.root) return;
+          dispatch({ type: `${props.root}_CACHED`.toUpperCase() });
+        }}
       />
-      {props.required ? (
-        <div className="invalid-tooltip">This field is required</div>
-      ) : null}
-    </div>
+      <Form.Control.Feedback hidden={!props.required} type="invalid" tooltip>
+        This field is required
+      </Form.Control.Feedback>
+    </InputGroup>
   );
 }

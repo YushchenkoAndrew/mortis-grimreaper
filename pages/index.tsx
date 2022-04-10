@@ -149,7 +149,8 @@ export default function Home() {
       </div>
 
       <DefaultContactMeShape />
-      <ContactMe />
+      {/* FIXME: */}
+      {/* <ContactMe /> */}
       <DefaultFooter
         name="Menu"
         background

@@ -19,6 +19,7 @@ import {
   faMarkdown,
 } from "@fortawesome/free-brands-svg-icons";
 import { FileData } from "../../types/api";
+import { useDispatch, useSelector } from "react-redux";
 
 const fileType = {
   "image/gif": { icon: faImage, color: "text-primary" },
@@ -41,17 +42,21 @@ const fileType = {
 };
 export interface TreeViewProps {
   name: string;
+  root: string;
+  prefix: string;
   role: string;
   dir?: string;
-  projectTree: TreeObj;
-  onFileSelect: (key: string[]) => void;
+  // projectTree: TreeObj;
+  // onFileSelect: (key: string[]) => void;
 }
 
-//
-// TODO: Add functionality to delete file/folder
-//
 export default function TreeView(props: TreeViewProps) {
   const [showNode, onNodeChange] = useState({} as { [name: string]: boolean });
+
+  const dispatch = useDispatch();
+  const tree = useSelector((state: any) =>
+    props.prefix.split("_").reduce((acc, curr) => acc[curr], state)
+  );
 
   function ParseTree(
     obj: TreeObj | FileData | null,
@@ -77,16 +82,15 @@ export default function TreeView(props: TreeViewProps) {
           iconClass={color}
           href={value.url}
           onChange={(key: string) => {
-            onNodeChange({
-              ...showNode,
-              [key]: !showNode[key],
+            onNodeChange({ ...showNode, [key]: !showNode[key] });
+          }}
+          onSelect={() => {
+            if (!value.content) return;
+            dispatch({
+              type: `${props.root}_path_changed`.toUpperCase(),
+              value: [...path.split("/"), name].filter((item) => item),
             });
           }}
-          onSelect={() =>
-            props.onFileSelect(
-              [...path.split("/"), name].filter((item) => item)
-            )
-          }
         >
           {value.name
             ? null
@@ -110,7 +114,7 @@ export default function TreeView(props: TreeViewProps) {
         iconClass="text-info"
         open
       >
-        {ParseTree(props.projectTree)}
+        {ParseTree(tree)}
       </Node>
     </ul>
   );

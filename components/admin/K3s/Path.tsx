@@ -1,5 +1,4 @@
 import React, { useImperativeHandle, useState } from "react";
-import { Path } from "../../../types/K3s/Ingress";
 import InputName from "../../Inputs/InputName";
 import InputRadio from "../../Inputs/InputRadio";
 import InputTemplate from "../../Inputs/InputTemplate";
@@ -7,101 +6,80 @@ import InputValue from "../../Inputs/InputValue";
 
 export interface PathProps {
   show?: boolean;
+  root?: string | (() => void);
+  readFrom: string;
+  writeTo: string;
 }
 
-export interface PathRef {
-  getValue: () => Path;
-}
+// export interface PathRef {
+//   getValue: () => Path;
+// }
 
-export default React.forwardRef((props: PathProps, ref) => {
-  const [path, onPathChange] = useState<Path>({
-    path: "",
-    backend: {
-      serviceName: "",
-      servicePort: "",
-    },
-  });
+export default function Path(props: PathProps) {
+  // const [path, onPathChange] = useState<Path>({
+  //   path: "",
+  //   backend: {
+  //     serviceName: "",
+  //     servicePort: "",
+  //   },
+  // });
 
-  useImperativeHandle<unknown, PathRef>(ref, () => ({
-    getValue: () => ({
-      ...path,
-      path: "/" + path.path,
-      backend: {
-        ...path.backend,
-        servicePort: Number(path.backend?.servicePort),
-      },
-    }),
-  }));
+  // useImperativeHandle<unknown, PathRef>(ref, () => ({
+  //   getValue: () => ({
+  //     ...path,
+  //     path: "/" + path.path,
+  //     backend: {
+  //       ...path.backend,
+  //       servicePort: Number(path.backend?.servicePort),
+  //     },
+  //   }),
+  // }));
 
   return (
     <div className={`border rounded p-2 ${props.show ? "" : "d-none"}`}>
-      <InputTemplate label="Path">
+      <InputTemplate label="Path" className="px-1">
         <InputName
-          name="path"
           char="/"
-          value={path.path ?? ""}
+          root={props.root}
+          readFrom={`${props.readFrom}_path`}
+          writeTo={`${props.writeTo}_path`}
           placeholder={"void"}
-          onChange={({ target: { name, value } }) => {
-            onPathChange({ ...path, [name]: value });
-          }}
-          // onBlur={onDataCache}
         />
       </InputTemplate>
 
-      <InputTemplate label="Path Type">
+      <InputTemplate label="Path Type" className="px-1">
         <InputRadio
-          name="pathType"
-          placeholder="Prefix"
+          readFrom={`${props.readFrom}_pathType`}
+          writeTo={`${props.writeTo}_pathType`}
           className="btn-group btn-group-sm btn-group-toggle"
           options={["ImplementationSpecific", "Exact", "Prefix"]}
           label="btn-outline-info"
-          onChange={({ target: { name, value } }) => {
-            onPathChange({ ...path, [name]: value });
-          }}
         />
       </InputTemplate>
 
-      <InputTemplate label="Service Name">
+      <InputTemplate label="Service Name" className="px-1">
         <div className="input-group">
           <InputValue
-            name="serviceName"
             className="rounded"
-            value={path.backend?.serviceName ?? ""}
+            root={props.root}
+            readFrom={`${props.readFrom}_backend_serviceName`}
+            writeTo={`${props.writeTo}_backend_serviceName`}
             placeholder={"test"}
-            onChange={({ target: { name, value } }) => {
-              onPathChange({
-                ...path,
-                backend: {
-                  ...path.backend,
-                  [name]: value,
-                },
-              } as Path);
-            }}
-            // onBlur={onDataCache}
           />
         </div>
       </InputTemplate>
 
-      <InputTemplate label="Service Port">
+      <InputTemplate label="Service Port" className="px-1">
         <div className="input-group">
           <InputValue
-            name="servicePort"
             className="rounded"
-            value={`${path.backend?.servicePort ?? ""}`}
+            root={props.root}
+            readFrom={`${props.readFrom}_backend_servicePort`}
+            writeTo={`${props.writeTo}_backend_servicePort`}
             placeholder="8000"
-            onChange={({ target: { name, value } }) => {
-              onPathChange({
-                ...path,
-                backend: {
-                  ...path.backend,
-                  [name]: value,
-                },
-              } as Path);
-            }}
-            // onBlur={onDataCache}
           />
         </div>
       </InputTemplate>
     </div>
   );
-});
+}

@@ -3,6 +3,8 @@ import getConfig from "next/config";
 import redis from "../../config/redis";
 import { ApiError, ApiTokens } from "../../types/api";
 import md5 from "../md5";
+import { GetServerIP } from "./ip";
+import { freeMutex, waitMutex } from "./mutex";
 
 const { serverRuntimeConfig } = getConfig();
 export function PassValidate(pass: string, pass2: string) {
@@ -19,80 +21,99 @@ export function PassValidate(pass: string, pass2: string) {
 }
 
 export function UpdateTokens(data: ApiTokens) {
-  redis.set("API:Access", data.access_token);
-  redis.set("API:Refresh", data.refresh_token);
+  redis.set("API:ACCESS", data.access_token);
+  redis.set("API:REFRESH", data.refresh_token);
 
-  redis.expire("API:Access", 15 * 60);
-  redis.expire("API:Refresh", 7 * 24 * 60 * 60);
+  redis.expire("API:ACCESS", 15 * 60);
+  redis.expire("API:REFRESH", 7 * 24 * 60 * 60);
 }
 
 export function DeleteTokens() {
-  redis.del("API:Access");
-  redis.del("API:Refresh");
+  redis.del("API:ACCESS");
+  redis.del("API:REFRESH");
 }
 
-export function ApiAuth() {
-  return new Promise<string>((resolve, reject) => {
-    redis.get("API:Access", (err, reply) => {
-      if (!err && reply) return resolve(reply);
+export function ApiAuth(retry: boolean = true): Promise<string> {
+  return new Promise<string>(async (resolve, reject) => {
+    try {
+      // await waitMutex();
+      const access = await redis.get("API:ACCESS");
+      if (access) return resolve(access);
 
       // If Access token expired, then refresh token
-      redis.get("API:Refresh", (err, reply) => {
-        if (!err && reply) {
-          return fetch(`${apiUrl}/refresh`, {
-            method: "POST",
-            headers: {
-              "content-type": "application/json",
-            },
-            body: JSON.stringify({
-              refresh_token: reply,
-            }),
-          })
-            .then((res) => res.json())
-            .then((data: ApiTokens | ApiError) => {
-              // If something wrong with keys or refresh token already
-              // has been expired then just delete them and try again
-              if (data.status == "ERR") {
-                DeleteTokens();
-                return ApiAuth()
-                  .then((res) => resolve(res))
-                  .catch((err) => reject(err));
-              }
+      const refresh = await redis.get("API:REFRESH");
+      if (refresh) {
+        const ctl = new AbortController();
+        setTimeout(() => ctl.abort(), Number(process.env.FETCH_TIMEOUT));
 
-              UpdateTokens(data);
-              resolve(data.access_token);
-            })
-            .catch((err) => reject(err));
+        const res = await fetch(`${apiUrl}/refresh`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ refresh_token: refresh }),
+
+          signal: ctl.signal,
+        });
+
+        const data = (await res.json()) as ApiTokens | ApiError;
+        // If something wrong with keys or refresh token already
+        // has been expired then just delete them and try again
+        if (data.status == "ERR") {
+          DeleteTokens();
+          return resolve(await ApiAuth());
         }
 
-        // If Refresh token expired, then relogin
-        const salt = md5((Math.random() * 10000 + 500).toString());
-        fetch(`${apiUrl}/login`, {
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
-          },
-          body: JSON.stringify({
-            user: serverRuntimeConfig.API_USER ?? "",
-            pass:
-              salt +
-              "$" +
-              md5(
-                salt +
-                  serverRuntimeConfig.API_PEPPER +
-                  serverRuntimeConfig.API_PASS
-              ),
-          }),
-        })
-          .then((res) => res.json())
-          .then((data: ApiTokens | ApiError) => {
-            if (data.status === "ERR") return reject("Incorrect user or pass");
+        UpdateTokens(data);
+        resolve(data.access_token);
+      }
 
-            UpdateTokens(data);
-            resolve(data.access_token);
-          })
-          .catch((err) => reject(err));
+      const ctl = new AbortController();
+      setTimeout(() => ctl.abort(), Number(process.env.FETCH_TIMEOUT));
+
+      // If Refresh token expired, then relogin
+      const salt = md5((Math.random() * 10000 + 500).toString());
+      const res = await fetch(`${apiUrl}/login`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          user: serverRuntimeConfig.API_USER ?? "",
+          pass:
+            salt +
+            "$" +
+            md5(
+              salt +
+                serverRuntimeConfig.API_PEPPER +
+                serverRuntimeConfig.API_PASS
+            ),
+        }),
+
+        signal: ctl.signal,
       });
-    });
+
+      const data = (await res.json()) as ApiTokens | ApiError;
+      if (data.status === "ERR") return reject("Incorrect user or pass");
+
+      UpdateTokens(data);
+      resolve(data.access_token);
+    } catch (err) {
+      if (!retry) return reject(err);
+      resolve(await ApiAuth(false));
+    }
   });
+  // .finally(() => freeMutex());
+}
+
+export function VoidAuth() {
+  return Buffer.from(serverRuntimeConfig.VOID_AUTH ?? "").toString("base64");
+}
+
+export async function DockerAuth() {
+  const ip = await GetServerIP();
+  return Buffer.from(
+    JSON.stringify({
+      username: serverRuntimeConfig.DOCKER_USER,
+      password: serverRuntimeConfig.DOCKER_PASS,
+      email: serverRuntimeConfig.DOCKER_EMAIL,
+      serveraddress: ip,
+    })
+  ).toString("base64");
 }

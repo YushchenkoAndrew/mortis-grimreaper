@@ -2,17 +2,20 @@ import {
   faChevronDown,
   faChevronRight,
   faPlus,
-  faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useState } from "react";
+import { Button, Container, Row } from "react-bootstrap";
+import { useDispatch } from "react-redux";
 import styles from "./Default.module.css";
 
 export interface K3sFieldProps {
   name: string;
   show?: boolean;
+  // writeTo?: string;
+  // add?: boolean;
+  // del?: boolean;
   onAdd?: () => void;
-  onDel?: () => void;
+  // onDel?: () => void;
   onHide?: () => void;
   children?: React.ReactNode;
 }
@@ -20,34 +23,27 @@ export interface K3sFieldProps {
 export interface K3sFieldRef {}
 
 export default function K3sField(props: K3sFieldProps) {
+  const dispatch = useDispatch();
   return (
     <>
-      {/* <hr className="mb-4" />
-      <div className="row" onClick={props.onHide}>
-        <h4 className="font-weight-bold mr-2">}</h4>
-        <FontAwesomeIcon
-          icon={props.show ? faChevronDown : faChevronRight}
-          className="my-1"
-          fontSize="1rem"
-        />
-      </div>
-      <div className="row justify-content-center">{props.children}</div> */}
-
       <hr className="mb-4" />
-      <div className={`container ${styles["el-index-2"]} px-0 px-sm-3`}>
+      <Container className={`${styles["el-index-2"]} px-0 px-sm-3`}>
         <div className="row px-3">
-          <span className="row mr-auto" onClick={props.onHide}>
+          <Row className="mr-auto" onClick={props.onHide}>
             <h4 className="mr-2">{props.name}</h4>
             <FontAwesomeIcon
               className="my-2"
               icon={props.show ? faChevronDown : faChevronRight}
             />
-          </span>
-          <div className="row mr-1">
+          </Row>
+          <Row className="mr-1">
             {props.onAdd ? (
-              <a
-                className={`mr-1 btn btn-outline-info ${styles["el-container-2"]}`}
+              <Button
+                className={`mr-1 ${styles["el-container-2"]}`}
+                variant="outline-info"
                 onClick={props.onAdd}
+                name={`${props.name}_add`}
+                // dispatch({ type: `${props.writeTo}_add`.toUpperCase() })
               >
                 <FontAwesomeIcon
                   className={`text-info ${styles["icon"]}`}
@@ -55,35 +51,34 @@ export default function K3sField(props: K3sFieldProps) {
                   size="lg"
                   fontSize="1rem"
                 />
-              </a>
+              </Button>
             ) : (
               <></>
             )}
 
-            {props.onDel ? (
+            {/* {props.prefix && props.del ? (
               <a
                 className={`mr-1 btn btn-outline-danger ${styles["el-container-2"]}`}
-                onClick={props.onAdd}
+                onClick={() =>
+                  dispatch({ type: `${props.prefix}_del`.toUpperCase() })
+                }
               >
                 <FontAwesomeIcon
                   className={`text-danger ${styles["icon"]}`}
                   icon={faTrashAlt}
                   size="lg"
                   fontSize="1rem"
-                  onClick={props.onDel}
+                  // onClick={props.onDel}
                 />
               </a>
             ) : (
               <></>
-            )}
-          </div>
+            )} */}
+          </Row>
         </div>
 
-        <div className="row justify-content-center mb-2">
-          {props.children}
-          {/* </div> */}
-        </div>
-      </div>
+        <Row className="justify-content-center mb-2">{props.children}</Row>
+      </Container>
     </>
   );
 }

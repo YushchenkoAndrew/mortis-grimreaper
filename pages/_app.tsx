@@ -2,19 +2,17 @@ import Head from "next/head";
 import { useEffect } from "react";
 import { AppProps } from "next/app";
 import { basePath } from "../config";
-
-import "../styles/globals.css";
-import "../styles/bootstrap.min.css";
 import Script from "next/script";
+
+import "../styles/bootstrap.scss";
+import "../styles/globals.css";
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
     localStorage.getItem("id")
       ? fetch(`${basePath}/api/view/page?id=${localStorage.getItem("id")}`, {
           method: "PATCH",
-        })
-          .then((res) => null)
-          .catch((err) => null)
+        }).catch(() => null)
       : null;
   }, []);
   return (

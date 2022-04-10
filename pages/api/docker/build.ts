@@ -1,17 +1,10 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import { Session, withIronSession } from "next-iron-session";
-import getConfig from "next/config";
 import { localVoidUrl } from "../../../config";
 import sessionConfig from "../../../config/session";
 import { GetParam } from "../../../lib/api/query";
-import { GetServerIP } from "../../../lib/api/ip";
+import { VoidAuth } from "../../../lib/api/auth";
+import { withIronSessionApiRoute } from "iron-session/next";
 
-const { serverRuntimeConfig } = getConfig();
-
-export default withIronSession(async function (
-  req: NextApiRequest & { session: Session },
-  res: NextApiResponse<string>
-) {
+export default withIronSessionApiRoute(async (req, res) => {
   if (req.method !== "POST") return res.status(405).send("");
 
   const tag = GetParam(req.query.tag);
@@ -20,44 +13,21 @@ export default withIronSession(async function (
     return res.status(400).send("");
   }
 
-  const data = await new Promise<string>((resolve) => {
-    fetch(`${localVoidUrl}/docker?path=/${path}&t=${tag}&push`, {
+  try {
+    const resp = await fetch(`${localVoidUrl}/docker?path=/${path}&t=${tag}`, {
       method: "POST",
-      headers: {
-        Authorization:
-          "Basic " +
-          Buffer.from(serverRuntimeConfig.VOID_AUTH ?? "").toString("base64"),
-      },
-    })
-      .then((res) => res.text())
-      .then((data) => resolve(data))
-      .catch(() => resolve(""));
-  });
-
-  if (!data) return res.send(data);
-  await new Promise<void>((resolve) => {
-    GetServerIP().then((serveraddress) => {
-      fetch(`${localVoidUrl}/docker/push?t=${tag}&`, {
-        method: "POST",
-        headers: {
-          Authorization:
-            "Basic " +
-            Buffer.from(serverRuntimeConfig.VOID_AUTH ?? "").toString("base64"),
-          "X-Registry-Auth": Buffer.from(
-            JSON.stringify({
-              username: serverRuntimeConfig.DOCKER_USER,
-              password: serverRuntimeConfig.DOCKER_PASS,
-              email: serverRuntimeConfig.DOCKER_EMAIL,
-              serveraddress,
-            })
-          ).toString("base64"),
-        },
-      })
-        .then(() => resolve())
-        .catch(() => resolve());
+      headers: { Authorization: `Basic ${VoidAuth()}` },
     });
-  });
 
-  res.send(data);
-},
-sessionConfig);
+    res.setHeader("Content-Type", "text/event-stream;charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache, no-transform");
+    res.setHeader("X-Accel-Buffering", "no");
+
+    for await (const chunk of resp.body as any) {
+      res.write(chunk);
+    }
+    res.end();
+  } catch (err) {
+    res.status(500).send({ status: "ERR", message: err });
+  }
+}, sessionConfig);

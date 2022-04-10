@@ -1,6 +1,7 @@
-import { faPlusCircle, faPlusSquare } from "@fortawesome/free-solid-svg-icons";
+import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
+import { Col, Container } from "react-bootstrap";
 import styles from "./AddCard.module.css";
 
 export interface AddCardProps {
@@ -9,14 +10,13 @@ export interface AddCardProps {
 
 export default function AddCard(props: AddCardProps) {
   return (
-    // <div className="col-lg-4 col-md-6 mt-4">
-    <div className="col col-lg-4 col-md-6 col-sm-11 my-3 text-center">
+    <Col lg="4" md="6" sm="11" className="my-3 text-center">
       <a
         href={props.href}
         className={`card border-info text-decoration-none p-2 h-100 ${styles["add-card"]}`}
       >
-        <div className="container d-flex h-100 w-80">
-          <div className="col align-self-center text-center">
+        <Container className="d-flex h-100 w-80">
+          <Col className="align-self-center text-center">
             <FontAwesomeIcon
               className="text-info my-4"
               icon={faPlusCircle}
@@ -24,9 +24,9 @@ export default function AddCard(props: AddCardProps) {
               fontSize="2rem"
             />
             <p className={`text-info mt-4 ${styles["add-title"]}`}>Project</p>
-          </div>
-        </div>
+          </Col>
+        </Container>
       </a>
-    </div>
+    </Col>
   );
 }

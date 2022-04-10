@@ -4,7 +4,7 @@ import { HtmlMarkers } from "../../config/placeholder";
 import { voidUrl } from "../../config";
 
 export interface DefaultJsProjectProps {
-  project: string;
+  name: string;
   template: string;
 }
 
@@ -12,7 +12,7 @@ export default function DefaultJsProject(props: DefaultJsProjectProps) {
   const doc = parse(
     props.template
       .replace(new RegExp(HtmlMarkers.FILE_SERVER, "g"), voidUrl)
-      .replace(new RegExp(HtmlMarkers.PROJECT_NAME, "g"), props.project)
+      .replace(new RegExp(HtmlMarkers.PROJECT_NAME, "g"), props.name)
   );
 
   return (

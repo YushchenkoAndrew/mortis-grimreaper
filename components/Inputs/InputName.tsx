@@ -1,35 +1,27 @@
 import React from "react";
-import { Event } from "../../pages/admin/projects/operation";
-import { ProjectElement } from "../../types/projects";
+import { InputGroup } from "react-bootstrap";
 import InputValue from "./InputValue";
 
 export interface InputNameProps {
   char: string;
-  name: string;
-  value: string;
-  type?: string;
+  root?: string | (() => void);
+  readFrom: string;
+  writeTo?: string;
+  type?: React.HTMLInputTypeAttribute;
   required?: boolean;
   placeholder?: string;
-  onChange: (event: Event) => void;
-  onBlur?: (event: Event) => void;
+  className?: string;
+  disabled?: boolean;
+  isInvalid?: () => Promise<string | undefined>;
 }
 
 export default function InputName(props: InputNameProps) {
   return (
-    <div className="input-group">
-      <div className="input-group-prepend">
-        <span className="input-group-text">{props.char}</span>
-      </div>
-      <InputValue
-        className="rounded-right"
-        name={props.name}
-        value={props.value}
-        type={props.type}
-        required={props.required}
-        placeholder={props.placeholder}
-        onChange={props.onChange}
-        onBlur={props.onBlur}
-      />
-    </div>
+    <InputGroup hasValidation>
+      <InputGroup.Prepend>
+        <InputGroup.Text>{props.char}</InputGroup.Text>
+      </InputGroup.Prepend>
+      <InputValue {...props} className="rounded-right" />
+    </InputGroup>
   );
 }

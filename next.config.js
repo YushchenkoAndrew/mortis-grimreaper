@@ -40,6 +40,9 @@ module.exports = {
     NEXT_PUBLIC_VOID_URL: process.env.NEXT_PUBLIC_VOID_URL,
     // NEXT_PUBLIC_RECAPTCHA_INVISIBLE_SITE_KEY:
     //   process.env.RECAPTCHA_INVISIBLE_SITE_KEY,
+
+    FETCH_TIMEOUT: 5000,
+    ALLOWED_INVALID_LOGIN_REQ: process.env.ENV === "test" ? 20 : 6,
     K3S_ALLOWED_TYPES: [
       "deployment",
       "service",
@@ -52,7 +55,10 @@ module.exports = {
   publicRuntimeConfig: {
     BASE_PATH: process.env.BASE_PATH || "/projects",
 
-    RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY,
+    RECAPTCHA_SITE_KEY:
+      process.env.ENV === "test"
+        ? "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+        : process.env.RECAPTCHA_SITE_KEY,
     RECAPTCHA_INVISIBLE_SITE_KEY: process.env.RECAPTCHA_INVISIBLE_SITE_KEY,
   },
 
@@ -80,7 +86,10 @@ module.exports = {
     VOID_URL: process.env.VOID_URL,
     VOID_AUTH: process.env.VOID_AUTH,
 
-    RECAPTCHA_SECRET_KEY: process.env.RECAPTCHA_SECRET_KEY,
+    RECAPTCHA_SECRET_KEY:
+      process.env.ENV === "test"
+        ? "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"
+        : process.env.RECAPTCHA_SECRET_KEY,
     RECAPTCHA_INVISIBLE_SECRET_KEY: process.env.RECAPTCHA_INVISIBLE_SECRET_KEY,
 
     EMAIL_TO: process.env.EMAIL_TO,

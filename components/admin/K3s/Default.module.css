@@ -2,7 +2,8 @@
   transition: 300ms;
 }
 
-a:hover .icon {
+button:hover .icon,
+button:active .icon {
   color: var(--light) !important;
 }
 
@@ -17,14 +18,16 @@ a:hover .icon {
   transition-timing-function: cubic-bezier(0, 0.25, 0.82, 0.47);
 }
 
-.el-index:hover .el-container {
+.el-index:hover .el-container,
+.el-index:active .el-container {
   right: 0px;
   opacity: 1;
   transition: 0.2s;
   transition-timing-function: cubic-bezier(0.42, 0, 1, 1);
 }
 
-.el-index-2:hover .el-container-2 {
+.el-index-2:hover .el-container-2,
+.el-index-2:active .el-container-2 {
   right: 0px;
   opacity: 1;
   transition: 0.2s;
@@ -32,6 +35,8 @@ a:hover .icon {
 }
 
 .el-container-2:hover,
-.el-container:hover {
+.el-container-2:active,
+.el-container:hover,
+.el-container:active {
   transform: scale(1.2);
 }

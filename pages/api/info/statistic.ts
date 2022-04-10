@@ -35,127 +35,146 @@ export default async function handler(
     const results = await Promise.all([
       new Promise((resolve, reject) => {
         waitMutex().then(() => {
-          redis.hgetall("Info:Now", (err, reply) => {
-            freeMutex();
-            if (!err && reply && date == today) {
-              return resolve({
-                Visitors: +reply.Visitors,
-                Views: +reply.Views,
-              });
-            }
+          redis
+            .hGetAll("Info:Now")
+            .then((reply) => {
+              freeMutex();
+              if (reply && date == today) {
+                return resolve({
+                  Visitors: +reply.Visitors,
+                  Views: +reply.Views,
+                });
+              }
 
-            fetch(`${apiUrl}/info?created_at=${date}`)
-              .then((res) => res.json())
-              .then((res: ApiRes<InfoData[]> | ApiError) => {
-                if (res.status == "ERR") {
-                  return reject("Idk something wrong happened at the backend");
-                }
-                const result = res.result.pop();
-
-                // Check if the date if current one, if so load the data
-                if (date == today) {
-                  waitMutex().then(() => {
-                    redis.hmset(
-                      "Info:Now",
-                      {
-                        Visitors: result?.visitors ?? 0,
-                        Views: result?.views ?? 0,
-                        Clicks: result?.clicks ?? 0,
-                        Media: result?.media ?? 0,
-                      },
-                      () => freeMutex()
+              fetch(`${apiUrl}/info?created_at=${date}`)
+                .then((res) => res.json())
+                .then((res: ApiRes<InfoData[]> | ApiError) => {
+                  if (res.status == "ERR") {
+                    return reject(
+                      "Idk something wrong happened at the backend"
                     );
-                  });
+                  }
+                  const result = res.result.pop();
 
-                  // Save countries that visited today
-                  if (result) {
-                    result.countries.split(",").map((item) => {
-                      waitMutex().then(() => {
-                        redis.lpush("Info:Countries", item, () => freeMutex());
+                  // Check if the date if current one, if so load the data
+                  if (date == today) {
+                    waitMutex().then(() => {
+                      // FIXME:
+                      // redis.hmSet(
+                      //   "Info:Now",
+                      //   {
+                      //     Visitors: result?.visitors ?? 0,
+                      //     Views: result?.views ?? 0,
+                      //     Clicks: result?.clicks ?? 0,
+                      //     Media: result?.media ?? 0,
+                      //   },
+                      //   () => freeMutex()
+                      // );
+                    });
+
+                    // Save countries that visited today
+                    if (result) {
+                      result.countries.split(",").map((item) => {
+                        waitMutex().then(() => {
+                          redis
+                            .lPush("Info:Countries", item)
+                            .finally(() => freeMutex());
+                        });
                       });
+                    }
+                  }
+
+                  return resolve({
+                    Visitors: result?.visitors ?? 0,
+                    Views: result?.views ?? 0,
+                  });
+                })
+                .catch((err) => reject(err));
+            })
+            .catch((err) => reject(err));
+        });
+      }),
+      new Promise((resolve, reject) => {
+        waitMutex().then(() => {
+          redis
+            .hGetAll("Info:Prev")
+            .then((reply) => {
+              freeMutex();
+              if (reply && date == today) {
+                return resolve({
+                  Visitors: +reply.Visitors,
+                  Views: +reply.Views,
+                });
+              }
+
+              fetch(`${apiUrl}/info?created_at=${formatDate(yesterday)}`)
+                .then((res) => res.json())
+                .then((res: ApiRes<InfoData[]> | ApiError) => {
+                  if (res.status == "ERR") {
+                    return reject(
+                      "Idk something wrong happened at the backend"
+                    );
+                  }
+
+                  const result = res.result.pop();
+                  if (date == today) {
+                    waitMutex().then(() => {
+                      // FIXME:
+                      // redis.hmset(
+                      //   "Info:Prev",
+                      //   {
+                      //     Visitors: result?.visitors ?? 0,
+                      //     Views: result?.views ?? 0,
+                      //   },
+                      //   () => freeMutex()
+                      // );
                     });
                   }
-                }
 
-                return resolve({
-                  Visitors: result?.visitors ?? 0,
-                  Views: result?.views ?? 0,
-                });
-              })
-              .catch((err) => reject(err));
-          });
+                  return resolve({
+                    Visitors: result?.visitors ?? 0,
+                    Views: result?.views ?? 0,
+                  });
+                })
+                .catch((err) => reject(err));
+            })
+            .catch((err) => reject(err));
         });
       }),
       new Promise((resolve, reject) => {
         waitMutex().then(() => {
-          redis.hgetall("Info:Prev", (err, reply) => {
-            freeMutex();
-            if (!err && reply && date == today) {
-              return resolve({
-                Visitors: +reply.Visitors,
-                Views: +reply.Views,
-              });
-            }
+          redis
+            .get("Info:World")
+            .then((reply) => {
+              freeMutex();
+              if (reply) return resolve(JSON.parse(reply));
 
-            fetch(`${apiUrl}/info?created_at=${formatDate(yesterday)}`)
-              .then((res) => res.json())
-              .then((res: ApiRes<InfoData[]> | ApiError) => {
-                if (res.status == "ERR") {
-                  return reject("Idk something wrong happened at the backend");
-                }
-
-                const result = res.result.pop();
-                if (date == today) {
-                  waitMutex().then(() => {
-                    redis.hmset(
-                      "Info:Prev",
-                      {
-                        Visitors: result?.visitors ?? 0,
-                        Views: result?.views ?? 0,
-                      },
-                      () => freeMutex()
+              // NOTE: This will run only in the case where none of users were identified
+              fetch(`${apiUrl}/world?page=-1`)
+                .then((res) => res.json())
+                .then((res: ApiRes<WorldData[]> | ApiError) => {
+                  if (res.status == "ERR" || !res.items)
+                    return reject(
+                      "Idk something wrong happened at then backend"
                     );
+
+                  // Need this just to decrease space usage in RAM
+                  let result = {} as { [country: string]: number };
+                  res.result.forEach(
+                    (item) => (result[item.country] = item.visitors)
+                  );
+
+                  waitMutex().then(() => {
+                    redis
+                      .set("Info:World", JSON.stringify(result))
+                      .finally(() => freeMutex());
                   });
-                }
 
-                return resolve({
-                  Visitors: result?.visitors ?? 0,
-                  Views: result?.views ?? 0,
-                });
-              })
-              .catch((err) => reject(err));
-          });
-        });
-      }),
-      new Promise((resolve, reject) => {
-        waitMutex().then(() => {
-          redis.get("Info:World", (err, reply) => {
-            freeMutex();
-            if (!err && reply) return resolve(JSON.parse(reply));
-
-            // NOTE: This will run only in the case where none of users were identified
-            fetch(`${apiUrl}/world?page=-1`)
-              .then((res) => res.json())
-              .then((res: ApiRes<WorldData[]> | ApiError) => {
-                if (res.status == "ERR" || !res.items)
-                  return reject("Idk something wrong happened at then backend");
-
-                // Need this just to decrease space usage in RAM
-                let result = {} as { [country: string]: number };
-                res.result.forEach(
-                  (item) => (result[item.country] = item.visitors)
-                );
-
-                waitMutex().then(() => {
-                  redis.set("Info:World", JSON.stringify(result), () => {
-                    freeMutex();
-                  });
-                });
-
-                return resolve(result);
-              })
-              .catch((err) => reject(err));
-          });
+                  return resolve(result);
+                })
+                .catch((err) => reject(err));
+            })
+            .catch((err) => reject(err));
         });
       }),
     ]);

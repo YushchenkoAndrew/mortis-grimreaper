@@ -5,69 +5,71 @@ import {
   faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, {
-  createRef,
-  useEffect,
-  useImperativeHandle,
-  useState,
-} from "react";
-import { Rule } from "../../../types/K3s/Ingress";
+import { useState } from "react";
+import { Row } from "react-bootstrap";
+import { useDispatch, useSelector } from "react-redux";
 import InputName from "../../Inputs/InputName";
 import InputTemplate from "../../Inputs/InputTemplate";
 import styles from "./Default.module.css";
-import Path, { PathRef } from "./Path";
+import Path from "./Path";
 
 export interface RulesProps {
   show?: boolean;
+  root?: string | (() => void);
+  readFrom: string;
+  writeTo: string;
 }
 
-export interface RulesRef {
-  getValue: () => Rule;
-}
-
-export default React.forwardRef((props: RulesProps, ref) => {
-  const [minimized, onMinimize] = useState(true);
-
-  const [rule, onRuleChange] = useState<Rule>({
-    host: "",
+export default function Rules(props: RulesProps) {
+  const [minimized, onMinimize] = useState({
+    path: true,
+    paths: [] as boolean[],
   });
 
-  const [paths, onPathChange] = useState<boolean[]>([]);
-  const [pathsRef, onPathRefChange] = useState<React.RefObject<PathRef>[]>([]);
+  const dispatch = useDispatch();
+  const paths = useSelector((state: any) =>
+    `${props.readFrom}_http_paths`
+      .split("_")
+      .reduce((acc, curr) => acc[curr], state)
+  ) as unknown[];
 
-  useImperativeHandle<unknown, RulesRef>(ref, () => ({
-    getValue() {
-      return {
-        ...rule,
-        http: {
-          ...rule.http,
-          paths: pathsRef.map((item) => item.current?.getValue()),
-        },
-      } as Rule;
-    },
-  }));
+  // const [rule, onRuleChange] = useState<Rule>({
+  //   host: "",
+  // });
 
-  useEffect(() => {
-    onPathRefChange(paths.map((_, i) => pathsRef[i] || createRef<PathRef>()));
-  }, [paths.length]);
+  // const [paths, onPathChange] = useState<boolean[]>([]);
+  // const [pathsRef, onPathRefChange] = useState<React.RefObject<PathRef>[]>([]);
+
+  // useImperativeHandle<unknown, RulesRef>(ref, () => ({
+  //   getValue() {
+  //     return {
+  //       ...rule,
+  //       http: {
+  //         ...rule.http,
+  //         paths: pathsRef.map((item) => item.current?.getValue()),
+  //       },
+  //     } as Rule;
+  //   },
+  // }));
+
+  // useEffect(() => {
+  //   onPathRefChange(paths.map((_, i) => pathsRef[i] || createRef<PathRef>()));
+  // }, [paths.length]);
 
   return (
     <div className={`border rounded mx-1 py-2 ${props.show ? "" : "d-none"}`}>
-      <InputTemplate className="mx-2" label="Host">
+      <InputTemplate className="px-2" label="Host">
         <InputName
-          name="host"
           char="http://"
-          value={rule.host ?? ""}
+          root={props.root}
+          readFrom={`${props.readFrom}_host`}
+          writeTo={`${props.writeTo}_host`}
           placeholder="mortis-grimreaper.ddns.net"
-          onChange={({ target: { name, value } }) => {
-            onRuleChange({ ...rule, [name]: value });
-          }}
-          // onBlur={onDataCache}
         />
       </InputTemplate>
 
       <InputTemplate
-        className="mx-1"
+        className="px-2"
         labelClassName="font-weight-bold mx-1"
         label={[
           "Path ",
@@ -76,21 +78,33 @@ export default React.forwardRef((props: RulesProps, ref) => {
             icon={minimized ? faChevronDown : faChevronRight}
           />,
         ]}
-        onClick={() => onMinimize(!minimized)}
+        onClick={() =>
+          onMinimize({
+            ...minimized,
+            path: !minimized.path,
+          })
+        }
       >
-        <div className={`border rounded mx-1 p-2 ${minimized ? "" : "d-none"}`}>
-          {paths.map((show, index) => (
+        <div className={`border rounded p-2 ${minimized ? "" : "d-none"}`}>
+          {paths.map((_, index) => (
             <div key={index} className={`mb-3 w-100 ${styles["el-index"]}`}>
-              <div className="row mx-1">
+              <Row className="mx-0">
                 <label
                   className="ml-1 mr-auto"
                   onClick={() => {
-                    onPathChange({ ...paths, [index]: !paths[index] });
+                    onMinimize({
+                      ...minimized,
+                      paths: minimized.paths.map((item, i) =>
+                        i === index ? !item : item
+                      ),
+                    });
                   }}
                 >
                   {`[${index}] `}
                   <FontAwesomeIcon
-                    icon={show ? faChevronDown : faChevronRight}
+                    icon={
+                      minimized.paths[index] ? faChevronDown : faChevronRight
+                    }
                   />
                 </label>
                 <FontAwesomeIcon
@@ -99,21 +113,42 @@ export default React.forwardRef((props: RulesProps, ref) => {
                   size="lg"
                   fontSize="1rem"
                   onClick={() => {
-                    onPathChange([
-                      ...paths.slice(0, index),
-                      ...paths.slice(index + 1),
-                    ]);
+                    onMinimize({
+                      ...minimized,
+                      paths: minimized.paths.filter((_, i) => i !== index),
+                    });
+
+                    dispatch({
+                      type: `${props.writeTo}_http_paths_del`.toUpperCase(),
+                      readFrom: `${props.readFrom}_http_paths_${index}`,
+                      index: index,
+                    });
                   }}
                 />
-              </div>
-              <Path ref={pathsRef[index]} show={show} />
+              </Row>
+              <Path
+                root={props.root}
+                show={minimized.paths[index]}
+                readFrom={`${props.readFrom}_http_paths_${index}`}
+                writeTo={`${props.writeTo}_http_paths`}
+              />
             </div>
           ))}
 
           <div className="container my-2">
             <a
               className="btn btn-outline-success w-100"
-              onClick={() => onPathChange([...paths, true])}
+              onClick={() => {
+                onMinimize({
+                  ...minimized,
+                  paths: [...minimized.paths, true],
+                });
+
+                dispatch({
+                  type: `${props.writeTo}_http_paths_add`.toUpperCase(),
+                  readFrom: `${props.readFrom}_http_paths`,
+                });
+              }}
             >
               <FontAwesomeIcon
                 className={`text-success ${styles["icon"]}`}
@@ -125,4 +160,4 @@ export default React.forwardRef((props: RulesProps, ref) => {
       </InputTemplate>
     </div>
   );
-});
+}

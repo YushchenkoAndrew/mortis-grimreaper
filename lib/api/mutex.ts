@@ -1,57 +1,56 @@
 import redis from "../../config/redis";
 import { sendLogs } from "./bot";
 
+const DELAY = Number(process.env.MUTEX_WAIT ?? 10);
+
 // Init simple Mutex for Docker with Redis
-let nTries = 0;
-export function busyMutex() {
-  console.log("[MUTEX] Busy");
-  return new Promise<boolean>((resolve, reject) => {
-    redis.set("Mutex:Free", "0", (err, stat) => resolve(stat === "OK"));
-  });
-}
-
-export function waitMutex() {
-  return new Promise<boolean>((resolve, reject) => {
-    redis.get("Mutex:Free", (err, reply) => {
-      let stat: number;
-      if (
-        err ||
-        reply === null ||
-        isNaN((stat = Number(reply))) ||
-        stat === 1
-      ) {
-        return busyMutex().then((res) => {
-          nTries = 0;
-          resolve(res);
-          if (res) return;
-
-          sendLogs({
-            stat: "ERR",
-            name: "WEB",
-            file: "/api/mutext.ts",
-            message: "There some problem with cache",
-          });
-        });
+export function waitMutex(tries = 0) {
+  return new Promise<void>(async (resolve) => {
+    try {
+      const mutex = Number((await redis.get("MUTEX")) || 0);
+      if (mutex === 0) {
+        console.log("[MUTEX] IN USE");
+        await redis.incr("MUTEX");
+        return resolve();
       }
 
       // If process waiting for mutex too long then unfreeze it and just
       // keep going, despite it state
-      if (nTries++ > Number(process.env.MUTEX_INAFF ?? 10)) {
-        nTries = 0;
-        resolve(true);
+      if (tries++ > Number(process.env.MUTEX_INAFF ?? 10)) {
+        resolve();
       }
 
       // If mutex is busy then wait when it will be free
-      console.log("[MUTEX] Wait");
-      setTimeout(
-        () => waitMutex().then((res) => resolve(res)),
-        Number(process.env.MUTEX_WAIT ?? 10)
-      );
-    });
+      await new Promise<void>((resolve) => setTimeout(() => resolve(), DELAY));
+      resolve(await waitMutex(tries + 1));
+    } catch (err) {
+      sendLogs({
+        stat: "ERR",
+        name: "WEB",
+        file: "/api/mutext.ts",
+        message: "There some problem with cache",
+        desc: err,
+      });
+    }
   });
 }
 
 export function freeMutex() {
-  console.log("[MUTEX] Free");
-  redis.set("Mutex:Free", "1");
+  return new Promise<void>(async (resolve) => {
+    try {
+      const mutex = Number((await redis.get("MUTEX")) || 0);
+      if (mutex === 0) return resolve();
+
+      console.log("[MUTEX] IS FREE");
+      redis.decr("MUTEX");
+    } catch (err) {
+      sendLogs({
+        stat: "ERR",
+        name: "WEB",
+        file: "/api/mutext.ts",
+        message: "There some problem with cache",
+        desc: err,
+      });
+    }
+  });
 }

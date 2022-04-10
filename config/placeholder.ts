@@ -11,7 +11,7 @@ export const HtmlMarkers = {
   PROJECT_NAME: "{{PROJECT_NAME}}",
 };
 
-export const codeTemplate = {
+export const CODE_TEMPLATE = {
   JS: {
     name: "index.html",
     path: "",
@@ -62,32 +62,24 @@ export const ProjectInfo = {
   name: "CodeRain",
   title: "Code Rain",
   flag: "JS",
-  img: {
-    name: "CodeRain.webp",
-    type: "webp",
-    role: "thumbnail",
-    url: `${basePath}/img/CodeRain.webp`,
-  },
+  // img: {
+  //   name: "CodeRain.webp",
+  //   type: "webp",
+  //   role: "thumbnail",
+  //   url: `${basePath}/img/CodeRain.webp`,
+  // },
+
+  img: `${basePath}/img/CodeRain.webp`,
   desc: "Take the blue pill and the site will close, or take the red pill and I show how deep the rabbit hole goes",
   note: "Creating a 'Code Rain' effect from Matrix. As funny joke you can put any text to display at the end.",
   link: "github.com/YushchenkoAndrew/template/tree/master/JS/CodeRain",
 };
 
-export const treePlaceholder = {
+export const PROJECT_TREE = {
   assets: {},
   src: {},
   thumbnail: {},
   styles: {},
-  template: {
-    "index.html": codeTemplate.JS as FileData,
-  },
+  template: { "index.html": CODE_TEMPLATE.JS },
   kubernetes: {},
 } as TreeObj;
-
-export const formPlaceholder = {
-  name: "",
-  flag: "JS",
-  title: "",
-  desc: "",
-  note: "",
-} as ProjectData;

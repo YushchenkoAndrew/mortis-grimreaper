@@ -15,6 +15,10 @@
 # production
 build/
 
+# cypress
+**/downloads
+**/screenshots
+
 # misc
 .DS_Store
 *.pem
@@ -30,6 +34,7 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 secrete.yaml
+cypress.env.json
 
 # vercel
 .vercel

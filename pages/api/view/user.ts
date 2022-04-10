@@ -14,24 +14,29 @@ import { FullResponse } from "../../../types/request";
 
 function finalValue(key: string) {
   return new Promise<string>((resolve, reject) => {
-    redis.get(key, (err, reply) => {
-      // replay always will have value in this step
-      if (reply && !err) return resolve(reply ?? "");
+    redis
+      .get(key)
+      .then((reply) => {
+        // replay always will have value in this step
+        if (reply) return resolve(reply ?? "");
 
-      fetch(`${apiUrl}/world?page=-1`)
-        .then((res) => res.json())
-        .then((res: ApiRes<WorldData[]> | ApiError) => {
-          if (res.status == "ERR" || !res.items)
-            return reject("Idk something wrong happened at then backend");
+        fetch(`${apiUrl}/world?page=-1`)
+          .then((res) => res.json())
+          .then((res: ApiRes<WorldData[]> | ApiError) => {
+            if (res.status == "ERR" || !res.items)
+              return reject("Idk something wrong happened at then backend");
 
-          // Need this just to decrease space usage in RAM
-          let result = {} as { [country: string]: number };
-          res.result.forEach((item) => (result[item.country] = item.visitors));
+            // Need this just to decrease space usage in RAM
+            let result = {} as { [country: string]: number };
+            res.result.forEach(
+              (item) => (result[item.country] = item.visitors)
+            );
 
-          resolve(JSON.stringify(result));
-        })
-        .catch((err) => reject(err));
-    });
+            resolve(JSON.stringify(result));
+          })
+          .catch((err) => reject(err));
+      })
+      .catch((err) => reject(err));
   });
 }
 
@@ -51,86 +56,88 @@ export default async function handler(
   const hash = md5(prev.toString());
   const { status, send } = await new Promise<FullResponse>(
     (resolve, reject) => {
-      redis.get(`RAND:${hash}`, (err, ok) => {
-        console.log("[HANDLER] Rand is passed !!!");
+      redis
+        .get(`RAND:${hash}`)
+        .then((ok) => {
+          console.log("[HANDLER] Rand is passed !!!");
+          if (!ok) return res.status(400).send("RAND");
+          redis.del(`RAND:${hash}`);
 
-        if (err || !ok) return res.status(400).send("RAND");
-        redis.del(`RAND:${hash}`);
+          fetch(`${apiUrl}/trace/${ip}`)
+            .then((res) => res.json())
+            .then((data: ApiRes<GeoIpLocationData[]> | ApiError) => {
+              if (data.status === "ERR") {
+                return resolve({
+                  status: 500,
+                  send: {
+                    status: "ERR",
+                    message: "Hold up it's not my fault ... kinda",
+                  },
+                });
+              }
 
-        fetch(`${apiUrl}/trace/${ip}`)
-          .then((res) => res.json())
-          .then((data: ApiRes<GeoIpLocationData[]> | ApiError) => {
-            if (data.status === "ERR") {
-              return resolve({
+              const user = {
+                id: md5(
+                  (Math.random() * 100000 + 500).toString() +
+                    data.result[0].country_iso_code +
+                    now.toString()
+                ),
+                country: data.result[0].country_iso_code,
+                expired: now + 86.4e6,
+                salt: md5((Math.random() * 100000 + 500).toString()),
+              };
+
+              console.log("user: ");
+              console.log(user);
+
+              resolve({
+                status: 201,
+                send: {
+                  status: "OK",
+                  message: "Success",
+                  result: user,
+                },
+              });
+
+              // Run in background
+              setTimeout(() => {
+                redis.set(`USER:${user.id}`, user.country);
+
+                // FIXME: Can be done with botodachi instead
+                redis.expire(`USER:${user.id}`, user.expired);
+                redis.hIncrBy("Info:Now", "Visitors", 1);
+                redis.hIncrBy("Info:Now", "Views", 1);
+
+                // Need this for detect curr day countries
+                redis.lPush("Info:Countries", user.country);
+
+                // Use simple mutex handler for changing variables with kubernetes & docker
+                waitMutex().then((stat) => {
+                  redis.get("Info:World").then((reply) => {
+                    let data = reply !== null ? JSON.parse(reply) : {};
+                    data[user.country] = data[user.country]
+                      ? data[user.country] + 1
+                      : 1;
+
+                    redis
+                      .set("Info:World", JSON.stringify(data))
+                      .finally(() => freeMutex());
+                  });
+                });
+              }, 0);
+            })
+            .catch((err) => {
+              resolve({
                 status: 500,
                 send: {
                   status: "ERR",
-                  message: "Hold up it's not my fault ... kinda",
+                  message:
+                    "F@$k, I fixed this yeasted, why it's still not working !!!!",
                 },
               });
-            }
-
-            const user = {
-              id: md5(
-                (Math.random() * 100000 + 500).toString() +
-                  data.result[0].country_iso_code +
-                  now.toString()
-              ),
-              country: data.result[0].country_iso_code,
-              expired: now + 86.4e6,
-              salt: md5((Math.random() * 100000 + 500).toString()),
-            };
-
-            console.log("user: ");
-            console.log(user);
-
-            resolve({
-              status: 201,
-              send: {
-                status: "OK",
-                message: "Success",
-                result: user,
-              },
             });
-
-            // Run in background
-            setTimeout(() => {
-              redis.set(`USER:${user.id}`, user.country);
-
-              // FIXME: Can be done with botodachi instead
-              redis.expire(`USER:${user.id}`, user.expired);
-              redis.hincrby("Info:Now", "Visitors", 1);
-              redis.hincrby("Info:Now", "Views", 1);
-
-              // Need this for detect curr day countries
-              redis.lpush("Info:Countries", user.country);
-
-              // Use simple mutex handler for changing variables with kubernetes & docker
-              waitMutex().then((stat) => {
-                redis.get("Info:World", (err, reply) => {
-                  let data = reply !== null ? JSON.parse(reply) : {};
-                  data[user.country] = data[user.country]
-                    ? data[user.country] + 1
-                    : 1;
-
-                  redis.set("Info:World", JSON.stringify(data), (err, ok) => {
-                    freeMutex();
-                  });
-                });
-              });
-            }, 0);
-          })
-          .catch((err) => {
-            resolve({
-              status: 500,
-              send: {
-                status: "ERR",
-                message:
-                  "F@$k, I fixed this yeasted, why it's still not working !!!!",
-              },
-            });
-          });
-      });
+        })
+        .catch((err) => reject(err));
     }
   );
 

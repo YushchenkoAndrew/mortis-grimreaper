@@ -1,4 +1,5 @@
 import React from "react";
+import { Col, Form } from "react-bootstrap";
 
 export interface InputTemplateProps {
   className?: string;
@@ -10,14 +11,14 @@ export interface InputTemplateProps {
 
 export default function InputTemplate(props: InputTemplateProps) {
   return (
-    <div className={`mb-2 ${props.className ?? ""}`}>
-      <label
-        className={`mr-3 ${props.labelClassName ?? ""}`}
+    <Form.Group as={Col} className={`mb-2 ${props.className}`}>
+      <Form.Label
+        className={`mr-3 mb-0 ${props.labelClassName ?? ""}`}
         onClick={props.onClick}
       >
         {props.label}
-      </label>
+      </Form.Label>
       {props.children}
-    </div>
+    </Form.Group>
   );
 }

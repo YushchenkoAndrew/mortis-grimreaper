@@ -1,81 +1,113 @@
 import React, { useState } from "react";
-import { Event } from "../../pages/admin/projects/operation";
-import { LinkData } from "../../types/api";
+import { Button, Col, Form, InputGroup, Row } from "react-bootstrap";
+import { useDispatch, useSelector } from "react-redux";
 import InputValue from "./InputValue";
 
 export type DoubleType<Type> = {
   0: Type;
   1: Type;
 };
+
+export type ChangeIn = {
+  readFrom: string;
+  writeTo?: string;
+};
 export interface InputValueProps {
   char: DoubleType<string>;
   className?: string;
-  name: DoubleType<string>;
+  root?: string | (() => void);
+  readFrom: string;
+  writeTo?: string;
+  changeIn?: ChangeIn[];
   type?: DoubleType<string>;
   required?: DoubleType<boolean>;
   placeholder?: DoubleType<string>;
-  onChange: (data: any) => boolean;
 }
 
 export default function InputList(props: InputValueProps) {
-  const [data, onDataChange] = useState({} as { [name: string]: string });
+  const values = useSelector((state: any) =>
+    `temp_${props.readFrom}`.split("_").reduce((acc, curr) => acc[curr], state)
+  );
+  const dispatch = useDispatch();
 
-  function onChange(event: Event) {
-    onDataChange({
-      ...data,
-      [event.target.name]: event.target.value,
-    });
-  }
+  const writeTo = `temp_${props.writeTo ?? props.readFrom}`;
+  const readFrom: DoubleType<string> = [
+    `temp_${props.readFrom}_0`,
+    `temp_${props.readFrom}_1`,
+  ];
 
   return (
-    <div className={`row ${props.className ?? ""}`}>
-      <div className="input-group col-md-6 order-sm-1 p-2">
-        <div className="input-group-prepend">
-          <span className="input-group-text">{props.char[0]}</span>
-        </div>
+    <Form.Row className={props.className}>
+      <InputGroup as={Col} md="6" sm={{ order: 1 }} className="p-2">
+        <InputGroup.Prepend>
+          <InputGroup.Text>{props.char[0]}</InputGroup.Text>
+        </InputGroup.Prepend>
         <InputValue
           className="rounded-right"
-          name={props.name[0]}
-          value={data[props.name[0]] ?? ""}
+          readFrom={readFrom[0]}
+          writeTo={writeTo}
           type={props.type?.[0]}
           required={props.required?.[0]}
           placeholder={props.placeholder?.[0]}
-          onChange={onChange}
         />
-      </div>
-      <div className="input-group col-md-6 order-sm-2 p-2">
-        <div className="input-group-prepend">
-          <span className="input-group-text">{props.char[1]}</span>
-        </div>
+      </InputGroup>
+      <InputGroup as={Col} md="6" sm={{ order: 2 }} className="p-2">
+        <InputGroup.Prepend>
+          <InputGroup.Text>{props.char[1]}</InputGroup.Text>
+        </InputGroup.Prepend>
         <InputValue
-          className="rounded-right"
-          name={props.name[1]}
-          value={data[props.name[1]] ?? ""}
+          readFrom={readFrom[1]}
+          writeTo={writeTo}
           type={props.type?.[1]}
           required={props.required?.[1]}
           placeholder={props.placeholder?.[1]}
-          onChange={onChange}
         />
-        <div className="input-group-append">
-          <a
-            className="btn btn-primary text-light"
-            onClick={(e) => {
-              e.preventDefault();
-              if (
-                props.onChange({
-                  [props.name[0]]: data[props.name[0]],
-                  [props.name[1]]: data[props.name[1]],
-                })
-              ) {
-                // Reset input on Success
-                onDataChange({ [props.name[0]]: "", [props.name[1]]: "" });
+        <InputGroup.Append>
+          <Button
+            name={readFrom[0]}
+            variant="primary"
+            onClick={() => {
+              if (!values[0] || !values[1]) return;
+
+              dispatch({
+                type: `${
+                  props.writeTo ?? props.readFrom
+                }_CHANGED`.toUpperCase(),
+                readFrom: props.readFrom,
+                name: values[0],
+                value: values[1],
+              });
+
+              for (const { writeTo, readFrom } of props.changeIn ?? []) {
+                dispatch({
+                  type: `${writeTo ?? readFrom}_CHANGED`.toUpperCase(),
+                  readFrom: readFrom,
+                  name: values[0],
+                  value: values[1],
+                });
               }
+
+              dispatch({
+                type: `${writeTo}_CHANGED`.toUpperCase(),
+                readFrom: readFrom[0],
+                value: "",
+              });
+
+              dispatch({
+                type: `${writeTo}_CHANGED`.toUpperCase(),
+                readFrom: readFrom[1],
+                value: "",
+              });
+
+              if (!props.root) return;
+              if (typeof props.root === "function") return props.root();
+              dispatch({ type: `${props.root}_CACHED`.toUpperCase() });
             }}
           >
             Create
-          </a>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </InputGroup.Append>
+      </InputGroup>
+    </Form.Row>
   );
 }

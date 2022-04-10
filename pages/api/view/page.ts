@@ -11,19 +11,20 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   // Run in background
   setTimeout(() => {
     const id = GetParam(req.query.id);
-    redis.get(`USER:${id}`, (err, reply) => {
-      console.log("[HANDLER] Page event USER:" + id);
-      if (err) {
-        return sendLogs({
+    redis
+      .get(`USER:${id}`)
+      .then((reply) => {
+        console.log("[HANDLER] Page event USER:" + id);
+        if (reply) return redis.hIncrBy("Info:Now", "Views", 1);
+      })
+      .catch((err) => {
+        sendLogs({
           stat: "ERR",
           name: "WEB",
           file: "/api/view/page.ts",
           message: "Ohhh noooo, Cache is broken!!!",
           desc: err,
         });
-      }
-
-      if (reply) return redis.hincrby("Info:Now", "Views", 1);
-    });
+      });
   }, 0);
 }

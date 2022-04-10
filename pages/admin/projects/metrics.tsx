@@ -1,20 +1,13 @@
-import { withIronSession } from "next-iron-session";
-import React from "react";
-import redis from "../../../config/redis";
 import { Doughnut, Line } from "react-chartjs-2";
 import DefaultHeader from "../../../components/admin/default/DefaultHeader";
 import DefaultNav from "../../../components/admin/default/DefaultNav";
 import DefaultFooter from "../../../components/default/DefaultFooter";
 import DefaultHead from "../../../components/default/DefaultHead";
 import Card from "../../../components/info/Card";
-import { apiUrl, basePath } from "../../../config";
+import { basePath } from "../../../config";
 import sessionConfig from "../../../config/session";
-import { ApiAuth } from "../../../lib/api/auth";
 import { checkIfUserExist } from "../../../lib/api/session";
-import { MetricsData } from "../../../types/api";
-import { DefaultRes } from "../../../types/request";
-import { NextSessionArgs } from "../../../types/session";
-import md5 from "../../../lib/md5";
+import { withIronSessionSsr } from "iron-session/next";
 
 const COLORS = [
   [249, 65, 68], // rgba(249,65,68,  0.6)
@@ -58,6 +51,7 @@ export interface MetricsProps {
   containers: MetricsType;
 }
 
+// FIXME: SIMPLIFY !!!
 export default function Metrics(props: MetricsProps) {
   return (
     <>
@@ -77,12 +71,13 @@ export default function Metrics(props: MetricsProps) {
                   animation: { duration: 1000 },
                 }}
                 data={{
-                  labels: props.containers.data.map((data) => data.name),
+                  // labels: props.containers.data.map((data) => data.name),
                   datasets: [
                     {
-                      data: props.containers.data.map((data) =>
-                        data.cpu.reduce((acc, curr) => acc + curr)
-                      ),
+                      // data: props.containers.data.map((data) =>
+                      //   data.cpu.reduce((acc, curr) => acc + curr)
+                      // ),
+                      data: [],
                       backgroundColor: COLORS.slice(3, 6).map(
                         (color) => `rgba(${color.join(",")},0.6)`
                       ),
@@ -104,12 +99,13 @@ export default function Metrics(props: MetricsProps) {
                   animation: { duration: 1000 },
                 }}
                 data={{
-                  labels: props.containers.data.map((data) => data.name),
+                  // labels: props.containers.data.map((data) => data.name),
                   datasets: [
                     {
-                      data: props.containers.data.map((data) =>
-                        data.memory.reduce((acc, curr) => acc + curr)
-                      ),
+                      // data: props.containers.data.map((data) =>
+                      //   data.memory.reduce((acc, curr) => acc + curr)
+                      // ),
+                      data: [],
                       backgroundColor: COLORS.slice(3, 6).map(
                         (color) => `rgba(${color.join(",")},0.6)`
                       ),
@@ -147,24 +143,25 @@ export default function Metrics(props: MetricsProps) {
                 },
               }}
               data={{
-                labels: props.containers.labels.map((item) => {
-                  const date = new Date(Date.parse(item));
-                  return [
-                    `${date.getDate()} ${MONTH[date.getMonth()]}`,
-                    `0${date.getHours()}:`.slice(-3) +
-                      `0${date.getMinutes()}`.slice(-2),
-                  ];
-                }),
-                datasets: props.containers.data.map((data, i) => ({
+                // labels: props.containers.labels.map((item) => {
+                //   const date = new Date(Date.parse(item));
+                //   return [
+                //     `${date.getDate()} ${MONTH[date.getMonth()]}`,
+                //     `0${date.getHours()}:`.slice(-3) +
+                //       `0${date.getMinutes()}`.slice(-2),
+                //   ];
+                // }),
+                // datasets: props.containers.data.map((data, i) => ({
+                datasets: [].map((data, i) => ({
                   label: data.name,
-                  data: data.cpu.map(
-                    (item) => item / Math.pow(10, data.cpu_scale)
-                  ),
                   // data: data.cpu.map(
-                  //   (item) =>
-                  //     (item + i * Math.random() * 100000) /
-                  //     Math.pow(10, data.cpu_scale)
+                  //   (item) => item / Math.pow(10, data.cpu_scale)
                   // ),
+                  data: data.cpu.map(
+                    (item) =>
+                      (item + i * Math.random() * 100000) /
+                      Math.pow(10, data.cpu_scale)
+                  ),
                   fill: i ? i - 1 : true,
                   backgroundColor: `rgba(${COLORS[i].join(",")},0.4)`,
                   borderColor: `rgb(${COLORS[i].join(",")})`,
@@ -176,7 +173,7 @@ export default function Metrics(props: MetricsProps) {
 
         <div className="row px-3 mb-4">
           <Card title="Memory Usage">
-            <Line
+            {/* <Line
               height={1500}
               width={3000}
               options={{
@@ -203,20 +200,20 @@ export default function Metrics(props: MetricsProps) {
                 }),
                 datasets: props.containers.data.map((data, i) => ({
                   label: data.name,
-                  data: data.cpu.map(
-                    (item) => item / Math.pow(10, data.cpu_scale)
-                  ),
-                  // data: data.memory.map(
-                  //   (item) =>
-                  //     (item + i * Math.random() * 100000) /
-                  //     Math.pow(10, data.memory_scale)
+                  // data: data.cpu.map(
+                  //   (item) => item / Math.pow(10, data.cpu_scale)
                   // ),
+                  data: data.memory.map(
+                    (item) =>
+                      (item + i * Math.random() * 100000) /
+                      Math.pow(10, data.memory_scale)
+                  ),
                   fill: i ? i - 1 : true,
                   backgroundColor: `rgba(${COLORS[i + 3].join(",")},0.4)`,
                   borderColor: `rgb(${COLORS[i + 3].join(",")})`,
                 })),
               }}
-            />
+            /> */}
           </Card>
         </div>
       </div>
@@ -230,93 +227,95 @@ export default function Metrics(props: MetricsProps) {
   );
 }
 
-export const getServerSideProps = withIronSession(async function ({
-  req,
-}: NextSessionArgs) {
-  const sessionID = req.session.get("user");
-  const isOk = await checkIfUserExist(sessionID);
-
-  if (!sessionID || !isOk) {
-    return {
-      redirect: {
-        basePath: false,
-        destination: `${basePath}/admin/login`,
-        permanent: false,
-      },
-    };
-  }
-
-  let id: string | null;
-  const params = new URLSearchParams((req.url ?? "").split("?")[1] ?? "");
-  if (!(id = params.get("id"))) return { notFound: true };
-
-  try {
-    const result = await new Promise<string>((resolve) =>
-      redis.get(`Metrics:${md5(id ?? "")}`, (err, reply) =>
-        resolve(!err && reply ? reply : "")
-      )
-    );
-
-    if (result) return { props: JSON.parse(result) };
-
-    const token = await ApiAuth();
-    const res = await fetch(`${apiUrl}/k3s/pods/metrics/${id}`, {
-      headers: { Authorization: `Bear ${token}` },
-    });
-    const data = (await res.json()) as DefaultRes<MetricsData[]>;
-    if (data.status !== "OK" || !data.result?.length) return { notFound: true };
-
-    // Sort containers by there names ....
-    let maxCpuScale = -1;
-    let maxMemoryScale = -1;
-    let labels = {} as { [name: string]: number };
-    const containers = data.result.reduce((acc, curr) => {
-      labels[curr.created_at] = (labels[curr.created_at] ?? 0) + 1;
-      maxCpuScale = maxCpuScale > curr.cpu_scale ? maxCpuScale : curr.cpu_scale;
-      maxMemoryScale =
-        maxMemoryScale > curr.memory_scale ? maxMemoryScale : curr.memory_scale;
+export const getServerSideProps = withIronSessionSsr(
+  async function getServerSideProps({ req, params }) {
+    const operations: string[] = (params?.operations as string[]) || [];
+    if (!req.session.user || !(await checkIfUserExist(req.session.user))) {
       return {
-        ...acc,
-        [curr.name]: [...(acc[curr.name] ?? []), curr],
+        redirect: {
+          basePath: false,
+          destination: `${basePath}/admin/login`,
+          permanent: false,
+        },
       };
-    }, {} as { [name: string]: MetricsData[] });
+    }
 
-    const len = Object.entries(containers).length;
-    const props = {
-      containers: {
-        // Mmmmm Im not at the mood to create more efficient code then this
-        // If it works then don't fix it
-        labels: Object.entries(labels)
-          .filter(([_, num]) => num == len)
-          .map(([name]) => name),
-        data: Object.entries(containers).map(([name, arr]) => ({
-          name,
-          cpu: arr
-            .filter((item) => labels[item.created_at] == len)
-            .map((item) =>
-              item.cpu_scale == maxCpuScale
-                ? item.cpu
-                : item.cpu * Math.pow(10, maxCpuScale - item.cpu_scale)
-            ),
-          memory: arr
-            .filter((item) => labels[item.created_at] == len)
-            .map((item) =>
-              item.memory_scale == maxMemoryScale
-                ? item.memory
-                : item.memory * Math.pow(10, maxMemoryScale - item.memory_scale)
-            ),
-          cpu_scale: maxCpuScale,
-          memory_scale: maxMemoryScale,
-        })),
-      },
-    } as MetricsProps;
+    return { props: {} };
+    // let id: string | null;
+    // const params = new URLSearchParams((req.url ?? "").split("?")[1] ?? "");
+    // if (!(id = params.get("id"))) return { notFound: true };
 
-    redis.set(`Metrics:${md5(id ?? "")}`, JSON.stringify(props));
-    redis.expire(`Metrics:${md5(id ?? "")}`, 60 * 60);
+    // try {
+    //   const result = await new Promise<string>((resolve) =>
+    //     redis
+    //       .get(`Metrics:${md5(id ?? "")}`)
+    //       .then((reply) => resolve(reply || ""))
+    //       .catch(() => resolve(""))
+    //   );
 
-    return { props };
-  } catch (err) {
-    return { notFound: true };
-  }
-},
-sessionConfig);
+    //   if (result) return { props: JSON.parse(result) };
+
+    //   const token = await ApiAuth();
+    //   const res = await fetch(`${apiUrl}/k3s/pods/metrics/${id}`, {
+    //     headers: { Authorization: `Bear ${token}` },
+    //   });
+    //   const data = (await res.json()) as DefaultRes<MetricsData[]>;
+    //   if (data.status !== "OK" || !data.result?.length)
+    //     return { notFound: true };
+
+    //   // Sort containers by there names ....
+    //   let maxCpuScale = -1;
+    //   let maxMemoryScale = -1;
+    //   let labels = {} as { [name: string]: number };
+    //   const containers = data.result.reduce((acc, curr) => {
+    //     labels[curr.created_at] = (labels[curr.created_at] ?? 0) + 1;
+    //     maxCpuScale =
+    //       maxCpuScale > curr.cpu_scale ? maxCpuScale : curr.cpu_scale;
+    //     maxMemoryScale =
+    //       maxMemoryScale > curr.memory_scale
+    //         ? maxMemoryScale
+    //         : curr.memory_scale;
+    //     return {
+    //       ...acc,
+    //       [curr.name]: [...(acc[curr.name] ?? []), curr],
+    //     };
+    //   }, {} as { [name: string]: MetricsData[] });
+
+    //   const len = Object.entries(containers).length;
+    //   const props = {
+    //     containers: {
+    //       // Mmmmm Im not at the mood to create more efficient code then this
+    //       // If it works then don't fix it
+    //       labels: Object.entries(labels)
+    //         .filter(([_, num]) => num == len)
+    //         .map(([name]) => name),
+    //       data: Object.entries(containers).map(([name, arr]) => ({
+    //         name,
+    //         cpu: arr
+    //           .filter((item) => labels[item.created_at] == len)
+    //           .map((item) =>
+    //             item.cpu_scale == maxCpuScale
+    //               ? item.cpu
+    //               : item.cpu * Math.pow(10, maxCpuScale - item.cpu_scale)
+    //           ),
+    //         memory: arr
+    //           .filter((item) => labels[item.created_at] == len)
+    //           .map((item) =>
+    //             item.memory_scale == maxMemoryScale
+    //               ? item.memory
+    //               : item.memory *
+    //                 Math.pow(10, maxMemoryScale - item.memory_scale)
+    //           ),
+    //         cpu_scale: maxCpuScale,
+    //         memory_scale: maxMemoryScale,
+    //       })),
+    //     },
+    //   } as MetricsProps;
+
+    // return { props };
+    // } catch (err) {
+    //   return { notFound: true };
+    // }
+  },
+  sessionConfig
+);

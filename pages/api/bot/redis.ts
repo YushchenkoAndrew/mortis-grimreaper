@@ -40,16 +40,24 @@ export default async function handler(
   const words = req.body["command"].split(" ");
   const { status, send } = await new Promise<FullResponse>(
     (resolve, reject) => {
-      redis.sendCommand(words[0], words.slice(1), (err, reply) => {
-        resolve({
-          status: err ? 500 : 200,
-          send: {
-            status: err ? "ERR" : "OK",
-            message: err?.message || "Success",
-            result: reply,
-          },
+      redis
+        .sendCommand(words[0], words.slice(1))
+        .then((reply) =>
+          resolve({
+            status: 200,
+            send: { status: "OK", message: "Success", result: reply },
+          })
+        )
+        .catch((err) => {
+          resolve({
+            status: 500,
+            send: {
+              status: "ERR",
+              message:
+                err?.message || "Something happened and I dont know what",
+            },
+          });
         });
-      });
     }
   );
 

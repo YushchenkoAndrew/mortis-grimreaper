@@ -31,7 +31,7 @@ describe("Admin login page", () => {
     });
   });
 
-  it("Check if admin auth req is limited", () => {
+  it.skip("Check if admin auth req is limited", () => {
     for (let i = 0; i < 20; i++) {
       cy.login("admin", "a", true, "So your name is Mr.admin, huh...");
     }

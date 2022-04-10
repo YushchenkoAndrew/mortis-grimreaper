@@ -30,7 +30,7 @@ export default function (state = INIT_STATE, action: AnyAction) {
         {
           apiVersion: "v1",
           kind: "Namespace",
-          metadata: { name: "" },
+          metadata: { name: null },
           spec: {},
           status: {},
         },
@@ -41,7 +41,7 @@ export default function (state = INIT_STATE, action: AnyAction) {
         i != index[0]
           ? item
           : UpdateK3sConfig(item, "metadata_name", {
-              name: action.value,
+              name: action.value || null,
             })
       );
 

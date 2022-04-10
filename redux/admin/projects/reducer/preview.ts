@@ -15,7 +15,7 @@ const INIT_STATE = {
   img: null,
 
   repo: { name: "", version: "" },
-  cron: { week: "*", month: "*", day: "*", hour: "*", min: "*", sec: "*" },
+  cron: { week: "*", month: "*", day: "*/1", hour: "0", min: "0", sec: "0" },
 
   links: { main: "" },
 };

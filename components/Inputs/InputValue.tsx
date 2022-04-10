@@ -25,7 +25,7 @@ export default function InputValue(props: InputValueProps) {
   return (
     <>
       <Form.Control
-        value={value}
+        value={value || ""}
         type={props.type ?? "text"}
         name={props.readFrom}
         disabled={props.disabled}

@@ -244,7 +244,7 @@ export default function DefaultOperationsForm(
           // NOTE: If tag was not setted then just don't build a project
           // because it's doesn't contains anything except of thumbnail img
           const { name, version } = root.preview.repo;
-          if (!name || version) {
+          if (!name || !version) {
             return resolve(id);
           }
 
@@ -292,7 +292,7 @@ export default function DefaultOperationsForm(
       case "K3S_SERVICE":
       case "K3S_INGRESS":
         return new Promise<number>(async (resolve, reject) => {
-          let index = root.stateIndex;
+          let index = root.main.stateIndex;
           const name = state.replace(/K3S_/, "").toLowerCase();
           const toastId = toast.loading("Please wait...");
 
@@ -340,7 +340,7 @@ export default function DefaultOperationsForm(
 
       case "K3S_PODS_METRICS":
         return new Promise<number>(async (resolve, reject) => {
-          let index = root.stateIndex;
+          let index = root.main.stateIndex;
           const toastId = toast.loading("Please wait...");
           const { sec, min, hour, day, month, week } = root.preview.cron;
 

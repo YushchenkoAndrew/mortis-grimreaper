@@ -22,23 +22,21 @@ export default function (state = INIT_STATE, action: AnyAction) {
         {
           apiVersion: "app/v1",
           kind: "Deployment",
-          metadata: { name: "", namespace: "" },
+          metadata: { name: null, namespace: null },
           spec: {
-            replicas: "",
+            replicas: null,
             strategy: { type: "RollingUpdate" },
             selector: { matchLabels: {} },
             template: {
-              metadata: {},
-              spec: {
-                containers: [],
-              },
+              metadata: { labels: {} },
+              spec: { containers: [] },
             },
           },
         },
       ];
 
     case `${PREFIX}_SPEC_SELECTOR_MATCHLABELS_CHANGED`:
-    case `${PREFIX}_SPEC_TEMPLATE_SPEC_CONTAINERS_ENV_CHANGED`: {
+    case `${PREFIX}_SPEC_TEMPLATE_METADATA_LABELS_CHANGED`: {
       const path = `${action.readFrom}_${action.name}`
         .replace(`${PREFIX}_${index[0]}_`.toLowerCase(), "")
         .split("_");
@@ -47,12 +45,14 @@ export default function (state = INIT_STATE, action: AnyAction) {
         i != index[0]
           ? item
           : UpdateK3sConfig(item, path.join("_"), {
-              [action.name]: action.value,
+              [action.name]: action.value || null,
             })
       );
     }
 
-    case `${PREFIX}_SPEC_SELECTOR_MATCHLABELS_DEL`: {
+    case `${PREFIX}_SPEC_SELECTOR_MATCHLABELS_DEL`:
+    case `${PREFIX}_SPEC_TEMPLATE_METADATA_LABELS_DEL`:
+    case `${PREFIX}_SPEC_TEMPLATE_SPEC_CONTAINERS_ENV_DEL`: {
       const path = `${action.readFrom}_${action.name}`
         .replace(`${PREFIX}_${index[0]}_`.toLowerCase(), "")
         .split("_");
@@ -98,7 +98,7 @@ export default function (state = INIT_STATE, action: AnyAction) {
         i != index[0]
           ? item
           : UpdateK3sConfig(item, path.join("_"), {
-              [path[path.length - 1]]: action.value,
+              [path[path.length - 1]]: action.value || null,
             })
       );
     }
@@ -108,16 +108,16 @@ export default function (state = INIT_STATE, action: AnyAction) {
 
     case `${PREFIX}_SPEC_TEMPLATE_SPEC_CONTAINERS_PORTS_CONTAINERPORT_CHANGED`:
     case `${PREFIX}_SPEC_TEMPLATE_SPEC_CONTAINERS_PORTS_HOSTPORT_CHANGED`: {
-      const value = Number(action.value || undefined);
+      const value = Number(action.value);
       const path = action.readFrom
         .replace(`${PREFIX}_${index[0]}_`.toLowerCase(), "")
         .split("_");
 
       return state.map((item, i) =>
-        i != index[0] || (Number.isNaN(value) && action.value !== "")
+        i != index[0] || Number.isNaN(value)
           ? item
           : UpdateK3sConfig(item, path.join("_"), {
-              [path[path.length - 1]]: value || "",
+              [path[path.length - 1]]: value || null,
             })
       );
     }
@@ -128,14 +128,12 @@ export default function (state = INIT_STATE, action: AnyAction) {
           ? item
           : UpdateK3sConfig(item, "spec_template_spec_containers", [
               {
-                name: "",
-                image: "",
+                name: null,
+                image: null,
                 imagePullPolicy: "Always",
                 ports: [],
-                env: {},
-                resources: {
-                  requests: { cpu: "", memory: "" },
-                },
+                env: [],
+                resources: { requests: { cpu: null, memory: null } },
               },
             ])
       );
@@ -162,10 +160,10 @@ export default function (state = INIT_STATE, action: AnyAction) {
           ? item
           : UpdateK3sConfig(item, path, [
               {
-                containerPort: "",
-                hostIP: "",
-                hostPort: "",
-                name: "",
+                containerPort: null,
+                hostIP: null,
+                hostPort: null,
+                name: null,
                 protocol: "TCP",
               },
             ])
@@ -180,6 +178,21 @@ export default function (state = INIT_STATE, action: AnyAction) {
 
       return state.map((item, i) =>
         i != index[0] ? item : DeleteK3sConfig(item, path)
+      );
+    }
+
+    case `${PREFIX}_SPEC_TEMPLATE_SPEC_CONTAINERS_ENV_CHANGED`: {
+      const path = action.readFrom.replace(
+        `${PREFIX}_${index[0]}_`.toLowerCase(),
+        ""
+      );
+
+      return state.map((item, i) =>
+        i != index[0]
+          ? item
+          : UpdateK3sConfig(item, path, [
+              { name: action.name, value: action.value },
+            ])
       );
     }
 

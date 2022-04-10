@@ -11,7 +11,7 @@ import React, {
   useImperativeHandle,
   useState,
 } from "react";
-import { ListGroup, Row } from "react-bootstrap";
+import { Button, Container, InputGroup, ListGroup, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { Metadata } from "../../../types/K3s/Metadata";
 // import { Service } from "../../../types/K3s/Service";
@@ -112,7 +112,7 @@ export default function Service(props: ServiceProps) {
           </InputTemplate>
 
           <InputTemplate className="col-6 px-2" label="Namespace">
-            <div className="input-group">
+            <InputGroup>
               <InputValue
                 className="rounded"
                 root={`${props.root}`}
@@ -120,7 +120,7 @@ export default function Service(props: ServiceProps) {
                 writeTo={`${props.writeTo}_metadata_namespace`}
                 placeholder="demo"
               />
-            </div>
+            </InputGroup>
           </InputTemplate>
         </div>
       </InputTemplate>
@@ -188,7 +188,7 @@ export default function Service(props: ServiceProps) {
                 minimized.selector ? "" : "d-none"
               }`}
             >
-              <div className="container px-2">
+              <Container className="px-2">
                 <InputList
                   char={["var", "="]}
                   placeholder={["app", "void"]}
@@ -206,7 +206,7 @@ export default function Service(props: ServiceProps) {
                     </Row>
                   ))}
                 </ListGroup>
-              </div>
+              </Container>
             </div>
           </InputTemplate>
         </div>
@@ -234,7 +234,7 @@ export default function Service(props: ServiceProps) {
               key={`port-${index}`}
               className={`mb-3 w-100 ${styles["el-index"]}`}
             >
-              <div className="row mx-1">
+              <Row className="mx-1">
                 <label
                   className="mx-1 mr-auto"
                   onClick={() => {
@@ -271,7 +271,7 @@ export default function Service(props: ServiceProps) {
                     });
                   }}
                 />
-              </div>
+              </Row>
               <Port
                 root={props.root}
                 show={minimized.ports[index]}
@@ -281,9 +281,11 @@ export default function Service(props: ServiceProps) {
             </div>
           ))}
 
-          <div className="container my-2">
-            <a
-              className="btn btn-outline-success w-100"
+          <Container className="my-2">
+            <Button
+              className="w-100"
+              name={`${props.readFrom}_port_add`}
+              variant="outline-success"
               onClick={() => {
                 onMinimize({ ...minimized, ports: [...minimized.ports, true] });
                 dispatch({
@@ -296,8 +298,8 @@ export default function Service(props: ServiceProps) {
                 className={`text-success ${styles["icon"]}`}
                 icon={faPlus}
               />
-            </a>
-          </div>
+            </Button>
+          </Container>
         </div>
       </InputTemplate>
     </div>

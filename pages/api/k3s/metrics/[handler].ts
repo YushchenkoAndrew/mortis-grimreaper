@@ -36,7 +36,7 @@ export default withIronSessionApiRoute(async function (req, res) {
           switch (req.query.handler) {
             case "create":
               return fetch(
-                `${apiUrl}/subscription?label=${body.label}&namespace=${body.namespace}&id=${body.id}`,
+                `${apiUrl}/subscription/${body.id}?label=${body.label}&namespace=${body.namespace}&id=${body.id}`,
                 {
                   method: "POST",
                   headers: {
@@ -45,8 +45,8 @@ export default withIronSessionApiRoute(async function (req, res) {
                   },
 
                   body: JSON.stringify({
+                    name: "metrics-all",
                     cron_time: req.body,
-                    operation: "metrics-all",
                   }),
 
                   signal: ctl.signal,
@@ -62,6 +62,8 @@ export default withIronSessionApiRoute(async function (req, res) {
         })();
 
         const data = (await res.json()) as DefaultRes;
+        console.log(data);
+
         resolve({ status: data.status === "OK" ? 200 : 500, send: data });
       } catch (err: any) {
         resolve({

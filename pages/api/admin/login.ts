@@ -11,7 +11,7 @@ import { withIronSessionApiRoute } from "iron-session/next";
 
 const { serverRuntimeConfig } = getConfig();
 function checkUserInfo(id: string, salt: string, user: string, pass: string) {
-  return new Promise<FullResponse>((resolve, reject) => {
+  return new Promise<FullResponse>((resolve) => {
     redis
       .get(`LOGIN:${id}`)
       .then((tries) => {
@@ -91,18 +91,14 @@ export default withIronSessionApiRoute(
       });
     }
 
-    const { status, send } = await new Promise<FullResponse>(
-      (resolve, reject) => {
-        checkCaptcha(
-          id,
-          captcha,
-          serverRuntimeConfig.RECAPTCHA_SECRET_KEY
-        ).then((res) => {
+    const { status, send } = await new Promise<FullResponse>((resolve) => {
+      checkCaptcha(id, captcha, serverRuntimeConfig.RECAPTCHA_SECRET_KEY).then(
+        (res) => {
           if (res.send.status !== "OK") resolve(res);
           checkUserInfo(id, salt, user, pass).then((res) => resolve(res));
-        });
-      }
-    );
+        }
+      );
+    });
 
     if (send.status === "OK") {
       const sessionID = md5(Math.random().toString() + id);

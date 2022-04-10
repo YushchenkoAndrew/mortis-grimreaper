@@ -160,8 +160,8 @@ export default function ProjectsListPage(props: ProjectsListPageProps) {
 
 export const getServerSideProps = async () => {
   const project = await LoadProjects<ProjectData>({
-    page: 0,
     "file[role]": "thumbnail",
+    page: 0,
   });
 
   console.dir(project, { depth: null });

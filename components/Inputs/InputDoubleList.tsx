@@ -7,12 +7,18 @@ export type DoubleType<Type> = {
   0: Type;
   1: Type;
 };
+
+export type ChangeIn = {
+  readFrom: string;
+  writeTo?: string;
+};
 export interface InputValueProps {
   char: DoubleType<string>;
   className?: string;
-  root?: string;
+  root?: string | (() => void);
   readFrom: string;
   writeTo?: string;
+  changeIn?: ChangeIn[];
   type?: DoubleType<string>;
   required?: DoubleType<boolean>;
   placeholder?: DoubleType<string>;
@@ -50,7 +56,6 @@ export default function InputList(props: InputValueProps) {
           <InputGroup.Text>{props.char[1]}</InputGroup.Text>
         </InputGroup.Prepend>
         <InputValue
-          className="rounded-right"
           readFrom={readFrom[1]}
           writeTo={writeTo}
           type={props.type?.[1]}
@@ -59,9 +64,9 @@ export default function InputList(props: InputValueProps) {
         />
         <InputGroup.Append>
           <Button
+            name={readFrom[0]}
             variant="primary"
-            onClick={(e) => {
-              e.preventDefault();
+            onClick={() => {
               if (!values[0] || !values[1]) return;
 
               dispatch({
@@ -72,6 +77,15 @@ export default function InputList(props: InputValueProps) {
                 name: values[0],
                 value: values[1],
               });
+
+              for (const { writeTo, readFrom } of props.changeIn ?? []) {
+                dispatch({
+                  type: `${writeTo ?? readFrom}_CHANGED`.toUpperCase(),
+                  readFrom: readFrom,
+                  name: values[0],
+                  value: values[1],
+                });
+              }
 
               dispatch({
                 type: `${writeTo}_CHANGED`.toUpperCase(),
@@ -86,6 +100,7 @@ export default function InputList(props: InputValueProps) {
               });
 
               if (!props.root) return;
+              if (typeof props.root === "function") return props.root();
               dispatch({ type: `${props.root}_CACHED`.toUpperCase() });
             }}
           >

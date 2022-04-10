@@ -6,7 +6,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
-import { InputGroup, ListGroup, Row } from "react-bootstrap";
+import { Button, InputGroup, ListGroup, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import InputList from "../../Inputs/InputDoubleList";
 import InputName from "../../Inputs/InputName";
@@ -39,7 +39,7 @@ export default function Container(props: ContainerProps) {
 
   const env = useSelector((state: any) =>
     `${props.readFrom}_env`.split("_").reduce((acc, curr) => acc[curr], state)
-  ) as { [name: string]: string };
+  ) as { name: string; value: string }[];
 
   // function onChange({ target: { name, value } }: Event) {
   //   onContainerChange({ ...container, [name]: value });
@@ -182,8 +182,10 @@ export default function Container(props: ContainerProps) {
           ))}
 
           <div className="container my-2">
-            <a
-              className="btn btn-outline-success w-100"
+            <Button
+              className="w-100"
+              name={`${props.readFrom}_port_add`}
+              variant="outline-success"
               onClick={() => {
                 onMinimize({ ...minimized, ports: [...minimized.ports, true] });
                 dispatch({
@@ -196,7 +198,7 @@ export default function Container(props: ContainerProps) {
                 className={`text-success ${styles["icon"]}`}
                 icon={faPlus}
               />
-            </a>
+            </Button>
           </div>
         </div>
       </InputTemplate>
@@ -219,7 +221,7 @@ export default function Container(props: ContainerProps) {
         }
       >
         <Row
-          className={`row border rounded mx-0 py-2 ${
+          className={`border rounded mx-0 py-2 ${
             minimized.resources ? "" : "d-none"
           }`}
         >
@@ -274,7 +276,7 @@ export default function Container(props: ContainerProps) {
               placeholder={["USER", "admin"]}
             />
             <ListGroup>
-              {Object.entries(env).map(([name, value], i) => (
+              {env.map(({ name, value }, i) => (
                 <Row key={i} className="px-2">
                   <ListEntity
                     char={["var", "="]}

@@ -4,7 +4,7 @@ import {
   faPlus,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Container, Row } from "react-bootstrap";
+import { Button, Container, Row } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import styles from "./Default.module.css";
 
@@ -38,9 +38,11 @@ export default function K3sField(props: K3sFieldProps) {
           </Row>
           <Row className="mr-1">
             {props.onAdd ? (
-              <a
-                className={`mr-1 btn btn-outline-info ${styles["el-container-2"]}`}
+              <Button
+                className={`mr-1 ${styles["el-container-2"]}`}
+                variant="outline-info"
                 onClick={props.onAdd}
+                name={`${props.name}_add`}
                 // dispatch({ type: `${props.writeTo}_add`.toUpperCase() })
               >
                 <FontAwesomeIcon
@@ -49,7 +51,7 @@ export default function K3sField(props: K3sFieldProps) {
                   size="lg"
                   fontSize="1rem"
                 />
-              </a>
+              </Button>
             ) : (
               <></>
             )}

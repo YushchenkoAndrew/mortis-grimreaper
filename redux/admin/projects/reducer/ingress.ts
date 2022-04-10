@@ -18,8 +18,8 @@ export default function (state = INIT_STATE, action: AnyAction) {
         {
           apiVersion: "extensions/v1beta1",
           kind: "Ingress",
-          metadata: { name: "" },
-          spec: { tls: [{ secretName: "" }], rules: [] },
+          metadata: { name: null },
+          spec: { tls: [{ secretName: null }], rules: [] },
         },
       ];
 
@@ -40,7 +40,7 @@ export default function (state = INIT_STATE, action: AnyAction) {
         i != index[0]
           ? item
           : UpdateK3sConfig(item, path.join("_"), {
-              [path[path.length - 1]]: action.value,
+              [path[path.length - 1]]: action.value || null,
             })
       );
     }
@@ -54,26 +54,24 @@ export default function (state = INIT_STATE, action: AnyAction) {
         i != index[0]
           ? item
           : UpdateK3sConfig(item, path.join("_"), {
-              [path[path.length - 1]]: action.value.replace(
-                /http:\/\/|https:\/\//g,
-                ""
-              ),
+              [path[path.length - 1]]:
+                action.value.replace(/http:\/\/|https:\/\//g, "") || null,
             })
       );
     }
 
     // Update numbers
     case `${PREFIX}_SPEC_RULES_HTTP_PATHS_BACKEND_SERVICEPORT_CHANGED`: {
-      const value = Number(action.value || undefined);
+      const value = Number(action.value) || null;
       const path = action.readFrom
         .replace(`${PREFIX}_${index[0]}_`.toLowerCase(), "")
         .split("_");
 
       return state.map((item, i) =>
-        i != index[0] || (Number.isNaN(value) && action.value !== "")
+        i != index[0] || Number.isNaN(value)
           ? item
           : UpdateK3sConfig(item, path.join("_"), {
-              [path[path.length - 1]]: value || "",
+              [path[path.length - 1]]: value || null,
             })
       );
     }
@@ -83,7 +81,7 @@ export default function (state = INIT_STATE, action: AnyAction) {
         i != index[0]
           ? item
           : UpdateK3sConfig(item, "spec_rules", [
-              { host: "", http: { paths: [] } },
+              { host: null, http: { paths: [] } },
             ])
       );
 
@@ -109,11 +107,11 @@ export default function (state = INIT_STATE, action: AnyAction) {
           ? item
           : UpdateK3sConfig(item, path, [
               {
-                path: "",
+                path: null,
                 pathType: "Prefix",
                 backend: {
-                  serviceName: "",
-                  servicePort: "",
+                  serviceName: null,
+                  servicePort: null,
                 },
               },
             ])

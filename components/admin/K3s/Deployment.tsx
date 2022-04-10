@@ -6,7 +6,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
-import { InputGroup, ListGroup, Row } from "react-bootstrap";
+import { Button, InputGroup, ListGroup, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 // import { Deployment, Spec, Status } from "../../../types/K3s/Deployment";
 import { Metadata } from "../../../types/K3s/Metadata";
@@ -163,9 +163,16 @@ export default function Deployment(props: DeploymentProps) {
             >
               <div className="container px-2">
                 <InputList
+                  root={props.root}
                   char={["var", "="]}
                   readFrom={`${props.readFrom}_spec_selector_matchLabels`}
                   writeTo={`${props.writeTo}_spec_selector_matchLabels`}
+                  changeIn={[
+                    {
+                      readFrom: `${props.readFrom}_spec_template_metadata_labels`,
+                      writeTo: `${props.writeTo}_spec_template_metadata_labels`,
+                    },
+                  ]}
                   placeholder={["app", "void"]}
                 />
                 <ListGroup>
@@ -177,6 +184,10 @@ export default function Deployment(props: DeploymentProps) {
                         onChange={() => {
                           dispatch({
                             type: `${props.readFrom}_spec_selector_matchLabels_del`.toUpperCase(),
+                            value: name,
+                          });
+                          dispatch({
+                            type: `${props.readFrom}_spec_template_metadata_labels_del`.toUpperCase(),
                             value: name,
                           });
                         }}
@@ -196,7 +207,7 @@ export default function Deployment(props: DeploymentProps) {
         label={[
           "Containers ",
           <FontAwesomeIcon
-            key={"icon-containers"}
+            key="icon-containers"
             icon={minimized.container ? faChevronDown : faChevronRight}
           />,
         ]}
@@ -265,8 +276,10 @@ export default function Deployment(props: DeploymentProps) {
           ))}
 
           <div className="container my-2">
-            <a
-              className="btn btn-outline-success w-100"
+            <Button
+              className="w-100"
+              name={`${props.readFrom}_container_add`}
+              variant="outline-success"
               onClick={() => {
                 onMinimize({
                   ...minimized,
@@ -288,7 +301,7 @@ export default function Deployment(props: DeploymentProps) {
                 className={`text-success ${styles["icon"]}`}
                 icon={faPlus}
               />
-            </a>
+            </Button>
           </div>
         </div>
       </InputTemplate>

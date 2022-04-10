@@ -18,12 +18,12 @@ export default function (state = INIT_STATE, action: AnyAction) {
         {
           apiVersion: "v1",
           kind: "Service",
-          metadata: { name: "" },
+          metadata: { name: null },
           spec: {
             selector: {},
             type: "LoadBalancer",
             ports: [],
-            clusterIP: "",
+            clusterIP: null,
           },
         },
       ];
@@ -37,7 +37,7 @@ export default function (state = INIT_STATE, action: AnyAction) {
         i != index[0]
           ? item
           : UpdateK3sConfig(item, path.join("_"), {
-              [action.name]: action.value,
+              [action.name]: action.value || null,
             })
       );
     }
@@ -58,7 +58,7 @@ export default function (state = INIT_STATE, action: AnyAction) {
         i != index[0]
           ? item
           : UpdateK3sConfig(item, path.join("_"), {
-              [path[path.length - 1]]: action.value,
+              [path[path.length - 1]]: action.value || null,
             })
       );
     }
@@ -67,16 +67,16 @@ export default function (state = INIT_STATE, action: AnyAction) {
     case `${PREFIX}_SPEC_PORTS_PORT_CHANGED`:
     case `${PREFIX}_SPEC_PORTS_TARGETPORT_CHANGED`:
     case `${PREFIX}_SPEC_PORTS_NODEPORT_CHANGED`: {
-      const value = Number(action.value || undefined);
+      const value = Number(action.value) || null;
       const path = action.readFrom
         .replace(`${PREFIX}_${index[0]}_`.toLowerCase(), "")
         .split("_");
 
       return state.map((item, i) =>
-        i != index[0] || (Number.isNaN(value) && action.value !== "")
+        i != index[0] || Number.isNaN(value)
           ? item
           : UpdateK3sConfig(item, path.join("_"), {
-              [path[path.length - 1]]: value || "",
+              [path[path.length - 1]]: value || null,
             })
       );
     }
@@ -87,11 +87,11 @@ export default function (state = INIT_STATE, action: AnyAction) {
           ? item
           : UpdateK3sConfig(item, "spec_ports", [
               {
-                name: "",
-                nodePort: "",
-                port: "",
+                name: null,
+                nodePort: null,
+                port: null,
                 protocol: "TCP",
-                targetPort: "",
+                targetPort: null,
               },
             ])
       );

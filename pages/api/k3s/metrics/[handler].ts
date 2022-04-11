@@ -2,7 +2,7 @@ import { withIronSessionApiRoute } from "iron-session/next";
 import { apiUrl } from "../../../../config";
 import sessionConfig from "../../../../config/session";
 import { ApiAuth } from "../../../../lib/api/auth";
-import { GetParam } from "../../../../lib/api/query";
+import { createQuery, GetParam } from "../../../../lib/api/query";
 import { DefaultRes, FullResponse } from "../../../../types/request";
 
 const REQUIRED_FIELDS = ["id", "label", "namespace"];
@@ -35,23 +35,20 @@ export default withIronSessionApiRoute(async function (req, res) {
 
           switch (req.query.handler) {
             case "create":
-              return fetch(
-                `${apiUrl}/subscription/${body.id}?label=${body.label}&namespace=${body.namespace}&id=${body.id}`,
-                {
-                  method: "POST",
-                  headers: {
-                    "content-type": "application/json",
-                    Authorization: `Bear ${token}`,
-                  },
+              return fetch(`${apiUrl}/subscription${createQuery(body)}`, {
+                method: "POST",
+                headers: {
+                  "content-type": "application/json",
+                  Authorization: `Bear ${token}`,
+                },
 
-                  body: JSON.stringify({
-                    name: "metrics-all",
-                    cron_time: req.body,
-                  }),
+                body: JSON.stringify({
+                  name: "metrics-all",
+                  cron_time: req.body,
+                }),
 
-                  signal: ctl.signal,
-                }
-              );
+                signal: ctl.signal,
+              });
 
             case "update":
             default:

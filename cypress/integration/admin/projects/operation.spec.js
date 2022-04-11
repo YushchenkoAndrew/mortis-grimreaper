@@ -1,7 +1,7 @@
 const JS_PROJECT = "test_js8";
 const MARKDOWN_PROJECT = "test_markdown11";
 const LINK_PROJECT = "test_link2";
-const DOCKER_PROJECT = "test_docker24";
+const DOCKER_PROJECT = "test_docker28";
 const DOCKER_VERSION = "0.0.5";
 
 const DOCKER_HOST = "192.168.1.2";

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faGithub,
@@ -11,15 +11,13 @@ export function MediaView() {
   localStorage.getItem("id")
     ? fetch(`${basePath}/api/view/media?id=${localStorage.getItem("id")}`, {
         method: "PATCH",
-      })
-        .then((res) => null)
-        .catch((err) => null)
+      }).catch(() => null)
     : null;
 }
 
 export interface DefaultLinksProps {}
 
-export default function DefaultLinks(props: DefaultLinksProps) {
+export default memo(function DefaultLinks(props: DefaultLinksProps) {
   return (
     <>
       <a
@@ -51,4 +49,4 @@ export default function DefaultLinks(props: DefaultLinksProps) {
       </a>
     </>
   );
-}
+});

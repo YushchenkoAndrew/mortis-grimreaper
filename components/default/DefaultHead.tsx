@@ -1,12 +1,12 @@
 import Head from "next/head";
-import React from "react";
+import React, { memo } from "react";
 import { basePath } from "../../config";
 
 export interface DefaultHeadProps {
   children?: React.ReactNode;
 }
 
-export default function DefaultHead(props: DefaultHeadProps) {
+export default memo(function DefaultHead(props: DefaultHeadProps) {
   return (
     <Head>
       <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -19,4 +19,4 @@ export default function DefaultHead(props: DefaultHeadProps) {
       {props.children}
     </Head>
   );
-}
+});

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import NavBar from "../NavBar/NavBar";
 import NavContainer from "../NavBar/NavContainer";
 import DefaultNav from "./DefaultNav";
@@ -13,7 +13,7 @@ export interface DefaultHeaderProps {
   children?: React.ReactNode;
 }
 
-export default function DefaultHeader(props: DefaultHeaderProps) {
+export default memo(function DefaultHeader(props: DefaultHeaderProps) {
   return (
     <header className="masthead">
       <NavBar>
@@ -31,4 +31,4 @@ export default function DefaultHeader(props: DefaultHeaderProps) {
       {props.children}
     </header>
   );
-}
+});

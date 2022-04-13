@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import styles from "./DefaultFooter.module.css";
 import DefaultLinks from "./DefaultLinks";
@@ -9,7 +10,7 @@ export interface DefaultFooterProps {
   background?: boolean;
 }
 
-export default function DefaultFooter(props: DefaultFooterProps) {
+export default memo(function DefaultFooter(props: DefaultFooterProps) {
   return (
     <Container>
       <footer
@@ -57,4 +58,4 @@ export default function DefaultFooter(props: DefaultFooterProps) {
       </footer>
     </Container>
   );
-}
+});

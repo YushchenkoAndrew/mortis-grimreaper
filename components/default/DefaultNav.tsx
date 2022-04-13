@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { basePath } from "../../config";
 import NavItem from "../NavBar/NavItem";
 
@@ -11,7 +11,7 @@ export interface DefaultNavProps {
   style?: string;
 }
 
-export default function DefaultNav(props: DefaultNavProps) {
+export default memo(function DefaultNav(props: DefaultNavProps) {
   return (
     <>
       <NavItem
@@ -42,4 +42,4 @@ export default function DefaultNav(props: DefaultNavProps) {
       {props.children}
     </>
   );
-}
+});

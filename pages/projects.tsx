@@ -65,7 +65,7 @@ export default function ProjectsListPage(props: ProjectsListPageProps) {
             <Card
               img={`${basePath}/img/CodeRain.webp`}
               title="Code Rain"
-              size="title-lg"
+              size="lg"
               href={`${basePath}/CodeRain`}
               description="Take the blue pill and the site will close, or take the red pill and I show how deep the rabbit hole goes"
             />
@@ -78,7 +78,7 @@ export default function ProjectsListPage(props: ProjectsListPageProps) {
             <Card
               img={`${basePath}/img/Minecraft.webp`}
               title="3D Engine"
-              size="title-lg"
+              size="lg"
               href={`${basePath}/Minecraft`}
               description="Yet another Minecraft clone"
             />
@@ -100,7 +100,7 @@ export default function ProjectsListPage(props: ProjectsListPageProps) {
               img="https://images.unsplash.com/photo-1457976326363-73a4b5fb9e79?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=900&ixid=MnwxfDB8MXxyYW5kb218MHx8dGVjaCxzdHJlZXR8fHx8fHwxNjI4NDI3MzEy&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=600"
               title="Some text"
               href="#"
-              size="title-lg"
+              size="lg"
               description="Some small text which is no so important, but still it's good to have"
             />
           </div>
@@ -125,13 +125,14 @@ export default function ProjectsListPage(props: ProjectsListPageProps) {
               return (
                 <div key={i} className="col-12 col-lg-4 col-md-6 px-2">
                   {chunk.map((item, j) => {
+                    const img = item.files.map(
+                      (file) => `${voidUrl}/${item.name}/${formPath(file)}`
+                    );
                     return (
                       <Card
                         key={j}
                         title={item.title}
-                        img={`${voidUrl}/${item.name}/${formPath(
-                          item.files[0]
-                        )}`}
+                        img={img.length > 1 ? img : img[0]}
                         target={
                           item.flag === "Link" || item.flag === "Docker"
                             ? "_blank"

@@ -1,4 +1,5 @@
-import React, { CSSProperties, useEffect, useState } from "react";
+import { memo } from "react";
+import { Row } from "react-bootstrap";
 import { flagColors, FlagType } from "../../types/flag";
 import styles from "./Card.module.css";
 
@@ -7,15 +8,15 @@ export interface FlagProps {
   name: FlagType;
 }
 
-export default function Flag(props: FlagProps) {
+export default memo(function Flag(props: FlagProps) {
   return (
-    <div className={`row ${props.className ?? ""}`}>
+    <Row className={props.className}>
       <span
         className={`${flagColors[props.name]} text-dark mr-1 mt-1 ${
           styles["flag"]
         }`}
       ></span>
       <p className="text-dark">{props.name}</p>
-    </div>
+    </Row>
   );
-}
+});

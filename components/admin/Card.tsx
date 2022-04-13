@@ -1,10 +1,11 @@
-import React from "react";
+import React, { memo } from "react";
 import Image from "react-bootstrap/Image";
 import { FlagType } from "../../types/flag";
 import SimpleButton from "../SimpleButton";
 import styles from "./Card.module.css";
 import Flag from "./Flag";
 import { Event } from "../../components/SimpleButton";
+import { Col, Container } from "react-bootstrap";
 
 export type EventLinks = {
   metrics?: Event;
@@ -13,19 +14,20 @@ export type EventLinks = {
 };
 export interface CardProps {
   id: number;
-  img: string;
+  img: string | string[];
   href: string;
   title: string;
   flag: FlagType;
   desc?: string;
+  frameRate?: number;
   event: EventLinks;
 }
 
-export default function Card(props: CardProps) {
+export default memo(function Card(props: CardProps) {
   const desc = (props.desc ?? "").split(" ");
 
   return (
-    <div className="col-lg-4 col-md-6 col-sm-11 my-3 text-center">
+    <Col lg="4" md="6" sm="11" className="my-3 text-center">
       <div className={`card p-2 h-100 ${styles["shadow"]}`}>
         <div className="text-right">
           <div className="d-flex justify-content-between">
@@ -33,17 +35,25 @@ export default function Card(props: CardProps) {
             <Flag className="mr-2" name={props.flag} />
           </div>
         </div>
-        <div className="container text-center">
+        <Container className="text-center">
           <a
             className="text-decoration-none"
             href={props.href}
             target="_blank"
             rel="noreferrer"
           >
-            <div className={`container ${styles["project-link"]}`}>
+            <Container className={styles["project-link"]}>
               <Image
-                className={`${styles["circular"]}`}
-                src={props.img}
+                className={styles["circular"]}
+                src={
+                  Array.isArray(props.img)
+                    ? props.img[
+                        Math.round(
+                          new Date().getTime() / (props.frameRate ?? 100)
+                        ) % props.img.length
+                      ]
+                    : props.img
+                }
                 // FIXME: Do not change img
                 // width="100"
                 alt="Project image"
@@ -52,7 +62,7 @@ export default function Card(props: CardProps) {
               <h4 className="d-block text-dark font-weight-bold mt-3">
                 {props.title}
               </h4>
-            </div>
+            </Container>
           </a>
           <hr />
           <p className="font-italic text-muted ml-1">
@@ -85,8 +95,8 @@ export default function Card(props: CardProps) {
               </SimpleButton>
             </div>
           </div>
-        </div>
+        </Container>
       </div>
-    </div>
+    </Col>
   );
-}
+});

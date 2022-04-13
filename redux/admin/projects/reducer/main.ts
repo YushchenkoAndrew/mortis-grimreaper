@@ -37,6 +37,8 @@ const INIT_STATE = {
   stateIndex: 0,
 
   window: "Preview",
+  thumbnail: "Form",
+
   operations: WINDOW_STATE.JS.operations,
   disabled: WINDOW_STATE.JS.disabled,
 };
@@ -48,6 +50,9 @@ export default function (state = INIT_STATE, action: AnyAction) {
 
     case `${PREFIX}_WINDOW_CHANGED`:
       return { ...state, window: action.value };
+
+    case `${PREFIX}_THUMBNAIL_CHANGED`:
+      return { ...state, thumbnail: action.value };
 
     case `${PREFIX}_SUBMIT_STATE_CHANGED`:
       return { ...state, ...action.value };

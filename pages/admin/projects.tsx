@@ -116,7 +116,9 @@ export default function AdminProjects(props: AdminProjectsProps) {
         >
           <AddCard href={`${basePath}/admin/projects/create`} />
           {projects.map((item, i) => {
-            console.log(item);
+            const img = item.files.map(
+              (file) => `${voidUrl}/${item.name}/${formPath(file)}`
+            );
 
             return (
               <Card
@@ -125,7 +127,7 @@ export default function AdminProjects(props: AdminProjectsProps) {
                 title={item.title}
                 flag={item.flag as FlagType}
                 href={`/projects/${item.name}`}
-                img={`${voidUrl}/${item.name}/${formPath(item.files[0])}`}
+                img={img.length > 1 ? img : img[0]}
                 desc={item.desc}
                 event={{
                   metrics: {

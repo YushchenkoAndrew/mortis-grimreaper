@@ -4,6 +4,7 @@ import { devToolsEnhancer } from "redux-devtools-extension";
 import mainReducer from "./reducer/main";
 import tempReducer from "./reducer/temp";
 import previewReducer from "./reducer/preview";
+import styleReducer from "./reducer/style";
 import codeReducer from "./reducer/code";
 import namespaceReducer from "./reducer/namespace";
 import deploymentReducer from "./reducer/deployment";
@@ -15,6 +16,7 @@ export const store = createStore(
     main: mainReducer,
     temp: tempReducer,
     preview: previewReducer,
+    style: styleReducer,
     code: codeReducer,
     config: combineReducers({
       namespace: namespaceReducer,

@@ -20,6 +20,7 @@ import { Deployment } from "../../../types/K3s/Deployment";
 import { Ingress } from "../../../types/K3s/Ingress";
 import { Service } from "../../../types/K3s/Service";
 import { CapitalizeString } from "../../../lib/public/string";
+import DefaultStyleView from "./DefaultStyleView";
 
 export interface DefaultOperationsFormProps {
   operation: string;
@@ -472,7 +473,7 @@ export default function DefaultOperationsForm(
               <InputRadio
                 readFrom="main_window"
                 className="btn-group btn-group-sm btn-group-toggle mb-2"
-                options={["Preview", "Code", "Config"]}
+                options={["Preview", "Style", "Code", "Config"]}
                 label="btn-outline-dark"
                 disabled={root.main.disabled}
               />
@@ -494,6 +495,7 @@ export default function DefaultOperationsForm(
         show={root.main.window === "Preview"}
         update={props.operation === "update"}
       />
+      <DefaultStyleView show={root.main.window === "Style"} />
       <DefaultCodeView show={root.main.window === "Code"} />
       <DefaultK3sConfig show={root.main.window === "Config"} />
     </Form>

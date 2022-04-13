@@ -1,6 +1,7 @@
 import { CSSProperties, memo, useEffect, useRef, useState } from "react";
 import Image from "react-bootstrap/Image";
 import { basePath } from "../config";
+import { ProjectInfo } from "../config/placeholder";
 import styles from "./Card.module.css";
 
 export interface CardProps {
@@ -8,10 +9,11 @@ export interface CardProps {
   title: string;
   target?: React.HTMLAttributeAnchorTarget;
   href: string;
-  size?: string;
+  size?: "sm" | "md" | "lg" | "xl";
   color?: string;
   description?: string;
   background?: string;
+  frameRate?: number;
   children?: React.ReactNode;
 }
 
@@ -25,8 +27,8 @@ export default memo(function Card(props: CardProps) {
   >("displode-animation");
 
   const [transitionStyle, setStyle] = useState({
-    top: 0,
-    left: 0,
+    top: "50%",
+    left: "50%",
     borderRadius: "1000px",
   } as CSSProperties);
 
@@ -41,7 +43,10 @@ export default memo(function Card(props: CardProps) {
   }, []);
 
   function GetFrame() {
-    return Math.round(new Date().getTime() / 100) % props.img.length;
+    return (
+      Math.round(new Date().getTime() / (props.frameRate ?? 100)) %
+      props.img.length
+    );
   }
 
   function showElement(x: number, y: number) {
@@ -122,7 +127,7 @@ export default memo(function Card(props: CardProps) {
         <div className={`card-body ${styles[opacity]}`}>
           <h4
             className={`${styles["card-title"]} ${
-              styles[props.size ?? "title-md"]
+              styles[props.size ? `title-${props.size}` : "title-md"]
             }`}
           >
             {props.title}

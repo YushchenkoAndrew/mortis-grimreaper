@@ -22,6 +22,7 @@ export interface DefaultPreviewProps {
 const PREFIX = "preview";
 
 export default function DefaultPreview(props: DefaultPreviewProps) {
+  const style = useSelector((state: any) => state.style);
   const preview = useSelector((state) => state[PREFIX]);
   const dispatch = useDispatch();
 
@@ -32,7 +33,7 @@ export default function DefaultPreview(props: DefaultPreviewProps) {
         <Form.Group as={Col} md={{ order: 2, span: 5 }} mb="4">
           <Card
             href="#"
-            size="title-lg"
+            size={style.title}
             img={
               preview.img.length > 1
                 ? preview.img

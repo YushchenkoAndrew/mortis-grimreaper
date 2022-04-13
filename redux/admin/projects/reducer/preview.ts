@@ -12,7 +12,7 @@ const INIT_STATE = {
   desc: "",
   note: "",
   // img: `${basePath}/img/CodeRain.webp`,
-  img: null,
+  img: [],
 
   repo: { name: "", version: "" },
   cron: { week: "*", month: "*", day: "*/1", hour: "0", min: "0", sec: "0" },

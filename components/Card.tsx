@@ -1,10 +1,10 @@
-import React, { CSSProperties, useEffect, useRef, useState } from "react";
+import { CSSProperties, memo, useEffect, useRef, useState } from "react";
 import Image from "react-bootstrap/Image";
 import { basePath } from "../config";
 import styles from "./Card.module.css";
 
 export interface CardProps {
-  img: string;
+  img: string | string[];
   title: string;
   target?: React.HTMLAttributeAnchorTarget;
   href: string;
@@ -15,11 +15,15 @@ export interface CardProps {
   children?: React.ReactNode;
 }
 
-export default function Card(props: CardProps) {
+export default memo(function Card(props: CardProps) {
   const divRef = useRef<HTMLDivElement>(null);
+  const [index, updateSrc] = useState(0);
   const [offset, setOffset] = useState({ top: -1, left: -1 } as DOMRect);
-  const [opacityStyle, setOpacity] = useState("");
-  const [animation, setAnimation] = useState("");
+  const [opacity, setOpacity] = useState<"appear" | "dim">("appear");
+  const [animation, setAnimation] = useState<
+    "explode-animation" | "displode-animation"
+  >("displode-animation");
+
   const [transitionStyle, setStyle] = useState({
     top: 0,
     left: 0,
@@ -28,26 +32,39 @@ export default function Card(props: CardProps) {
 
   useEffect(() => {
     // NOTE: Event loop
-    setTimeout(function AndTheDontStopComing() {
-      const bound = divRef.current?.getBoundingClientRect?.();
-      if (bound && offset.top != bound.top && offset.left != bound.left) {
-        setOffset(bound);
-      }
+    (function AndTheDontStopComing() {
+      setTimeout(() => {
+        const bound = divRef.current?.getBoundingClientRect?.();
+        if (bound && offset.top != bound.top && offset.left != bound.left) {
+          setOffset(bound);
+        }
 
-      setTimeout(AndTheDontStopComing, 100);
-    }, 100);
+        // if (Array.isArray(props.img)) {
+        //   console.log(Math.floor(new Date().getTime()) % props.img.length);
+
+        //   // updateSrc(
+        //   // );
+
+        //   // console.log(
+        //   //   Math.floor(new Date().getTime() / 1000000) % props.img.length
+        //   // );
+        // }
+
+        AndTheDontStopComing();
+      }, 100);
+    })();
   }, []);
 
   function showElement(x: number, y: number) {
     setStyle({ ...transitionStyle, top: y, left: x });
-    setOpacity(styles["dim"]);
-    setAnimation(styles["explode-animation"]);
+    setOpacity("dim");
+    setAnimation("explode-animation");
   }
 
   function hideElement(x: number, y: number) {
     setStyle({ ...transitionStyle, top: y, left: x });
-    setOpacity(styles["appear"]);
-    setAnimation(styles["displode-animation"]);
+    setOpacity("appear");
+    setAnimation("displode-animation");
   }
 
   return (
@@ -78,12 +95,12 @@ export default function Card(props: CardProps) {
         }}
       />
       <span
-        className={`${styles["card-hover"]} ${animation}`}
+        className={`${styles["card-hover"]} ${styles[animation]}`}
         style={transitionStyle}
       />
       <Image
         className="card-img"
-        src={props.img}
+        src={Array.isArray(props.img) ? props.img[index] : props.img}
         alt={`Project: ${props.title}`}
         style={{ mixBlendMode: "multiply" }}
         onLoad={({ currentTarget: { height, width } }) =>
@@ -101,18 +118,14 @@ export default function Card(props: CardProps) {
           localStorage.getItem("id")
             ? fetch(
                 `${basePath}/api/view/click?id=${localStorage.getItem("id")}`,
-                {
-                  method: "PATCH",
-                }
-              )
-                .then((res) => null)
-                .catch((err) => null)
+                { method: "PATCH" }
+              ).catch(() => null)
             : null
         }
         href={props.href}
         target={props.target || "_self"}
       >
-        <div className={`card-body ${opacityStyle}`}>
+        <div className={`card-body ${styles[opacity]}`}>
           <h4
             className={`${styles["card-title"]} ${
               styles[props.size ?? "title-md"]
@@ -125,4 +138,4 @@ export default function Card(props: CardProps) {
       </a>
     </div>
   );
-}
+});

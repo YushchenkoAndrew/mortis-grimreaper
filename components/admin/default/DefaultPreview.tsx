@@ -33,7 +33,11 @@ export default function DefaultPreview(props: DefaultPreviewProps) {
           <Card
             href="#"
             size="title-lg"
-            img={preview.img || ProjectInfo.img}
+            img={
+              preview.img.length > 1
+                ? preview.img
+                : preview.img?.[0] || ProjectInfo.img
+            }
             title={preview.title || ProjectInfo.title}
             description={preview.desc || ProjectInfo.desc}
           />
@@ -100,7 +104,7 @@ export default function DefaultPreview(props: DefaultPreviewProps) {
 
                   dispatch({
                     type: "PREVIEW_IMG_UPLOADED",
-                    value: files[0]?.url,
+                    value: files.map((item) => item.url),
                   });
 
                   dispatch({
@@ -113,6 +117,7 @@ export default function DefaultPreview(props: DefaultPreviewProps) {
                   dispatch({ type: "CODE_CACHED" });
                 }}
                 type="image/*"
+                multiple
               />
             </InputTemplate>
 

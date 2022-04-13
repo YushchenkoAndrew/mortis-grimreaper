@@ -17,7 +17,7 @@ export interface CardProps {
 
 export default memo(function Card(props: CardProps) {
   const divRef = useRef<HTMLDivElement>(null);
-  const [index, updateSrc] = useState(0);
+  const [frame, setLastFrame] = useState(0);
   const [offset, setOffset] = useState({ top: -1, left: -1 } as DOMRect);
   const [opacity, setOpacity] = useState<"appear" | "dim">("appear");
   const [animation, setAnimation] = useState<
@@ -32,32 +32,22 @@ export default memo(function Card(props: CardProps) {
 
   useEffect(() => {
     // NOTE: Event loop
-    (function AndTheDontStopComing() {
-      setTimeout(() => {
-        const bound = divRef.current?.getBoundingClientRect?.();
-        if (bound && offset.top != bound.top && offset.left != bound.left) {
-          setOffset(bound);
-        }
-
-        // if (Array.isArray(props.img)) {
-        //   console.log(Math.floor(new Date().getTime()) % props.img.length);
-
-        //   // updateSrc(
-        //   // );
-
-        //   // console.log(
-        //   //   Math.floor(new Date().getTime() / 1000000) % props.img.length
-        //   // );
-        // }
-
-        AndTheDontStopComing();
-      }, 100);
-    })();
+    setInterval(() => {
+      const bound = divRef.current?.getBoundingClientRect?.();
+      if (bound && offset.top != bound.top && offset.left != bound.left) {
+        setOffset(bound);
+      }
+    }, 10);
   }, []);
+
+  function GetFrame() {
+    return Math.round(new Date().getTime() / 100) % props.img.length;
+  }
 
   function showElement(x: number, y: number) {
     setStyle({ ...transitionStyle, top: y, left: x });
     setOpacity("dim");
+    setLastFrame(GetFrame());
     setAnimation("explode-animation");
   }
 
@@ -100,7 +90,11 @@ export default memo(function Card(props: CardProps) {
       />
       <Image
         className="card-img"
-        src={Array.isArray(props.img) ? props.img[index] : props.img}
+        src={
+          Array.isArray(props.img)
+            ? props.img[opacity == "appear" ? frame : GetFrame()]
+            : props.img
+        }
         alt={`Project: ${props.title}`}
         style={{ mixBlendMode: "multiply" }}
         onLoad={({ currentTarget: { height, width } }) =>

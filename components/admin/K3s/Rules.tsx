@@ -5,8 +5,8 @@ import {
   faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
-import { Row } from "react-bootstrap";
+import { useEffect, useState } from "react";
+import { Container, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import InputName from "../../Inputs/InputName";
 import InputTemplate from "../../Inputs/InputTemplate";
@@ -33,28 +33,12 @@ export default function Rules(props: RulesProps) {
       .reduce((acc, curr) => acc[curr], state)
   ) as unknown[];
 
-  // const [rule, onRuleChange] = useState<Rule>({
-  //   host: "",
-  // });
-
-  // const [paths, onPathChange] = useState<boolean[]>([]);
-  // const [pathsRef, onPathRefChange] = useState<React.RefObject<PathRef>[]>([]);
-
-  // useImperativeHandle<unknown, RulesRef>(ref, () => ({
-  //   getValue() {
-  //     return {
-  //       ...rule,
-  //       http: {
-  //         ...rule.http,
-  //         paths: pathsRef.map((item) => item.current?.getValue()),
-  //       },
-  //     } as Rule;
-  //   },
-  // }));
-
-  // useEffect(() => {
-  //   onPathRefChange(paths.map((_, i) => pathsRef[i] || createRef<PathRef>()));
-  // }, [paths.length]);
+  useEffect(() => {
+    onMinimize({
+      ...minimized,
+      paths: paths.map((_, i) => minimized.paths[i] || true),
+    });
+  }, [paths.length]);
 
   return (
     <div className={`border rounded mx-1 py-2 ${props.show ? "" : "d-none"}`}>
@@ -86,7 +70,7 @@ export default function Rules(props: RulesProps) {
         }
       >
         <div className={`border rounded p-2 ${minimized ? "" : "d-none"}`}>
-          {paths.map((_, index) => (
+          {minimized.paths.map((show, index) => (
             <div key={index} className={`mb-3 w-100 ${styles["el-index"]}`}>
               <Row className="mx-0">
                 <label
@@ -102,9 +86,7 @@ export default function Rules(props: RulesProps) {
                 >
                   {`[${index}] `}
                   <FontAwesomeIcon
-                    icon={
-                      minimized.paths[index] ? faChevronDown : faChevronRight
-                    }
+                    icon={show ? faChevronDown : faChevronRight}
                   />
                 </label>
                 <FontAwesomeIcon
@@ -135,7 +117,7 @@ export default function Rules(props: RulesProps) {
             </div>
           ))}
 
-          <div className="container my-2">
+          <Container className="my-2">
             <a
               className="btn btn-outline-success w-100"
               onClick={() => {
@@ -155,7 +137,7 @@ export default function Rules(props: RulesProps) {
                 icon={faPlus}
               />
             </a>
-          </div>
+          </Container>
         </div>
       </InputTemplate>
     </div>

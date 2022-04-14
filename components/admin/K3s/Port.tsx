@@ -1,4 +1,3 @@
-import React, { useImperativeHandle, useRef, useState } from "react";
 import { InputGroup, Row } from "react-bootstrap";
 import InputName from "../../Inputs/InputName";
 import InputRadio from "../../Inputs/InputRadio";
@@ -13,27 +12,6 @@ export interface PortProps {
 }
 
 export default function Port(props: PortProps) {
-  // const [port, onPortChange] = useState<Port>({
-  //   name: "",
-  //   nodePort: "",
-  //   port: "",
-  //   protocol: "TCP",
-  //   targetPort: "",
-  // });
-
-  // useImperativeHandle<unknown, PortRef>(ref, () => ({
-  //   getValue: () =>
-  //     Object.entries({
-  //       ...port,
-  //       port: Number(port.port ?? 0),
-  //       nodePort: Number(port.nodePort ?? 0),
-  //       targetPort: Number(port.targetPort ?? 0),
-  //     } as Port).reduce(
-  //       (acc, [key, item]) => (item ? { ...acc, [key]: item } : acc),
-  //       {} as Port
-  //     ),
-  // }));
-
   return (
     <div className={`border rounded mx-1 p-2 ${props.show ? "" : "d-none"}`}>
       <InputTemplate label="Name" className="px-1">

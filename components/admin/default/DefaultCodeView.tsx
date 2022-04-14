@@ -18,6 +18,7 @@ import Editor from "react-simple-code-editor";
 import DefaultMarkdownProject from "../../default/DefaultMarkdownProject";
 import { basePath } from "../../../config";
 import { YamlToJson } from "../../../lib/public/yaml";
+import { CombineK3sConfig } from "../../../lib/public/k3s";
 
 const highlightTypes: { [name: string]: [Grammar, string] } = {
   html: [languages.html, "html"],
@@ -36,6 +37,7 @@ const PREFIX = "code";
 export default function DefaultCodeView(props: DefaultCodeViewProps) {
   const preview = useSelector((state: any) => state.preview as any);
   const code = useSelector((state: any) => state[PREFIX] as any);
+  const config = useSelector((state: any) => state.config as any);
   const dispatch = useDispatch();
 
   return (
@@ -57,7 +59,8 @@ export default function DefaultCodeView(props: DefaultCodeViewProps) {
           <InputTemplate label="Role">
             <InputRadio
               readFrom={`${PREFIX}_role`}
-              options={["assets", "src", "styles", "kubernetes"]}
+              // NOTE: For now disable uploading to kubernetes dir
+              options={["assets", "src", "styles"]}
             />
           </InputTemplate>
 
@@ -137,13 +140,38 @@ export default function DefaultCodeView(props: DefaultCodeViewProps) {
                     case "kubernetes/deployment.yaml":
                     case "kubernetes/service.yaml":
                     case "kubernetes/ingress.yaml": {
-                      return dispatch({
-                        type: `CONFIG_${code.path.replace(
-                          /kubernetes\/|.yaml/g,
-                          ""
-                        )}_PARSED`.toUpperCase(),
-                        value: await YamlToJson(code.content),
+                      const name = code.path.replace(/kubernetes\/|.yaml/g, "");
+                      const configs = CombineK3sConfig(
+                        config[name],
+                        await YamlToJson(code.content)
+                      );
+
+                      dispatch({
+                        type: `TEMP_CONFIG_${name}_INIT`.toUpperCase(),
+                        value: configs,
                       });
+
+                      dispatch({
+                        type: `CONFIG_${name}_INIT`.toUpperCase(),
+                        value: configs,
+                      });
+
+                      try {
+                        let data = [] as string[];
+                        for (const item of configs)
+                          data.push(
+                            await fetch(`${basePath}/api/yaml`, {
+                              method: "POST",
+                              headers: { "content-type": "application/json" },
+                              body: JSON.stringify(item),
+                            }).then((res) => res.text())
+                          );
+
+                        dispatch({
+                          type: `CODE_${name}_PARSED`.toUpperCase(),
+                          value: data.join("---\n"),
+                        });
+                      } catch (_) {}
                     }
                   }
                 })();
@@ -178,3 +206,19 @@ export default function DefaultCodeView(props: DefaultCodeViewProps) {
     </div>
   );
 }
+
+/*
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-test-s
+  namespace: demo
+spec:
+  selector:
+    app: kube-test
+  type: LoadBalancer
+  ports:
+    - port: 8888
+  clusterIP: ""
+
+*/

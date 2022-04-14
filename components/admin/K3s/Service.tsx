@@ -5,16 +5,9 @@ import {
   faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, {
-  createRef,
-  useEffect,
-  useImperativeHandle,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
 import { Button, Container, InputGroup, ListGroup, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { Metadata } from "../../../types/K3s/Metadata";
-// import { Service } from "../../../types/K3s/Service";
 import InputList from "../../Inputs/InputDoubleList";
 import InputName from "../../Inputs/InputName";
 import InputRadio from "../../Inputs/InputRadio";
@@ -30,10 +23,6 @@ export interface ServiceProps {
   readFrom: string;
   writeTo: string;
 }
-
-// export interface ServiceRef {
-//   getValue: () => Service;
-// }
 
 export default function Service(props: ServiceProps) {
   const [minimized, onMinimize] = useState({
@@ -57,27 +46,12 @@ export default function Service(props: ServiceProps) {
       .reduce((acc, curr) => acc[curr], state)
   ) as { [name: string]: string };
 
-  // const [ports, onPortChange] = useState<boolean[]>([]);
-  // const [portsRef, onPortRefChange] = useState<React.RefObject<PortRef>[]>([]);
-
-  // useEffect(() => {
-  //   onPortRefChange(ports.map((_, i) => portsRef[i] || createRef<PortRef>()));
-  // }, [ports.length]);
-
-  // let [labels, onLabelsChange] = useState({} as { [key: string]: string });
-
-  // useImperativeHandle<unknown, ServiceRef>(ref, () => ({
-  //   getValue() {
-  //     return {
-  //       ...service,
-  //       spec: {
-  //         ...service.spec,
-  //         selector: { ...labels },
-  //         ports: portsRef.map((item) => item.current?.getValue()),
-  //       },
-  //     } as Service;
-  //   },
-  // }));
+  useEffect(() => {
+    onMinimize({
+      ...minimized,
+      ports: ports.map((_, i) => minimized.port[i] || true),
+    });
+  }, [ports.length]);
 
   return (
     <div className={`card px-1 py-3 ${props.show ? "" : "d-none"}`}>
@@ -103,7 +77,7 @@ export default function Service(props: ServiceProps) {
           <InputTemplate className="col-6 px-2" label="Name">
             <InputName
               char="@"
-              root={`${props.root}`}
+              root={props.root}
               readFrom={`${props.readFrom}_metadata_name`}
               writeTo={`${props.writeTo}_metadata_name`}
               placeholder="void-service"
@@ -115,7 +89,7 @@ export default function Service(props: ServiceProps) {
             <InputGroup>
               <InputValue
                 className="rounded"
-                root={`${props.root}`}
+                root={props.root}
                 readFrom={`${props.readFrom}_metadata_namespace`}
                 writeTo={`${props.writeTo}_metadata_namespace`}
                 placeholder="demo"
@@ -141,7 +115,7 @@ export default function Service(props: ServiceProps) {
           <InputTemplate className="px-1" label="Cluster IP">
             <InputName
               char="$"
-              root={`${props.root}`}
+              root={props.root}
               readFrom={`${props.readFrom}_spec_clusterIP`}
               writeTo={`${props.writeTo}_spec_clusterIP`}
               placeholder="10.0.171.239"
@@ -229,7 +203,7 @@ export default function Service(props: ServiceProps) {
             minimized.port ? "" : "d-none"
           }`}
         >
-          {ports.map((_, index) => (
+          {minimized.ports.map((show, index) => (
             <div
               key={`port-${index}`}
               className={`mb-3 w-100 ${styles["el-index"]}`}
@@ -248,9 +222,7 @@ export default function Service(props: ServiceProps) {
                 >
                   {`[${index}] `}
                   <FontAwesomeIcon
-                    icon={
-                      minimized.ports[index] ? faChevronDown : faChevronRight
-                    }
+                    icon={show ? faChevronDown : faChevronRight}
                   />
                 </label>
                 <FontAwesomeIcon

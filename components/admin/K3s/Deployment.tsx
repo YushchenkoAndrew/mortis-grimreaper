@@ -5,11 +5,9 @@ import {
   faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, InputGroup, ListGroup, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-// import { Deployment, Spec, Status } from "../../../types/K3s/Deployment";
-import { Metadata } from "../../../types/K3s/Metadata";
 import InputList from "../../Inputs/InputDoubleList";
 import InputName from "../../Inputs/InputName";
 import InputRadio from "../../Inputs/InputRadio";
@@ -47,6 +45,13 @@ export default function Deployment(props: DeploymentProps) {
       .split("_")
       .reduce((acc, curr) => acc[curr], state)
   ) as unknown[];
+
+  useEffect(() => {
+    onMinimize({
+      ...minimized,
+      containers: containers.map((_, i) => minimized.containers[i] || true),
+    });
+  }, [containers.length]);
 
   return (
     <div className={`card px-1 py-3 ${props.show ? "" : "d-none"}`}>
@@ -220,7 +225,7 @@ export default function Deployment(props: DeploymentProps) {
             minimized.container ? "" : "d-none"
           }`}
         >
-          {containers.map((_, index) => (
+          {minimized.containers.map((show, index) => (
             <div
               key={`container-${index}`}
               className={`mb-3 w-100 ${styles["el-index"]}`}
@@ -239,11 +244,7 @@ export default function Deployment(props: DeploymentProps) {
                 >
                   {`[${index}] `}
                   <FontAwesomeIcon
-                    icon={
-                      minimized.containers[index]
-                        ? faChevronDown
-                        : faChevronRight
-                    }
+                    icon={show ? faChevronDown : faChevronRight}
                   />
                 </label>
                 <FontAwesomeIcon
@@ -252,13 +253,6 @@ export default function Deployment(props: DeploymentProps) {
                   size="lg"
                   fontSize="1rem"
                   onClick={() => {
-                    onMinimize({
-                      ...minimized,
-                      containers: minimized.containers.filter(
-                        (_, i) => i != index
-                      ),
-                    });
-
                     dispatch({
                       type: `${props.writeTo}_spec_template_spec_containers_del`.toUpperCase(),
                       readFrom: `${props.readFrom}_spec_template_spec_containers_${index}`,
@@ -281,16 +275,12 @@ export default function Deployment(props: DeploymentProps) {
               name={`${props.readFrom}_container_add`}
               variant="outline-success"
               onClick={() => {
-                onMinimize({
-                  ...minimized,
-                  containers: [...minimized.containers, true],
-                });
-
                 dispatch({
                   type: `${props.writeTo}_spec_template_spec_containers_add`.toUpperCase(),
                   readFrom: `${props.readFrom}_spec_template_spec_containers`,
                 });
 
+                // Copy deployment structure to the project
                 dispatch({
                   type: `temp_${props.writeTo}_spec_template_spec_containers_add`.toUpperCase(),
                   readFrom: `temp_${props.readFrom}_spec_template_spec_containers`,

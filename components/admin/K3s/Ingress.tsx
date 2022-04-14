@@ -5,14 +5,8 @@ import {
   faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, {
-  createRef,
-  useEffect,
-  useImperativeHandle,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-// import { Ingress } from "../../../types/K3s/Ingress";
 import InputName from "../../Inputs/InputName";
 import InputTemplate from "../../Inputs/InputTemplate";
 import InputValue from "../../Inputs/InputValue";
@@ -41,38 +35,12 @@ export default function Ingress(props: IngressProps) {
       .reduce((acc, curr) => acc[curr], state)
   ) as unknown[];
 
-  // const [ingress, onIngressChange] = useState<Ingress>({
-  // });
-
-  // const [rules, onRulesChange] = useState<boolean[]>([]);
-  // const [rulesRef, onRulesRefChange] = useState<React.RefObject<RulesRef>[]>(
-  //   []
-  // );
-
-  // useEffect(() => {
-  //   onRulesRefChange(rules.map((_, i) => rulesRef[i] || createRef<RulesRef>()));
-  // }, [rules.length]);
-
-  // useImperativeHandle<unknown, IngressRef>(ref, () => ({
-  //   getValue() {
-  //     return {
-  //       apiVersion: "extensions/v1beta1",
-  //       ...ingress,
-  //       spec: {
-  //         ...ingress.spec,
-  //         tls: [
-  //           {
-  //             ...(ingress.spec?.tls?.[0] ?? {}),
-  //             hosts: rulesRef.map(
-  //               (item) => item.current?.getValue?.()?.host ?? ""
-  //             ),
-  //           },
-  //         ],
-  //         rules: rulesRef.map((item) => item.current?.getValue()),
-  //       },
-  //     } as Ingress;
-  //   },
-  // }));
+  useEffect(() => {
+    onMinimize({
+      ...minimized,
+      rules: rules.map((_, i) => minimized.rules[i] || true),
+    });
+  }, [rules.length]);
 
   return (
     <div className={`card py-3 ${props.show ? "" : "d-none"}`}>
@@ -166,7 +134,7 @@ export default function Ingress(props: IngressProps) {
                 minimized.rule ? "" : "d-none"
               }`}
             >
-              {rules.map((_, index) => (
+              {minimized.rules.map((show, index) => (
                 <div key={index} className={`mb-3 w-100 ${styles["el-index"]}`}>
                   <div className="row mx-1">
                     <label
@@ -182,7 +150,7 @@ export default function Ingress(props: IngressProps) {
                     >
                       {`[${index}] `}
                       <FontAwesomeIcon
-                        icon={minimized.rules ? faChevronDown : faChevronRight}
+                        icon={show ? faChevronDown : faChevronRight}
                       />
                     </label>
                     <FontAwesomeIcon

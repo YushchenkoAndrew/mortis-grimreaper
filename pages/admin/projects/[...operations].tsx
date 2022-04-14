@@ -14,21 +14,12 @@ import { store } from "../../../redux/admin/projects/storage";
 import { LoadProjects } from "../../../lib/api/project";
 import { addFile, allowedReader, formPath } from "../../../lib/public/files";
 import { LoadFile } from "../../../lib/api/file";
-import { Deployment } from "../../../types/K3s/Deployment";
-import { Namespace } from "../../../types/K3s/Namespace";
-import { Service } from "../../../types/K3s/Service";
-import { Ingress } from "../../../types/K3s/Ingress";
 import { CapitalizeString } from "../../../lib/public/string";
+import { CRON_TIME } from "../../../redux/admin/projects/reducer/preview";
 
 export interface ProjectOperationProps {
   code?: { tree: TreeObj };
   preview?: { [name: string]: any };
-  config?: {
-    namespace: Namespace[];
-    deployment: Deployment[];
-    service: Service[];
-    ingress: Ingress[];
-  };
 }
 
 export default function ProjectOperation(props: ProjectOperationProps) {
@@ -52,7 +43,6 @@ export default function ProjectOperation(props: ProjectOperationProps) {
         operation={router.query?.operations?.[0] ?? "create"}
         preview={props.preview}
         code={props.code}
-        config={props.config}
       />
     </Provider>
   );
@@ -99,8 +89,6 @@ export const getServerSideProps = withIronSessionSsr(
           ]);
         }
 
-        console.dir(project, { depth: null });
-
         return {
           props: {
             preview: {
@@ -113,18 +101,21 @@ export const getServerSideProps = withIronSessionSsr(
                 (acc, curr) => ({ ...acc, [curr.name]: curr.link }),
                 {}
               ),
+
+              cron: (project[0].subscription?.[0]?.cron_time || "* * */1 0 0 0")
+                .split(" ")
+                .reduce(
+                  (acc, curr, i) => ({ ...acc, [CRON_TIME[i]]: curr }),
+                  {}
+                ),
+
+              // FIXME:
+              // * Save repo value in db some how ?
+              // * Maybe by creating new table ?
+              // * Or just loading it from kubernetes deployment ??
+              // repo: "",
             },
             code: { tree },
-
-            // TODO:
-            // * Add k3s config parser
-            //
-            // config?: {
-            //   namespace: Namespace[];
-            //   deployment: Deployment[];
-            //   service: Service[];
-            //   ingress: Ingress[];
-            // };
           },
         };
     }

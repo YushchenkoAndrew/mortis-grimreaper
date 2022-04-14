@@ -10,7 +10,7 @@ export default function (state = INIT_STATE, action: AnyAction) {
   const index = GetDynamicParams(action.type, action.readFrom ?? "");
   switch (action.type as string) {
     case `${PREFIX}_INIT`:
-      return action.data || state;
+      return action.value || state;
 
     case `${PREFIX}_ADD`:
       return [

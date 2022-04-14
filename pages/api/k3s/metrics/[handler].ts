@@ -5,7 +5,7 @@ import { ApiAuth } from "../../../../lib/api/auth";
 import { createQuery, GetParam } from "../../../../lib/api/query";
 import { DefaultRes, FullResponse } from "../../../../types/request";
 
-const REQUIRED_FIELDS = ["id", "label", "namespace"];
+const REQUIRED_FIELDS = ["project_id", "label", "namespace"];
 export default withIronSessionApiRoute(async function (req, res) {
   if (req.method !== "POST") {
     return res.status(405).send({ status: "ERR", message: "Unknown method" });
@@ -51,6 +51,21 @@ export default withIronSessionApiRoute(async function (req, res) {
               });
 
             case "update":
+              return fetch(`${apiUrl}/subscription${createQuery(body)}`, {
+                method: "PUT",
+                headers: {
+                  "content-type": "application/json",
+                  Authorization: `Bear ${token}`,
+                },
+
+                body: JSON.stringify({
+                  name: "metrics-all",
+                  cron_time: req.body,
+                }),
+
+                signal: ctl.signal,
+              });
+
             default:
               return new Promise<Response>((_, reject) =>
                 reject("Unknown handler")

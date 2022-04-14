@@ -1,6 +1,5 @@
 import React, { useImperativeHandle, useRef, useState } from "react";
 import { InputGroup, Row } from "react-bootstrap";
-// import { Event } from "../../../pages/admin/projects/operation";
 import { Port } from "../../../types/K3s/Deployment";
 import InputName from "../../Inputs/InputName";
 import InputRadio from "../../Inputs/InputRadio";
@@ -15,31 +14,7 @@ export interface ContainerPortProps {
   writeTo: string;
 }
 
-// export interface ContainerPortRef {
-//   getValue: () => Port;
-// }
-
 export default function ContainerPort(props: ContainerPortProps) {
-  // const [port, onPortChange] = useState<Port>({
-  //   containerPort: "",
-  //   hostIP: "",
-  //   hostPort: "",
-  //   name: "",
-  //   protocol: "TCP",
-  // });
-
-  // useImperativeHandle<unknown, ContainerPortRef>(ref, () => ({
-  //   getValue: () =>
-  //     Object.entries({
-  //       ...port,
-  //       containerPort: Number(port.containerPort),
-  //       hostPort: Number(port.hostPort),
-  //     } as Port).reduce(
-  //       (acc, [key, item]) => (item ? { ...acc, [key]: item } : acc),
-  //       {} as Port
-  //     ),
-  // }));
-
   return (
     <div
       className={`border rounded mx-1 px-2 py-2 ${props.show ? "" : "d-none"}`}

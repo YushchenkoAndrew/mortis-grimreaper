@@ -14,24 +14,23 @@ import { useDispatch, useSelector } from "react-redux";
 import { CacheId } from "../../../lib/public";
 import { DefaultRes } from "../../../types/request";
 import { createQuery } from "../../../lib/api/query";
-import { Button, Container, Form, Row } from "react-bootstrap";
-import { Namespace } from "../../../types/K3s/Namespace";
-import { Deployment } from "../../../types/K3s/Deployment";
-import { Ingress } from "../../../types/K3s/Ingress";
-import { Service } from "../../../types/K3s/Service";
+import {
+  Button,
+  Container,
+  Form,
+  OverlayTrigger,
+  Popover,
+  Row,
+} from "react-bootstrap";
 import { CapitalizeString } from "../../../lib/public/string";
 import DefaultStyleView from "./DefaultStyleView";
+import { CombineK3sConfig } from "../../../lib/public/k3s";
+import { YamlToJson } from "../../../lib/public/yaml";
 
 export interface DefaultOperationsFormProps {
   operation: string;
   preview?: { [name: string]: any };
   code?: { tree: TreeObj };
-  config?: {
-    namespace: Namespace[];
-    deployment: Deployment[];
-    service: Service[];
-    ingress: Ingress[];
-  };
 }
 
 export default function DefaultOperationsForm(
@@ -48,19 +47,39 @@ export default function DefaultOperationsForm(
         .then((res) => res.json())
         .then((data) => {
           if (!(data = data.result || props.preview)) return;
-          dispatch({ type: `PREVIEW_INIT`, value: data });
+          dispatch({ type: "PREVIEW_INIT", value: data });
           dispatch({ type: "MAIN_FLAG_CHANGED", value: data.flag });
           dispatch({ type: "CODE_FLAG_CHANGED", value: data.flag });
         })
         .catch(() => null);
 
-      await fetch(`${basePath}/api/admin/cache?id=${CacheId("CODE")}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (!(data = data.result || props.code)) return;
-          dispatch({ type: `CODE_INIT`, value: data });
-        })
-        .catch(() => null);
+      try {
+        const res = await fetch(
+          `${basePath}/api/admin/cache?id=${CacheId("CODE")}`
+        );
+        let data = await res.json();
+        if (!(data = data.result || props.code)) return;
+        dispatch({ type: `CODE_INIT`, value: data });
+
+        // Load K3s config from yaml files
+        for (const key in data.tree.kubernetes) {
+          const name = key.replace(/.yaml/g, "");
+          const configs = CombineK3sConfig(
+            root.config[name],
+            await YamlToJson(data.tree.kubernetes[key].content || "")
+          );
+
+          dispatch({
+            type: `TEMP_CONFIG_${name}_INIT`.toUpperCase(),
+            value: configs,
+          });
+
+          dispatch({
+            type: `CONFIG_${name}_INIT`.toUpperCase(),
+            value: configs,
+          });
+        }
+      } catch (_) {}
     })();
   }, []);
 
@@ -355,7 +374,7 @@ export default function DefaultOperationsForm(
               for (const name in matchLabels) {
                 const res = await fetch(
                   `${basePath}/api/k3s/metrics/${props.operation}${createQuery({
-                    id: id,
+                    project_id: id,
                     label: `${name}=${matchLabels[name]}`,
                     namespace: root.config.deployment[index].metadata.namespace,
                   })}`,
@@ -427,16 +446,9 @@ export default function DefaultOperationsForm(
             id = await SubmitStateMachine(state, id);
           }
 
-          dispatch({ type: "MAIN_SUBMIT_STATE_CHANGED", value: "END" });
-
           dispatch({ type: "PREVIEW_CACHE_FLUSH" });
           dispatch({ type: "CODE_CACHE_FLUSH" });
-
-          // FIXME: Was commented only for debug propose
-          // setTimeout(
-          //   () => (window.location.href = `${basePath}/admin/projects/`),
-          //   2000
-          // );
+          dispatch({ type: "MAIN_SUBMIT_STATE_CHANGED", value: "END" });
         } catch (err: any) {
           if (!err?.state) return;
           dispatch({
@@ -479,14 +491,33 @@ export default function DefaultOperationsForm(
               />
             </div>
 
-            <Button
-              size="sm"
-              type="submit"
-              variant="outline-success"
-              className="mb-2 ml-4"
+            <OverlayTrigger
+              show={root.main.state == "END"}
+              placement="bottom"
+              overlay={
+                <Popover id="popover-submit-button">
+                  <Popover.Title as="h4">{`Project was ${props.operation}d successfully`}</Popover.Title>
+                  <Popover.Content className="d-flex justify-content-center">
+                    <Button
+                      size="sm"
+                      variant="primary"
+                      href={`${basePath}/${root.preview.name}`}
+                    >
+                      Open the project
+                    </Button>
+                  </Popover.Content>
+                </Popover>
+              }
             >
-              Submit
-            </Button>
+              <Button
+                size="sm"
+                type="submit"
+                variant="outline-success"
+                className="mb-2 ml-4"
+              >
+                Submit
+              </Button>
+            </OverlayTrigger>
           </Row>
         </Row>
       </Container>

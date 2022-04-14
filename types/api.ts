@@ -73,6 +73,18 @@ export type LinkData = {
   project_id?: number;
 };
 
+export type SubscriptionData = {
+  id?: number;
+  created_at?: string;
+  name: string;
+  cron_id: string;
+  cron_time: string;
+  method: string;
+  path: string;
+  token: string;
+  project_id?: number;
+};
+
 export type ProjectData = {
   id?: number;
   created_at?: string;
@@ -83,6 +95,7 @@ export type ProjectData = {
   note: string;
   files: FileData[];
   links: LinkData[];
+  subscription: SubscriptionData[];
 };
 
 export type GeoIpLocationData = {

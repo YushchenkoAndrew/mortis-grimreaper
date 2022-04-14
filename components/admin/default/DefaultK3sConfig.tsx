@@ -76,10 +76,7 @@ export default forwardRef((props: K3sConfigProps, ref) => {
               className="col-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 p-0 p-md-2"
             >
               <Namespace
-                root={() => {
-                  dispatch({ type: "CONFIG_NAMESPACE_CACHED" });
-                  ParseConfig(namespaces, "CODE_NAMESPACE");
-                }}
+                root={() => ParseConfig(namespaces, "CODE_NAMESPACE")}
                 readFrom={`config_namespace_${index}`}
                 writeTo="config_namespace"
                 show={minimized.namespace}
@@ -105,10 +102,7 @@ export default forwardRef((props: K3sConfigProps, ref) => {
               className="col-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 p-0 p-md-2"
             >
               <Deployment
-                root={() => {
-                  dispatch({ type: "CONFIG_DEPLOYMENT_CACHED" });
-                  ParseConfig(deployments, "CODE_DEPLOYMENT");
-                }}
+                root={() => ParseConfig(deployments, "CODE_DEPLOYMENT")}
                 readFrom={`config_deployment_${index}`}
                 writeTo="config_deployment"
                 show={minimized.deployment}
@@ -134,10 +128,7 @@ export default forwardRef((props: K3sConfigProps, ref) => {
               className="col-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 p-0 p-md-2"
             >
               <Service
-                root={() => {
-                  dispatch({ type: "CONFIG_SERVICE_CACHED" });
-                  ParseConfig(services, "CODE_SERVICE");
-                }}
+                root={() => ParseConfig(services, "CODE_SERVICE")}
                 readFrom={`config_service_${index}`}
                 writeTo="config_service"
                 show={minimized.service}

@@ -3,6 +3,7 @@ import { basePath } from "../../../../config";
 import { CacheId } from "../../../../lib/public";
 
 const PREFIX = "PREVIEW";
+export const CRON_TIME = ["sec", "min", "hour", "day", "month", "week"];
 
 const INIT_STATE = {
   id: -1,

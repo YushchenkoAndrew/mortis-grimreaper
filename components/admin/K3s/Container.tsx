@@ -5,7 +5,7 @@ import {
   faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, InputGroup, ListGroup, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import InputList from "../../Inputs/InputDoubleList";
@@ -41,37 +41,12 @@ export default function Container(props: ContainerProps) {
     `${props.readFrom}_env`.split("_").reduce((acc, curr) => acc[curr], state)
   ) as { name: string; value: string }[];
 
-  // function onChange({ target: { name, value } }: Event) {
-  //   onContainerChange({ ...container, [name]: value });
-  // }
-
-  // const [env, onEnvAdd] = useState({} as { [name: string]: string });
-
-  // const [ports, onPortChange] = useState<boolean[]>([]);
-  // const [portsRef, onPortRefChange] = useState<
-  //   React.RefObject<ContainerPortRef>[]
-  // >([]);
-
-  // useEffect(() => {
-  //   onPortRefChange(
-  //     ports.map((_, i) => portsRef[i] || createRef<ContainerRef>())
-  //   );
-  // }, [ports.length]);
-
-  // useImperativeHandle<unknown, ContainerRef>(ref, () => ({
-  //   getValue() {
-  //     const envVars = Object.entries(env).map(([name, value]) => ({
-  //       name,
-  //       value,
-  //     }));
-
-  //     return {
-  //       ...container,
-  //       : portsRef.map((item) => item.current?.getValue()),
-  //       ...(envVars.length ? { env: envVars } : {}),
-  //     } as Container;
-  //   },
-  // }));
+  useEffect(() => {
+    onMinimize({
+      ...minimized,
+      ports: ports.map((_, i) => minimized.port[i] || true),
+    });
+  }, [ports.length]);
 
   return (
     <div
@@ -132,7 +107,7 @@ export default function Container(props: ContainerProps) {
             minimized.port ? "" : "d-none"
           }`}
         >
-          {ports.map((show, index) => (
+          {minimized.ports.map((show, index) => (
             <div
               key={`containerPort-${index}`}
               className={`mb-3 w-100 ${styles["el-index"]}`}
@@ -160,11 +135,6 @@ export default function Container(props: ContainerProps) {
                   size="lg"
                   fontSize="1rem"
                   onClick={() => {
-                    onMinimize({
-                      ...minimized,
-                      ports: minimized.ports.filter((_, i) => i == index),
-                    });
-
                     dispatch({
                       type: `${props.writeTo}_ports_del`.toUpperCase(),
                       readFrom: `${props.readFrom}_ports_${index}`,
@@ -187,7 +157,6 @@ export default function Container(props: ContainerProps) {
               name={`${props.readFrom}_port_add`}
               variant="outline-success"
               onClick={() => {
-                onMinimize({ ...minimized, ports: [...minimized.ports, true] });
                 dispatch({
                   type: `${props.writeTo}_ports_add`.toUpperCase(),
                   readFrom: `${props.readFrom}_ports`,

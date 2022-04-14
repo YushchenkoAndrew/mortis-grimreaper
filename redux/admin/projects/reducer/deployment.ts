@@ -14,7 +14,7 @@ export default function (state = INIT_STATE, action: AnyAction) {
   const index = GetDynamicParams(action.type, action.readFrom ?? "");
   switch (action.type as string) {
     case `${PREFIX}_INIT`:
-      return action.data || state;
+      return action.value || state;
 
     case `${PREFIX}_ADD`:
       return [
@@ -200,9 +200,9 @@ export default function (state = INIT_STATE, action: AnyAction) {
       // TODO:
       // * Write function for combining two k3s config in one
 
-      // console.log(CombineK3sConfig(state, action.value));
+      console.log(CombineK3sConfig(state, action.value));
 
-      return state;
+      return CombineK3sConfig(state, action.value);
     }
 
     // NOTE: Dont need this because curr config

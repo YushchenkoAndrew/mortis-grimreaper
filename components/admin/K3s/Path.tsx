@@ -1,4 +1,3 @@
-import React, { useImperativeHandle, useState } from "react";
 import InputName from "../../Inputs/InputName";
 import InputRadio from "../../Inputs/InputRadio";
 import InputTemplate from "../../Inputs/InputTemplate";
@@ -11,30 +10,7 @@ export interface PathProps {
   writeTo: string;
 }
 
-// export interface PathRef {
-//   getValue: () => Path;
-// }
-
 export default function Path(props: PathProps) {
-  // const [path, onPathChange] = useState<Path>({
-  //   path: "",
-  //   backend: {
-  //     serviceName: "",
-  //     servicePort: "",
-  //   },
-  // });
-
-  // useImperativeHandle<unknown, PathRef>(ref, () => ({
-  //   getValue: () => ({
-  //     ...path,
-  //     path: "/" + path.path,
-  //     backend: {
-  //       ...path.backend,
-  //       servicePort: Number(path.backend?.servicePort),
-  //     },
-  //   }),
-  // }));
-
   return (
     <div className={`border rounded p-2 ${props.show ? "" : "d-none"}`}>
       <InputTemplate label="Path" className="px-1">

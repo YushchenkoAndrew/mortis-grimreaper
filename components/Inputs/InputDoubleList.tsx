@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import { Button, Col, Form, InputGroup, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import InputValue from "./InputValue";

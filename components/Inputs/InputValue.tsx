@@ -29,7 +29,7 @@ export default function InputValue(props: InputValueProps) {
         type={props.type ?? "text"}
         name={props.readFrom}
         disabled={props.disabled}
-        className={props.className}
+        className={`text-dark ${props.className ?? ""}`}
         placeholder={props.placeholder ?? ""}
         required={props.required}
         onChange={({ target: { value } }) =>

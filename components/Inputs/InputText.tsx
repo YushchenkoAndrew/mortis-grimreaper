@@ -23,7 +23,7 @@ export default function InputText(props: InputTextProps) {
         as="textarea"
         value={value || ""}
         name={props.writeTo ?? props.readFrom}
-        className="form-control rounded"
+        className="form-control rounded text-dark"
         placeholder={props.placeholder ?? ""}
         rows={props.rows ?? 3}
         required={props.required}

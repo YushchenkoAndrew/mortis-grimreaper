@@ -26,7 +26,7 @@ export default function ProjectOperation(props: ProjectOperationProps) {
   const router = useRouter();
 
   return (
-    <Provider store={store}>
+    <>
       <DefaultHead>
         <title>
           {CapitalizeString(
@@ -39,12 +39,14 @@ export default function ProjectOperation(props: ProjectOperationProps) {
       </DefaultHead>
       <DefaultHeader />
 
-      <DefaultOperationsForm
-        operation={router.query?.operations?.[0] ?? "create"}
-        preview={props.preview}
-        code={props.code}
-      />
-    </Provider>
+      <Provider store={store}>
+        <DefaultOperationsForm
+          operation={router.query?.operations?.[0] ?? "create"}
+          preview={props.preview}
+          code={props.code}
+        />
+      </Provider>
+    </>
   );
 }
 

@@ -131,7 +131,7 @@ export default function DefaultPreview(props: DefaultPreviewProps) {
                   off: { className: "d-none d-sm-block", len: 0 },
                 }}
                 label="btn-outline-secondary"
-                onChange={(value) => {
+                writeTo={(value) => {
                   dispatch({ type: "MAIN_FLAG_CHANGED", value });
                   dispatch({ type: "PREVIEW_FLAG_CHANGED", value });
                   dispatch({ type: "CODE_FLAG_CHANGED", value });

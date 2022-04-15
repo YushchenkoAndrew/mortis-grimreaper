@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import styles from "./RunningLine.module.css";
 
 export interface RunningLineProps {
   text: string;
   size?: number;
+  onHover?: (flag: boolean) => void;
 }
 
 function pieSlice(str: string, offset: number, size: number) {
@@ -11,7 +12,7 @@ function pieSlice(str: string, offset: number, size: number) {
   return str.substr(offset) + str.substr(0, offset + size - str.length);
 }
 
-export default function RunningLine(props: RunningLineProps) {
+export default memo(function RunningLine(props: RunningLineProps) {
   const [stop, onCycleStop] = useState(0);
   const [offset, setOffset] = useState(0);
 
@@ -28,10 +29,14 @@ export default function RunningLine(props: RunningLineProps) {
   });
 
   return (
-    <h3 className={`text-white ${styles["running-line"]}`}>
+    <h3
+      className={`text-white ${styles["running-line"]}`}
+      onMouseEnter={() => props.onHover?.(true)}
+      onMouseLeave={() => props.onHover?.(false)}
+    >
       {(props.size ?? 5) >= props.text.length
         ? props.text
         : pieSlice(text, offset, props.size ?? 5)}
     </h3>
   );
-}
+});

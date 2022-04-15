@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 export interface InputValueProps {
   root?: string | (() => void);
   readFrom: string;
-  writeTo?: string;
+  writeTo?: string | ((item: string) => void);
   type?: React.HTMLInputTypeAttribute;
   required?: boolean;
   placeholder?: string;
@@ -32,13 +32,17 @@ export default function InputValue(props: InputValueProps) {
         className={`text-dark ${props.className ?? ""}`}
         placeholder={props.placeholder ?? ""}
         required={props.required}
-        onChange={({ target: { value } }) =>
+        onChange={({ target: { value } }) => {
+          if (typeof props.writeTo === "function") {
+            return props.writeTo(value);
+          }
+
           dispatch({
-            type: `${(props.writeTo ?? props.readFrom).toUpperCase()}_CHANGED`,
+            type: `${props.writeTo ?? props.readFrom}_CHANGED`.toUpperCase(),
             readFrom: props.readFrom,
             value: value,
-          })
-        }
+          });
+        }}
         onBlur={async () => {
           onValidation(await props.isInvalid?.());
           if (!props.root) return;

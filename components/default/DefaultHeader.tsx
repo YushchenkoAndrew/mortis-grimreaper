@@ -26,7 +26,7 @@ export default memo(function DefaultHeader(props: DefaultHeaderProps) {
           ></DefaultNav>
         </NavContainer>
 
-        {props.name ? <RunningLine text={props.name} size={8} /> : null}
+        {props.name && <RunningLine text={props.name} size={8} />}
       </NavBar>
       {props.children}
     </header>

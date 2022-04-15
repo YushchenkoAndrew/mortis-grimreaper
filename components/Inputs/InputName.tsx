@@ -6,7 +6,7 @@ export interface InputNameProps {
   char: string;
   root?: string | (() => void);
   readFrom: string;
-  writeTo?: string;
+  writeTo?: string | ((item: string) => void);
   type?: React.HTMLInputTypeAttribute;
   required?: boolean;
   placeholder?: string;

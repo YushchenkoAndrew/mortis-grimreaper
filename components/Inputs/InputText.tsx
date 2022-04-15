@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 export interface InputTextProps {
   root?: string;
   readFrom: string;
-  writeTo?: string;
+  writeTo?: string | ((item: string) => void);
   rows?: number;
   required?: boolean;
   placeholder?: string;
@@ -22,17 +22,21 @@ export default function InputText(props: InputTextProps) {
       <Form.Control
         as="textarea"
         value={value || ""}
-        name={props.writeTo ?? props.readFrom}
+        name={props.readFrom}
         className="form-control rounded text-dark"
         placeholder={props.placeholder ?? ""}
         rows={props.rows ?? 3}
         required={props.required}
-        onChange={({ target: { value } }) =>
+        onChange={({ target: { value } }) => {
+          if (typeof props.writeTo === "function") {
+            return props.writeTo(value);
+          }
+
           dispatch({
             type: `${props.writeTo ?? props.readFrom}_CHANGED`.toUpperCase(),
             value,
-          })
-        }
+          });
+        }}
         onBlur={() => {
           if (!props.root) return;
           dispatch({ type: `${props.root}_CACHED`.toUpperCase() });

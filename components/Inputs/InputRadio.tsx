@@ -10,13 +10,12 @@ export type Overflow = {
 export interface InputRadioProps {
   hidden?: boolean;
   readFrom: string;
-  writeTo?: string;
+  writeTo?: string | ((item: string) => void);
   className?: string;
   options: string[];
   label?: string;
   disabled?: string[];
   overflow?: Overflow;
-  onChange?: (item: string) => void;
 }
 
 export default function InputRadio(props: InputRadioProps) {
@@ -46,17 +45,19 @@ export default function InputRadio(props: InputRadioProps) {
                 name={`${props.writeTo ?? props.readFrom}_${item}`}
                 autoComplete="off"
                 checked={value === item}
-                onChange={() =>
-                  props.onChange
-                    ? props.onChange(item)
-                    : dispatch({
-                        type: `${(
-                          props.writeTo ?? props.readFrom
-                        ).toUpperCase()}_CHANGED`,
-                        value: item,
-                        readFrom: props.readFrom,
-                      })
-                }
+                onChange={() => {
+                  if (typeof props.writeTo === "function") {
+                    return props.writeTo(item);
+                  }
+
+                  dispatch({
+                    type: `${
+                      props.writeTo ?? props.readFrom
+                    }_CHANGED`.toUpperCase(),
+                    value: item,
+                    readFrom: props.readFrom,
+                  });
+                }}
               />
               {props.overflow ? (
                 <>

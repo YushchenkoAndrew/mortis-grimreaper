@@ -1,17 +1,9 @@
 import { withIronSessionSsr } from "iron-session/next";
-import { StrictMode, useRef, useState } from "react";
-import {
-  Badge,
-  Button,
-  Container,
-  OverlayTrigger,
-  Popover,
-  Row,
-} from "react-bootstrap";
+import { useState } from "react";
+import { Badge, OverlayTrigger, Popover, Row } from "react-bootstrap";
 import { Provider } from "react-redux";
 import DefaultHeader from "../../../../components/admin/default/DefaultHeader";
 import DefaultMetrics from "../../../../components/admin/default/DefaultMetrics";
-import DefaultTotalMetrics from "../../../../components/admin/default/DefaultTotalMetrics";
 import DefaultFooter from "../../../../components/default/DefaultFooter";
 import DefaultHead from "../../../../components/default/DefaultHead";
 import DefaultNav from "../../../../components/default/DefaultNav";
@@ -22,10 +14,11 @@ import { LoadProjects } from "../../../../lib/api/project";
 import { checkIfUserExist } from "../../../../lib/api/session";
 import { FormatDate } from "../../../../lib/public/string";
 import { store } from "../../../../redux/admin/projects/metrics/storage";
-import { ProjectData } from "../../../../types/api";
+import { MetricsData, ProjectData } from "../../../../types/api";
 
 export interface MetricsProps {
   project: { [name: string]: any };
+  metrics?: MetricsData[];
 }
 
 export default function Metrics(props: MetricsProps) {
@@ -50,10 +43,33 @@ export default function Metrics(props: MetricsProps) {
                         <Badge variant="info" className="mr-auto px-2">
                           {key}
                         </Badge>
-                        <p className="m-0 pl-3">{props.project[key]}</p>
+                        <p className="m-0 pl-4">{props.project[key]}</p>
                       </Row>
                     )
                   )}
+                  <Row as="h6" className="mx-2">
+                    <Badge variant="info" className="mr-auto px-2">
+                      subscription
+                    </Badge>
+                  </Row>
+                  {(
+                    props.project.subscription as { [name: string]: any }[]
+                  ).map((item, i) => (
+                    <div key={`subscription-${i}`}>
+                      {["id", "name", "method", "cron_time"].map((key, i) => (
+                        <Row
+                          as="h6"
+                          key={`subscription-row-${i}`}
+                          className="ml-4 mr-2"
+                        >
+                          <Badge variant="warning" className="mr-auto px-2">
+                            {key}
+                          </Badge>
+                          <p className="m-0 pl-4">{item[key]}</p>
+                        </Row>
+                      ))}
+                    </div>
+                  ))}
                 </Popover.Content>
               </Popover>
             }
@@ -68,10 +84,7 @@ export default function Metrics(props: MetricsProps) {
       />
 
       <Provider store={store}>
-        <Container>
-          <DefaultTotalMetrics />
-          <DefaultMetrics />
-        </Container>
+        <DefaultMetrics metrics={props.metrics || []} />
       </Provider>
 
       <DefaultFooter name="Menu">
@@ -113,8 +126,6 @@ export const getServerSideProps = withIronSessionSsr(
       };
     }
 
-    console.dir(project, { depth: null });
-
     return {
       props: {
         project: {
@@ -123,24 +134,20 @@ export const getServerSideProps = withIronSessionSsr(
             (acc, key) => ({ ...acc, [key]: project[0][key] }),
             {}
           ),
+
+          subscription: (project[0].subscription || []).map(
+            ({ id, name, method, cron_time }) => ({
+              id,
+              name,
+              method,
+              cron_time,
+            })
+          ),
         },
-        //   links: project[0].links.reduce(
-        //     (acc, curr) => ({ ...acc, [curr.name]: curr.link }),
-        //     {}
-        //   ),
-        //   cron: (project[0].subscription?.[0]?.cron_time || "* * */1 0 0 0")
-        //     .split(" ")
-        //     .reduce((acc, curr, i) => ({ ...acc, [CRON_TIME[i]]: curr }), {}),
-        //   // FIXME:
-        //   // * Save repo value in db some how ?
-        //   // * Maybe by creating new table ?
-        //   // * Or just loading it from kubernetes deployment ??
-        //   // repo: "",
-        // },
-        // code: { tree },
+
+        metrics: project[0].metrics || [],
       },
     };
-    // }
   },
   sessionConfig
 );

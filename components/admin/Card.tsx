@@ -1,16 +1,14 @@
 import React, { memo } from "react";
 import Image from "react-bootstrap/Image";
 import { FlagType } from "../../types/flag";
-import SimpleButton from "../SimpleButton";
 import styles from "./Card.module.css";
 import Flag from "./Flag";
-import { Event } from "../../components/SimpleButton";
-import { Col, Container } from "react-bootstrap";
+import { Button, Col, Container, Row } from "react-bootstrap";
 
 export type EventLinks = {
-  metrics?: Event;
-  modify: Event;
-  delete: Event;
+  metrics?: { href?: string; onClick?: () => void };
+  modify: { href?: string; onClick?: () => void };
+  delete: { href?: string; onClick?: () => void };
 };
 export interface CardProps {
   id: number;
@@ -25,7 +23,6 @@ export interface CardProps {
 
 export default memo(function Card(props: CardProps) {
   const desc = (props.desc ?? "").split(" ");
-
   return (
     <Col lg="4" md="6" sm="11" className="my-3 text-center">
       <div className={`card p-2 h-100 ${styles["shadow"]}`}>
@@ -66,34 +63,38 @@ export default memo(function Card(props: CardProps) {
           </a>
           <hr />
           <p className="font-italic text-muted ml-1">
-            {desc.length < 15
-              ? desc.join(" ")
-              : desc.slice(0, 15).join(" ") + "..."}
+            {desc.slice(0, 15).join(" ") + (desc.length < 15 ? "" : "...")}
           </p>
           <div className="d-flex justify-content-between mt-3 mb-2">
             <span />
-            <div className="row mr-2 mb-2">
+            <Row className="mr-2 mb-2">
               {props.flag === "Docker" ? (
-                <SimpleButton
-                  className="btn btn-sm btn-outline-secondary mr-2"
-                  event={props.event.metrics ?? {}}
+                <Button
+                  size="sm"
+                  className="mr-2"
+                  variant="outline-secondary"
+                  {...props.event.metrics}
                 >
                   Metrics
-                </SimpleButton>
+                </Button>
               ) : null}
-              <SimpleButton
-                className="btn btn-sm btn-outline-info mr-2"
-                event={props.event.modify}
+              <Button
+                size="sm"
+                className="mr-2"
+                variant="outline-info"
+                {...props.event.modify}
               >
                 Modify
-              </SimpleButton>
-              <SimpleButton
-                className="btn btn-sm btn-outline-danger a.href"
-                event={props.event.delete}
+              </Button>
+              <Button
+                size="sm"
+                className="mr-2"
+                variant="outline-danger"
+                {...props.event.delete}
               >
                 Delete
-              </SimpleButton>
-            </div>
+              </Button>
+            </Row>
           </div>
         </Container>
       </div>

@@ -20,6 +20,10 @@ export interface DefaultStyleViewProps {
 
 const PREFIX = "style";
 
+// TODO:
+// * Add Dynamic Pattern generator
+// * Something similar to this (https://pattern.monster/circles-5/)
+
 export default function DefaultStyleView(props: DefaultStyleViewProps) {
   const style = useSelector((state) => state[PREFIX]);
   const preview = useSelector((state: any) => state.preview);

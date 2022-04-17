@@ -3,12 +3,15 @@ import styles from "./CardStat.module.css";
 
 export interface CardProps {
   title: string;
+  className?: string;
   children: React.ReactNode;
 }
 
 export default function Card(props: CardProps) {
   return (
-    <div className={`card ${styles["card-shadow"]} h-100`}>
+    <div
+      className={`card h-100 ${props.className ?? ""} ${styles["card-shadow"]}`}
+    >
       <div className="card-body">
         <h4 className="card-title text-dark">{props.title}</h4>
         <div className="mt-2">{props.children}</div>

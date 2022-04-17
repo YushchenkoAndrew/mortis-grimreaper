@@ -57,6 +57,27 @@ export default function (state = INIT_STATE, action: AnyAction) {
         },
       };
 
+    case `${PREFIX}_CONFIG_SERVICE_SPEC_SELECTOR_CHANGED`: {
+      const index = GetDynamicParams(action.type, action.readFrom ?? "");
+      const path = action.readFrom
+        .replace(`${PREFIX}_CONFIG_SERVICE_${index[0]}_`.toLowerCase(), "")
+        .split("_");
+
+      return {
+        ...state,
+        config: {
+          ...state.config,
+          service: state.config.service.map((item, i) =>
+            i != index[0]
+              ? item
+              : UpdateK3sConfig(item, path.join("_"), {
+                  [path[path.length - 1]]: action.value,
+                })
+          ),
+        },
+      };
+    }
+
     case `${PREFIX}_CONFIG_DEPLOYMENT_INIT`:
       return {
         ...state,

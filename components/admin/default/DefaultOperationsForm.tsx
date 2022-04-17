@@ -418,6 +418,8 @@ export default function DefaultOperationsForm(
     }
   }
 
+  console.log(root.main.state);
+
   return (
     <Form
       noValidate
@@ -435,20 +437,21 @@ export default function DefaultOperationsForm(
           if (index === -1) {
             return dispatch({
               type: "MAIN_SUBMIT_STATE_CHANGED",
-              value: "END",
+              value: { state: "END" },
             });
           }
 
           let id = root.preview.id;
           for (let state of root.main.operations.slice(index)) {
-            console.log(state);
-
             id = await SubmitStateMachine(state, id);
           }
 
           dispatch({ type: "PREVIEW_CACHE_FLUSH" });
           dispatch({ type: "CODE_CACHE_FLUSH" });
-          dispatch({ type: "MAIN_SUBMIT_STATE_CHANGED", value: "END" });
+          dispatch({
+            type: "MAIN_SUBMIT_STATE_CHANGED",
+            value: { state: "END" },
+          });
         } catch (err: any) {
           if (!err?.state) return;
           dispatch({

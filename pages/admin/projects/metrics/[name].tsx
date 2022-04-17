@@ -18,7 +18,7 @@ import { MetricsData, ProjectData } from "../../../../types/api";
 
 export interface MetricsProps {
   project: { [name: string]: any };
-  metrics?: MetricsData[];
+  metrics: MetricsData[];
 }
 
 export default function Metrics(props: MetricsProps) {
@@ -84,7 +84,7 @@ export default function Metrics(props: MetricsProps) {
       />
 
       <Provider store={store}>
-        <DefaultMetrics metrics={props.metrics || []} />
+        <DefaultMetrics project={props.project} metrics={props.metrics} />
       </Provider>
 
       <DefaultFooter name="Menu">

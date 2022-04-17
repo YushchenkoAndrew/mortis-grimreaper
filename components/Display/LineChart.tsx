@@ -1,22 +1,28 @@
 import { Line } from "react-chartjs-2";
 import Card from "../info/Card";
 import { useSelector } from "react-redux";
+import "chartjs-adapter-moment";
 
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
+  TimeScale,
   PointElement,
   LineElement,
   Title,
   Filler,
   Tooltip,
   Legend,
+  ScaleOptionsByType,
+  CartesianScaleTypeRegistry,
 } from "chart.js";
+import { _DeepPartialObject } from "chart.js/types/utils";
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
+  TimeScale,
   PointElement,
   LineElement,
   Title,
@@ -30,6 +36,9 @@ export interface LineChartProps {
   readFrom: string;
   title: string;
   size?: { hight: number; width: number };
+  scale?: _DeepPartialObject<{
+    [key: string]: ScaleOptionsByType<keyof CartesianScaleTypeRegistry>;
+  }>;
 }
 
 export default function LineChart(props: LineChartProps) {
@@ -42,7 +51,7 @@ export default function LineChart(props: LineChartProps) {
   ) as number[][];
 
   return (
-    <Card title={props.title}>
+    <Card title={props.title} className="mb-3">
       <Line
         height={props.size?.hight || 100}
         width={props.size?.width || 100}
@@ -54,6 +63,7 @@ export default function LineChart(props: LineChartProps) {
             mode: "index",
             intersect: false,
           },
+          scales: props.scale,
         }}
         data={{
           labels: root["labels"],

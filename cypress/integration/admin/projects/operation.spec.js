@@ -1,7 +1,7 @@
 const JS_PROJECT = "test_js8";
 const MARKDOWN_PROJECT = "test_markdown11";
 const LINK_PROJECT = "test_link2";
-const DOCKER_PROJECT = "test_docker28";
+const DOCKER_PROJECT = "test_docker33";
 const DOCKER_VERSION = "0.0.5";
 
 const DOCKER_HOST = "192.168.1.2";
@@ -448,8 +448,8 @@ HELLO WORLD
     // Change  Metrics
     cy.get("input[name=preview_cron_day]").clear().type("*");
     cy.get("input[name=preview_cron_hour]").clear().type("*");
-    cy.get("input[name=preview_cron_min]").clear().type("*");
-    cy.get("input[name=preview_cron_sec]").clear().type("*/5");
+    cy.get("input[name=preview_cron_min]").clear().type("*/2");
+    cy.get("input[name=preview_cron_sec]").clear().type("0");
 
     // Start checking Code window
     cy.get("input[name=main_window_Code]").realClick();
@@ -515,9 +515,9 @@ EXPOSE 80
     cy.inputValue("config_deployment_0_metadata_namespace", "demo");
 
     // Config deployment Spec
-    cy.inputValue("config_deployment_0_spec_replicas", "a1", false, "1");
+    cy.inputValue("config_deployment_0_spec_replicas", "a5", false, "5");
     cy.get(
-      "input[name=config_deployment_spec_strategy_type_RollingUpdate]"
+      "input[name=config_deployment_0_spec_strategy_type_RollingUpdate]"
     ).realClick();
 
     cy.inputValue(
@@ -548,7 +548,7 @@ EXPOSE 80
     );
 
     cy.get(
-      "input[name=config_deployment_spec_template_spec_containers_imagePullPolicy_Always]"
+      "input[name=config_deployment_0_spec_template_spec_containers_0_imagePullPolicy_Always]"
     ).realClick();
 
     // Add New Container Port

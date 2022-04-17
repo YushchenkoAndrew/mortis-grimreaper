@@ -42,7 +42,7 @@ export default function InputRadio(props: InputRadioProps) {
               <Form.Control
                 type="radio"
                 value={item}
-                name={`${props.writeTo ?? props.readFrom}_${item}`}
+                name={`${props.readFrom}_${item}`}
                 autoComplete="off"
                 checked={value === item}
                 onChange={() => {

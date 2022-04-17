@@ -1,13 +1,22 @@
 import { AnyAction } from "redux";
 import { AvgMetrics, FormMetrics } from "../../../../../lib/public/metrics";
 
+export const TIME_RANGE = {
+  Year: 12 * 30 * 24 * 60 * 60 * 1000,
+  Month: 30 * 24 * 60 * 60 * 1000,
+  Week: 7 * 24 * 60 * 60 * 1000,
+  Day: 24 * 60 * 60 * 1000,
+};
+
 const PREFIX = "MAIN";
 
 const INIT_STATE = {
   flag: "Week" as "Year" | "Month" | "Week" | "Day",
+  process: "Normal" as "Normal" | "Preprocess",
+
   total: { pods: [], cpu: [], memory: [] },
 
-  label: [],
+  labels: [],
   metrics: { cpu: [], memory: [] },
 
   backgroundColor: [
@@ -37,11 +46,12 @@ const INIT_STATE = {
 
 export default function (state = INIT_STATE, action: AnyAction) {
   switch (action.type) {
-    case `${PREFIX}_INIT`: {
-      const metrics = FormMetrics(action.value, state.flag);
-      const avg = AvgMetrics(action.value);
+    case `${PREFIX}_INIT`:
+      return { ...state, ...action.value };
 
-      console.log(metrics);
+    case `${PREFIX}_METRICS_CALC`: {
+      const metrics = FormMetrics(action.value);
+      const avg = AvgMetrics(action.value);
 
       return {
         ...state,
@@ -51,9 +61,7 @@ export default function (state = INIT_STATE, action: AnyAction) {
           memory: Object.values(avg).map(({ memory: m, len }) => m / len || 1),
         },
 
-        labels: Object.values(metrics).map(({ cpu }) =>
-          cpu.map((_, i) => i)
-        )[0],
+        labels: Object.values(metrics).map(({ labels }) => labels)[0],
         metrics: {
           cpu: Object.values(metrics).map(({ cpu }) => cpu),
           memory: Object.values(metrics).map(({ memory }) => memory),
@@ -63,6 +71,9 @@ export default function (state = INIT_STATE, action: AnyAction) {
 
     case `${PREFIX}_FLAG_CHANGED`:
       return { ...state, flag: action.value };
+
+    case `${PREFIX}_PROCESS_CHANGED`:
+      return { ...state, process: action.value };
 
     default:
       return state;

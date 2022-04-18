@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styles from "./NavItem.module.css";
-import effect from "../../styles/Glitch.module.css";
+import effect from "./Glitch.module.css";
 import { basePath } from "../../config";
 
 export interface NavItemProps {

@@ -1,0 +1,24 @@
+@font-face {
+  font-family: "FourBit";
+  src: url("/projects/fonts/4bitfont.ttf");
+}
+
+@font-face {
+  font-family: "Abstract";
+  src: url("/projects/fonts/ABSTRACT.ttf");
+}
+
+@font-face {
+  font-family: "3Dventure";
+  src: url("/projects/fonts/3Dventure.ttf");
+}
+
+@font-face {
+  font-family: "BitAdvanced";
+  src: url("/projects/fonts/pixel-bit-advanced.ttf");
+}
+
+@font-face {
+  font-family: "Roboto-Thin";
+  src: url("/projects/fonts/Roboto-Thin.ttf");
+}

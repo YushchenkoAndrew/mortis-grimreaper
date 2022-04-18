@@ -1,0 +1,23 @@
+.text-decoration-none {
+  text-decoration: none !important;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+// Include bootstrap lib
+@import "~bootstrap/scss/bootstrap";
+
+body {
+  background-color: $light;
+}
+
+@import "./font";
+@import "./editor";
+
+// @import "./canvas";
+
+@import "./card";
+@import "./calendar";
+@import "./color-picker";

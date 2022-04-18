@@ -1,6 +1,7 @@
 import { AnyAction } from "redux";
 import { basePath } from "../../../../config";
 import { CacheId } from "../../../../lib/public";
+import { GetDynamicParams } from "./namespace";
 
 const PREFIX = "STYLE";
 
@@ -8,6 +9,9 @@ const INIT_STATE = {
   // name: "",
   // flag: "JS",
   title: "md",
+
+  pattern: "",
+  pallet: ["#ddd", "#ddd"],
   // desc: "",
   // note: "",
   // // img: `${basePath}/img/CodeRain.webp`,
@@ -29,6 +33,16 @@ export default function (state = INIT_STATE, action: AnyAction) {
 
     case `${PREFIX}_TITLE_CHANGED`:
       return { ...state, title: action.value };
+
+    case `${PREFIX}_PALLET_CHANGED`: {
+      const index = GetDynamicParams(action.type, action.readFrom ?? "");
+      return {
+        ...state,
+        pallet: state.pallet.map((item, i) =>
+          i != index[0] ? item : action.value
+        ),
+      };
+    }
 
     case `${PREFIX}_CACHED`:
       fetch(`${basePath}/api/admin/cache?id=${CacheId(PREFIX)}`, {

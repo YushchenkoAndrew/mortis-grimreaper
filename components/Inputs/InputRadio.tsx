@@ -8,6 +8,7 @@ export type Overflow = {
   off: { className: string; len: number };
 };
 export interface InputRadioProps {
+  root?: string | (() => void);
   hidden?: boolean;
   readFrom: string;
   writeTo?: string | ((item: string) => void);
@@ -58,6 +59,13 @@ export default function InputRadio(props: InputRadioProps) {
                     readFrom: props.readFrom,
                   });
                 }}
+                // FIXME: Use caching one day !!!
+                // onMouseLeave={() => {
+                //   if (!props.root) return;
+
+                //   if (typeof props.root === "function") return props.root();
+                //   dispatch({ type: `${props.root}_CACHED`.toUpperCase() });
+                // }}
               />
               {props.overflow ? (
                 <>

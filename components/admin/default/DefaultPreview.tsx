@@ -124,6 +124,7 @@ export default function DefaultPreview(props: DefaultPreviewProps) {
 
             <InputTemplate className="mb-3" label="Flag">
               <InputRadio
+                root={PREFIX}
                 readFrom={`${PREFIX}_flag`}
                 options={["JS", "Markdown", "Link", "Docker"]}
                 overflow={{

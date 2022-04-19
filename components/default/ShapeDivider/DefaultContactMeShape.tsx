@@ -1,4 +1,4 @@
-import styles from "./DefaultContactMeShape.module.css";
+import styles from "./DefaultShapeDivider.module.scss";
 
 export interface DefaultContactMeShapeProps {}
 

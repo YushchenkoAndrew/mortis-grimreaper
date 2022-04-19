@@ -2,7 +2,7 @@ import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import { Col, Container } from "react-bootstrap";
-import styles from "./AddCard.module.css";
+import styles from "./AddCard.module.scss";
 
 export interface AddCardProps {
   href: string;

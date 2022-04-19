@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
-import styles from "./NavItem.module.css";
-import effect from "./Glitch.module.css";
+import { useEffect, useState } from "react";
+import styles from "./NavItem.module.scss";
 import { basePath } from "../../config";
 
 export interface NavItemProps {
@@ -43,7 +42,7 @@ export default function NavItem(props: NavItemProps) {
       <a
         href={props.href}
         className={
-          props.style ?? `${styles["nav-link"]} ${effect["glitch-rgb"]}`
+          props.style ?? `${styles["nav-link"]} ${styles["glitch-rgb"]}`
         }
         onClick={() =>
           localStorage.getItem("id")

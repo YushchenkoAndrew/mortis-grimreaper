@@ -6,50 +6,45 @@
 
   position: absolute;
   z-index: 2;
-}
 
-.color-picker .react-colorful {
-  width: auto;
-  padding: 16px;
-  padding-bottom: 0px;
-  background: $light;
+  & .react-colorful {
+    width: auto;
+    padding: 16px;
+    padding-bottom: 0px;
+    background: $light;
 
-  border-radius: 0.25rem;
-}
+    border-radius: 0.25rem;
+  }
 
-.color-picker .react-colorful__saturation {
-  width: auto;
+  & .react-colorful__saturation {
+    width: auto;
 
-  margin: 16px 0;
-  border-bottom: none;
-  border-radius: 0.25rem !important;
-}
+    margin: 16px 0;
+    border-bottom: none;
+    border-radius: 0.25rem !important;
+  }
 
-.color-picker .react-colorful__hue {
-  order: -1;
-}
+  & .react-colorful__hue {
+    order: -1;
+    height: 14px;
+    border-radius: 0.5rem;
+  }
 
-.color-picker .react-colorful__hue,
-.color-picker .react-colorful__alpha {
-  height: 14px;
-  border-radius: 0.5rem;
-}
-
-.color-picker .react-colorful__hue-pointer,
-.color-picker .react-colorful__alpha-pointer {
-  width: 20px;
-  height: 20px;
+  & .react-colorful__hue-pointer {
+    width: 20px;
+    height: 20px;
+  }
 }
 
 .color-view {
   width: 3rem;
   height: 3rem;
-  border: 2px solid var(--dark);
+  border: 2px solid $dark;
   border-radius: 0.25rem !important;
   transition-duration: 200ms;
   display: flex;
-}
 
-.color-view:hover {
-  transform: scale(1.1);
+  &:hover {
+    transform: scale(1.1);
+  }
 }

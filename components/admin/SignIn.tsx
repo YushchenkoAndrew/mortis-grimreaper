@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import md5 from "../../lib/md5";
 import { DefaultRes } from "../../types/request";
-import styles from "./SignIn.module.css";
+import styles from "./SignIn.module.scss";
 import ReCAPTCHA from "react-google-recaptcha";
 import { Image } from "react-bootstrap";
 import { basePath, voidUrl } from "../../config";

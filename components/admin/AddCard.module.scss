@@ -1,0 +1,44 @@
+.add-card {
+  border-radius: 30px;
+  background-color: var(--light);
+  transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+
+  &:hover svg {
+    color: var(--light) !important;
+    transform: rotate(90deg);
+    transition-duration: 500ms;
+  }
+
+  &:hover .add-title {
+    color: var(--light) !important;
+  }
+
+  &:hover {
+    transform: scale(1.02);
+    background-color: rgba(23, 162, 184, 0.7);
+    box-shadow: 5.1px 10.2px 10.2px rgba(0, 123, 255, 0.26);
+  }
+}
+
+.add-title {
+  font-family: "BitAdvanced";
+  font-size: 2.6rem !important;
+
+  @media (min-width: 768px) {
+    & {
+      font-size: 2.6rem !important;
+    }
+  }
+
+  @media (min-width: 992px) {
+    & {
+      font-size: 2.2rem !important;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    & {
+      font-size: 2.8rem !important;
+    }
+  }
+}

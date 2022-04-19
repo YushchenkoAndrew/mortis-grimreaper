@@ -8,7 +8,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
-import styles from "./Node.module.css";
+import styles from "./Node.module.scss";
 export interface NodeProps {
   name: string;
   index?: string;

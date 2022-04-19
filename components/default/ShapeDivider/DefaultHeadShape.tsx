@@ -1,4 +1,4 @@
-import styles from "./DefaultHeadShape.module.css";
+import styles from "./DefaultShapeDivider.module.scss";
 
 export interface DefaultHeadShapeProps {}
 

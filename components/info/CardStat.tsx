@@ -1,5 +1,4 @@
 import React from "react";
-import styles from "./CardStat.module.css";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { animated, SpringValue } from "react-spring";
@@ -14,7 +13,14 @@ export interface CardStatProps {
 
 export default function CardStat(props: CardStatProps) {
   return (
-    <div className={`card border-right ${styles["card-shadow"]} mb-4`}>
+    <div
+      className="card border-right mb-4"
+      style={{
+        boxShadow: "0 3px 9px 0 rgb(169 184 200 / 15%)",
+        WebkitBoxShadow: "0 3px 9px 0 rgb(169 184 200 / 15%)",
+        MozBoxShadow: "0 3px 9px 0 rgba(169, 184, 200, 0.15)",
+      }}
+    >
       <div className="card-body text-center">
         <div className="d-flex d-lg-flex d-md-block align-items-center">
           <div>

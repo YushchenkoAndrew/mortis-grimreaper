@@ -418,8 +418,6 @@ export default function DefaultOperationsForm(
     }
   }
 
-  console.log(root.main.state);
-
   return (
     <Form
       noValidate

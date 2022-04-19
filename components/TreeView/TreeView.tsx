@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import md5 from "../../lib/md5";
 import { TreeObj } from "../../types/tree";
-import styles from "./TreeView.module.css";
+import styles from "./TreeView.module.scss";
 import Node from "./Node";
 import {
   faFile,

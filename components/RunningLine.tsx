@@ -1,5 +1,4 @@
 import { memo, useEffect, useState } from "react";
-import styles from "./RunningLine.module.css";
 
 export interface RunningLineProps {
   text: string;
@@ -30,9 +29,10 @@ export default memo(function RunningLine(props: RunningLineProps) {
 
   return (
     <h3
-      className={`text-white ${styles["running-line"]}`}
+      className="text-white text-3Dventure"
       onMouseEnter={() => props.onHover?.(true)}
       onMouseLeave={() => props.onHover?.(false)}
+      style={{ fontSize: "2rem" }}
     >
       {(props.size ?? 5) >= props.text.length
         ? props.text

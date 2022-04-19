@@ -10,6 +10,7 @@ import InputColor from "../../Inputs/InputColor";
 import InputFile from "../../Inputs/InputFile";
 import InputName from "../../Inputs/InputName";
 import InputRadio from "../../Inputs/InputRadio";
+import InputRange from "../../Inputs/InputRange";
 import InputTemplate from "../../Inputs/InputTemplate";
 import InputText from "../../Inputs/InputText";
 import InputValue from "../../Inputs/InputValue";
@@ -62,6 +63,12 @@ export default function DefaultStyleView(props: DefaultStyleViewProps) {
         <Form.Group as={Col} md={{ order: 1, span: 7 }}>
           <h4 className="font-weight-bold mb-3">Thumbnail</h4>
           <InputTemplate className="mb-3" label="Title size">
+            <InputRange
+              root={PREFIX}
+              readFrom={`${PREFIX}_zoom`}
+              property={{ min: 0, max: 30 }}
+            />
+
             <Row>
               {(style.pallet as string[]).map((_, i) => (
                 <Form.Group key={`pallet-color-${i}`} className="mx-2">

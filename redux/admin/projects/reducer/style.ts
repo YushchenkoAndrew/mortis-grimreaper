@@ -12,6 +12,12 @@ const INIT_STATE = {
 
   pattern: "",
   pallet: ["#ddd", "#ddd"],
+
+  zoom: 0,
+  // ver: 0,
+  angle: 0,
+  color: 0,
+
   // desc: "",
   // note: "",
   // // img: `${basePath}/img/CodeRain.webp`,
@@ -33,6 +39,9 @@ export default function (state = INIT_STATE, action: AnyAction) {
 
     case `${PREFIX}_TITLE_CHANGED`:
       return { ...state, title: action.value };
+
+    case `${PREFIX}_ZOOM_CHANGED`:
+      return { ...state, zoom: action.value };
 
     case `${PREFIX}_PALLET_CHANGED`: {
       const index = GetDynamicParams(action.type, action.readFrom ?? "");

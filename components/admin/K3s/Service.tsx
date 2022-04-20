@@ -1,12 +1,18 @@
 import {
   faChevronDown,
-  faChevronRight,
   faPlus,
   faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
-import { Button, Container, InputGroup, ListGroup, Row } from "react-bootstrap";
+import {
+  Button,
+  Collapse,
+  Container,
+  InputGroup,
+  ListGroup,
+  Row,
+} from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import InputList from "../../Inputs/InputDoubleList";
 import InputName from "../../Inputs/InputName";
@@ -18,7 +24,7 @@ import styles from "./Default.module.css";
 import Port from "./Port";
 
 export interface ServiceProps {
-  show?: boolean;
+  hidden?: boolean;
   root?: string | (() => void);
   readFrom: string;
   writeTo: string;
@@ -54,7 +60,7 @@ export default function Service(props: ServiceProps) {
   }, [ports.length]);
 
   return (
-    <div className={`card px-1 py-3 ${props.show ? "" : "d-none"}`}>
+    <div hidden={props.hidden} className="card px-1 py-3">
       <InputTemplate
         className="px-0"
         labelClassName="font-weight-bold mx-2"
@@ -62,41 +68,46 @@ export default function Service(props: ServiceProps) {
           "Metadata ",
           <FontAwesomeIcon
             key={"icon-metadata"}
-            icon={minimized.metadata ? faChevronDown : faChevronRight}
+            icon={faChevronDown}
+            style={{
+              transitionDuration: "0.25s",
+              transitionProperty: "transform",
+              transform: `rotate(${minimized.metadata ? "0deg" : "-90deg"}`,
+            }}
           />,
         ]}
         onClick={() =>
           onMinimize({ ...minimized, metadata: !minimized.metadata })
         }
       >
-        <div
-          className={`row border rounded mx-1 py-2 ${
-            minimized.metadata ? "" : "d-none"
-          }`}
-        >
-          <InputTemplate className="col-6 px-2" label="Name">
-            <InputName
-              char="@"
-              root={props.root}
-              readFrom={`${props.readFrom}_metadata_name`}
-              writeTo={`${props.writeTo}_metadata_name`}
-              placeholder="void-service"
-              required
-            />
-          </InputTemplate>
+        <Collapse in={minimized.metadata}>
+          <div>
+            <div className="row border rounded mx-1 py-2">
+              <InputTemplate className="col-6 px-2" label="Name">
+                <InputName
+                  char="@"
+                  root={props.root}
+                  readFrom={`${props.readFrom}_metadata_name`}
+                  writeTo={`${props.writeTo}_metadata_name`}
+                  placeholder="void-service"
+                  required
+                />
+              </InputTemplate>
 
-          <InputTemplate className="col-6 px-2" label="Namespace">
-            <InputGroup>
-              <InputValue
-                className="rounded"
-                root={props.root}
-                readFrom={`${props.readFrom}_metadata_namespace`}
-                writeTo={`${props.writeTo}_metadata_namespace`}
-                placeholder="demo"
-              />
-            </InputGroup>
-          </InputTemplate>
-        </div>
+              <InputTemplate className="col-6 px-2" label="Namespace">
+                <InputGroup>
+                  <InputValue
+                    className="rounded"
+                    root={props.root}
+                    readFrom={`${props.readFrom}_metadata_namespace`}
+                    writeTo={`${props.writeTo}_metadata_namespace`}
+                    placeholder="demo"
+                  />
+                </InputGroup>
+              </InputTemplate>
+            </div>
+          </div>
+        </Collapse>
       </InputTemplate>
 
       <InputTemplate
@@ -106,84 +117,100 @@ export default function Service(props: ServiceProps) {
           "Spec ",
           <FontAwesomeIcon
             key={"icon-spec"}
-            icon={minimized.spec ? faChevronDown : faChevronRight}
+            icon={faChevronDown}
+            style={{
+              transitionDuration: "0.25s",
+              transitionProperty: "transform",
+              transform: `rotate(${minimized.spec ? "0deg" : "-90deg"}`,
+            }}
           />,
         ]}
         onClick={() => onMinimize({ ...minimized, spec: !minimized.spec })}
       >
-        <div className={`border rounded p-2 ${minimized.spec ? "" : "d-none"}`}>
-          <InputTemplate className="px-1" label="Cluster IP">
-            <InputName
-              char="$"
-              root={props.root}
-              readFrom={`${props.readFrom}_spec_clusterIP`}
-              writeTo={`${props.writeTo}_spec_clusterIP`}
-              placeholder="10.0.171.239"
-            />
-          </InputTemplate>
-
-          <InputTemplate className="px-1" label="Type">
-            <InputRadio
-              className="btn-group btn-group-sm btn-group-toggle"
-              readFrom={`${props.readFrom}_spec_type`}
-              writeTo={`${props.writeTo}_spec_type`}
-              options={[
-                "ClusterIP",
-                "NodePort",
-                "LoadBalancer",
-                "ExternalName",
-              ]}
-              overflow={{
-                on: { className: "d-block d-sm-none", len: 6 },
-                off: { className: "d-none d-sm-block", len: 0 },
-              }}
-              label="btn-outline-info"
-            />
-          </InputTemplate>
-
-          <InputTemplate
-            className="mt-1 px-0"
-            label={[
-              "Selector ",
-              <FontAwesomeIcon
-                key={"icon-selector"}
-                icon={minimized.selector ? faChevronDown : faChevronRight}
-              />,
-            ]}
-            onClick={() =>
-              onMinimize({
-                ...minimized,
-                selector: !minimized.selector,
-              })
-            }
-          >
-            <div
-              className={`border rounded py-2 ${
-                minimized.selector ? "" : "d-none"
-              }`}
-            >
-              <Container className="px-2">
-                <InputList
-                  char={["var", "="]}
-                  placeholder={["app", "void"]}
-                  readFrom={`${props.readFrom}_spec_selector`}
-                  writeTo={`${props.writeTo}_spec_selector`}
+        <Collapse in={minimized.spec}>
+          <div>
+            <div className="border rounded p-2">
+              <InputTemplate className="px-1" label="Cluster IP">
+                <InputName
+                  char="$"
+                  root={props.root}
+                  readFrom={`${props.readFrom}_spec_clusterIP`}
+                  writeTo={`${props.writeTo}_spec_clusterIP`}
+                  placeholder="10.0.171.239"
                 />
-                <ListGroup>
-                  {Object.entries(labels).map(([name, value], i) => (
-                    <Row key={`matchLabels-${i}`} className="px-2">
-                      <ListEntity
-                        char={["var", "="]}
-                        value={[name, value]}
-                        onChange={() => {}}
-                      />
-                    </Row>
-                  ))}
-                </ListGroup>
-              </Container>
+              </InputTemplate>
+
+              <InputTemplate className="px-1" label="Type">
+                <InputRadio
+                  className="btn-group btn-group-sm btn-group-toggle"
+                  readFrom={`${props.readFrom}_spec_type`}
+                  writeTo={`${props.writeTo}_spec_type`}
+                  options={[
+                    "ClusterIP",
+                    "NodePort",
+                    "LoadBalancer",
+                    "ExternalName",
+                  ]}
+                  overflow={{
+                    on: { className: "d-block d-sm-none", len: 6 },
+                    off: { className: "d-none d-sm-block", len: 0 },
+                  }}
+                  label="btn-outline-info"
+                />
+              </InputTemplate>
+
+              <InputTemplate
+                className="mt-1 px-0"
+                label={[
+                  "Selector ",
+                  <FontAwesomeIcon
+                    key={"icon-selector"}
+                    icon={faChevronDown}
+                    style={{
+                      transitionDuration: "0.25s",
+                      transitionProperty: "transform",
+                      transform: `rotate(${
+                        minimized.selector ? "0deg" : "-90deg"
+                      }`,
+                    }}
+                  />,
+                ]}
+                onClick={() =>
+                  onMinimize({
+                    ...minimized,
+                    selector: !minimized.selector,
+                  })
+                }
+              >
+                <Collapse in={minimized.selector}>
+                  <div>
+                    <div className="border rounded py-2">
+                      <Container className="px-2">
+                        <InputList
+                          char={["var", "="]}
+                          placeholder={["app", "void"]}
+                          readFrom={`${props.readFrom}_spec_selector`}
+                          writeTo={`${props.writeTo}_spec_selector`}
+                        />
+                        <ListGroup>
+                          {Object.entries(labels).map(([name, value], i) => (
+                            <Row key={`matchLabels-${i}`} className="px-2">
+                              <ListEntity
+                                char={["var", "="]}
+                                value={[name, value]}
+                                onChange={() => {}}
+                              />
+                            </Row>
+                          ))}
+                        </ListGroup>
+                      </Container>
+                    </div>
+                  </div>
+                </Collapse>
+              </InputTemplate>
             </div>
-          </InputTemplate>
-        </div>
+          </div>
+        </Collapse>
       </InputTemplate>
 
       <InputTemplate
@@ -193,86 +220,103 @@ export default function Service(props: ServiceProps) {
           "Ports ",
           <FontAwesomeIcon
             key={"icon-ports"}
-            icon={minimized.port ? faChevronDown : faChevronRight}
+            icon={faChevronDown}
+            style={{
+              transitionDuration: "0.25s",
+              transitionProperty: "transform",
+              transform: `rotate(${minimized.port ? "0deg" : "-90deg"}`,
+            }}
           />,
         ]}
         onClick={() => onMinimize({ ...minimized, port: !minimized.port })}
       >
-        <div
-          className={`border rounded px-1 py-2 ${
-            minimized.port ? "" : "d-none"
-          }`}
-        >
-          {minimized.ports.map((show, index) => (
-            <div
-              key={`port-${index}`}
-              className={`mb-3 w-100 ${styles["el-index"]}`}
-            >
-              <Row className="mx-1">
-                <label
-                  className="mx-1 mr-auto"
+        <Collapse in={minimized.port}>
+          <div>
+            <div className="border rounded px-1 py-2">
+              {minimized.ports.map((show, index) => (
+                <div
+                  key={`port-${index}`}
+                  className={`mb-3 w-100 ${styles["el-index"]}`}
+                >
+                  <Row className="mx-1">
+                    <label
+                      className="mx-1 mr-auto"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => {
+                        onMinimize({
+                          ...minimized,
+                          ports: minimized.ports.map((item, i) =>
+                            i === index ? !item : item
+                          ),
+                        });
+                      }}
+                    >
+                      {`[${index}] `}
+                      <FontAwesomeIcon
+                        icon={faChevronDown}
+                        style={{
+                          transitionDuration: "0.25s",
+                          transitionProperty: "transform",
+                          transform: `rotate(${show ? "0deg" : "-90deg"}`,
+                        }}
+                      />
+                    </label>
+                    <FontAwesomeIcon
+                      className={`mr-1 ${styles["el-container"]} text-danger`}
+                      icon={faTrashAlt}
+                      size="lg"
+                      fontSize="1rem"
+                      onClick={() => {
+                        onMinimize({
+                          ...minimized,
+                          ports: minimized.ports.filter((_, i) => i !== index),
+                        });
+
+                        dispatch({
+                          type: `${props.writeTo}_spec_ports_del`.toUpperCase(),
+                          readFrom: `${props.readFrom}_spec_ports_${index}`,
+                          index: index,
+                        });
+                      }}
+                    />
+                  </Row>
+                  <Collapse in={show}>
+                    <div>
+                      <Port
+                        root={props.root}
+                        readFrom={`${props.readFrom}_spec_ports_${index}`}
+                        writeTo={`${props.writeTo}_spec_ports`}
+                      />
+                    </div>
+                  </Collapse>
+                </div>
+              ))}
+
+              <Container className="my-2">
+                <Button
+                  className="w-100"
+                  name={`${props.readFrom}_port_add`}
+                  variant="outline-success"
                   onClick={() => {
                     onMinimize({
                       ...minimized,
-                      ports: minimized.ports.map((item, i) =>
-                        i === index ? !item : item
-                      ),
+                      ports: [...minimized.ports, true],
+                    });
+                    dispatch({
+                      type: `${props.writeTo}_spec_ports_add`.toUpperCase(),
+                      readFrom: `${props.readFrom}_spec_ports`,
                     });
                   }}
                 >
-                  {`[${index}] `}
                   <FontAwesomeIcon
-                    icon={show ? faChevronDown : faChevronRight}
+                    className={`text-success ${styles["icon"]}`}
+                    icon={faPlus}
                   />
-                </label>
-                <FontAwesomeIcon
-                  className={`mr-1 ${styles["el-container"]} text-danger`}
-                  icon={faTrashAlt}
-                  size="lg"
-                  fontSize="1rem"
-                  onClick={() => {
-                    onMinimize({
-                      ...minimized,
-                      ports: minimized.ports.filter((_, i) => i !== index),
-                    });
-
-                    dispatch({
-                      type: `${props.writeTo}_spec_ports_del`.toUpperCase(),
-                      readFrom: `${props.readFrom}_spec_ports_${index}`,
-                      index: index,
-                    });
-                  }}
-                />
-              </Row>
-              <Port
-                root={props.root}
-                show={minimized.ports[index]}
-                readFrom={`${props.readFrom}_spec_ports_${index}`}
-                writeTo={`${props.writeTo}_spec_ports`}
-              />
+                </Button>
+              </Container>
             </div>
-          ))}
-
-          <Container className="my-2">
-            <Button
-              className="w-100"
-              name={`${props.readFrom}_port_add`}
-              variant="outline-success"
-              onClick={() => {
-                onMinimize({ ...minimized, ports: [...minimized.ports, true] });
-                dispatch({
-                  type: `${props.writeTo}_spec_ports_add`.toUpperCase(),
-                  readFrom: `${props.readFrom}_spec_ports`,
-                });
-              }}
-            >
-              <FontAwesomeIcon
-                className={`text-success ${styles["icon"]}`}
-                icon={faPlus}
-              />
-            </Button>
-          </Container>
-        </div>
+          </div>
+        </Collapse>
       </InputTemplate>
     </div>
   );

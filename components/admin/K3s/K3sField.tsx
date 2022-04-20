@@ -1,10 +1,7 @@
-import {
-  faChevronDown,
-  faChevronRight,
-  faPlus,
-} from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Button, Container, Row } from "react-bootstrap";
+import { ReactNode } from "react";
+import { Button, Collapse, Container, Row } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import styles from "./Default.module.css";
 
@@ -17,7 +14,7 @@ export interface K3sFieldProps {
   onAdd?: () => void;
   // onDel?: () => void;
   onHide?: () => void;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }
 
 export interface K3sFieldRef {}
@@ -29,11 +26,20 @@ export default function K3sField(props: K3sFieldProps) {
       <hr className="mb-4" />
       <Container className={`${styles["el-index-2"]} px-0 px-sm-3`}>
         <div className="row px-3">
-          <Row className="mr-auto" onClick={props.onHide}>
+          <Row
+            className="mr-auto"
+            style={{ cursor: "pointer" }}
+            onClick={props.onHide}
+          >
             <h4 className="mr-2">{props.name}</h4>
             <FontAwesomeIcon
               className="my-2"
-              icon={props.show ? faChevronDown : faChevronRight}
+              icon={faChevronDown}
+              style={{
+                transitionDuration: "0.25s",
+                transitionProperty: "transform",
+                transform: `rotate(${props.show ? "0deg" : "-90deg"}`,
+              }}
             />
           </Row>
           <Row className="mr-1">
@@ -77,7 +83,9 @@ export default function K3sField(props: K3sFieldProps) {
           </Row>
         </div>
 
-        <Row className="justify-content-center mb-2">{props.children}</Row>
+        <Collapse className="justify-content-center" in={props.show}>
+          <Row className="ml-auto">{props.children}</Row>
+        </Collapse>
       </Container>
     </>
   );

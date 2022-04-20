@@ -5,7 +5,7 @@ import InputTemplate from "../../Inputs/InputTemplate";
 import InputValue from "../../Inputs/InputValue";
 
 export interface PortProps {
-  show?: boolean;
+  hidden?: boolean;
   root?: string | (() => void);
   readFrom: string;
   writeTo: string;
@@ -13,7 +13,7 @@ export interface PortProps {
 
 export default function Port(props: PortProps) {
   return (
-    <div className={`border rounded mx-1 p-2 ${props.show ? "" : "d-none"}`}>
+    <div hidden={props.hidden} className="border rounded mx-1 p-2">
       <InputTemplate label="Name" className="px-1">
         <InputName
           char="@"

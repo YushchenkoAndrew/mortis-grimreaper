@@ -79,7 +79,6 @@ export default forwardRef((props: K3sConfigProps, ref) => {
                 root={() => ParseConfig(namespaces, "CODE_NAMESPACE")}
                 readFrom={`config_namespace_${index}`}
                 writeTo="config_namespace"
-                show={minimized.namespace}
               />
             </div>
           ))}
@@ -105,7 +104,6 @@ export default forwardRef((props: K3sConfigProps, ref) => {
                 root={() => ParseConfig(deployments, "CODE_DEPLOYMENT")}
                 readFrom={`config_deployment_${index}`}
                 writeTo="config_deployment"
-                show={minimized.deployment}
               />
             </div>
           ))}
@@ -131,7 +129,6 @@ export default forwardRef((props: K3sConfigProps, ref) => {
                 root={() => ParseConfig(services, "CODE_SERVICE")}
                 readFrom={`config_service_${index}`}
                 writeTo="config_service"
-                show={minimized.service}
               />
             </div>
           ))}
@@ -157,7 +154,6 @@ export default forwardRef((props: K3sConfigProps, ref) => {
                 }}
                 readFrom={`config_ingress_${index}`}
                 writeTo="config_ingress"
-                show={minimized.ingress}
               />
             </div>
           ))}
@@ -170,11 +166,7 @@ export default forwardRef((props: K3sConfigProps, ref) => {
             onMinimize({ ...minimized, terminal: !minimized.terminal })
           }
         >
-          <Terminal
-            ref={terminalRef}
-            show={minimized.terminal}
-            readFrom="code_terminal"
-          />
+          <Terminal ref={terminalRef} readFrom="code_terminal" />
         </K3sField>
       </Container>
     </div>

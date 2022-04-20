@@ -1,12 +1,11 @@
 import {
   faChevronDown,
-  faChevronRight,
   faPlus,
   faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
-import { Button, InputGroup, ListGroup, Row } from "react-bootstrap";
+import { Button, Collapse, InputGroup, ListGroup, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import InputList from "../../Inputs/InputDoubleList";
 import InputName from "../../Inputs/InputName";
@@ -18,7 +17,7 @@ import Container from "./Container";
 import styles from "./Default.module.css";
 
 export interface DeploymentProps {
-  show?: boolean;
+  hidden?: boolean;
   root?: string | (() => void);
   readFrom: string;
   writeTo: string;
@@ -54,7 +53,7 @@ export default function Deployment(props: DeploymentProps) {
   }, [containers.length]);
 
   return (
-    <div className={`card px-1 py-3 ${props.show ? "" : "d-none"}`}>
+    <div hidden={props.hidden} className="card px-1 py-3">
       <InputTemplate
         className="px-0"
         labelClassName="font-weight-bold ml-2"
@@ -62,41 +61,46 @@ export default function Deployment(props: DeploymentProps) {
           "Metadata ",
           <FontAwesomeIcon
             key={"icon-metadata"}
-            icon={minimized.metadata ? faChevronDown : faChevronRight}
+            icon={faChevronDown}
+            style={{
+              transitionDuration: "0.25s",
+              transitionProperty: "transform",
+              transform: `rotate(${minimized.metadata ? "0deg" : "-90deg"}`,
+            }}
           />,
         ]}
         onClick={() =>
           onMinimize({ ...minimized, metadata: !minimized.metadata })
         }
       >
-        <Row
-          className={`border rounded mx-1 px-1 py-2 ${
-            minimized.metadata ? "" : "d-none"
-          }`}
-        >
-          <InputTemplate className="col-6 px-2" label="Name">
-            <InputName
-              char="@"
-              required
-              root={props.root}
-              readFrom={`${props.readFrom}_metadata_name`}
-              writeTo={`${props.writeTo}_metadata_name`}
-              placeholder="void-deployment"
-            />
-          </InputTemplate>
+        <Collapse in={minimized.metadata}>
+          <div>
+            <Row className="border rounded mx-1 px-1 py-2">
+              <InputTemplate className="col-6 px-2" label="Name">
+                <InputName
+                  char="@"
+                  required
+                  root={props.root}
+                  readFrom={`${props.readFrom}_metadata_name`}
+                  writeTo={`${props.writeTo}_metadata_name`}
+                  placeholder="void-deployment"
+                />
+              </InputTemplate>
 
-          <InputTemplate className="col-6" label="Namespace">
-            <InputGroup>
-              <InputValue
-                className="rounded"
-                root={props.root}
-                readFrom={`${props.readFrom}_metadata_namespace`}
-                writeTo={`${props.writeTo}_metadata_namespace`}
-                placeholder="demo"
-              />
-            </InputGroup>
-          </InputTemplate>
-        </Row>
+              <InputTemplate className="col-6" label="Namespace">
+                <InputGroup>
+                  <InputValue
+                    className="rounded"
+                    root={props.root}
+                    readFrom={`${props.readFrom}_metadata_namespace`}
+                    writeTo={`${props.writeTo}_metadata_namespace`}
+                    placeholder="demo"
+                  />
+                </InputGroup>
+              </InputTemplate>
+            </Row>
+          </div>
+        </Collapse>
       </InputTemplate>
 
       <InputTemplate
@@ -106,104 +110,116 @@ export default function Deployment(props: DeploymentProps) {
           "Spec ",
           <FontAwesomeIcon
             key={"icon-spec"}
-            icon={minimized.spec ? faChevronDown : faChevronRight}
+            icon={faChevronDown}
+            style={{
+              transitionDuration: "0.25s",
+              transitionProperty: "transform",
+              transform: `rotate(${minimized.spec ? "0deg" : "-90deg"}`,
+            }}
           />,
         ]}
         onClick={() => onMinimize({ ...minimized, spec: !minimized.spec })}
       >
-        <div
-          className={`border rounded mx-1 px-2 py-2 ${
-            minimized.spec ? "" : "d-none"
-          }`}
-        >
-          <Row className="px-1">
-            <InputTemplate className="col-6" label="Replicas">
-              <InputGroup>
-                <InputName
-                  char="$"
-                  required
-                  root={props.root}
-                  readFrom={`${props.readFrom}_spec_replicas`}
-                  writeTo={`${props.writeTo}_spec_replicas`}
-                  placeholder="1"
-                />
-              </InputGroup>
-            </InputTemplate>
+        <Collapse in={minimized.spec}>
+          <div>
+            <div className="border rounded mx-1 px-2 py-2">
+              <Row className="px-1">
+                <InputTemplate className="col-6" label="Replicas">
+                  <InputGroup>
+                    <InputName
+                      char="$"
+                      required
+                      root={props.root}
+                      readFrom={`${props.readFrom}_spec_replicas`}
+                      writeTo={`${props.writeTo}_spec_replicas`}
+                      placeholder="1"
+                    />
+                  </InputGroup>
+                </InputTemplate>
 
-            <InputTemplate className="col-6 px-0" label="Strategy">
-              <InputRadio
-                readFrom={`${props.readFrom}_spec_strategy_type`}
-                writeTo={`${props.writeTo}_spec_strategy_type`}
-                className="btn-group btn-group-sm btn-group-toggle"
-                options={["RollingUpdate", "Recreate"]}
-                label="btn-outline-info"
-                overflow={{
-                  on: { className: "d-block d-sm-none", len: 6 },
-                  off: { className: "d-none d-sm-block", len: 0 },
-                }}
-              />
-            </InputTemplate>
-          </Row>
+                <InputTemplate className="col-6 px-0" label="Strategy">
+                  <InputRadio
+                    readFrom={`${props.readFrom}_spec_strategy_type`}
+                    writeTo={`${props.writeTo}_spec_strategy_type`}
+                    className="btn-group btn-group-sm btn-group-toggle"
+                    options={["RollingUpdate", "Recreate"]}
+                    label="btn-outline-info"
+                    overflow={{
+                      on: { className: "d-block d-sm-none", len: 6 },
+                      off: { className: "d-none d-sm-block", len: 0 },
+                    }}
+                  />
+                </InputTemplate>
+              </Row>
 
-          <InputTemplate
-            className="mt-1 px-0"
-            label={[
-              "MatchLabels ",
-              <FontAwesomeIcon
-                key={"icon-match-labels"}
-                icon={minimized.matchLabels ? faChevronDown : faChevronRight}
-              />,
-            ]}
-            onClick={() =>
-              onMinimize({
-                ...minimized,
-                matchLabels: !minimized.matchLabels,
-              })
-            }
-          >
-            <div
-              className={`border rounded px-0 py-2 ${
-                minimized.matchLabels ? "" : "d-none"
-              }`}
-            >
-              <div className="container px-2">
-                <InputList
-                  root={props.root}
-                  char={["var", "="]}
-                  readFrom={`${props.readFrom}_spec_selector_matchLabels`}
-                  writeTo={`${props.writeTo}_spec_selector_matchLabels`}
-                  changeIn={[
-                    {
-                      readFrom: `${props.readFrom}_spec_template_metadata_labels`,
-                      writeTo: `${props.writeTo}_spec_template_metadata_labels`,
-                    },
-                  ]}
-                  placeholder={["app", "void"]}
-                />
-                <ListGroup>
-                  {Object.entries(labels).map(([name, value], i) => (
-                    <Row key={`matchLabels-${i}`} className="px-2">
-                      <ListEntity
-                        char={["var", "="]}
-                        value={[name, value]}
-                        onChange={() => {
-                          dispatch({
-                            type: `${props.readFrom}_spec_selector_matchLabels_del`.toUpperCase(),
-                            value: name,
-                          });
-                          dispatch({
-                            type: `${props.readFrom}_spec_template_metadata_labels_del`.toUpperCase(),
-                            value: name,
-                          });
-                        }}
-                      />
-                    </Row>
-                  ))}
-                </ListGroup>
-              </div>
+              <InputTemplate
+                className="mt-1 px-0"
+                label={[
+                  "MatchLabels ",
+                  <FontAwesomeIcon
+                    key={"icon-match-labels"}
+                    icon={faChevronDown}
+                    style={{
+                      transitionDuration: "0.25s",
+                      transitionProperty: "transform",
+                      transform: `rotate(${
+                        minimized.matchLabels ? "0deg" : "-90deg"
+                      }`,
+                    }}
+                  />,
+                ]}
+                onClick={() =>
+                  onMinimize({
+                    ...minimized,
+                    matchLabels: !minimized.matchLabels,
+                  })
+                }
+              >
+                <Collapse in={minimized.matchLabels}>
+                  <div>
+                    <div className="border rounded px-0 py-2">
+                      <div className="container px-2">
+                        <InputList
+                          root={props.root}
+                          char={["var", "="]}
+                          readFrom={`${props.readFrom}_spec_selector_matchLabels`}
+                          writeTo={`${props.writeTo}_spec_selector_matchLabels`}
+                          changeIn={[
+                            {
+                              readFrom: `${props.readFrom}_spec_template_metadata_labels`,
+                              writeTo: `${props.writeTo}_spec_template_metadata_labels`,
+                            },
+                          ]}
+                          placeholder={["app", "void"]}
+                        />
+                        <ListGroup>
+                          {Object.entries(labels).map(([name, value], i) => (
+                            <Row key={`matchLabels-${i}`} className="px-2">
+                              <ListEntity
+                                char={["var", "="]}
+                                value={[name, value]}
+                                onChange={() => {
+                                  dispatch({
+                                    type: `${props.readFrom}_spec_selector_matchLabels_del`.toUpperCase(),
+                                    value: name,
+                                  });
+                                  dispatch({
+                                    type: `${props.readFrom}_spec_template_metadata_labels_del`.toUpperCase(),
+                                    value: name,
+                                  });
+                                }}
+                              />
+                            </Row>
+                          ))}
+                        </ListGroup>
+                      </div>
+                    </div>
+                  </div>
+                </Collapse>
+              </InputTemplate>
             </div>
-          </InputTemplate>
-        </div>
+          </div>
+        </Collapse>
       </InputTemplate>
 
       <InputTemplate
@@ -213,87 +229,101 @@ export default function Deployment(props: DeploymentProps) {
           "Containers ",
           <FontAwesomeIcon
             key="icon-containers"
-            icon={minimized.container ? faChevronDown : faChevronRight}
+            icon={faChevronDown}
+            style={{
+              transitionDuration: "0.25s",
+              transitionProperty: "transform",
+              transform: `rotate(${minimized.container ? "0deg" : "-90deg"}`,
+            }}
           />,
         ]}
         onClick={() =>
           onMinimize({ ...minimized, container: !minimized.container })
         }
       >
-        <div
-          className={`border rounded px-1 py-2 mx-1 ${
-            minimized.container ? "" : "d-none"
-          }`}
-        >
-          {minimized.containers.map((show, index) => (
-            <div
-              key={`container-${index}`}
-              className={`mb-3 w-100 ${styles["el-index"]}`}
-            >
-              <Row className="mx-1">
-                <label
-                  className="ml-1 mr-auto"
-                  onClick={() =>
-                    onMinimize({
-                      ...minimized,
-                      containers: minimized.containers.map((item, i) =>
-                        i != index ? item : !item
-                      ),
-                    })
-                  }
+        <Collapse in={minimized.container}>
+          <div>
+            <div className="border rounded px-1 py-2 mx-1">
+              {minimized.containers.map((show, index) => (
+                <div
+                  key={`container-${index}`}
+                  className={`mb-3 w-100 ${styles["el-index"]}`}
                 >
-                  {`[${index}] `}
-                  <FontAwesomeIcon
-                    icon={show ? faChevronDown : faChevronRight}
-                  />
-                </label>
-                <FontAwesomeIcon
-                  className={`mr-1 ${styles["el-container"]} text-danger`}
-                  icon={faTrashAlt}
-                  size="lg"
-                  fontSize="1rem"
+                  <Row className="mx-1">
+                    <label
+                      className="ml-1 mr-auto"
+                      style={{ cursor: "pointer" }}
+                      onClick={() =>
+                        onMinimize({
+                          ...minimized,
+                          containers: minimized.containers.map((item, i) =>
+                            i != index ? item : !item
+                          ),
+                        })
+                      }
+                    >
+                      {`[${index}] `}
+                      <FontAwesomeIcon
+                        icon={faChevronDown}
+                        style={{
+                          transitionDuration: "0.25s",
+                          transitionProperty: "transform",
+                          transform: `rotate(${show ? "0deg" : "-90deg"}`,
+                        }}
+                      />
+                    </label>
+                    <FontAwesomeIcon
+                      className={`mr-1 ${styles["el-container"]} text-danger`}
+                      icon={faTrashAlt}
+                      size="lg"
+                      fontSize="1rem"
+                      onClick={() => {
+                        dispatch({
+                          type: `${props.writeTo}_spec_template_spec_containers_del`.toUpperCase(),
+                          readFrom: `${props.readFrom}_spec_template_spec_containers_${index}`,
+                        });
+                      }}
+                    />
+                  </Row>
+                  <Collapse in={show}>
+                    <div>
+                      <Container
+                        root={props.root}
+                        readFrom={`${props.readFrom}_spec_template_spec_containers_${index}`}
+                        writeTo={`${props.writeTo}_spec_template_spec_containers`}
+                      />
+                    </div>
+                  </Collapse>
+                </div>
+              ))}
+
+              <div className="container my-2">
+                <Button
+                  className="w-100"
+                  name={`${props.readFrom}_container_add`}
+                  variant="outline-success"
                   onClick={() => {
                     dispatch({
-                      type: `${props.writeTo}_spec_template_spec_containers_del`.toUpperCase(),
-                      readFrom: `${props.readFrom}_spec_template_spec_containers_${index}`,
+                      type: `${props.writeTo}_spec_template_spec_containers_add`.toUpperCase(),
+                      readFrom: `${props.readFrom}_spec_template_spec_containers`,
+                    });
+
+                    // Copy deployment structure to the project
+                    dispatch({
+                      type: `temp_${props.writeTo}_spec_template_spec_containers_add`.toUpperCase(),
+                      readFrom: `temp_${props.readFrom}_spec_template_spec_containers`,
                     });
                   }}
-                />
-              </Row>
-              <Container
-                root={props.root}
-                show={minimized.containers[index]}
-                readFrom={`${props.readFrom}_spec_template_spec_containers_${index}`}
-                writeTo={`${props.writeTo}_spec_template_spec_containers`}
-              />
+                >
+                  <FontAwesomeIcon
+                    className={`text-success ${styles["icon"]}`}
+                    icon={faPlus}
+                  />
+                </Button>
+              </div>
             </div>
-          ))}
-
-          <div className="container my-2">
-            <Button
-              className="w-100"
-              name={`${props.readFrom}_container_add`}
-              variant="outline-success"
-              onClick={() => {
-                dispatch({
-                  type: `${props.writeTo}_spec_template_spec_containers_add`.toUpperCase(),
-                  readFrom: `${props.readFrom}_spec_template_spec_containers`,
-                });
-
-                // Copy deployment structure to the project
-                dispatch({
-                  type: `temp_${props.writeTo}_spec_template_spec_containers_add`.toUpperCase(),
-                  readFrom: `temp_${props.readFrom}_spec_template_spec_containers`,
-                });
-              }}
-            >
-              <FontAwesomeIcon
-                className={`text-success ${styles["icon"]}`}
-                icon={faPlus}
-              />
-            </Button>
           </div>
-        </div>
+        </Collapse>
       </InputTemplate>
     </div>
   );

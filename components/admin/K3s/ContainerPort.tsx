@@ -1,13 +1,11 @@
-import React, { useImperativeHandle, useRef, useState } from "react";
 import { InputGroup, Row } from "react-bootstrap";
-import { Port } from "../../../types/K3s/Deployment";
 import InputName from "../../Inputs/InputName";
 import InputRadio from "../../Inputs/InputRadio";
 import InputTemplate from "../../Inputs/InputTemplate";
 import InputValue from "../../Inputs/InputValue";
 
 export interface ContainerPortProps {
-  show?: boolean;
+  hidden?: boolean;
 
   root?: string | (() => void);
   readFrom: string;
@@ -16,9 +14,7 @@ export interface ContainerPortProps {
 
 export default function ContainerPort(props: ContainerPortProps) {
   return (
-    <div
-      className={`border rounded mx-1 px-2 py-2 ${props.show ? "" : "d-none"}`}
-    >
+    <div hidden={props.hidden} className="border rounded mx-1 px-2 py-2">
       <InputTemplate label="Name" className="px-1">
         <InputName
           char="@"

@@ -5,7 +5,7 @@ import { basePath } from "../../config";
 import styles from "./Terminal.module.css";
 
 export interface TerminalProps {
-  show?: boolean;
+  hidden?: boolean;
 
   root?: string;
   readFrom: string;
@@ -58,7 +58,7 @@ export default React.forwardRef(function Terminal(props: TerminalProps, ref) {
   }, [history]);
 
   return (
-    <Container className={`rounded bg-dark p-1 ${props.show ? "" : "d-none"}`}>
+    <Container hidden={props.hidden} className="rounded bg-dark p-1">
       <div
         ref={cmdRef}
         className={`bg-dark py-3 pl-3 ${styles["terminal"]}`}

@@ -4,7 +4,7 @@ import InputTemplate from "../../Inputs/InputTemplate";
 import InputValue from "../../Inputs/InputValue";
 
 export interface PathProps {
-  show?: boolean;
+  hidden?: boolean;
   root?: string | (() => void);
   readFrom: string;
   writeTo: string;
@@ -12,7 +12,7 @@ export interface PathProps {
 
 export default function Path(props: PathProps) {
   return (
-    <div className={`border rounded p-2 ${props.show ? "" : "d-none"}`}>
+    <div hidden={props.hidden} className="border rounded p-2">
       <InputTemplate label="Path" className="px-1">
         <InputName
           char="/"

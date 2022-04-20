@@ -1,12 +1,11 @@
 import {
   faChevronDown,
-  faChevronRight,
   faPlus,
   faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
-import { Button, InputGroup, ListGroup, Row } from "react-bootstrap";
+import { Button, Collapse, InputGroup, ListGroup, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import InputList from "../../Inputs/InputDoubleList";
 import InputName from "../../Inputs/InputName";
@@ -18,7 +17,7 @@ import ContainerPort from "./ContainerPort";
 import styles from "./Default.module.css";
 
 export interface ContainerProps {
-  show?: boolean;
+  hidden?: boolean;
   root?: string | (() => void);
   readFrom: string;
   writeTo: string;
@@ -49,9 +48,7 @@ export default function Container(props: ContainerProps) {
   }, [ports.length]);
 
   return (
-    <div
-      className={`border rounded mx-1 px-1 py-2 ${props.show ? "" : "d-none"}`}
-    >
+    <div hidden={props.hidden} className="border rounded mx-1 px-1 py-2">
       <InputTemplate className="mx-1 pl-1 pr-2" label="Name">
         <InputGroup>
           <InputName
@@ -97,79 +94,93 @@ export default function Container(props: ContainerProps) {
           "Ports ",
           <FontAwesomeIcon
             key={"icon-ports"}
-            icon={minimized.port ? faChevronDown : faChevronRight}
+            icon={faChevronDown}
+            style={{
+              transitionDuration: "0.25s",
+              transitionProperty: "transform",
+              transform: `rotate(${minimized.port ? "0deg" : "-90deg"}`,
+            }}
           />,
         ]}
         onClick={() => onMinimize({ ...minimized, port: !minimized.port })}
       >
-        <div
-          className={`border rounded px-1 py-2 ${
-            minimized.port ? "" : "d-none"
-          }`}
-        >
-          {minimized.ports.map((show, index) => (
-            <div
-              key={`containerPort-${index}`}
-              className={`mb-3 w-100 ${styles["el-index"]}`}
-            >
-              <div className="row mx-1">
-                <label
-                  className="ml-1 mr-auto"
+        <Collapse in={minimized.port}>
+          <div>
+            <div className="border rounded px-1 py-2">
+              {minimized.ports.map((show, index) => (
+                <div
+                  key={`containerPort-${index}`}
+                  className={`mb-3 w-100 ${styles["el-index"]}`}
+                >
+                  <div className="row mx-1">
+                    <label
+                      className="ml-1 mr-auto"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => {
+                        onMinimize({
+                          ...minimized,
+                          ports: minimized.ports.map((item, i) =>
+                            i == index ? !item : item
+                          ),
+                        });
+                      }}
+                    >
+                      {`[${index}] `}
+                      <FontAwesomeIcon
+                        icon={faChevronDown}
+                        style={{
+                          transitionDuration: "0.25s",
+                          transitionProperty: "transform",
+                          transform: `rotate(${show ? "0deg" : "-90deg"}`,
+                        }}
+                      />
+                    </label>
+                    <FontAwesomeIcon
+                      className={`mr-1 ${styles["el-container"]} text-danger`}
+                      icon={faTrashAlt}
+                      size="lg"
+                      fontSize="1rem"
+                      onClick={() => {
+                        dispatch({
+                          type: `${props.writeTo}_ports_del`.toUpperCase(),
+                          readFrom: `${props.readFrom}_ports_${index}`,
+                        });
+                      }}
+                    />
+                  </div>
+                  <Collapse in={show}>
+                    <div>
+                      <ContainerPort
+                        root={props.root}
+                        readFrom={`${props.readFrom}_ports_${index}`}
+                        writeTo={`${props.writeTo}_ports`}
+                      />
+                    </div>
+                  </Collapse>
+                </div>
+              ))}
+
+              <div className="container my-2">
+                <Button
+                  className="w-100"
+                  name={`${props.readFrom}_port_add`}
+                  variant="outline-success"
                   onClick={() => {
-                    onMinimize({
-                      ...minimized,
-                      ports: minimized.ports.map((item, i) =>
-                        i == index ? !item : item
-                      ),
+                    dispatch({
+                      type: `${props.writeTo}_ports_add`.toUpperCase(),
+                      readFrom: `${props.readFrom}_ports`,
                     });
                   }}
                 >
-                  {`[${index}] `}
                   <FontAwesomeIcon
-                    icon={show ? faChevronDown : faChevronRight}
+                    className={`text-success ${styles["icon"]}`}
+                    icon={faPlus}
                   />
-                </label>
-                <FontAwesomeIcon
-                  className={`mr-1 ${styles["el-container"]} text-danger`}
-                  icon={faTrashAlt}
-                  size="lg"
-                  fontSize="1rem"
-                  onClick={() => {
-                    dispatch({
-                      type: `${props.writeTo}_ports_del`.toUpperCase(),
-                      readFrom: `${props.readFrom}_ports_${index}`,
-                    });
-                  }}
-                />
+                </Button>
               </div>
-              <ContainerPort
-                root={props.root}
-                show={minimized.ports[index]}
-                readFrom={`${props.readFrom}_ports_${index}`}
-                writeTo={`${props.writeTo}_ports`}
-              />
             </div>
-          ))}
-
-          <div className="container my-2">
-            <Button
-              className="w-100"
-              name={`${props.readFrom}_port_add`}
-              variant="outline-success"
-              onClick={() => {
-                dispatch({
-                  type: `${props.writeTo}_ports_add`.toUpperCase(),
-                  readFrom: `${props.readFrom}_ports`,
-                });
-              }}
-            >
-              <FontAwesomeIcon
-                className={`text-success ${styles["icon"]}`}
-                icon={faPlus}
-              />
-            </Button>
           </div>
-        </div>
+        </Collapse>
       </InputTemplate>
 
       <InputTemplate
@@ -179,7 +190,12 @@ export default function Container(props: ContainerProps) {
           "Resources ",
           <FontAwesomeIcon
             key={"icon-resources"}
-            icon={minimized.resources ? faChevronDown : faChevronRight}
+            icon={faChevronDown}
+            style={{
+              transitionDuration: "0.25s",
+              transitionProperty: "transform",
+              transform: `rotate(${minimized.resources ? "0deg" : "-90deg"}`,
+            }}
           />,
         ]}
         onClick={() =>
@@ -189,34 +205,34 @@ export default function Container(props: ContainerProps) {
           })
         }
       >
-        <Row
-          className={`border rounded mx-0 py-2 ${
-            minimized.resources ? "" : "d-none"
-          }`}
-        >
-          <InputTemplate className="col-6 px-2" label="CPU">
-            <InputGroup>
-              <InputValue
-                root={props.root}
-                readFrom={`${props.readFrom}_resources_requests_cpu`}
-                writeTo={`${props.writeTo}_resources_requests_cpu`}
-                className="rounded"
-                placeholder="100m"
-              />
-            </InputGroup>
-          </InputTemplate>
-          <InputTemplate className="col-6 px-2" label="RAM">
-            <InputGroup>
-              <InputValue
-                root={props.root}
-                readFrom={`${props.readFrom}_resources_requests_memory`}
-                writeTo={`${props.writeTo}_resources_requests_memory`}
-                className="rounded"
-                placeholder="100Mi"
-              />
-            </InputGroup>
-          </InputTemplate>
-        </Row>
+        <Collapse in={minimized.resources}>
+          <div>
+            <Row className="border rounded mx-0 py-2">
+              <InputTemplate className="col-6 px-2" label="CPU">
+                <InputGroup>
+                  <InputValue
+                    root={props.root}
+                    readFrom={`${props.readFrom}_resources_requests_cpu`}
+                    writeTo={`${props.writeTo}_resources_requests_cpu`}
+                    className="rounded"
+                    placeholder="100m"
+                  />
+                </InputGroup>
+              </InputTemplate>
+              <InputTemplate className="col-6 px-2" label="RAM">
+                <InputGroup>
+                  <InputValue
+                    root={props.root}
+                    readFrom={`${props.readFrom}_resources_requests_memory`}
+                    writeTo={`${props.writeTo}_resources_requests_memory`}
+                    className="rounded"
+                    placeholder="100Mi"
+                  />
+                </InputGroup>
+              </InputTemplate>
+            </Row>
+          </div>
+        </Collapse>
       </InputTemplate>
 
       <InputTemplate
@@ -226,7 +242,12 @@ export default function Container(props: ContainerProps) {
           "env ",
           <FontAwesomeIcon
             key={"icon-env"}
-            icon={minimized.env ? faChevronDown : faChevronRight}
+            icon={faChevronDown}
+            style={{
+              transitionDuration: "0.25s",
+              transitionProperty: "transform",
+              transform: `rotate(${minimized.env ? "0deg" : "-90deg"}`,
+            }}
           />,
         ]}
         onClick={() =>
@@ -236,27 +257,31 @@ export default function Container(props: ContainerProps) {
           })
         }
       >
-        <div className={`border rounded py-2 ${minimized.env ? "" : "d-none"}`}>
-          <div className="mb-2 mx-2">
-            <InputList
-              char={["var", "="]}
-              readFrom={`${props.readFrom}_env`}
-              writeTo={`${props.writeTo}_env`}
-              placeholder={["USER", "admin"]}
-            />
-            <ListGroup>
-              {env.map(({ name, value }, i) => (
-                <Row key={i} className="px-2">
-                  <ListEntity
-                    char={["var", "="]}
-                    value={[name, value]}
-                    onChange={() => {}}
-                  />
-                </Row>
-              ))}
-            </ListGroup>
+        <Collapse in={minimized.env}>
+          <div>
+            <div className="border rounded py-2">
+              <div className="mb-2 mx-2">
+                <InputList
+                  char={["var", "="]}
+                  readFrom={`${props.readFrom}_env`}
+                  writeTo={`${props.writeTo}_env`}
+                  placeholder={["USER", "admin"]}
+                />
+                <ListGroup>
+                  {env.map(({ name, value }, i) => (
+                    <Row key={i} className="px-2">
+                      <ListEntity
+                        char={["var", "="]}
+                        value={[name, value]}
+                        onChange={() => {}}
+                      />
+                    </Row>
+                  ))}
+                </ListGroup>
+              </div>
+            </div>
           </div>
-        </div>
+        </Collapse>
       </InputTemplate>
     </div>
   );

@@ -1,4 +1,7 @@
-import { Col, Form, InputGroup, Row } from "react-bootstrap";
+import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useState } from "react";
+import { Col, Collapse, Form, InputGroup, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { basePath } from "../../../config";
 import { ProjectInfo } from "../../../config/placeholder";
@@ -27,6 +30,8 @@ const PREFIX = "style";
 // * Something similar to this (https://pattern.monster/circles-5/)
 
 export default function DefaultStyleView(props: DefaultStyleViewProps) {
+  const [minimized, onMinimize] = useState(false);
+
   const style = useSelector((state) => state[PREFIX]);
   const preview = useSelector((state: any) => state.preview);
   // const dispatch = useDispatch();
@@ -62,25 +67,47 @@ export default function DefaultStyleView(props: DefaultStyleViewProps) {
 
         <Form.Group as={Col} md={{ order: 1, span: 7 }}>
           <h4 className="font-weight-bold mb-3">Thumbnail</h4>
-          <InputTemplate className="mb-3" label="Title size">
-            <InputRange
-              root={PREFIX}
-              readFrom={`${PREFIX}_zoom`}
-              property={{ min: 0, max: 30 }}
-            />
-
-            <Row>
-              {(style.pallet as string[]).map((_, i) => (
-                <Form.Group key={`pallet-color-${i}`} className="mx-2">
-                  <InputColor
-                    root={PREFIX}
-                    readFrom={`${PREFIX}_pallet_${i}`}
-                    writeTo={`${PREFIX}_pallet`}
-                  />
-                </Form.Group>
-              ))}
-            </Row>
+          <InputTemplate
+            className="px-0"
+            labelClassName="font-weight-bold ml-2"
+            label={[
+              "Metadata ",
+              <FontAwesomeIcon
+                key={"icon-metadata"}
+                icon={faChevronDown}
+                style={{
+                  transitionDuration: "0.25s",
+                  transitionProperty: "transform",
+                  transform: `rotate(${minimized ? "0deg" : "-90deg"}`,
+                }}
+              />,
+            ]}
+            onClick={() => onMinimize(!minimized)}
+          >
+            <Collapse in={minimized}>
+              <div>
+                <InputRange
+                  as="h5"
+                  root={PREFIX}
+                  label="Zoom"
+                  readFrom={`${PREFIX}_zoom`}
+                  property={{ min: 0, max: 30 }}
+                />
+              </div>
+            </Collapse>
           </InputTemplate>
+
+          <Row>
+            {(style.pallet as string[]).map((_, i) => (
+              <Form.Group key={`pallet-color-${i}`} className="mx-2">
+                <InputColor
+                  root={PREFIX}
+                  readFrom={`${PREFIX}_pallet_${i}`}
+                  writeTo={`${PREFIX}_pallet`}
+                />
+              </Form.Group>
+            ))}
+          </Row>
         </Form.Group>
       </Form.Row>
 

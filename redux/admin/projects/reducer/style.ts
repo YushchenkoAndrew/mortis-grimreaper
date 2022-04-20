@@ -13,10 +13,10 @@ const INIT_STATE = {
   pattern: "",
   pallet: ["#ddd", "#ddd"],
 
-  zoom: 0,
+  zoom: "0",
   // ver: 0,
-  angle: 0,
-  color: 0,
+  angle: "0",
+  color: "0",
 
   // desc: "",
   // note: "",

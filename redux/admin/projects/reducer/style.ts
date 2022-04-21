@@ -11,12 +11,12 @@ const INIT_STATE = {
   title: "md",
 
   pattern: "",
-  pallet: ["#ddd", "#ddd"],
+  pallet: ["#ddd", "#ddd", "#ddd", "#ddd", "#ddd"],
 
   zoom: "0",
   // ver: 0,
   angle: "0",
-  color: "0",
+  colors: "5",
 
   // desc: "",
   // note: "",
@@ -42,6 +42,16 @@ export default function (state = INIT_STATE, action: AnyAction) {
 
     case `${PREFIX}_ZOOM_CHANGED`:
       return { ...state, zoom: action.value };
+
+    case `${PREFIX}_ANGLE_CHANGED`:
+      return { ...state, angle: action.value };
+
+    case `${PREFIX}_COLORS_CHANGED`:
+      return {
+        ...state,
+        colors: action.value,
+        pallet: ["#ddd", "#ddd", "#ddd", "#ddd", "#ddd"].slice(0, action.value),
+      };
 
     case `${PREFIX}_PALLET_CHANGED`: {
       const index = GetDynamicParams(action.type, action.readFrom ?? "");

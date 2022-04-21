@@ -37,8 +37,8 @@
 }
 
 .color-view {
-  width: 3rem;
-  height: 3rem;
+  width: 2rem;
+  height: 2rem;
   border: 2px solid $dark;
   border-radius: 0.25rem !important;
   transition-duration: 200ms;
@@ -46,5 +46,32 @@
 
   &:hover {
     transform: scale(1.1);
+  }
+
+  @media (min-width: 576px) {
+    & {
+      width: 3rem;
+      height: 3rem;
+    }
+  }
+  @media (min-width: 768px) {
+    & {
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+  }
+
+  @media (min-width: 992px) {
+    & {
+      width: 3rem;
+      height: 3rem;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    & {
+      width: 3rem;
+      height: 3rem;
+    }
   }
 }

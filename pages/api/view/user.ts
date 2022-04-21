@@ -2,43 +2,10 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { freeMutex, waitMutex } from "../../../lib/api/mutex";
 import redis from "../../../config/redis";
 import { apiUrl } from "../../../config";
-import {
-  ApiError,
-  ApiRes,
-  GeoIpLocationData,
-  WorldData,
-} from "../../../types/api";
-import { sendLogs } from "../../../lib/api/bot";
+import { ApiError, ApiRes, GeoIpLocationData } from "../../../types/api";
 import md5 from "../../../lib/md5";
 import { FullResponse } from "../../../types/request";
-
-function finalValue(key: string) {
-  return new Promise<string>((resolve, reject) => {
-    redis
-      .get(key)
-      .then((reply) => {
-        // replay always will have value in this step
-        if (reply) return resolve(reply ?? "");
-
-        fetch(`${apiUrl}/world?page=-1`)
-          .then((res) => res.json())
-          .then((res: ApiRes<WorldData[]> | ApiError) => {
-            if (res.status == "ERR" || !res.items)
-              return reject("Idk something wrong happened at then backend");
-
-            // Need this just to decrease space usage in RAM
-            let result = {} as { [country: string]: number };
-            res.result.forEach(
-              (item) => (result[item.country] = item.visitors)
-            );
-
-            resolve(JSON.stringify(result));
-          })
-          .catch((err) => reject(err));
-      })
-      .catch((err) => reject(err));
-  });
-}
+import { sendLogs } from "../../../lib/api/bot";
 
 export default async function handler(
   req: NextApiRequest,
@@ -50,96 +17,100 @@ export default async function handler(
   const now = date.getTime() - date.getTimezoneOffset() * 60000;
   const prev = Number(req.headers["x-custom-header"]);
   const ip = req.headers["x-custom-ip"];
-  if (isNaN(prev) || now < prev || now - prev >= 5000 || !ip)
+  if (isNaN(prev) || now < prev || now - prev >= 5000 || !ip) {
     return res.status(400).send("Nop");
+  }
 
   const hash = md5(prev.toString());
-  const { status, send } = await new Promise<FullResponse>(
-    (resolve, reject) => {
-      redis
-        .get(`RAND:${hash}`)
-        .then((ok) => {
-          console.log("[HANDLER] Rand is passed !!!");
-          if (!ok) return res.status(400).send("RAND");
-          redis.del(`RAND:${hash}`);
+  const { status, send } = await new Promise<FullResponse>(async (resolve) => {
+    try {
+      if (!(await redis.get(`RAND:${hash}`))) {
+        return res.status(400).send("RAND");
+      }
 
-          fetch(`${apiUrl}/trace/${ip}`)
-            .then((res) => res.json())
-            .then((data: ApiRes<GeoIpLocationData[]> | ApiError) => {
-              if (data.status === "ERR") {
-                return resolve({
-                  status: 500,
-                  send: {
-                    status: "ERR",
-                    message: "Hold up it's not my fault ... kinda",
-                  },
-                });
-              }
+      console.log("[HANDLER] Rand is passed !!!");
+      redis.del(`RAND:${hash}`);
 
-              const user = {
-                id: md5(
-                  (Math.random() * 100000 + 500).toString() +
-                    data.result[0].country_iso_code +
-                    now.toString()
-                ),
-                country: data.result[0].country_iso_code,
-                expired: now + 86.4e6,
-                salt: md5((Math.random() * 100000 + 500).toString()),
-              };
+      const resp = await fetch(`${apiUrl}/trace/${ip}`);
+      const data = (await resp.json()) as
+        | ApiRes<GeoIpLocationData[]>
+        | ApiError;
 
-              console.log("user: ");
-              console.log(user);
+      if (data.status === "ERR") {
+        return resolve({
+          status: 500,
+          send: {
+            status: "ERR",
+            message: "Hold up it's not my fault ... kinda",
+          },
+        });
+      }
 
-              resolve({
-                status: 201,
-                send: {
-                  status: "OK",
-                  message: "Success",
-                  result: user,
-                },
-              });
+      const user = {
+        id: md5(
+          (Math.random() * 100000 + 500).toString() +
+            data.result[0].country_iso_code +
+            now.toString()
+        ),
+        country: data.result[0].country_iso_code,
+        expired: now + 86.4e6,
+        salt: md5((Math.random() * 100000 + 500).toString()),
+      };
 
-              // Run in background
-              setTimeout(() => {
-                redis.set(`USER:${user.id}`, user.country);
+      console.log("user: ");
+      console.log(user);
 
-                // FIXME: Can be done with botodachi instead
-                redis.expire(`USER:${user.id}`, user.expired);
-                redis.hIncrBy("Info:Now", "Visitors", 1);
-                redis.hIncrBy("Info:Now", "Views", 1);
-
-                // Need this for detect curr day countries
-                redis.lPush("Info:Countries", user.country);
-
-                // Use simple mutex handler for changing variables with kubernetes & docker
-                waitMutex().then((stat) => {
-                  redis.get("Info:World").then((reply) => {
-                    let data = reply !== null ? JSON.parse(reply) : {};
-                    data[user.country] = data[user.country]
-                      ? data[user.country] + 1
-                      : 1;
-
-                    redis
-                      .set("Info:World", JSON.stringify(data))
-                      .finally(() => freeMutex());
-                  });
-                });
-              }, 0);
-            })
-            .catch((err) => {
-              resolve({
-                status: 500,
-                send: {
-                  status: "ERR",
-                  message:
-                    "F@$k, I fixed this yeasted, why it's still not working !!!!",
-                },
-              });
-            });
-        })
-        .catch((err) => reject(err));
+      resolve({
+        status: 201,
+        send: {
+          status: "OK",
+          message: "Success",
+          result: user,
+        },
+      });
+    } catch (err) {
+      resolve({
+        status: 500,
+        send: {
+          status: "ERR",
+          message:
+            "F@$k, I fixed this yeasted, why it's still not working !!!!",
+        },
+      });
     }
-  );
+  });
 
-  return res.status(status).send(send);
+  res.status(status).send(send);
+  if (status !== 201) return;
+
+  // Run in background
+  setTimeout(async () => {
+    try {
+      await redis.set(`USER:${send.result.id}`, send.result.country);
+
+      redis.expire(`USER:${send.result.id}`, send.result.expired);
+      redis.hIncrBy("Info:Now", "Visitors", 1);
+      redis.hIncrBy("Info:Now", "Views", 1);
+
+      // Need this for detect curr day countries
+      redis.lPush("Info:Countries", send.result.country);
+
+      // Use simple mutex handler for changing variables with kubernetes & docker
+      await waitMutex();
+      const data = JSON.parse((await redis.get("Info:World")) || "{}");
+      data[send.result.country] = data[send.result.country]
+        ? data[send.result.country] + 1
+        : 1;
+
+      redis.set("Info:World", JSON.stringify(data)).finally(() => freeMutex());
+    } catch (err) {
+      sendLogs({
+        stat: "ERR",
+        name: "WEB",
+        file: "/pages/view/user.ts",
+        message: "F@$k, I fixed this yeasted, why it's still not working !!!!",
+        desc: err,
+      });
+    }
+  }, 0);
 }

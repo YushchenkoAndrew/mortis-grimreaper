@@ -1,7 +1,7 @@
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
-import { Col, Collapse, Form, InputGroup, Row } from "react-bootstrap";
+import { Button, Col, Collapse, Form, InputGroup, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { basePath } from "../../../config";
 import { ProjectInfo } from "../../../config/placeholder";
@@ -34,7 +34,7 @@ export default function DefaultStyleView(props: DefaultStyleViewProps) {
 
   const style = useSelector((state) => state[PREFIX]);
   const preview = useSelector((state: any) => state.preview);
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
   return (
     <div className={props.show ? "" : "d-none"}>
@@ -93,20 +93,49 @@ export default function DefaultStyleView(props: DefaultStyleViewProps) {
                   readFrom={`${PREFIX}_zoom`}
                   property={{ min: 0, max: 30 }}
                 />
+                <InputRange
+                  as="h5"
+                  root={PREFIX}
+                  label="Angle"
+                  readFrom={`${PREFIX}_angle`}
+                  property={{ min: 0, max: 180 }}
+                />
+                <InputRange
+                  as="h5"
+                  root={PREFIX}
+                  label="Colors"
+                  readFrom={`${PREFIX}_colors`}
+                  property={{ min: 2, max: 5 }}
+                />
               </div>
             </Collapse>
           </InputTemplate>
 
-          <Row>
-            {(style.pallet as string[]).map((_, i) => (
-              <Form.Group key={`pallet-color-${i}`} className="mx-2">
-                <InputColor
-                  root={PREFIX}
-                  readFrom={`${PREFIX}_pallet_${i}`}
-                  writeTo={`${PREFIX}_pallet`}
-                />
-              </Form.Group>
-            ))}
+          <Row className="justify-content-between pt-2 mx-3">
+            <Col xs="9" md="9" lg="10" className="px-0">
+              <Row className="pt-2">
+                {(style.pallet as string[]).map((_, i) => (
+                  <Form.Group key={`pallet-color-${i}`} className="mx-2">
+                    <InputColor
+                      root={PREFIX}
+                      readFrom={`${PREFIX}_pallet_${i}`}
+                      writeTo={`${PREFIX}_pallet`}
+                    />
+                  </Form.Group>
+                ))}
+              </Row>
+            </Col>
+
+            <Col xs="3" md="3" lg="2" className="my-auto px-2">
+              <Button
+                variant="outline-primary"
+                onClick={() =>
+                  dispatch({ type: `${PREFIX}_shuffle`.toUpperCase() })
+                }
+              >
+                Shuffle
+              </Button>
+            </Col>
           </Row>
         </Form.Group>
       </Form.Row>

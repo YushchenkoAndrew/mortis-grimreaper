@@ -94,7 +94,7 @@ export default function InputColor(props: InputColorProps) {
   return (
     <>
       <span
-        className={`color-view ${props.className}`}
+        className={`color-view ${props.className || ""}`}
         style={{ backgroundColor: value }}
         onClick={() => onOpen(true)}
       ></span>

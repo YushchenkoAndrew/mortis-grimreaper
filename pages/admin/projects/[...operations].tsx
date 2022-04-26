@@ -9,7 +9,7 @@ import { PROJECT_TREE } from "../../../config/placeholder";
 import { Provider } from "react-redux";
 import { withIronSessionSsr } from "iron-session/next";
 import { useRouter } from "next/router";
-import DefaultOperationsForm from "../../../components/admin/default/DefaultOperationsForm";
+import DefaultOperationsForm from "../../../components/admin/default/project/DefaultOperationsForm";
 import { store } from "../../../redux/admin/projects/storage";
 import { LoadProjects } from "../../../lib/api/project";
 import { addFile, allowedReader, formPath } from "../../../lib/public/files";

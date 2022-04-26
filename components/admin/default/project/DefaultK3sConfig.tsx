@@ -1,13 +1,13 @@
 import { forwardRef, useRef, useState } from "react";
 import { Container } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { basePath } from "../../../config";
-import Deployment from "../K3s/Deployment";
-import Ingress from "../K3s/Ingress";
-import K3sField from "../K3s/K3sField";
-import Namespace from "../K3s/Namespace";
-import Service from "../K3s/Service";
-import Terminal, { TerminalRef } from "../Terminal";
+import { basePath } from "../../../../config";
+import Deployment from "../../K3s/Deployment";
+import Ingress from "../../K3s/Ingress";
+import K3sField from "../../K3s/K3sField";
+import Namespace from "../../K3s/Namespace";
+import Service from "../../K3s/Service";
+import Terminal, { TerminalRef } from "../../Terminal";
 
 export interface K3sConfigProps {
   show?: boolean;

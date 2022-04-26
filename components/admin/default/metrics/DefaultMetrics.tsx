@@ -1,15 +1,15 @@
 import { Col, Container, Form, Row } from "react-bootstrap";
-import InputRadio from "../../Inputs/InputRadio";
+import InputRadio from "../../../Inputs/InputRadio";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import DefaultTotalMetrics from "./DefaultTotalMetrics";
-import { MetricsData, ProjectData } from "../../../types/api";
-import LineChart from "../../Display/LineChart";
-import { basePath } from "../../../config";
-import { FormatDate } from "../../../lib/public/string";
-import { createQuery } from "../../../lib/api/query";
-import { TIME_RANGE } from "../../../redux/admin/projects/metrics/reducer/main";
-import { DefaultRes } from "../../../types/request";
+import { MetricsData, ProjectData } from "../../../../types/api";
+import LineChart from "../../../Display/LineChart";
+import { basePath } from "../../../../config";
+import { FormatDate } from "../../../../lib/public/string";
+import { createQuery } from "../../../../lib/api/query";
+import { TIME_RANGE } from "../../../../redux/admin/projects/metrics/reducer/main";
+import { DefaultRes } from "../../../../types/request";
 
 export interface DefaultMetricsProps {
   project: { [name: string]: any };

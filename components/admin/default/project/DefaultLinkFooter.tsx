@@ -1,8 +1,8 @@
 import { Col, Form } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { ProjectInfo } from "../../../config/placeholder";
-import InputName from "../../Inputs/InputName";
-import InputTemplate from "../../Inputs/InputTemplate";
+import { ProjectInfo } from "../../../../config/placeholder";
+import InputName from "../../../Inputs/InputName";
+import InputTemplate from "../../../Inputs/InputTemplate";
 
 export interface DefaultLinkFooterProps {
   root?: string;

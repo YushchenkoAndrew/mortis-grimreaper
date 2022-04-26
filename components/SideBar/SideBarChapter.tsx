@@ -1,14 +1,5 @@
-import { Button, Nav } from "react-bootstrap";
-import SideBarItem from "./SideBarItem";
-
 export interface SideBarChapterProps {
   name: string;
-  // href: string;
-  // style?: string;
-  // target?: React.HTMLAttributeAnchorTarget;
-  // active?: boolean;
-  // event: { href?: string; onClick?: () => void };
-
   children?: React.ReactNode;
 }
 
@@ -20,8 +11,10 @@ export default function SideBarChapter(props: SideBarChapterProps) {
         <p className="mt-3 mb-1 font-weight-bold text-dark">{props.name}</p>
       </li>
 
-      <li className="pl-2">
-        <Nav className="nav-pills flex-column">{props.children}</Nav>
+      <li className="pl-2 nav-pills flex-column">
+        {/* <a className=""> */}
+        {props.children}
+        {/* </Nav> */}
       </li>
     </>
   );

@@ -1,13 +1,13 @@
 import { Col, Form, ListGroup, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { ProjectInfo } from "../../../config/placeholder";
-import DefaultFooter from "../../default/DefaultFooter";
-import DefaultProjectInfo from "../../default/DefaultProjectInfo";
-import InputList from "../../Inputs/InputDoubleList";
-import InputName from "../../Inputs/InputName";
-import InputTemplate from "../../Inputs/InputTemplate";
-import InputText from "../../Inputs/InputText";
-import ListEntity from "../../Inputs/ListEntity";
+import { ProjectInfo } from "../../../../config/placeholder";
+import DefaultFooter from "../../../default/DefaultFooter";
+import DefaultProjectInfo from "../../../default/DefaultProjectInfo";
+import InputList from "../../../Inputs/InputDoubleList";
+import InputName from "../../../Inputs/InputName";
+import InputTemplate from "../../../Inputs/InputTemplate";
+import InputText from "../../../Inputs/InputText";
+import ListEntity from "../../../Inputs/ListEntity";
 
 export interface DefaultProjectFooterProps {
   root?: string;
@@ -48,21 +48,22 @@ export default function DefaultProjectFooter(props: DefaultProjectFooterProps) {
             placeholder={[ProjectInfo.link, ProjectInfo.name]}
           />
           <ListGroup className="px-2">
-            {Object.entries(preview.links).map(([name, link], i) =>
-              name != "main" ? (
-                <Row key={i}>
-                  <ListEntity
-                    char={["http://", "@"]}
-                    value={[link, name]}
-                    onChange={() => {
-                      dispatch({
-                        type: `${props.readFrom}_links_del`.toUpperCase(),
-                        value: name,
-                      });
-                    }}
-                  />
-                </Row>
-              ) : null
+            {Object.entries(preview.links as { [name: string]: string }).map(
+              ([name, link], i) =>
+                name != "main" ? (
+                  <Row key={i}>
+                    <ListEntity
+                      char={["http://", "@"]}
+                      value={[link, name]}
+                      onChange={() => {
+                        dispatch({
+                          type: `${props.readFrom}_links_del`.toUpperCase(),
+                          value: name,
+                        });
+                      }}
+                    />
+                  </Row>
+                ) : null
             )}
           </ListGroup>
         </InputTemplate>

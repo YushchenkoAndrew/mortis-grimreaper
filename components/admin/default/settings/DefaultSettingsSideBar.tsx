@@ -1,9 +1,10 @@
-import { faCog, faServer } from "@fortawesome/free-solid-svg-icons";
+import { faCog, faServer, faImage } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useDispatch, useSelector } from "react-redux";
-import SideBar from "../../SideBar/SideBar";
-import SideBarChapter from "../../SideBar/SideBarChapter";
-import SideBarItem from "../../SideBar/SideBarItem";
+import SideBar from "../../../SideBar/SideBar";
+import SideBarChapter from "../../../SideBar/SideBarChapter";
+import SideBarDropDown from "../../../SideBar/SideBarDropDown";
+import SideBarItem from "../../../SideBar/SideBarItem";
 
 export interface DefaultSettingsSideBarProps {
   readFrom: string;
@@ -54,6 +55,19 @@ export default function DefaultSettingsSideBar(
           Home
         </SideBarItem>
 
+        <SideBarItem
+          active={value === "Pattern"}
+          event={{ onClick: () => onSelect("Pattern") }}
+        >
+          <FontAwesomeIcon
+            className="mr-3"
+            icon={faImage}
+            size="1x"
+            fontSize="1rem"
+          />
+          Pattern
+        </SideBarItem>
+
         <SideBarItem>Dashboard</SideBarItem>
         <SideBarItem>Orders</SideBarItem>
         <SideBarItem>Customers</SideBarItem>
@@ -64,6 +78,13 @@ export default function DefaultSettingsSideBar(
         <SideBarItem>Dashboard</SideBarItem>
         <SideBarItem>Orders</SideBarItem>
         <SideBarItem>Customers</SideBarItem>
+
+        <SideBarDropDown title="Accounts">
+          <SideBarItem>Action</SideBarItem>
+          <SideBarItem>Another action</SideBarItem>
+          <SideBarItem>Something else here</SideBarItem>
+          <SideBarItem>Separated link</SideBarItem>
+        </SideBarDropDown>
       </SideBarChapter>
     </SideBar>
   );

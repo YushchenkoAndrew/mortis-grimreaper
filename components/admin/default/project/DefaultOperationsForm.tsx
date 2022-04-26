@@ -1,19 +1,19 @@
 import { ReactText, useEffect, useState } from "react";
-import { TreeObj } from "../../../types/tree";
-import { basePath } from "../../../config";
-import { FileData, ProjectData } from "../../../types/api";
-import { formFile } from "../../../lib/public/files";
+import { TreeObj } from "../../../../types/tree";
+import { basePath } from "../../../../config";
+import { FileData, ProjectData } from "../../../../types/api";
+import { formFile } from "../../../../lib/public/files";
 import { Bounce, toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import InputRadio from "../../Inputs/InputRadio";
+import InputRadio from "../../../Inputs/InputRadio";
 import DefaultPreview from "./DefaultPreview";
 import DefaultCodeView from "./DefaultCodeView";
 import DefaultK3sConfig from "./DefaultK3sConfig";
-import { ToastDefault } from "../../../config/alert";
+import { ToastDefault } from "../../../../config/alert";
 import { useDispatch, useSelector } from "react-redux";
-import { CacheId } from "../../../lib/public";
-import { DefaultRes } from "../../../types/request";
-import { createQuery } from "../../../lib/api/query";
+import { CacheId } from "../../../../lib/public";
+import { DefaultRes } from "../../../../types/request";
+import { createQuery } from "../../../../lib/api/query";
 import {
   Button,
   Container,
@@ -22,10 +22,10 @@ import {
   Popover,
   Row,
 } from "react-bootstrap";
-import { CapitalizeString } from "../../../lib/public/string";
+import { CapitalizeString } from "../../../../lib/public/string";
 import DefaultStyleView from "./DefaultStyleView";
-import { CombineK3sConfig } from "../../../lib/public/k3s";
-import { YamlToJson } from "../../../lib/public/yaml";
+import { CombineK3sConfig } from "../../../../lib/public/k3s";
+import { YamlToJson } from "../../../../lib/public/yaml";
 
 export interface DefaultOperationsFormProps {
   operation: string;

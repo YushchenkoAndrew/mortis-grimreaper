@@ -1,6 +1,6 @@
 import { Col, Row } from "react-bootstrap";
-import Card from "../../info/Card";
-import DoughnutChart from "../../Display/DoughnutChart";
+import Card from "../../../info/Card";
+import DoughnutChart from "../../../Display/DoughnutChart";
 import { useSelector } from "react-redux";
 
 export interface DefaultTotalMetricsProps {

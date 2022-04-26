@@ -1,9 +1,9 @@
 import { Col, Form, InputGroup, Row } from "react-bootstrap";
-import { ProjectInfo } from "../../../config/placeholder";
-import InputDouble from "../../Inputs/InputDouble";
-import InputMultiple from "../../Inputs/InputMultiple";
-import InputName from "../../Inputs/InputName";
-import InputTemplate from "../../Inputs/InputTemplate";
+import { ProjectInfo } from "../../../../config/placeholder";
+import InputDouble from "../../../Inputs/InputDouble";
+import InputMultiple from "../../../Inputs/InputMultiple";
+import InputName from "../../../Inputs/InputName";
+import InputTemplate from "../../../Inputs/InputTemplate";
 
 export interface DefaultDockerFooterProps {
   root?: string;

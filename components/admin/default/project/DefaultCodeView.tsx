@@ -1,9 +1,9 @@
-import { ProjectInfo } from "../../../config/placeholder";
-import InputFile from "../../Inputs/InputFile";
-import InputRadio from "../../Inputs/InputRadio";
-import InputTemplate from "../../Inputs/InputTemplate";
-import InputValue from "../../Inputs/InputValue";
-import TreeView from "../../TreeView/TreeView";
+import { ProjectInfo } from "../../../../config/placeholder";
+import InputFile from "../../../Inputs/InputFile";
+import InputRadio from "../../../Inputs/InputRadio";
+import InputTemplate from "../../../Inputs/InputTemplate";
+import InputValue from "../../../Inputs/InputValue";
+import TreeView from "../../../TreeView/TreeView";
 import { Grammar, highlight, languages } from "prismjs";
 import { Col, Container, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,12 +13,12 @@ import "prismjs/components/prism-javascript";
 import "prismjs/components/prism-markdown";
 import "prismjs/components/prism-docker";
 import "prismjs/themes/prism-coy.css";
-import { tmpFile } from "../../../lib/public/files";
+import { tmpFile } from "../../../../lib/public/files";
 import Editor from "react-simple-code-editor";
-import DefaultMarkdownProject from "../../default/DefaultMarkdownProject";
-import { basePath } from "../../../config";
-import { YamlToJson } from "../../../lib/public/yaml";
-import { CombineK3sConfig } from "../../../lib/public/k3s";
+import DefaultMarkdownProject from "../../../default/DefaultMarkdownProject";
+import { basePath } from "../../../../config";
+import { YamlToJson } from "../../../../lib/public/yaml";
+import { CombineK3sConfig } from "../../../../lib/public/k3s";
 
 const highlightTypes: { [name: string]: [Grammar, string] } = {
   html: [languages.html, "html"],

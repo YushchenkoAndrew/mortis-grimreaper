@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Badge, OverlayTrigger, Popover, Row } from "react-bootstrap";
 import { Provider } from "react-redux";
 import DefaultHeader from "../../../../components/admin/default/DefaultHeader";
-import DefaultMetrics from "../../../../components/admin/default/DefaultMetrics";
+import DefaultMetrics from "../../../../components/admin/default/metrics/DefaultMetrics";
 import DefaultFooter from "../../../../components/default/DefaultFooter";
 import DefaultHead from "../../../../components/default/DefaultHead";
 import DefaultNav from "../../../../components/default/DefaultNav";

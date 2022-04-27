@@ -119,3 +119,18 @@ export type GeoIpLocationData = {
   country_name: string;
   is_in_european_union: boolean;
 };
+
+export type PatternData = {
+  id: number;
+  created_at: string;
+  mode: string;
+  colors: number;
+  max_stroke: number;
+  max_scale: number;
+  max_spacing_x: number;
+  max_spacing_y: number;
+  width: number;
+  height: number;
+  v_height: number;
+  path: string;
+};

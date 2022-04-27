@@ -56,8 +56,8 @@ export default function DefaultSettingsSideBar(
         </SideBarItem>
 
         <SideBarItem
-          active={value === "Pattern"}
-          event={{ onClick: () => onSelect("Pattern") }}
+          active={value === "Patterns"}
+          event={{ onClick: () => onSelect("Patterns") }}
         >
           <FontAwesomeIcon
             className="mr-3"
@@ -65,7 +65,7 @@ export default function DefaultSettingsSideBar(
             size="1x"
             fontSize="1rem"
           />
-          Pattern
+          Patterns
         </SideBarItem>
 
         <SideBarItem>Dashboard</SideBarItem>

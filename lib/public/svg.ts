@@ -51,6 +51,39 @@ function HEX2HSL(H: string) {
   return `hsla(${hsl.h},${hsl.s}%,${hsl.l}%,1)`;
 }
 
+const COLORS = [
+  "hsla(0,0%,100%,1)",
+  "hsla(258.5,59.4%,59.4%,1)",
+  "hsla(339.6,82.2%,51.6%,1)",
+  "hsla(198.7,97.6%,48.4%,1)",
+  "hsla(47,80.9%,61%,1)",
+];
+
+export function svgBuild(
+  width: number,
+  height: number,
+  path: string,
+  mode: string
+) {
+  const handler = (function (mode: string) {
+    switch (mode) {
+      case "fill":
+        return (color: string) => `stroke='none' fill='${color}'`;
+    }
+
+    return (color: string) => `stroke-width='1' stroke='${color}' fill='none'`;
+  })(mode);
+
+  return (
+    `<svg width='100%' height='100%' xmlns='http://www.w3.org/2000/svg'><defs><pattern id='a' patternUnits='userSpaceOnUse' width='${width}' height='${height}'><rect x='0' y='0' width='100%' height='100%' fill='${COLORS[0]}'/>` +
+    path
+      .split("~")
+      .map((item, i) => item.replace("/>", ` ${handler(COLORS[i + 1])}/>`))
+      .join("") +
+    `</pattern></defs><rect width='100%' height='100%' fill='url(%23a)'/></svg>`
+  );
+}
+
 export const COLOR_PALETTES = [
   [
     HEX2HSL("#264653"),

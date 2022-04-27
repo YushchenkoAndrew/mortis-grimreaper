@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Col, Form } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { Bounce, ToastContainer } from "react-toastify";
-import DefaultPattern from "./DefaultPattern";
+import DefaultPattern from "./DefaultPatterns";
 
 export interface DefaultSettingsFormProps {
   // operation: string;
@@ -19,6 +19,7 @@ export default function DefaultSettingsForm(props: DefaultSettingsFormProps) {
     <Form
       as={Col}
       noValidate
+      className="p-3"
       validated={validated}
       onSubmit={async (event) => {
         event?.preventDefault();
@@ -40,7 +41,7 @@ export default function DefaultSettingsForm(props: DefaultSettingsFormProps) {
         draggable
       />
 
-      <DefaultPattern show={root.main.window === "Pattern"} />
+      <DefaultPattern show={root.main.window === "Patterns"} />
       {/* <DefaultCodeView show={root.main.window === "Code"} /> */}
       {/* <DefaultK3sConfig show={root.main.window === "Config"} /> */}
     </Form>

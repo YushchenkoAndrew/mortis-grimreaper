@@ -2,11 +2,12 @@ import { combineReducers, createStore } from "redux";
 import { devToolsEnhancer } from "redux-devtools-extension";
 
 import mainReducer from "./reducer/main";
+import patternReducer from "./reducer/pattern";
 
 export const store = createStore(
   combineReducers({
     main: mainReducer,
-    // temp: tempReducer,
+    pattern: patternReducer,
     // preview: previewReducer,
     // style: styleReducer,
     // code: codeReducer,

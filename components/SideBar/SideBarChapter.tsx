@@ -11,11 +11,7 @@ export default function SideBarChapter(props: SideBarChapterProps) {
         <p className="mt-3 mb-1 font-weight-bold text-dark">{props.name}</p>
       </li>
 
-      <li className="pl-2 nav-pills flex-column">
-        {/* <a className=""> */}
-        {props.children}
-        {/* </Nav> */}
-      </li>
+      <li className="pl-2 nav-pills flex-column">{props.children}</li>
     </>
   );
 }

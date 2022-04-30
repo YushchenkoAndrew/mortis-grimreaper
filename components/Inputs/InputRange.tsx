@@ -3,7 +3,6 @@ import { Col, Form, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 
 export interface InputRangeProps {
-  as?: ElementType<any>;
   root?: string | (() => void);
   readFrom: string;
   writeTo?: string | ((item: string) => void);
@@ -23,25 +22,24 @@ export default function InputRange(props: InputRangeProps) {
 
   return (
     <Form.Group as={Row} className={`m-2 ${props.className ?? ""}`}>
-      <Col xs="5" sm="3" md="4" lg="3">
-        <Row>
-          <Form.Label as={props.as ?? "h4"} className="mr-3 mb-0 my-auto">
-            {props.label}
-          </Form.Label>
-          <span
-            className="justify-content-center py-1 border rounded primary m-1 ml-auto"
-            style={{
-              backgroundColor: "#eee",
-              display: "flex",
-              width: "3rem",
-              height: "2.2rem",
-            }}
-          >
-            {value || "-"}
-          </span>
-        </Row>
+      <Col xs="3" sm="2" md="3" lg="2" className="text-center">
+        <Form.Label as="small" className="mb-0">
+          {props.label}
+        </Form.Label>
+        <span
+          className="py-1 border justify-content-center rounded primary mx-auto"
+          style={{
+            backgroundColor: "#eee",
+            display: "flex",
+            width: "3rem",
+            height: "2.2rem",
+          }}
+        >
+          {value || "-"}
+        </span>
+        {/* </Row> */}
       </Col>
-      <Col xs="7" sm="9" md="8" lg="9" className="pr-0">
+      <Col xs="9" sm="10" md="9" lg="10" className="pr-0 pt-3">
         <input
           value={value || ""}
           type="range"

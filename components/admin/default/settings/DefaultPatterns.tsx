@@ -1,5 +1,12 @@
 import {
+  faPen,
+  faPlus,
+  faSearch,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
+import {
   Col,
+  Collapse,
   Container,
   Form,
   InputGroup,
@@ -8,9 +15,14 @@ import {
 } from "react-bootstrap";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useDispatch, useSelector } from "react-redux";
+import { PatternData } from "../../../../types/api";
+import HoverButton from "../../../HoverButton";
+import InputCollapse from "../../../Inputs/InputCollapse";
 import InputTemplate from "../../../Inputs/InputTemplate";
 import InputValue from "../../../Inputs/InputValue";
 import { Pattern } from "../../Pattern";
+import DefaultMoreOptions from "./DefaultMoreOptions";
+import DefaultPatternForm from "./DefaultPatternForm";
 
 export interface DefaultPatternProps {
   show?: boolean;
@@ -19,48 +31,28 @@ export interface DefaultPatternProps {
 
 const PREFIX = "pattern";
 
-export default function DefaultPatternForm(props: DefaultPatternProps) {
-  const patterns = useSelector((state) => state[PREFIX].patterns) as any[];
+export default function DefaultPattern(props: DefaultPatternProps) {
+  const pattern = useSelector((state: any) => state[PREFIX]);
   const dispatch = useDispatch();
 
   return (
     <div className={props.show ? "" : "d-none"}>
       <Form.Row>
-        <Form.Group className="w-100">
+        <Form.Group className="w-100 mb-1">
           <h4 className="font-weight-bold mb-3">Patterns</h4>
           <hr />
         </Form.Group>
-        <Form.Group as={Row} className="w-100">
-          <InputTemplate className="mb-3" label="Title">
-            <InputGroup>
-              <InputValue
-                root={PREFIX}
-                readFrom={`${PREFIX}_window`}
-                className="rounded"
-                placeholder={"ooooooooooooo"}
-                required
-              />
-            </InputGroup>
-          </InputTemplate>
-
-          <InputTemplate className="mb-3" label="Title">
-            <InputGroup>
-              <InputValue
-                root={PREFIX}
-                readFrom={`${PREFIX}_window`}
-                className="rounded"
-                placeholder={"ooooooooooooo"}
-                required
-              />
-            </InputGroup>
-          </InputTemplate>
+        <Form.Group as={Row} className="w-100 mb-0">
+          <DefaultMoreOptions root={PREFIX} readFrom={`${PREFIX}_info`}>
+            <DefaultPatternForm root={PREFIX} readFrom={PREFIX} />
+          </DefaultMoreOptions>
         </Form.Group>
 
         <Form.Group className="w-100">
-          <hr />
+          <hr hidden={!pattern.info} />
           <InfiniteScroll
             className="row"
-            dataLength={patterns.length}
+            dataLength={pattern.items.length}
             next={() => {
               // loadProjectsThumbnail(page++)
               //   .then((data) => onScrollLoad([...projects, ...data]))
@@ -79,7 +71,7 @@ export default function DefaultPatternForm(props: DefaultPatternProps) {
               </Col>
             }
           >
-            {patterns.map((item, i) => {
+            {pattern.items.map((item: PatternData, i: number) => {
               return (
                 <Pattern
                   key={i}

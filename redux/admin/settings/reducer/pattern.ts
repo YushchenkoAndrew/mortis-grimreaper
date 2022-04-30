@@ -5,7 +5,9 @@ const PREFIX = "PATTERN";
 const WINDOW_STATE = {};
 
 const INIT_STATE = {
-  patterns: [
+  info: false,
+
+  items: [
     {
       id: 512,
       mode: "stroke",
@@ -107,6 +109,9 @@ export default function (state = INIT_STATE, action: AnyAction) {
 
     case `${PREFIX}_WINDOW_CHANGED`:
       return { ...state, window: action.value };
+
+    case `${PREFIX}_INFO_CHANGED`:
+      return { ...state, info: action.value };
 
     default:
       return state;

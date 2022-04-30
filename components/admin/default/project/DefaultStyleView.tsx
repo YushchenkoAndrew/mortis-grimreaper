@@ -3,21 +3,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import { Button, Col, Collapse, Form, InputGroup, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { basePath } from "../../../../config";
 import { ProjectInfo } from "../../../../config/placeholder";
-import { tmpFile } from "../../../../lib/public/files";
-import { ProjectData } from "../../../../types/api";
-import { DefaultRes } from "../../../../types/request";
 import Card from "../../../Card";
 import InputColor from "../../../Inputs/InputColor";
-import InputFile from "../../../Inputs/InputFile";
-import InputName from "../../../Inputs/InputName";
 import InputRadio from "../../../Inputs/InputRadio";
 import InputRange from "../../../Inputs/InputRange";
 import InputTemplate from "../../../Inputs/InputTemplate";
-import InputText from "../../../Inputs/InputText";
-import InputValue from "../../../Inputs/InputValue";
-import DefaultPreviewFooter from "./DefaultPreviewFooter";
 
 export interface DefaultStyleViewProps {
   show?: boolean;
@@ -87,21 +78,18 @@ export default function DefaultStyleView(props: DefaultStyleViewProps) {
             <Collapse in={minimized}>
               <div>
                 <InputRange
-                  as="h5"
                   root={PREFIX}
                   label="Zoom"
                   readFrom={`${PREFIX}_zoom`}
                   property={{ min: 0, max: 30 }}
                 />
                 <InputRange
-                  as="h5"
                   root={PREFIX}
                   label="Angle"
                   readFrom={`${PREFIX}_angle`}
                   property={{ min: 0, max: 180 }}
                 />
                 <InputRange
-                  as="h5"
                   root={PREFIX}
                   label="Colors"
                   readFrom={`${PREFIX}_colors`}
@@ -126,7 +114,7 @@ export default function DefaultStyleView(props: DefaultStyleViewProps) {
               </Row>
             </Col>
 
-            <Col xs="3" md="3" lg="2" className="my-auto px-2">
+            <Col xs="3" sm="2" md="3" lg="2" className="my-auto px-2">
               <Button
                 variant="outline-primary"
                 onClick={() =>

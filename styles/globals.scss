@@ -13,6 +13,10 @@ body {
   background-color: $light;
 }
 
+.btn-outline-warning:hover {
+  color: var(--light);
+}
+
 @import "./font";
 @import "./editor";
 

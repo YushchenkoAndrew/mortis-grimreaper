@@ -1,0 +1,33 @@
+.hover-button {
+  $transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out,
+    width 0.5s ease-in-out;
+
+  display: flex;
+  flex-wrap: nowrap;
+  margin-right: -15px;
+  margin-left: -15px;
+
+  -webkit-transition: $transition;
+  -moz-transition: $transition;
+  -o-transition: $transition;
+  transition: $transition;
+
+  width: 2.4rem;
+  max-width: auto;
+  transition: width 0.5s !important;
+  white-space: nowrap;
+
+  & p {
+    overflow: hidden;
+    text-overflow: clip;
+  }
+
+  &:hover {
+    width: 92%;
+  }
+
+  &:hover p {
+    margin-right: 0.5rem !important;
+  }
+}

@@ -19,7 +19,7 @@ export default function DefaultSettingsForm(props: DefaultSettingsFormProps) {
     <Form
       as={Col}
       noValidate
-      className="p-3"
+      className="py-3 px-0 w-100"
       validated={validated}
       onSubmit={async (event) => {
         event?.preventDefault();

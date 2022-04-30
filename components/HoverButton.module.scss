@@ -1,7 +1,7 @@
 .hover-button {
   $transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
     border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out,
-    width 0.5s ease-in-out;
+    width 0.8s ease;
 
   display: flex;
   flex-wrap: nowrap;
@@ -15,12 +15,13 @@
 
   width: 2.4rem;
   max-width: auto;
-  transition: width 0.5s !important;
   white-space: nowrap;
 
   & p {
     overflow: hidden;
     text-overflow: clip;
+    transition: margin-right 0.65s ease-out;
+    margin-right: 0rem;
   }
 
   &:hover {

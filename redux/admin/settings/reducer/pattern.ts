@@ -1,4 +1,5 @@
 import { AnyAction } from "redux";
+import { CapitalizeString } from "../../../../lib/public/string";
 
 const PREFIX = "PATTERN";
 
@@ -6,6 +7,17 @@ const WINDOW_STATE = {};
 
 const INIT_STATE = {
   info: false,
+  action: "info",
+
+  id: -1,
+  mode: "Fill",
+  colors: "",
+  stroke: "",
+  scale: "",
+  spacing: { x: "", y: "" },
+  width: "",
+  height: "",
+  path: "",
 
   items: [
     {
@@ -104,14 +116,54 @@ const INIT_STATE = {
 
 export default function (state = INIT_STATE, action: AnyAction) {
   switch (action.type) {
+    case `${PREFIX}_INIT`:
+      return {
+        ...state,
+        ...["id", "colors", "path", "width", "height"].reduce(
+          (acc, key) => ({ ...acc, [key]: action.value[key] }),
+          {}
+        ),
+
+        mode: CapitalizeString(action.value.mode),
+        stroke: action.value.max_stroke,
+        scale: action.value.max_scale,
+        spacing: {
+          x: `${action.value.max_spacing_x}`,
+          y: `${action.value.max_spacing_y}`,
+        },
+      };
+
     // TODO:
     // * SAVE main value in cache !!!
 
-    case `${PREFIX}_WINDOW_CHANGED`:
-      return { ...state, window: action.value };
+    case `${PREFIX}_ACTION_CHANGED`:
+      return {
+        ...state,
+        action: action.value,
+        spacing: { ...state.spacing, ...action.value.spacing },
+      };
 
     case `${PREFIX}_INFO_CHANGED`:
-      return { ...state, info: action.value };
+      return { ...state, info: action.value, action: "info" };
+
+    case `${PREFIX}_MODE_CHANGED`:
+      return { ...state, mode: action.value };
+
+    // TODO: Check if its a number
+    // colors: "",
+    // stroke: "",
+    // scale: "",
+    // spacing: { x: "", y: "" },
+    // width: "",
+    // height: "",
+    case `${PREFIX}_COLORS_CHANGED`:
+      return { ...state, colors: action.value };
+
+    case `${PREFIX}_PATH_CHANGED`:
+      return { ...state, path: action.value };
+
+    // TODO:
+    case `${PREFIX}_PATH_CACHED`:
 
     default:
       return state;

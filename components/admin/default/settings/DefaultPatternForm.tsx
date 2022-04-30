@@ -1,19 +1,15 @@
-import { faPen, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  Button,
-  Col,
-  Container,
-  Form,
-  InputGroup,
-  Row,
-  Spinner,
-} from "react-bootstrap";
-import HoverButton from "../../../HoverButton";
+import { Col, Container, InputGroup, Row } from "react-bootstrap";
+import InputName from "../../../Inputs/InputName";
 import InputRadio from "../../../Inputs/InputRadio";
+import InputSuffixName from "../../../Inputs/InputSuffixName";
 import InputTemplate from "../../../Inputs/InputTemplate";
 import InputValue from "../../../Inputs/InputValue";
-// import styles from "./DefaultPatternForm.module.scss";
+import { highlight, languages } from "prismjs";
+import "prismjs/components/prism-markup";
+import "prismjs/themes/prism-coy.css";
+import Editor from "react-simple-code-editor";
+import { useDispatch, useSelector } from "react-redux";
+import { Pattern } from "../../Pattern";
 
 export interface DefaultPatternFormProps {
   root: string;
@@ -22,85 +18,176 @@ export interface DefaultPatternFormProps {
 }
 
 export default function DefaultPatternForm(props: DefaultPatternFormProps) {
+  const dispatch = useDispatch();
+  const pattern = useSelector((state: any) =>
+    props.readFrom.split("_").reduce((acc, curr) => acc[curr], state)
+  );
+
   return (
     <>
       <Row>
-        <InputGroup as={Col} xs="3">
+        <InputGroup as={Col} xs="12" sm="6" lg="3">
           <InputTemplate className="mb-3" label="Mode">
             <InputRadio
               root={props.root}
-              readFrom={`${props.readFrom}_window`}
+              readFrom={`${props.readFrom}_mode`}
               options={["Stroke", "Fill", "Join"]}
               label="btn-sm btn-outline-info"
-              writeTo={(value) => {}}
+              // writeTo={(value) => {}}
             />
           </InputTemplate>
         </InputGroup>
 
-        <InputGroup as={Col} xs="3" className="pl-0 ">
+        <InputGroup as={Col} xs="12" sm="6" lg="3" className="pr-0">
           <InputTemplate className="mb-3" label="Colors">
             <InputValue
               root={props.root}
-              readFrom={`${props.readFrom}_window`}
+              readFrom={`${props.readFrom}_colors`}
               className="rounded"
-              placeholder={"5"}
-              disabled
+              placeholder="5"
+              disabled={!["add", "edit"].includes(pattern.action)}
               required
             />
           </InputTemplate>
         </InputGroup>
 
-        <InputGroup as={Col} xs="3" className="pl-0 ">
-          <InputTemplate className="mb-3" label="Max Scale">
+        <InputGroup as={Col} xs="12" sm="6" lg="3" className="pr-0">
+          <InputTemplate className="mb-3" label="Scale">
             <InputValue
               root={props.root}
-              readFrom={`${props.readFrom}_window`}
+              readFrom={`${props.readFrom}_scale`}
               className="rounded"
-              placeholder={"5"}
-              disabled
+              placeholder="6.5"
+              disabled={!["add", "edit"].includes(pattern.action)}
               required
             />
           </InputTemplate>
         </InputGroup>
 
-        <InputGroup as={Col} xs="3" className="pl-0 ">
-          <InputTemplate className="mb-3" label="Max Scale">
+        <InputGroup as={Col} xs="12" sm="6" lg="3" className="pr-0">
+          <InputTemplate className="mb-3" label="Stroke">
             <InputValue
               root={props.root}
-              readFrom={`${props.readFrom}_window`}
+              readFrom={`${props.readFrom}_stroke`}
               className="rounded"
-              placeholder={"5"}
-              disabled
+              placeholder="16"
+              disabled={!["add", "edit"].includes(pattern.action)}
               required
             />
           </InputTemplate>
         </InputGroup>
       </Row>
 
-      <InputGroup as={Col} xs="4" className="pl-0">
-        <InputTemplate className="mb-3" label="Title">
-          <InputValue
-            root={props.root}
-            readFrom={`${props.readFrom}_window`}
-            className="rounded"
-            placeholder={"ooooooooooooo"}
-            disabled
-            required
-          />
-        </InputTemplate>
-      </InputGroup>
-
-      <InputTemplate className="mb-3" label="Title">
-        <InputGroup>
-          <InputValue
-            root={props.root}
-            readFrom={`${props.readFrom}_window`}
-            className="rounded"
-            placeholder={"ooooooooooooo"}
-            required
-          />
+      <Row>
+        <InputGroup as={Col} xs="12" sm="6" lg="3" className="pr-0">
+          <InputTemplate className="mb-3" label="Spacing">
+            <InputName
+              char="X"
+              root={props.root}
+              readFrom={`${props.readFrom}_spacing_x`}
+              className="rounded"
+              placeholder="0"
+              disabled={!["add", "edit"].includes(pattern.action)}
+              required
+            />
+          </InputTemplate>
         </InputGroup>
-      </InputTemplate>
+
+        <InputGroup as={Col} xs="12" sm="6" lg="3" className="pr-0">
+          <InputTemplate className="mb-3" label="Spacing">
+            <InputName
+              char="Y"
+              root={props.root}
+              readFrom={`${props.readFrom}_spacing_y`}
+              className="rounded"
+              placeholder="10"
+              disabled={!["add", "edit"].includes(pattern.action)}
+              required
+            />
+          </InputTemplate>
+        </InputGroup>
+
+        <InputGroup as={Col} xs="12" sm="6" lg="3" className="pr-0">
+          <InputTemplate className="mb-3" label="Width">
+            <InputSuffixName
+              char="px"
+              root={props.root}
+              readFrom={`${props.readFrom}_width`}
+              className="rounded"
+              placeholder="120"
+              disabled={!["add", "edit"].includes(pattern.action)}
+              required
+            />
+          </InputTemplate>
+        </InputGroup>
+
+        <InputGroup as={Col} xs="12" sm="6" lg="3" className="pr-0">
+          <InputTemplate className="mb-3" label="Height">
+            <InputSuffixName
+              char="px"
+              root={props.root}
+              readFrom={`${props.readFrom}_height`}
+              className="rounded"
+              placeholder="80"
+              disabled={!["add", "edit"].includes(pattern.action)}
+              required
+            />
+          </InputTemplate>
+        </InputGroup>
+      </Row>
+
+      <div className="d-flex justify-content-center my-3">
+        <div className="w-100">
+          <Container className="pr-0 d-flex justify-content-center">
+            <Pattern
+              mode={pattern.mode}
+              path={pattern.path}
+              width={pattern.width}
+              height={pattern.height}
+            />
+          </Container>
+
+          <Container className="pr-0">
+            <Editor
+              className="form-control editor h-100"
+              value={pattern.path}
+              onValueChange={(value) =>
+                dispatch({
+                  type: `${
+                    props.writeTo || props.readFrom
+                  }_PATH_CHANGED`.toUpperCase(),
+                  value: value,
+                })
+              }
+              disabled={!["add", "edit"].includes(pattern.action)}
+              onBlur={() => {
+                dispatch({
+                  type: `${props.readFrom}_PATH_CACHED`.toUpperCase(),
+                });
+              }}
+              highlight={(content) => {
+                return highlight(content, languages.html, "html")
+                  .split("\n")
+                  .map(
+                    (line, i) =>
+                      `<span class='editor-line-number'>${i + 1}</span>${line}`
+                  )
+                  .join("\n");
+              }}
+              tabSize={2}
+              spellCheck={true}
+              textareaId="code-area"
+              padding={10}
+              style={{
+                fontFamily: '"Fira code", "Fira Mono", monospace',
+                fontSize: 18,
+                backgroundColor: "#fafafa",
+                outline: 0,
+              }}
+            />
+          </Container>
+        </div>
+      </div>
     </>
   );
 }

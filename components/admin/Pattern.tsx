@@ -12,7 +12,7 @@ export interface PatternProps {
 
 export function Pattern(props: PatternProps) {
   return (
-    <Col lg="4" md="6" sm="11" className="my-3 text-center">
+    <Col xs="10" sm="4" md="6" lg="4" className="my-3 text-center">
       <a
         className={`card p-2 square ${styles["card"]}`}
         style={{
@@ -20,7 +20,7 @@ export function Pattern(props: PatternProps) {
             props.width,
             props.height,
             props.path,
-            props.mode
+            props.mode.toLowerCase()
           )}")`,
 
           cursor: "pointer",

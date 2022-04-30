@@ -5,7 +5,7 @@ import {
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { ReactNode } from "react";
-import { Col, Collapse, Form, InputGroup, Row } from "react-bootstrap";
+import { Col, Collapse, Form, InputGroup, Row, Button } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import HoverButton from "../../../HoverButton";
 
@@ -24,22 +24,28 @@ export default function DefaultMoreOptions(props: DefaultMoreOptionsProps) {
 
   return (
     <Form.Group as={Col} className="mb-2">
-      <Row className="mr-auto px-3" style={{ cursor: "pointer" }}>
-        <InputGroup className="ml-4">
-          <Row className="py-3 w-100">
+      <Row className="mr-auto pl-3">
+        <InputGroup className="ml-4 d-flex justify-content-between">
+          <Row className="py-3 w-75">
             <HoverButton
               name="Info  "
               variant="outline-info"
               icon={faSearch}
               event={{
-                onClick: () => {
-                  dispatch({
-                    type: `${
-                      props.writeTo || props.readFrom
-                    }_CHANGED`.toUpperCase(),
-                    value: !value,
-                  });
-                },
+                onClick: () =>
+                  value.action === "info"
+                    ? dispatch({
+                        type: `${
+                          props.writeTo || props.readFrom
+                        }_INFO_CHANGED`.toUpperCase(),
+                        value: !value.info,
+                      })
+                    : dispatch({
+                        type: `${
+                          props.writeTo || props.readFrom
+                        }_ACTION_CHANGED`.toUpperCase(),
+                        value: "info",
+                      }),
               }}
             />
             {/* TODO: Add on click event */}
@@ -47,13 +53,52 @@ export default function DefaultMoreOptions(props: DefaultMoreOptionsProps) {
               name="Create"
               variant="outline-success"
               icon={faPlus}
+              event={{
+                onClick: () => {
+                  dispatch({
+                    type: `${
+                      props.writeTo || props.readFrom
+                    }_ACTION_CHANGED`.toUpperCase(),
+                    value: "add",
+                  });
+                },
+              }}
             />
-            <HoverButton name="Edit  " variant="outline-warning" icon={faPen} />
-            <HoverButton name="Delete" variant="danger" icon={faTrash} />
+            <HoverButton
+              name="Edit  "
+              variant="outline-warning"
+              icon={faPen}
+              event={{
+                onClick: () => {
+                  dispatch({
+                    type: `${
+                      props.writeTo || props.readFrom
+                    }_ACTION_CHANGED`.toUpperCase(),
+                    value: "edit",
+                  });
+                },
+              }}
+            />
+            <HoverButton
+              name="Delete"
+              variant="danger"
+              icon={faTrash}
+              event={{
+                onClick: () => {},
+              }}
+            />
           </Row>
+
+          <Button
+            hidden={!["add", "edit"].includes(value.action)}
+            variant="outline-primary"
+            className="my-auto"
+          >
+            Submit
+          </Button>
         </InputGroup>
       </Row>
-      <Collapse className="justify-content-center" in={value}>
+      <Collapse className="justify-content-center" in={value.info}>
         <div>{props.children}</div>
       </Collapse>
     </Form.Group>

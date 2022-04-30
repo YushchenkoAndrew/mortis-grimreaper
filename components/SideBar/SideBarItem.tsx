@@ -12,7 +12,6 @@ export default function SideBarItem(props: SideBarItemProps) {
   return (
     <li className="nav-item w-100 px-2">
       <a
-        href="#"
         className={`nav-link ${styles["side-bar-item"]} ${
           props.active ? "bg-dark text-light" : "text-dark"
         } ${props.className || ""}`}

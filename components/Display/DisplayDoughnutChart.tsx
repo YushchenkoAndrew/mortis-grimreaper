@@ -1,19 +1,19 @@
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement } from "chart.js";
-import Card from "../info/Card";
+import InfoCard from "../Cards/InfoCard";
 import { useSelector } from "react-redux";
 import { memo } from "react";
 
 ChartJS.register(ArcElement);
 
-export interface DoughnutChartProps {
+export interface DisplayDoughnutChartProps {
   root: string;
   readFrom: string;
   title: string;
   size?: { hight: number; width: number };
 }
 
-export default function DoughnutChart(props: DoughnutChartProps) {
+export default function DisplayDoughnutChart(props: DisplayDoughnutChartProps) {
   const root = useSelector((state: any) =>
     props.root.split("_").reduce((acc, curr) => acc[curr], state)
   );
@@ -23,7 +23,7 @@ export default function DoughnutChart(props: DoughnutChartProps) {
   );
 
   return (
-    <Card title={props.title}>
+    <InfoCard title={props.title}>
       <Doughnut
         height={props.size?.hight || 100}
         width={props.size?.width || 100}
@@ -43,6 +43,6 @@ export default function DoughnutChart(props: DoughnutChartProps) {
           ],
         }}
       />
-    </Card>
+    </InfoCard>
   );
 }

@@ -4,12 +4,12 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import DefaultTotalMetrics from "./DefaultTotalMetrics";
 import { MetricsData, ProjectData } from "../../../../types/api";
-import LineChart from "../../../Display/LineChart";
 import { basePath } from "../../../../config";
 import { FormatDate } from "../../../../lib/public/string";
 import { createQuery } from "../../../../lib/api/query";
 import { TIME_RANGE } from "../../../../redux/admin/projects/metrics/reducer/main";
 import { DefaultRes } from "../../../../types/request";
+import DisplayLineChart from "../../../Display/DisplayLineChart";
 
 export interface DefaultMetricsProps {
   project: { [name: string]: any };
@@ -84,7 +84,7 @@ export default function DefaultMetrics(props: DefaultMetricsProps) {
         </Form.Group>
       </Row>
 
-      <LineChart
+      <DisplayLineChart
         root={PREFIX}
         title="CPU Usage"
         size={{ hight: 1500, width: 3000 }}
@@ -97,7 +97,7 @@ export default function DefaultMetrics(props: DefaultMetricsProps) {
         }}
       />
 
-      <LineChart
+      <DisplayLineChart
         root={PREFIX}
         title="Memory Usage"
         size={{ hight: 1500, width: 3000 }}

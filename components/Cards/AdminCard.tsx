@@ -1,7 +1,7 @@
 import React, { memo } from "react";
 import Image from "react-bootstrap/Image";
 import { FlagType } from "../../types/flag";
-import styles from "./Card.module.css";
+import styles from "./AdminCard.module.css";
 import Flag from "./Flag";
 import { Button, Col, Container, Row } from "react-bootstrap";
 
@@ -10,7 +10,7 @@ export type EventLinks = {
   modify: { href?: string; onClick?: () => void };
   delete: { href?: string; onClick?: () => void };
 };
-export interface CardProps {
+export interface AdminCardProps {
   id: number;
   img: string | string[];
   href: string;
@@ -21,7 +21,7 @@ export interface CardProps {
   event: EventLinks;
 }
 
-export default memo(function Card(props: CardProps) {
+export default memo(function AdminCard(props: AdminCardProps) {
   const desc = (props.desc ?? "").split(" ");
   return (
     <Col lg="4" md="6" sm="11" className="my-3 text-center">

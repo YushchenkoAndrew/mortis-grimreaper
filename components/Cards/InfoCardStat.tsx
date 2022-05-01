@@ -3,7 +3,7 @@ import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { animated, SpringValue } from "react-spring";
 
-export interface CardStatProps {
+export interface InfoCardStatProps {
   value: SpringValue<number>;
   gain?: SpringValue<number>;
   goal: number;
@@ -11,7 +11,7 @@ export interface CardStatProps {
   icon: IconProp;
 }
 
-export default function CardStat(props: CardStatProps) {
+export default function InfoCardStat(props: InfoCardStatProps) {
   return (
     <div
       className="card border-right mb-4"

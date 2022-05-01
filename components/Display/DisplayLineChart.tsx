@@ -1,5 +1,5 @@
 import { Line } from "react-chartjs-2";
-import Card from "../info/Card";
+import InfoCard from "../Cards/InfoCard";
 import { useSelector } from "react-redux";
 import "chartjs-adapter-moment";
 
@@ -31,7 +31,7 @@ ChartJS.register(
   Legend
 );
 
-export interface LineChartProps {
+export interface DisplayLineChartProps {
   root: string;
   readFrom: string;
   title: string;
@@ -41,7 +41,7 @@ export interface LineChartProps {
   }>;
 }
 
-export default function LineChart(props: LineChartProps) {
+export default function DisplayLineChart(props: DisplayLineChartProps) {
   const root = useSelector((state: any) =>
     props.root.split("_").reduce((acc, curr) => acc[curr], state)
   );
@@ -51,7 +51,7 @@ export default function LineChart(props: LineChartProps) {
   ) as number[][];
 
   return (
-    <Card title={props.title} className="mb-3">
+    <InfoCard title={props.title} className="mb-3">
       <Line
         height={props.size?.hight || 100}
         width={props.size?.width || 100}
@@ -79,6 +79,6 @@ export default function LineChart(props: LineChartProps) {
           })),
         }}
       />
-    </Card>
+    </InfoCard>
   );
 }

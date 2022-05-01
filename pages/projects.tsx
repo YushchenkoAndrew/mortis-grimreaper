@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import Card from "../components/Card";
+import ProjectCard from "../components/Cards/ProjectCard";
 import DefaultFooter from "../components/default/DefaultFooter";
 import DefaultHead from "../components/default/DefaultHead";
 import DefaultHeader from "../components/default/DefaultHeader";
@@ -56,39 +56,39 @@ export default function ProjectsListPage(props: ProjectsListPageProps) {
       <main role="main">
         <div className="container mt-5">
           <div className="card-columns">
-            <Card
+            <ProjectCard
               img={`${basePath}/img/ApproximatingPiValue.webp`}
               title="Find Pi with RNG"
               href={`${basePath}/ApproximatingPiValue`}
               description="Plz RNG Gods, I need to gacha the Pi value"
             />
-            <Card
+            <ProjectCard
               img={`${basePath}/img/CodeRain.webp`}
               title="Code Rain"
               size="lg"
               href={`${basePath}/CodeRain`}
               description="Take the blue pill and the site will close, or take the red pill and I show how deep the rabbit hole goes"
             />
-            <Card
+            <ProjectCard
               img={`${basePath}/img/HammingCode.webp`}
               title="Hamming Code"
               href={`${basePath}/HammingCode`}
               description="The first algorithm for Error correction"
             />
-            <Card
+            <ProjectCard
               img={`${basePath}/img/Minecraft.webp`}
               title="3D Engine"
               size="lg"
               href={`${basePath}/Minecraft`}
               description="Yet another Minecraft clone"
             />
-            <Card
+            <ProjectCard
               img={`${basePath}/img/ReactionDiffusion.webp`}
               title="Reaction Diffusion"
               href={`${basePath}/ReactionDiffusion`}
               description="Haha, chemical elements go brrrrr "
             />
-            <Card
+            <ProjectCard
               img={`${basePath}/img/ShadowCasting.webp`}
               title="Shadow Casting"
               href={`${basePath}/ShadowCasting`}
@@ -96,7 +96,7 @@ export default function ProjectsListPage(props: ProjectsListPageProps) {
             />
 
             {/* WARNING: Temp file */}
-            <Card
+            <ProjectCard
               img="https://images.unsplash.com/photo-1457976326363-73a4b5fb9e79?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=900&ixid=MnwxfDB8MXxyYW5kb218MHx8dGVjaCxzdHJlZXR8fHx8fHwxNjI4NDI3MzEy&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=600"
               title="Some text"
               href="#"
@@ -129,7 +129,7 @@ export default function ProjectsListPage(props: ProjectsListPageProps) {
                       (file) => `${voidUrl}/${item.name}/${formPath(file)}`
                     );
                     return (
-                      <Card
+                      <ProjectCard
                         key={j}
                         title={item.title}
                         img={img.length > 1 ? img : img[0]}

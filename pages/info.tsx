@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import Card from "../components/info/Card";
-import CardStat from "../components/info/CardStat";
+import InfoCard from "../components/Cards/InfoCard";
+import InfoCardStat from "../components/info/InfoCardStat";
 import Calendar from "react-calendar";
 import DefaultNav from "../components/default/DefaultNav";
 import DefaultHead from "../components/default/DefaultHead";
@@ -152,21 +152,21 @@ export default function Info() {
 
       <div className="container">
         <div className="card-group mt-2 mb-4">
-          <CardStat
+          <InfoCardStat
             title="New users"
             value={infoUsers.value}
             gain={infoUsers.gain}
             goal={infoData.users.gain}
             icon={faUserPlus}
           />
-          <CardStat
+          <InfoCardStat
             title="Views"
             value={infoViews.value}
             gain={infoViews.gain}
             goal={infoData.views.gain}
             icon={faEye}
           />
-          <CardStat
+          <InfoCardStat
             title="Countries"
             value={infoCountries.value}
             icon={faGlobe}
@@ -176,7 +176,7 @@ export default function Info() {
 
         <div className="row">
           <div className="col-lg-4 col-md-12 mb-4">
-            <Card title="Calendar">
+            <InfoCard title="Calendar">
               <Calendar
                 onChange={(date: Date) => {
                   loadStaticData(date);
@@ -185,10 +185,10 @@ export default function Info() {
                 }}
                 value={date}
               />
-            </Card>
+            </InfoCard>
           </div>
           <div className="col col-lg-8 col-md-12 mb-4">
-            <Card title="Visited Country">
+            <InfoCard title="Visited Country">
               <div className="d-flex justify-content-center">
                 <WorldMap
                   color="#007bff"
@@ -201,12 +201,12 @@ export default function Info() {
                   ]}
                 />
               </div>
-            </Card>
+            </InfoCard>
           </div>
         </div>
         <div className="row">
           <div className="col-lg-8 col-md-12 mb-4">
-            <Card title="Weekdays Statistics">
+            <InfoCard title="Weekdays Statistics">
               <Line
                 height={chartSize.height}
                 width={chartSize.width}
@@ -229,10 +229,10 @@ export default function Info() {
                   ],
                 }}
               />
-            </Card>
+            </InfoCard>
           </div>
           <div className="col-lg-4 col-md-12 mb-4">
-            <Card title="Analytics">
+            <InfoCard title="Analytics">
               <Doughnut
                 height={100}
                 width={100}
@@ -252,7 +252,7 @@ export default function Info() {
                   ],
                 }}
               />
-            </Card>
+            </InfoCard>
           </div>
         </div>
       </div>

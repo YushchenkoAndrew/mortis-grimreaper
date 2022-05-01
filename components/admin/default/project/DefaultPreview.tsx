@@ -5,7 +5,7 @@ import { ProjectInfo } from "../../../../config/placeholder";
 import { tmpFile } from "../../../../lib/public/files";
 import { ProjectData } from "../../../../types/api";
 import { DefaultRes } from "../../../../types/request";
-import Card from "../../../Card";
+import ProjectCard from "../../../Cards/ProjectCard";
 import InputFile from "../../../Inputs/InputFile";
 import InputName from "../../../Inputs/InputName";
 import InputRadio from "../../../Inputs/InputRadio";
@@ -31,7 +31,7 @@ export default function DefaultPreview(props: DefaultPreviewProps) {
       <hr />
       <Form.Row>
         <Form.Group as={Col} md={{ order: 2, span: 5 }} mb="4">
-          <Card
+          <ProjectCard
             href="#"
             size={style.title}
             img={

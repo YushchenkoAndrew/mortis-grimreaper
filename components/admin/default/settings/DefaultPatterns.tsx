@@ -2,7 +2,7 @@ import { Col, Container, Form, Row, Spinner } from "react-bootstrap";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useDispatch, useSelector } from "react-redux";
 import { PatternData } from "../../../../types/api";
-import { Pattern } from "../../Pattern";
+import { DisplayPattern } from "../../../Display/DisplayPattern";
 import DefaultMoreOptions from "./DefaultMoreOptions";
 import DefaultPatternForm from "./DefaultPatternForm";
 
@@ -55,12 +55,9 @@ export default function DefaultPattern(props: DefaultPatternProps) {
           >
             {pattern.items.map((item: PatternData, i: number) => {
               return (
-                <Pattern
+                <DisplayPattern
                   key={i}
-                  mode={item.mode}
-                  path={item.path}
-                  width={item.width}
-                  height={item.height}
+                  data={item}
                   event={{
                     onClick: () => {
                       dispatch({

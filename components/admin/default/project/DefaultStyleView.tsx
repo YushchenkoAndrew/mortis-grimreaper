@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button, Col, Collapse, Form, InputGroup, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { ProjectInfo } from "../../../../config/placeholder";
-import Card from "../../../Card";
+import ProjectCard from "../../../Cards/ProjectCard";
 import InputColor from "../../../Inputs/InputColor";
 import InputRadio from "../../../Inputs/InputRadio";
 import InputRange from "../../../Inputs/InputRange";
@@ -32,7 +32,7 @@ export default function DefaultStyleView(props: DefaultStyleViewProps) {
       <hr />
       <Form.Row>
         <Form.Group as={Col} md={{ order: 2, span: 5 }} mb="4">
-          <Card
+          <ProjectCard
             href="#"
             size={style.title}
             img={

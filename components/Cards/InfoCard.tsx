@@ -1,13 +1,13 @@
 import React from "react";
 import styles from "./CardStat.module.css";
 
-export interface CardProps {
+export interface InfoCardProps {
   title: string;
   className?: string;
   children: React.ReactNode;
 }
 
-export default function Card(props: CardProps) {
+export default function InfoCard(props: InfoCardProps) {
   return (
     <div
       className={`card h-100 ${props.className ?? ""} ${styles["card-shadow"]}`}

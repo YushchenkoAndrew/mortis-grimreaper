@@ -1,6 +1,6 @@
 import { memo, useEffect, useState } from "react";
 
-export interface RunningLineProps {
+export interface DisplayRunningLineProps {
   text: string;
   size?: number;
   onHover?: (flag: boolean) => void;
@@ -11,7 +11,7 @@ function pieSlice(str: string, offset: number, size: number) {
   return str.substr(offset) + str.substr(0, offset + size - str.length);
 }
 
-export default memo(function RunningLine(props: RunningLineProps) {
+export default memo(function RunningLine(props: DisplayRunningLineProps) {
   const [stop, onCycleStop] = useState(0);
   const [offset, setOffset] = useState(0);
 
@@ -28,12 +28,7 @@ export default memo(function RunningLine(props: RunningLineProps) {
   });
 
   return (
-    <h3
-      className="text-white text-3Dventure"
-      onMouseEnter={() => props.onHover?.(true)}
-      onMouseLeave={() => props.onHover?.(false)}
-      style={{ fontSize: "2rem" }}
-    >
+    <h3 className="text-white text-3Dventure" style={{ fontSize: "2rem" }}>
       {(props.size ?? 5) >= props.text.length
         ? props.text
         : pieSlice(text, offset, props.size ?? 5)}

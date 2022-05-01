@@ -1,5 +1,4 @@
 import { useState } from "react";
-import AddCard from "../../components/admin/AddCard";
 import DefaultHeader from "../../components/admin/default/DefaultHeader";
 import DefaultFooter from "../../components/default/DefaultFooter";
 import DefaultHead from "../../components/default/DefaultHead";
@@ -8,7 +7,6 @@ import { checkIfUserExist } from "../../lib/api/session";
 import { ProjectData } from "../../types/api";
 import { basePath, voidUrl } from "../../config";
 import { FlagType } from "../../types/flag";
-import Card from "../../components/admin/Card";
 import { formPath } from "../../lib/public/files";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { loadProjectsThumbnail } from "../../lib/public/projects";
@@ -19,6 +17,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { withIronSessionSsr } from "iron-session/next";
 import { LoadProjects } from "../../lib/api/project";
 import { Col, Container, Spinner } from "react-bootstrap";
+import AddCard from "../../components/Cards/AddCard";
+import AdminCard from "../../components/Cards/AdminCard";
 
 let page = 1;
 
@@ -121,7 +121,7 @@ export default function AdminProjects(props: AdminProjectsProps) {
             );
 
             return (
-              <Card
+              <AdminCard
                 key={i}
                 id={item.id || 0}
                 title={item.title}

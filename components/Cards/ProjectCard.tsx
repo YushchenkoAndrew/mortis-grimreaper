@@ -1,10 +1,9 @@
 import { CSSProperties, memo, useEffect, useRef, useState } from "react";
 import Image from "react-bootstrap/Image";
-import { basePath } from "../config";
-import { ProjectInfo } from "../config/placeholder";
-import styles from "./Card.module.css";
+import { basePath } from "../../config";
+import styles from "./ProjectCard.module.css";
 
-export interface CardProps {
+export interface ProjectCardProps {
   img: string | string[];
   title: string;
   target?: React.HTMLAttributeAnchorTarget;
@@ -17,7 +16,7 @@ export interface CardProps {
   children?: React.ReactNode;
 }
 
-export default memo(function Card(props: CardProps) {
+export default memo(function ProjectCard(props: ProjectCardProps) {
   const divRef = useRef<HTMLDivElement>(null);
   const [frame, setLastFrame] = useState(0);
   const [offset, setOffset] = useState({ top: -1, left: -1 } as DOMRect);

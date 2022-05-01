@@ -7,7 +7,8 @@ import DefaultMetrics from "../../../../components/admin/default/metrics/Default
 import DefaultFooter from "../../../../components/default/DefaultFooter";
 import DefaultHead from "../../../../components/default/DefaultHead";
 import DefaultNav from "../../../../components/default/DefaultNav";
-import RunningLine from "../../../../components/RunningLine";
+import DisplayDataRecord from "../../../../components/Display/DisplayDataRecord";
+import DisplayRunningLine from "../../../../components/Display/DisplayRunningLine";
 import { basePath } from "../../../../config";
 import sessionConfig from "../../../../config/session";
 import { LoadProjects } from "../../../../lib/api/project";
@@ -30,31 +31,19 @@ export default function Metrics(props: MetricsProps) {
       </DefaultHead>
       <DefaultHeader
         overlay={
-          <OverlayTrigger
-            show={showInfo}
-            placement="bottom"
-            overlay={
-              <Popover id="popover-running-line">
-                <Popover.Title as="h4">Project info</Popover.Title>
-                <Popover.Content>
-                  {["id", "created_at", "name", "title", "flag"].map(
-                    (key, i) => (
-                      <Row as="h6" key={`project-${i}`} className="mx-2">
-                        <Badge variant="info" className="mr-auto px-2">
-                          {key}
-                        </Badge>
-                        <p className="m-0 pl-4">{props.project[key]}</p>
-                      </Row>
-                    )
-                  )}
-                  <Row as="h6" className="mx-2">
-                    <Badge variant="info" className="mr-auto px-2">
-                      subscription
-                    </Badge>
-                  </Row>
-                  {(
-                    props.project.subscription as { [name: string]: any }[]
-                  ).map((item, i) => (
+          <DisplayDataRecord
+            title="Project info"
+            keys={["id", "created_at", "name", "title", "flag"]}
+            data={props.project}
+            popover={
+              <>
+                <Row as="h6" className="mx-2">
+                  <Badge variant="info" className="mr-auto px-2">
+                    subscription
+                  </Badge>
+                </Row>
+                {(props.project.subscription as { [name: string]: any }[]).map(
+                  (item, i) => (
                     <div key={`subscription-${i}`}>
                       {["id", "name", "method", "cron_time"].map((key, i) => (
                         <Row
@@ -69,17 +58,17 @@ export default function Metrics(props: MetricsProps) {
                         </Row>
                       ))}
                     </div>
-                  ))}
-                </Popover.Content>
-              </Popover>
+                  )
+                )}
+              </>
             }
           >
-            <RunningLine
+            <DisplayRunningLine
               size={7}
               onHover={onNameHover}
               text={props.project["name"]}
             />
-          </OverlayTrigger>
+          </DisplayDataRecord>
         }
       />
 

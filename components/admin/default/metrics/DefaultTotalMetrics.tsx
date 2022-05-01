@@ -1,7 +1,7 @@
 import { Col, Row } from "react-bootstrap";
-import Card from "../../../info/Card";
-import DoughnutChart from "../../../Display/DoughnutChart";
+import InfoCard from "../../../Cards/InfoCard";
 import { useSelector } from "react-redux";
+import DisplayDoughnutChart from "../../../Display/DisplayDoughnutChart";
 
 export interface DefaultTotalMetricsProps {
   root: string;
@@ -20,7 +20,7 @@ export default function DefaultTotalMetrics(props: DefaultTotalMetricsProps) {
   return (
     <Row className="mt-4 h-100">
       <Col md="6" lg={{ order: 1, span: 4 }} className="mb-4">
-        <DoughnutChart
+        <DisplayDoughnutChart
           title="Avg CPU Usage"
           root={props.root}
           readFrom={`${props.readFrom}_cpu`}
@@ -28,7 +28,7 @@ export default function DefaultTotalMetrics(props: DefaultTotalMetricsProps) {
       </Col>
 
       <Col md="6" lg={{ order: 3, span: 4 }} className="mb-4">
-        <DoughnutChart
+        <DisplayDoughnutChart
           title="Avg Memory Usage"
           root={props.root}
           readFrom={`${props.readFrom}_memory`}
@@ -36,7 +36,7 @@ export default function DefaultTotalMetrics(props: DefaultTotalMetricsProps) {
       </Col>
 
       <Col md="12" lg={{ order: 2, span: 4 }} className="mb-4">
-        <Card title="Pods Names">
+        <InfoCard title="Pods Names">
           {pods.map((item, i) => (
             <Row key={`pod-${i}`} className="mx-3">
               <span
@@ -52,7 +52,7 @@ export default function DefaultTotalMetrics(props: DefaultTotalMetricsProps) {
               <p>{item}</p>
             </Row>
           ))}
-        </Card>
+        </InfoCard>
       </Col>
     </Row>
   );

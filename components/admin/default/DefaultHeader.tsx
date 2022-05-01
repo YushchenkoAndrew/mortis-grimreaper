@@ -2,7 +2,7 @@ import React from "react";
 import DefaultNav from "./DefaultNav";
 import NavBar from "../../NavBar/NavBar";
 import NavContainer from "../../NavBar/NavContainer";
-import RunningLine from "../../RunningLine";
+import DisplayRunningLine from "../../Display/DisplayRunningLine";
 
 export interface DefaultHeaderProps {
   name?: string;
@@ -25,7 +25,9 @@ export default function DefaultHeader(props: DefaultHeaderProps) {
           ></DefaultNav>
         </NavContainer>
 
-        {props.overlay || <RunningLine text={props.name || "admin"} size={7} />}
+        {props.overlay || (
+          <DisplayRunningLine text={props.name || "admin"} size={7} />
+        )}
       </NavBar>
       {props.children}
     </header>

@@ -2,7 +2,7 @@ import React, { memo } from "react";
 import NavBar from "../NavBar/NavBar";
 import NavContainer from "../NavBar/NavContainer";
 import DefaultNav from "./DefaultNav";
-import RunningLine from "../RunningLine";
+import DisplayRunningLine from "../Display/DisplayRunningLine";
 
 export interface DefaultHeaderProps {
   name?: string;
@@ -26,7 +26,7 @@ export default memo(function DefaultHeader(props: DefaultHeaderProps) {
           ></DefaultNav>
         </NavContainer>
 
-        {props.name && <RunningLine text={props.name} size={8} />}
+        {props.name && <DisplayRunningLine text={props.name} size={8} />}
       </NavBar>
       {props.children}
     </header>

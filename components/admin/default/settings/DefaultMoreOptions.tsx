@@ -14,6 +14,9 @@ export interface DefaultMoreOptionsProps {
   readFrom: string;
   writeTo?: string;
   children: ReactNode;
+
+  onDelete: () => void;
+  onValidate?: () => boolean;
 }
 
 export default function DefaultMoreOptions(props: DefaultMoreOptionsProps) {
@@ -21,6 +24,48 @@ export default function DefaultMoreOptions(props: DefaultMoreOptionsProps) {
   const value = useSelector((state: any) =>
     props.readFrom.split("_").reduce((acc, curr) => acc[curr], state)
   );
+
+  function onHide() {
+    dispatch({
+      type: `${props.writeTo || props.readFrom}_INFO_CHANGED`.toUpperCase(),
+      value: !value.info,
+    });
+  }
+
+  function onInfo() {
+    if (value.action === "info") return onHide();
+
+    dispatch({
+      type: `${props.writeTo || props.readFrom}_ACTION_CHANGED`.toUpperCase(),
+      value: "info",
+    });
+  }
+
+  function onCreate() {
+    // NOTE: This func will change action to 'info' & hide window
+    if (value.action === "create") return onInfo(), onHide();
+
+    dispatch({
+      type: `${props.writeTo || props.readFrom}_ACTION_CHANGED`.toUpperCase(),
+      value: "create",
+    });
+  }
+
+  function onEdit() {
+    // NOTE: This func will change action to 'info' & hide window
+    if (value.action === "update") return onInfo(), onHide();
+    if (props.onValidate && !props.onValidate()) return;
+
+    dispatch({
+      type: `${props.writeTo || props.readFrom}_ACTION_CHANGED`.toUpperCase(),
+      value: "update",
+    });
+  }
+
+  function onDelete() {
+    if (props.onValidate && !props.onValidate()) return;
+    props.onDelete();
+  }
 
   return (
     <Form.Group as={Col} className="mb-2">
@@ -31,66 +76,31 @@ export default function DefaultMoreOptions(props: DefaultMoreOptionsProps) {
               name="Info  "
               variant="outline-info"
               icon={faSearch}
-              event={{
-                onClick: () =>
-                  value.action === "info"
-                    ? dispatch({
-                        type: `${
-                          props.writeTo || props.readFrom
-                        }_INFO_CHANGED`.toUpperCase(),
-                        value: !value.info,
-                      })
-                    : dispatch({
-                        type: `${
-                          props.writeTo || props.readFrom
-                        }_ACTION_CHANGED`.toUpperCase(),
-                        value: "info",
-                      }),
-              }}
+              event={{ onClick: onInfo }}
             />
-            {/* TODO: Add on click event */}
             <HoverButton
               name="Create"
               variant="outline-success"
               icon={faPlus}
-              event={{
-                onClick: () => {
-                  dispatch({
-                    type: `${
-                      props.writeTo || props.readFrom
-                    }_ACTION_CHANGED`.toUpperCase(),
-                    value: "add",
-                  });
-                },
-              }}
+              event={{ onClick: onCreate }}
             />
             <HoverButton
               name="Edit  "
               variant="outline-warning"
               icon={faPen}
-              event={{
-                onClick: () => {
-                  dispatch({
-                    type: `${
-                      props.writeTo || props.readFrom
-                    }_ACTION_CHANGED`.toUpperCase(),
-                    value: "edit",
-                  });
-                },
-              }}
+              event={{ onClick: onEdit }}
             />
             <HoverButton
               name="Delete"
               variant="danger"
               icon={faTrash}
-              event={{
-                onClick: () => {},
-              }}
+              event={{ onClick: onDelete }}
             />
           </Row>
 
           <Button
-            hidden={!["add", "edit"].includes(value.action)}
+            type="submit"
+            hidden={!["create", "update"].includes(value.action)}
             variant="outline-primary"
             className="my-auto"
           >

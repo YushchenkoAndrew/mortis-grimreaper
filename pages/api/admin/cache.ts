@@ -45,7 +45,9 @@ export default withIronSessionApiRoute(async function (req, res) {
       case "POST":
         return new Promise<FullResponse>((resolve) => {
           console.log(
-            `Before - ${req.body.length}; After - ${compress(req.body).length}`
+            `CACHE:${id} Before - ${req.body.length}; After - ${
+              compress(req.body).length
+            }`
           );
 
           redis

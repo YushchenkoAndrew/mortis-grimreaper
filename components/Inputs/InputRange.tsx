@@ -41,7 +41,7 @@ export default function InputRange(props: InputRangeProps) {
       </Col>
       <Col xs="9" sm="10" md="9" lg="10" className="pr-0 pt-3">
         <input
-          value={value || ""}
+          value={value ?? ""}
           type="range"
           name={props.readFrom}
           className="range-slider my-2 px-2"

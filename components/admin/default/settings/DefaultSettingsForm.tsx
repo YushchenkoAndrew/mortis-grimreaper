@@ -1,9 +1,8 @@
-import { useState } from "react";
-import { Col, Form } from "react-bootstrap";
-import { useDispatch, useSelector } from "react-redux";
+import { Col } from "react-bootstrap";
+import { useSelector } from "react-redux";
 import { Bounce, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import DefaultPattern from "./DefaultPatterns";
-
 export interface DefaultSettingsFormProps {
   // operation: string;
   // preview?: { [name: string]: any };
@@ -11,24 +10,10 @@ export interface DefaultSettingsFormProps {
 }
 
 export default function DefaultSettingsForm(props: DefaultSettingsFormProps) {
-  const dispatch = useDispatch();
   const root = useSelector((state: any) => state);
-  const [validated, setValidated] = useState(false);
 
   return (
-    <Form
-      as={Col}
-      noValidate
-      className="py-3 px-0 w-100"
-      validated={validated}
-      onSubmit={async (event) => {
-        event?.preventDefault();
-        if (!event.currentTarget.checkValidity()) {
-          event.stopPropagation();
-          return setValidated(true);
-        }
-      }}
-    >
+    <Col className="py-3 px-0 w-100">
       <ToastContainer
         // position="top-right"
         position="bottom-right"
@@ -44,6 +29,6 @@ export default function DefaultSettingsForm(props: DefaultSettingsFormProps) {
       <DefaultPattern show={root.main.window === "Patterns"} />
       {/* <DefaultCodeView show={root.main.window === "Code"} /> */}
       {/* <DefaultK3sConfig show={root.main.window === "Config"} /> */}
-    </Form>
+    </Col>
   );
 }

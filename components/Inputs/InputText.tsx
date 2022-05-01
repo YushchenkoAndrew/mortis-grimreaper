@@ -21,7 +21,7 @@ export default function InputText(props: InputTextProps) {
     <InputGroup>
       <Form.Control
         as="textarea"
-        value={value || ""}
+        value={value ?? ""}
         name={props.readFrom}
         className="form-control rounded text-dark"
         placeholder={props.placeholder ?? ""}

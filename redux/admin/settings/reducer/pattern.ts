@@ -1,5 +1,49 @@
 import { AnyAction } from "redux";
+import { basePath } from "../../../../config";
+import { CacheId } from "../../../../lib/public";
 import { CapitalizeString } from "../../../../lib/public/string";
+
+export function DataToState(data?: { [name: string]: any }) {
+  return data
+    ? {
+        ...["id", "colors", "path", "width", "height"].reduce(
+          (acc, key) => ({ ...acc, [key]: data[key] }),
+          {}
+        ),
+
+        ...["stroke", "scale"].reduce(
+          (acc, key) => ({ ...acc, [key]: data[`max_${key}`] }),
+          {}
+        ),
+
+        mode: CapitalizeString(data.mode),
+        spacing: {
+          x: `${data.max_spacing_x}`,
+          y: `${data.max_spacing_y}`,
+        },
+      }
+    : {};
+}
+
+export function StateToData(data?: { [name: string]: any }) {
+  return data
+    ? {
+        ...["id", "colors", "path", "width", "height"].reduce(
+          (acc, key) => ({ ...acc, [key]: data[key] }),
+          {}
+        ),
+
+        ...["stroke", "scale"].reduce(
+          (acc, key) => ({ ...acc, [`max_${key}`]: data[key] }),
+          {}
+        ),
+
+        mode: data.mode.toLowerCase(),
+        max_spacing_x: data.spacing.x,
+        max_spacing_y: data.spacing.y,
+      }
+    : {};
+}
 
 const PREFIX = "PATTERN";
 
@@ -117,31 +161,32 @@ const INIT_STATE = {
 export default function (state = INIT_STATE, action: AnyAction) {
   switch (action.type) {
     case `${PREFIX}_INIT`:
-      return {
-        ...state,
-        ...["id", "colors", "path", "width", "height"].reduce(
-          (acc, key) => ({ ...acc, [key]: action.value[key] }),
-          {}
-        ),
-
-        mode: CapitalizeString(action.value.mode),
-        stroke: action.value.max_stroke,
-        scale: action.value.max_scale,
-        spacing: {
-          x: `${action.value.max_spacing_x}`,
-          y: `${action.value.max_spacing_y}`,
-        },
-      };
+      return { ...state, ...DataToState(action.value) };
 
     // TODO:
     // * SAVE main value in cache !!!
 
-    case `${PREFIX}_ACTION_CHANGED`:
+    case `${PREFIX}_ACTION_CHANGED`: {
+      const prev = state.items.filter(({ id }) => id === state.id);
+
       return {
         ...state,
         action: action.value,
-        spacing: { ...state.spacing, ...action.value.spacing },
+        info: ["create", "update"].includes(action.value) || state.info,
+        ...(action.value === "create"
+          ? {
+              mode: "Fill",
+              colors: "",
+              stroke: "",
+              scale: "",
+              spacing: { x: "", y: "" },
+              width: "",
+              height: "",
+              path: "",
+            }
+          : DataToState(prev[0])),
       };
+    }
 
     case `${PREFIX}_INFO_CHANGED`:
       return { ...state, info: action.value, action: "info" };
@@ -149,21 +194,67 @@ export default function (state = INIT_STATE, action: AnyAction) {
     case `${PREFIX}_MODE_CHANGED`:
       return { ...state, mode: action.value };
 
-    // TODO: Check if its a number
-    // colors: "",
-    // stroke: "",
-    // scale: "",
-    // spacing: { x: "", y: "" },
-    // width: "",
-    // height: "",
-    case `${PREFIX}_COLORS_CHANGED`:
-      return { ...state, colors: action.value };
+    case `${PREFIX}_SCALE_CHANGED`:
+    case `${PREFIX}_COLORS_CHANGED`: {
+      const value = Number(action.value);
+      const key = action.readFrom
+        .replace(`${PREFIX}_`.toLowerCase(), "")
+        .replace("_CHANGED", "");
+
+      return !Number.isNaN(value) && value < 256
+        ? { ...state, [key]: value || null }
+        : state;
+    }
+
+    case `${PREFIX}_WIDTH_CHANGED`:
+    case `${PREFIX}_HEIGHT_CHANGED`:
+    case `${PREFIX}_STROKE_CHANGED`: {
+      const value = Number(action.value);
+      const key = action.readFrom
+        .replace(`${PREFIX}_`.toLowerCase(), "")
+        .replace("_CHANGED", "");
+
+      return Number.isNaN(value)
+        ? state
+        : {
+            ...state,
+            [key]:
+              action.value.includes(".") || action.value === ""
+                ? action.value
+                : value,
+          };
+    }
+
+    case `${PREFIX}_SPACING_X_CHANGED`:
+    case `${PREFIX}_SPACING_Y_CHANGED`: {
+      const value = Number(action.value);
+      const key = action.readFrom
+        .replace(`${PREFIX}_SPACING_`.toLowerCase(), "")
+        .replace("_CHANGED", "");
+
+      return Number.isNaN(value)
+        ? state
+        : {
+            ...state,
+            spacing: {
+              ...state.spacing,
+              [key]:
+                action.value.includes(".") || action.value === ""
+                  ? action.value
+                  : value,
+            },
+          };
+    }
 
     case `${PREFIX}_PATH_CHANGED`:
       return { ...state, path: action.value };
 
-    // TODO:
-    case `${PREFIX}_PATH_CACHED`:
+    case `${PREFIX}_CACHED`:
+      fetch(`${basePath}/api/admin/cache?id=${CacheId(PREFIX)}`, {
+        method: "POST",
+        body: JSON.stringify(StateToData(state)),
+      }).catch(() => null);
+      return state;
 
     default:
       return state;

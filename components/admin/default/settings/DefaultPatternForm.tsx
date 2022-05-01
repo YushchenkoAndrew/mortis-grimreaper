@@ -9,7 +9,9 @@ import "prismjs/components/prism-markup";
 import "prismjs/themes/prism-coy.css";
 import Editor from "react-simple-code-editor";
 import { useDispatch, useSelector } from "react-redux";
-import { Pattern } from "../../Pattern";
+import { DisplayPattern } from "../../../Display/DisplayPattern";
+import { PatternData } from "../../../../types/api";
+import { StateToData } from "../../../../redux/admin/settings/reducer/pattern";
 
 export interface DefaultPatternFormProps {
   root: string;
@@ -45,7 +47,7 @@ export default function DefaultPatternForm(props: DefaultPatternFormProps) {
               readFrom={`${props.readFrom}_colors`}
               className="rounded"
               placeholder="5"
-              disabled={!["add", "edit"].includes(pattern.action)}
+              disabled={!["create", "update"].includes(pattern.action)}
               required
             />
           </InputTemplate>
@@ -57,8 +59,8 @@ export default function DefaultPatternForm(props: DefaultPatternFormProps) {
               root={props.root}
               readFrom={`${props.readFrom}_scale`}
               className="rounded"
-              placeholder="6.5"
-              disabled={!["add", "edit"].includes(pattern.action)}
+              placeholder="16"
+              disabled={!["create", "update"].includes(pattern.action)}
               required
             />
           </InputTemplate>
@@ -70,8 +72,8 @@ export default function DefaultPatternForm(props: DefaultPatternFormProps) {
               root={props.root}
               readFrom={`${props.readFrom}_stroke`}
               className="rounded"
-              placeholder="16"
-              disabled={!["add", "edit"].includes(pattern.action)}
+              placeholder="6.5"
+              disabled={!["create", "update"].includes(pattern.action)}
               required
             />
           </InputTemplate>
@@ -87,7 +89,7 @@ export default function DefaultPatternForm(props: DefaultPatternFormProps) {
               readFrom={`${props.readFrom}_spacing_x`}
               className="rounded"
               placeholder="0"
-              disabled={!["add", "edit"].includes(pattern.action)}
+              disabled={!["create", "update"].includes(pattern.action)}
               required
             />
           </InputTemplate>
@@ -101,7 +103,7 @@ export default function DefaultPatternForm(props: DefaultPatternFormProps) {
               readFrom={`${props.readFrom}_spacing_y`}
               className="rounded"
               placeholder="10"
-              disabled={!["add", "edit"].includes(pattern.action)}
+              disabled={!["create", "update"].includes(pattern.action)}
               required
             />
           </InputTemplate>
@@ -115,7 +117,7 @@ export default function DefaultPatternForm(props: DefaultPatternFormProps) {
               readFrom={`${props.readFrom}_width`}
               className="rounded"
               placeholder="120"
-              disabled={!["add", "edit"].includes(pattern.action)}
+              disabled={!["create", "update"].includes(pattern.action)}
               required
             />
           </InputTemplate>
@@ -129,7 +131,7 @@ export default function DefaultPatternForm(props: DefaultPatternFormProps) {
               readFrom={`${props.readFrom}_height`}
               className="rounded"
               placeholder="80"
-              disabled={!["add", "edit"].includes(pattern.action)}
+              disabled={!["create", "update"].includes(pattern.action)}
               required
             />
           </InputTemplate>
@@ -139,12 +141,7 @@ export default function DefaultPatternForm(props: DefaultPatternFormProps) {
       <div className="d-flex justify-content-center my-3">
         <div className="w-100">
           <Container className="pr-0 d-flex justify-content-center">
-            <Pattern
-              mode={pattern.mode}
-              path={pattern.path}
-              width={pattern.width}
-              height={pattern.height}
-            />
+            <DisplayPattern data={StateToData(pattern) as PatternData} />
           </Container>
 
           <Container className="pr-0">
@@ -159,12 +156,10 @@ export default function DefaultPatternForm(props: DefaultPatternFormProps) {
                   value: value,
                 })
               }
-              disabled={!["add", "edit"].includes(pattern.action)}
-              onBlur={() => {
-                dispatch({
-                  type: `${props.readFrom}_PATH_CACHED`.toUpperCase(),
-                });
-              }}
+              disabled={!["create", "update"].includes(pattern.action)}
+              onBlur={() =>
+                dispatch({ type: `${props.readFrom}_CACHED`.toUpperCase() })
+              }
               highlight={(content) => {
                 return highlight(content, languages.html, "html")
                   .split("\n")

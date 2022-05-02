@@ -11,7 +11,7 @@ import { withIronSessionSsr } from "iron-session/next";
 import { useRouter } from "next/router";
 import DefaultOperationsForm from "../../../components/admin/default/project/DefaultOperationsForm";
 import { store } from "../../../redux/admin/projects/storage";
-import { LoadProjects } from "../../../lib/api/project";
+import { LoadRecords } from "../../../lib/api/api";
 import { addFile, allowedReader, formPath } from "../../../lib/public/files";
 import { LoadFile } from "../../../lib/api/file";
 import { CapitalizeString } from "../../../lib/public/string";
@@ -69,7 +69,7 @@ export const getServerSideProps = withIronSessionSsr(
 
       case "update":
         if (!operations[1]) break;
-        const project = await LoadProjects<ProjectData>({
+        const project = await LoadRecords<ProjectData>("project", {
           name: operations[1],
         });
 

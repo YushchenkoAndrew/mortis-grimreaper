@@ -6,9 +6,9 @@ import DefaultHead from "../components/default/DefaultHead";
 import DefaultHeader from "../components/default/DefaultHeader";
 import DefaultNav from "../components/default/DefaultNav";
 import { basePath, voidUrl } from "../config";
-import { LoadProjects } from "../lib/api/project";
+import { LoadRecords } from "../lib/api/api";
 import { formPath } from "../lib/public/files";
-import { loadProjectsThumbnail } from "../lib/public/projects";
+import { preloadData } from "../lib/public/api";
 import { ProjectData } from "../types/api";
 
 let page = 1;
@@ -22,7 +22,7 @@ export default function ProjectsListPage(props: ProjectsListPageProps) {
   const [projects, onScrollLoad] = useState(props.projects);
 
   function loadProjects() {
-    loadProjectsThumbnail(page++)
+    preloadData<ProjectData>("projects", page++, { "file[role]": "thumbnail" })
       .then((data) => {
         const chunk = data.length / 3;
         onScrollLoad([
@@ -160,7 +160,7 @@ export default function ProjectsListPage(props: ProjectsListPageProps) {
 }
 
 export const getServerSideProps = async () => {
-  const project = await LoadProjects<ProjectData>({
+  const project = await LoadRecords<ProjectData>("project", {
     "file[role]": "thumbnail",
     page: 0,
   });

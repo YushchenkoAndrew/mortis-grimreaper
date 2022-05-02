@@ -2,7 +2,7 @@ import { withIronSessionApiRoute } from "iron-session/next";
 import { GetParam } from "../../../lib/api/query";
 import { DefaultRes } from "../../../types/request";
 import sessionConfig from "../../../config/session";
-import { LoadProjects } from "../../../lib/api/project";
+import { LoadRecords } from "../../../lib/api/api";
 
 const REQUIRED_FIELDS = [
   "id",
@@ -81,7 +81,7 @@ export default withIronSessionApiRoute(async function (req, res) {
     "metrics[created_to]": null,
   });
 
-  const projects = await LoadProjects(query);
+  const projects = await LoadRecords("project", query);
   if (!projects) {
     return res
       .status(500)

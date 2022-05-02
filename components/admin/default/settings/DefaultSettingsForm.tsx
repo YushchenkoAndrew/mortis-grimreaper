@@ -13,9 +13,8 @@ export default function DefaultSettingsForm(props: DefaultSettingsFormProps) {
   const root = useSelector((state: any) => state);
 
   return (
-    <Col className="py-3 px-0 w-100">
+    <Col className="py-3 px-0 w-100" xs="12" md="8" lg="9">
       <ToastContainer
-        // position="top-right"
         position="bottom-right"
         autoClose={5000}
         hideProgressBar={false}

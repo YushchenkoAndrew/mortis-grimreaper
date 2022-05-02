@@ -9,18 +9,16 @@ import { basePath, voidUrl } from "../../config";
 import { FlagType } from "../../types/flag";
 import { formPath } from "../../lib/public/files";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { loadProjectsThumbnail } from "../../lib/public/projects";
+import { preloadData } from "../../lib/public/api";
 import sessionConfig from "../../config/session";
 import { DefaultRes } from "../../types/request";
 import { Bounce, toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { withIronSessionSsr } from "iron-session/next";
-import { LoadProjects } from "../../lib/api/project";
+import { LoadRecords } from "../../lib/api/api";
 import { Col, Container, Spinner } from "react-bootstrap";
 import AddCard from "../../components/Cards/AddCard";
 import AdminCard from "../../components/Cards/AdminCard";
-
-let page = 1;
 
 export interface AdminProjectsProps {
   hasMore: boolean;
@@ -64,6 +62,7 @@ export interface AdminProjectsProps {
 // }
 
 export default function AdminProjects(props: AdminProjectsProps) {
+  const [page, onNextPage] = useState<number>(0);
   const [hasMore, onReachEnd] = useState(props.hasMore);
   const [projects, onScrollLoad] = useState(props.projects);
 
@@ -97,9 +96,12 @@ export default function AdminProjects(props: AdminProjectsProps) {
           className="row"
           dataLength={projects.length}
           next={() =>
-            loadProjectsThumbnail(page++)
+            preloadData<ProjectData>("projects", page + 1, {
+              "file[role]": "thumbnail",
+            })
               .then((data) => onScrollLoad([...projects, ...data]))
               .catch(() => onReachEnd(false))
+              .finally(() => onNextPage(page + 1))
           }
           hasMore={hasMore}
           loader={
@@ -186,7 +188,10 @@ export const getServerSideProps = withIronSessionSsr(
       };
     }
 
-    const projects = await LoadProjects({ page: 0, "file[role]": "thumbnail" });
+    const projects = await LoadRecords("project", {
+      page: 0,
+      "file[role]": "thumbnail",
+    });
 
     return {
       props: {

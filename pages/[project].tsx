@@ -5,7 +5,7 @@ import DefaultProjectInfo from "../components/default/DefaultProjectInfo";
 import { GetServerSidePropsContext } from "next";
 import { LinkData, ProjectData } from "../types/api";
 import { FlagType } from "../types/flag";
-import { LoadProjects } from "../lib/api/project";
+import { LoadRecords } from "../lib/api/api";
 import { LoadFile } from "../lib/api/file";
 import { formPath } from "../lib/public/files";
 import { HtmlMarkers } from "../config/placeholder";
@@ -55,7 +55,7 @@ export default function ProjectPage(props: ProjectPageProps) {
 export const getServerSideProps = async ({
   params,
 }: GetServerSidePropsContext) => {
-  const project = await LoadProjects<ProjectData>({
+  const project = await LoadRecords<ProjectData>("project", {
     name: params?.project || "",
     "link[name]": "main",
     "file[role]": "template",

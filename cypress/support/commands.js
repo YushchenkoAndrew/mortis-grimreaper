@@ -10,7 +10,7 @@
 
 Cypress.Commands.add("solveReCAPTCHA", () => {
   // Wait until the iframe (Google reCAPTCHA) is totally loaded
-  cy.wait(500);
+  cy.wait(1000);
 
   cy.get("iframe[src*='recaptcha']").then(($iframe) => {
     const $body = $iframe.contents().find("body");
@@ -19,7 +19,7 @@ Cypress.Commands.add("solveReCAPTCHA", () => {
       .should("be.visible")
       .click();
 
-    cy.wait(500);
+    cy.wait(1000);
   });
 });
 

@@ -6,6 +6,7 @@ import { Bounce, toast } from "react-toastify";
 import { basePath } from "../../../../config";
 import { ToastDefault } from "../../../../config/alert";
 import { CacheId } from "../../../../lib/public";
+import { preloadData } from "../../../../lib/public/api";
 import { StateToData } from "../../../../redux/admin/settings/reducer/pattern";
 import { PatternData } from "../../../../types/api";
 import { DefaultRes } from "../../../../types/request";
@@ -15,12 +16,12 @@ import DefaultPatternForm from "./DefaultPatternForm";
 
 export interface DefaultPatternProps {
   show?: boolean;
-  patterns?: { [name: string]: any }[];
 }
 
 const PREFIX = "pattern";
 
 export default function DefaultPattern(props: DefaultPatternProps) {
+  const [hasMore, onReachEnd] = useState(true);
   const [validated, setValidated] = useState(false);
 
   const dispatch = useDispatch();
@@ -36,8 +37,64 @@ export default function DefaultPattern(props: DefaultPatternProps) {
           dispatch({ type: `${prefix}_INIT`, value: data.result });
         })
         .catch(() => null);
+
+      await onLoadNext();
     })();
   }, []);
+
+  async function onLoadNext() {
+    preloadData("pattern", pattern.page + 1)
+      .then((data) =>
+        dispatch({
+          type: `${PREFIX}_PATTERN_LOADED`.toUpperCase(),
+          value: data,
+        })
+      )
+      .catch(() => onReachEnd(false));
+  }
+
+  async function onAction(action: string) {
+    const toastId = toast.loading("Please wait...");
+
+    try {
+      const res = await fetch(
+        `${basePath}/api/pattern/${action}?id=${CacheId()}`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(StateToData(pattern)),
+        }
+      );
+      const data = (await res.json()) as DefaultRes<PatternData[]>;
+      if (data.status === "OK" && data.result?.length) {
+        dispatch({ type: `${PREFIX}_CACHE_FLUSH` });
+        return toast.update(toastId, {
+          render: "New Patter was created successfully",
+          type: "success",
+          isLoading: false,
+          ...ToastDefault,
+          transition: Bounce,
+        });
+      }
+
+      // FIXME: Fix strange bug with not updating type
+      return toast.update(toastId, {
+        render: data.message,
+        type: "error",
+        isLoading: false,
+        ...ToastDefault,
+        transition: Bounce,
+      });
+    } catch (_) {
+      toast.update(toastId, {
+        render: "Pattern: Server error",
+        type: "error",
+        isLoading: false,
+        ...ToastDefault,
+        transition: Bounce,
+      });
+    }
+  }
 
   return (
     <Form
@@ -51,40 +108,8 @@ export default function DefaultPattern(props: DefaultPatternProps) {
           return setValidated(true);
         }
 
-        const toastId = toast.loading("Please wait...");
-        let message = "Pattern: Server error";
-
-        try {
-          const res = await fetch(
-            `${basePath}/api/pattern/${pattern.action}?id=${CacheId()}`,
-            {
-              method: "POST",
-              headers: { "content-type": "application/json" },
-              body: JSON.stringify(StateToData(pattern)),
-            }
-          );
-          const data = (await res.json()) as DefaultRes<PatternData[]>;
-          if (data.status === "OK" && data.result?.length) {
-            dispatch({ type: `${PREFIX}_CACHE_FLUSH` });
-            return toast.update(toastId, {
-              ...ToastDefault,
-              render: "New Patter was created successfully",
-              type: "success",
-              isLoading: false,
-              transition: Bounce,
-            });
-          }
-
-          message = data.message;
-        } catch (err) {}
-
-        toast.update(toastId, {
-          ...ToastDefault,
-          render: message,
-          type: "error",
-          isLoading: false,
-          transition: Bounce,
-        });
+        // TODO: Reload window on success !!
+        onAction(pattern.action);
       }}
     >
       <Form.Row>
@@ -106,7 +131,7 @@ export default function DefaultPattern(props: DefaultPatternProps) {
               });
               return false;
             }}
-            onDelete={() => {}}
+            onDelete={() => onAction("delete")}
           >
             <DefaultPatternForm root={PREFIX} readFrom={PREFIX} />
           </DefaultMoreOptions>
@@ -117,12 +142,8 @@ export default function DefaultPattern(props: DefaultPatternProps) {
           <InfiniteScroll
             className="row justify-content-center"
             dataLength={pattern.items.length}
-            next={() => {
-              // loadProjectsThumbnail(page++)
-              //   .then((data) => onScrollLoad([...projects, ...data]))
-              //   .catch(() => onReachEnd(false))
-            }}
-            hasMore={false}
+            next={onLoadNext}
+            hasMore={hasMore}
             loader={
               <Col xs="10" sm="4" md="6" lg="4" className="my-3 text-center">
                 <Container className="d-flex h-100 w-80">
@@ -138,7 +159,6 @@ export default function DefaultPattern(props: DefaultPatternProps) {
             {pattern.items.map((item: PatternData, i: number) => {
               return (
                 <DisplayPattern
-                  key={i}
                   data={item}
                   event={{
                     onClick: () => {

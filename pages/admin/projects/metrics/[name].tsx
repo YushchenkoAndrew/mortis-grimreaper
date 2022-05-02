@@ -11,7 +11,7 @@ import DisplayDataRecord from "../../../../components/Display/DisplayDataRecord"
 import DisplayRunningLine from "../../../../components/Display/DisplayRunningLine";
 import { basePath } from "../../../../config";
 import sessionConfig from "../../../../config/session";
-import { LoadProjects } from "../../../../lib/api/project";
+import { LoadRecords } from "../../../../lib/api/api";
 import { checkIfUserExist } from "../../../../lib/api/session";
 import { FormatDate } from "../../../../lib/public/string";
 import { store } from "../../../../redux/admin/projects/metrics/storage";
@@ -98,7 +98,7 @@ export const getServerSideProps = withIronSessionSsr(
       };
     }
 
-    const project = await LoadProjects<ProjectData>({
+    const project = await LoadRecords<ProjectData>("project", {
       name: name,
       "metrics[created_from]": FormatDate(
         new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000)

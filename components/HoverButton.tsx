@@ -13,6 +13,7 @@ export interface HoverButtonProps {
 export default function HoverButton(props: HoverButtonProps) {
   return (
     <Button
+      name={props.name.replace(/ /g, "").toLowerCase()}
       variant={props.variant}
       className={`my-auto mx-1 py-1 row ${styles["hover-button"]}`}
       // NOTE: NOT THE BEST SOLUTION !!!

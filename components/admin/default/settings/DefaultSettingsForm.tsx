@@ -2,6 +2,7 @@ import { Col } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import { Bounce, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import DefaultColors from "./DefaultColors";
 import DefaultPattern from "./DefaultPatterns";
 export interface DefaultSettingsFormProps {
   // operation: string;
@@ -26,6 +27,7 @@ export default function DefaultSettingsForm(props: DefaultSettingsFormProps) {
       />
 
       <DefaultPattern show={root.main.window === "Patterns"} />
+      <DefaultColors show={root.main.window === "Colors"} />
       {/* <DefaultCodeView show={root.main.window === "Code"} /> */}
       {/* <DefaultK3sConfig show={root.main.window === "Config"} /> */}
     </Col>

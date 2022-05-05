@@ -8,49 +8,50 @@ import { ToastDefault } from "../../../../config/alert";
 import { CacheId } from "../../../../lib/public";
 import { preloadData } from "../../../../lib/public/api";
 import { StateToData } from "../../../../redux/admin/settings/reducer/pattern";
-import { PatternData } from "../../../../types/api";
+import { ColorData, PatternData } from "../../../../types/api";
 import { DefaultRes } from "../../../../types/request";
+import { DisplayColors } from "../../../Display/DisplayColors";
 import { DisplayPattern } from "../../../Display/DisplayPattern";
 import DefaultMoreOptions from "./DefaultMoreOptions";
 import DefaultPatternForm from "./DefaultPatternForm";
 
-export interface DefaultPatternProps {
+export interface DefaultColorsProps {
   show?: boolean;
 }
 
-const PREFIX = "pattern";
+const PREFIX = "colors";
 
-export default function DefaultPattern(props: DefaultPatternProps) {
+export default function DefaultColors(props: DefaultColorsProps) {
   const [hasMore, onReachEnd] = useState(true);
   const [validated, setValidated] = useState(false);
 
   const dispatch = useDispatch();
-  const pattern = useSelector((state: any) => state[PREFIX]);
+  const colors = useSelector((state: any) => state[PREFIX]);
 
-  useEffect(() => {
-    (async function () {
-      const prefix = PREFIX.toUpperCase();
-      await fetch(`${basePath}/api/admin/cache?id=${CacheId(prefix)}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (!data.result) return;
-          dispatch({ type: `${prefix}_INIT`, value: data.result });
-        })
-        .catch(() => null);
+  // useEffect(() => {
+  //   (async function () {
+  //     const prefix = PREFIX.toUpperCase();
+  //     await fetch(`${basePath}/api/admin/cache?id=${CacheId(prefix)}`)
+  //       .then((res) => res.json())
+  //       .then((data) => {
+  //         if (!data.result) return;
+  //         dispatch({ type: `${prefix}_INIT`, value: data.result });
+  //       })
+  //       .catch(() => null);
 
-      await onLoadNext();
-    })();
-  }, []);
+  //     await onLoadNext();
+  //   })();
+  // }, []);
 
   async function onLoadNext() {
-    preloadData("pattern", pattern.page + 1)
-      .then((data) =>
-        dispatch({
-          type: `${PREFIX}_PATTERN_LOADED`.toUpperCase(),
-          value: data,
-        })
-      )
-      .catch(() => onReachEnd(false));
+    // preloadData("pattern", colors.page + 1)
+    //   .then((data) =>
+    //     dispatch({
+    //       type: `${PREFIX}_PATTERN_LOADED`.toUpperCase(),
+    //       value: data,
+    //     })
+    //   )
+    //   .catch(() => onReachEnd(false));
   }
 
   async function onAction(action: string) {
@@ -61,7 +62,7 @@ export default function DefaultPattern(props: DefaultPatternProps) {
           {
             method: "POST",
             headers: { "content-type": "application/json" },
-            body: JSON.stringify(StateToData(pattern)),
+            body: JSON.stringify(StateToData(colors)),
           }
         );
         const data = (await res.json()) as DefaultRes<PatternData[]>;
@@ -92,26 +93,24 @@ export default function DefaultPattern(props: DefaultPatternProps) {
         const toastId = toast.loading("Please wait...");
 
         try {
-          // NOTE: This is fix strange bug (https://github.com/fkhadra/react-toastify/issues/575)
-          await new Promise<void>((resolve) =>
-            setTimeout(() => resolve(), 1000)
-          );
-
-          toast.update(toastId, {
-            ...ToastDefault,
-            render: await onAction(pattern.action),
-            type: "success",
-            isLoading: false,
-            transition: Bounce,
-          });
-
-          setTimeout(() => window.location.reload(), 5000);
-          toast("Page will be refresh after 5s", {
-            ...ToastDefault,
-            autoClose: 5000,
-            transition: Bounce,
-            type: "info",
-          });
+          // // NOTE: This is fix strange bug (https://github.com/fkhadra/react-toastify/issues/575)
+          // await new Promise<void>((resolve) =>
+          //   setTimeout(() => resolve(), 1000)
+          // );
+          // toast.update(toastId, {
+          //   ...ToastDefault,
+          //   render: await onAction(pattern.action),
+          //   type: "success",
+          //   isLoading: false,
+          //   transition: Bounce,
+          // });
+          // setTimeout(() => window.location.reload(), 5000);
+          // toast("Page will be refresh after 5s", {
+          //   ...ToastDefault,
+          //   autoClose: 5000,
+          //   transition: Bounce,
+          //   type: "info",
+          // });
         } catch (err: any) {
           toast.update(toastId, {
             ...ToastDefault,
@@ -125,7 +124,7 @@ export default function DefaultPattern(props: DefaultPatternProps) {
     >
       <Form.Row>
         <Form.Group className="pl-4 mb-1 w-100">
-          <h4 className="font-weight-bold mb-3">Patterns</h4>
+          <h4 className="font-weight-bold mb-3">Colors</h4>
           <hr />
         </Form.Group>
         <Form.Group as={Row} className="pl-3 mb-0 w-100">
@@ -133,7 +132,7 @@ export default function DefaultPattern(props: DefaultPatternProps) {
             root={PREFIX}
             readFrom={PREFIX}
             onValidate={() => {
-              if (pattern.id != -1) return true;
+              if (colors.id != -1) return true;
 
               toast.error("Pattern is not chosen", {
                 ...ToastDefault,
@@ -144,15 +143,15 @@ export default function DefaultPattern(props: DefaultPatternProps) {
             }}
             onDelete={() => onAction("delete")}
           >
-            <DefaultPatternForm root={PREFIX} readFrom={PREFIX} />
+            {/* <DefaultPatternForm root={PREFIX} readFrom={PREFIX} /> */}
           </DefaultMoreOptions>
         </Form.Group>
 
         <Form.Group className="w-100">
-          <hr hidden={!pattern.info} />
+          <hr hidden={!colors.info} />
           <InfiniteScroll
             className="row justify-content-center"
-            dataLength={pattern.items.length}
+            dataLength={colors.items.length}
             next={onLoadNext}
             hasMore={hasMore}
             loader={
@@ -167,9 +166,9 @@ export default function DefaultPattern(props: DefaultPatternProps) {
               </Col>
             }
           >
-            {pattern.items.map((item: PatternData, i: number) => {
+            {colors.items.map((item: ColorData, i: number) => {
               return (
-                <DisplayPattern
+                <DisplayColors
                   data={item}
                   event={{
                     onClick: () => {

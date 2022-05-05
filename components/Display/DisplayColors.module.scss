@@ -1,0 +1,418 @@
+.card {
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+  height: 300px;
+  transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  @media (min-width: 768px) {
+    & {
+      height: 200px !important;
+    }
+  }
+
+  $x-sub1: 4;
+  $y-sub1: 4;
+  $border-span: 0.25rem solid var(--dark);
+  $border-sub-span: 0.125rem solid var(--dark);
+
+  display: flex;
+  flex-direction: row;
+  padding: 0 !important;
+
+  & span:nth-child(1) {
+    display: flex;
+    flex-direction: column;
+
+    border: none;
+
+    height: 100%;
+    width: calc(100% - 100% / $x-sub1 * 0.25);
+
+    $x-sub2: 3.25;
+    $y-sub2: 3.5;
+
+    & span:nth-child(1) {
+      display: flex;
+      flex-direction: row;
+
+      border: none;
+      border-bottom: $border-span;
+
+      height: calc(100% / $y-sub1 * 0.5);
+      width: 100%;
+
+      & span:nth-child(1) {
+        display: flex;
+        background-color: orangered;
+
+        border: none;
+        border-right: $border-sub-span;
+
+        height: 100%;
+        width: calc(100% / $x-sub2);
+      }
+
+      & span:nth-child(2) {
+        display: flex;
+        background-color: darkorange;
+
+        border: none;
+        border-left: $border-sub-span;
+        border-right: $border-sub-span;
+
+        height: 100%;
+        width: calc(95% / $x-sub2 * 1.5);
+      }
+
+      & span:nth-child(3) {
+        display: flex;
+        background-color: rgb(223, 156, 13);
+
+        border: none;
+        border-left: $border-sub-span;
+
+        height: 100%;
+        width: calc(100% / $x-sub2 * 1.25);
+      }
+    }
+
+    & span:nth-child(2) {
+      display: flex;
+      flex-direction: row;
+
+      border: none;
+
+      height: 100%;
+      width: 100%;
+
+      & span:nth-child(1) {
+        display: flex;
+        flex-direction: column;
+
+        border: none;
+        border-right: $border-span;
+
+        height: 100%;
+        width: calc(100% / $x-sub1 * 0.5);
+
+        & span:nth-child(1) {
+          display: flex;
+          background-color: orange;
+
+          border: none;
+          border-bottom: $border-sub-span;
+
+          height: calc(100% / $y-sub2);
+          width: 100%;
+        }
+
+        & span:nth-child(2) {
+          display: flex;
+          background-color: rgb(255, 187, 0);
+
+          border: none;
+          border-top: $border-sub-span;
+          border-bottom: $border-sub-span;
+
+          height: calc(100% / $y-sub2 * 1.5);
+          width: 100%;
+        }
+
+        & span:nth-child(3) {
+          display: flex;
+          background-color: rgb(255, 208, 0);
+
+          border: none;
+          border-top: $border-sub-span;
+
+          height: calc(100% / $y-sub2);
+          width: 100%;
+        }
+      }
+
+      & span:nth-child(2) {
+        display: flex;
+        flex-direction: column;
+
+        border: none;
+
+        height: 100%;
+        width: 100%;
+
+        & span:nth-child(1) {
+          display: flex;
+          flex-direction: row;
+
+          border: none;
+          border-bottom: $border-span;
+
+          height: calc(100% / $y-sub2 * 2);
+          width: 100%;
+
+          & span:nth-child(1) {
+            display: flex;
+            background-color: yellow;
+
+            border: none;
+            border-right: $border-sub-span;
+
+            height: 100%;
+            width: calc(100% / $x-sub2 * 2);
+          }
+
+          & span:nth-child(2) {
+            display: flex;
+            flex-direction: column;
+
+            border: none;
+            border-left: $border-sub-span;
+
+            height: 100%;
+            width: calc(100% / $x-sub2 * 1.25);
+
+            $x-sub3: 1.25;
+            $y-sub3: 2;
+
+            & span:nth-child(1) {
+              display: flex;
+              background-color: yellowgreen;
+
+              border: none;
+              border-bottom: $border-span;
+
+              height: calc(100% / $y-sub3);
+              width: 100%;
+            }
+
+            & span:nth-child(2) {
+              display: flex;
+              flex-direction: row;
+
+              border: none;
+
+              width: 100%;
+              height: calc(100% / $y-sub3);
+
+              & span:nth-child(1) {
+                display: flex;
+                background-color: greenyellow;
+
+                border: none;
+                border-right: $border-sub-span;
+
+                height: 100%;
+                width: calc(100% / $x-sub3 * 0.625);
+              }
+
+              & span:nth-child(2) {
+                display: flex;
+                background-color: green;
+
+                border: none;
+                border-left: $border-sub-span;
+
+                height: 100%;
+                width: calc(100% / $x-sub3 * 0.625);
+              }
+            }
+          }
+        }
+
+        & span:nth-child(2) {
+          display: flex;
+          flex-direction: row;
+
+          border: none;
+
+          // height: 100%;
+          height: calc(100% / $y-sub2 * 1.5);
+          width: 100%;
+
+          $x-sub4: 2.25;
+          $y-sub4: 1.5;
+
+          & span:nth-child(1) {
+            display: flex;
+            flex-direction: column;
+
+            border: none;
+            border-right: $border-span;
+
+            height: 100%;
+            width: calc(100% / $x-sub2);
+
+            & span:nth-child(1) {
+              display: flex;
+              background-color: aqua;
+
+              border: none;
+              border-bottom: $border-sub-span;
+
+              height: calc(100% / $y-sub4);
+              width: 100%;
+            }
+
+            & span:nth-child(2) {
+              display: flex;
+              background-color: aquamarine;
+
+              border: none;
+              border-top: $border-sub-span;
+
+              height: calc(100% / $y-sub4 * 0.5);
+              width: 100%;
+            }
+          }
+
+          & span:nth-child(2) {
+            display: flex;
+            flex-direction: column;
+
+            border: none;
+
+            height: 100%;
+            width: calc(100% / $x-sub2 * 2.25);
+
+            & span:nth-child(1) {
+              display: flex;
+              flex-direction: row;
+
+              border: none;
+              border-bottom: $border-span;
+
+              height: calc(100% / $y-sub4 * 2.25);
+              width: 100%;
+
+              $x-sub5: 1.25;
+              $y-sub5: 1.25;
+
+              & span:nth-child(1) {
+                display: flex;
+                flex-direction: column;
+
+                border: none;
+                border-right: $border-span;
+
+                height: 100%;
+                width: calc(100% * $x-sub4);
+
+                & span:nth-child(1) {
+                  display: flex;
+                  background-color: rgb(127, 208, 255);
+
+                  border: none;
+                  border-bottom: $border-span;
+
+                  height: calc(95% * $y-sub5);
+                  width: 100%;
+                }
+
+                & span:nth-child(2) {
+                  display: flex;
+                  background-color: rgb(98, 152, 184);
+
+                  border: none;
+                  border-bottom: $border-span;
+
+                  height: calc(100% * $y-sub5);
+                  width: 100%;
+                }
+
+                & span:nth-child(3) {
+                  display: flex;
+                  background-color: rgb(72, 110, 133);
+
+                  border: none;
+
+                  height: calc(100% * $y-sub5 * 0.25);
+                  width: 100%;
+                }
+              }
+
+              & span:nth-child(2) {
+                display: flex;
+                flex-direction: column;
+
+                border: none;
+
+                height: 100%;
+                width: calc(100% * $x-sub4 * 1.25);
+
+                & span:nth-child(1) {
+                  display: flex;
+                  background-color: rgb(136, 127, 255);
+
+                  border: none;
+                  border-bottom: $border-sub-span;
+
+                  height: calc(100% * $y-sub5 * 0.5);
+                  width: 100%;
+                }
+
+                & span:nth-child(2) {
+                  display: flex;
+                  background-color: rgb(193, 127, 255);
+
+                  border: none;
+                  border-top: $border-sub-span;
+
+                  height: calc(100% * $y-sub5 * 0.75);
+                  width: 100%;
+                }
+              }
+            }
+
+            & span:nth-child(2) {
+              display: flex;
+              background-color: rgb(127, 168, 255);
+
+              border: none;
+
+              height: calc(100% / $y-sub4 * 0.25);
+              width: 100%;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  & span:nth-child(2) {
+    display: flex;
+    flex-direction: column;
+
+    border: none;
+    border-left: $border-span;
+
+    height: 100%;
+    width: calc(100% / $x-sub1 * 0.25);
+
+    & span:nth-child(1) {
+      display: flex;
+      background-color: red;
+
+      border: none;
+      border-bottom: $border-sub-span;
+
+      height: calc(100% / $y-sub1 * 3);
+      width: 100%;
+    }
+
+    & span:nth-child(2) {
+      display: flex;
+      background-color: rgb(156, 1, 1);
+
+      border: none;
+      border-top: $border-sub-span;
+
+      height: calc(100% / $y-sub1);
+      width: 100%;
+    }
+  }
+}

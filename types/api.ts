@@ -134,3 +134,18 @@ export type PatternData = {
   v_height: number;
   path: string;
 };
+
+export type ColorData = {
+  id: number;
+  created_at: string;
+  // mode: string;
+  colors: string[];
+  // max_stroke: number;
+  // max_scale: number;
+  // max_spacing_x: number;
+  // max_spacing_y: number;
+  // width: number;
+  // height: number;
+  // v_height: number;
+  // path: string;
+};

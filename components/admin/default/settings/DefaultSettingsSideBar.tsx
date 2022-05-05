@@ -1,4 +1,9 @@
-import { faCog, faServer, faImage } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCog,
+  faServer,
+  faImage,
+  faBrush,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useDispatch, useSelector } from "react-redux";
 import SideBar from "../../../SideBar/SideBar";
@@ -68,7 +73,19 @@ export default function DefaultSettingsSideBar(
           Patterns
         </SideBarItem>
 
-        <SideBarItem>Dashboard</SideBarItem>
+        <SideBarItem
+          active={value === "Colors"}
+          event={{ onClick: () => onSelect("Colors") }}
+        >
+          <FontAwesomeIcon
+            className="mr-3"
+            icon={faBrush}
+            size="1x"
+            fontSize="1rem"
+          />
+          Colors
+        </SideBarItem>
+
         <SideBarItem>Orders</SideBarItem>
         <SideBarItem>Customers</SideBarItem>
       </SideBarChapter>

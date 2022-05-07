@@ -1,19 +1,20 @@
-import { useEffect, useState } from "react";
-import { Col, Container, Form, Row, Spinner } from "react-bootstrap";
-import InfiniteScroll from "react-infinite-scroll-component";
-import { useDispatch, useSelector } from "react-redux";
-import { Bounce, toast } from "react-toastify";
-import { basePath } from "../../../../config";
-import { ToastDefault } from "../../../../config/alert";
-import { CacheId } from "../../../../lib/public";
-import { preloadData } from "../../../../lib/public/api";
-import { StateToData } from "../../../../redux/admin/settings/reducer/pattern";
-import { ColorData, PatternData } from "../../../../types/api";
-import { DefaultRes } from "../../../../types/request";
-import { DisplayColors } from "../../../Display/DisplayColors";
-import { DisplayPattern } from "../../../Display/DisplayPattern";
-import DefaultMoreOptions from "./DefaultMoreOptions";
-import DefaultPatternForm from "./DefaultPatternForm";
+import { faCube } from '@fortawesome/free-solid-svg-icons';
+import { useEffect, useState } from 'react';
+import { Col, Container, Form, Spinner } from 'react-bootstrap';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { useDispatch, useSelector } from 'react-redux';
+import { Bounce, toast } from 'react-toastify';
+
+import { basePath } from '../../../../config';
+import { ToastDefault } from '../../../../config/alert';
+import { CacheId } from '../../../../lib/public';
+import { StateToData } from '../../../../redux/admin/settings/reducer/pattern';
+import { ColorData, PatternData } from '../../../../types/api';
+import { DefaultRes } from '../../../../types/request';
+import { DisplayColors } from '../../../Display/DisplayColors';
+import HoverButton from '../../../HoverButton';
+import DefaultColorsForm from './DefaultColorsForm';
+import DefaultMoreOptions from './DefaultMoreOptions';
 
 export interface DefaultColorsProps {
   show?: boolean;
@@ -127,7 +128,7 @@ export default function DefaultColors(props: DefaultColorsProps) {
           <h4 className="font-weight-bold mb-3">Colors</h4>
           <hr />
         </Form.Group>
-        <Form.Group as={Row} className="pl-3 mb-0 w-100">
+        <Form.Group className="mb-0 w-100">
           <DefaultMoreOptions
             root={PREFIX}
             readFrom={PREFIX}
@@ -142,8 +143,16 @@ export default function DefaultColors(props: DefaultColorsProps) {
               return false;
             }}
             onDelete={() => onAction("delete")}
+            buttons={
+              <HoverButton
+                name="Shuffle"
+                variant="outline-primary"
+                icon={faCube}
+                event={{ onClick: () => null }}
+              />
+            }
           >
-            {/* <DefaultPatternForm root={PREFIX} readFrom={PREFIX} /> */}
+            <DefaultColorsForm root={PREFIX} readFrom={PREFIX} />
           </DefaultMoreOptions>
         </Form.Group>
 
@@ -155,7 +164,14 @@ export default function DefaultColors(props: DefaultColorsProps) {
             next={onLoadNext}
             hasMore={hasMore}
             loader={
-              <Col xs="10" sm="4" md="6" lg="4" className="my-3 text-center">
+              <Col
+                xs="10"
+                sm="6"
+                md="6"
+                lg="4"
+                xl="3"
+                className="my-3 text-center"
+              >
                 <Container className="d-flex h-100 w-80">
                   <Col className="align-self-center text-center">
                     <Spinner animation="border" role="status">

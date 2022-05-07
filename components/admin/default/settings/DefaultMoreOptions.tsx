@@ -1,18 +1,16 @@
-import {
-  faPen,
-  faPlus,
-  faSearch,
-  faTrash,
-} from "@fortawesome/free-solid-svg-icons";
-import { ReactNode } from "react";
-import { Col, Collapse, Form, InputGroup, Row, Button } from "react-bootstrap";
-import { useDispatch, useSelector } from "react-redux";
-import HoverButton from "../../../HoverButton";
+import { faPen, faPlus, faSearch, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { ReactNode } from 'react';
+import { Button, Collapse, Form, InputGroup, Row } from 'react-bootstrap';
+import { useDispatch, useSelector } from 'react-redux';
+
+import HoverButton from '../../../HoverButton';
 
 export interface DefaultMoreOptionsProps {
   root: string;
   readFrom: string;
   writeTo?: string;
+
+  buttons?: ReactNode;
   children: ReactNode;
 
   onDelete: () => void;
@@ -68,16 +66,19 @@ export default function DefaultMoreOptions(props: DefaultMoreOptionsProps) {
   }
 
   return (
-    <Form.Group as={Col} className="mb-2">
+    <Form.Group className="mb-2">
       <Row className="mr-auto pl-3">
         <InputGroup className="ml-4 d-flex justify-content-between">
-          <Row className="py-3 w-75">
+          <Row className="py-3" style={{ width: "80%" }}>
             <HoverButton
               name="Info  "
               variant="outline-info"
               icon={faSearch}
               event={{ onClick: onInfo }}
             />
+
+            {props.buttons}
+
             <HoverButton
               name="Create"
               variant="outline-success"

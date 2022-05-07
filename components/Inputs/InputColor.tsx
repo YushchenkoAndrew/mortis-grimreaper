@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import { HexColorPicker } from "react-colorful";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useRef, useState } from 'react';
+import { HexColorPicker } from 'react-colorful';
+import { useDispatch, useSelector } from 'react-redux';
 
 export interface InputColorProps {
   root?: string | (() => void);
@@ -10,7 +10,7 @@ export interface InputColorProps {
   className?: string;
   colors?: string[];
 
-  // disabled?: boolean;
+  disabled?: boolean;
 }
 
 const STEP = 5;
@@ -96,7 +96,7 @@ export default function InputColor(props: InputColorProps) {
       <span
         className={`color-view ${props.className || ""}`}
         style={{ backgroundColor: value }}
-        onClick={() => onOpen(true)}
+        onClick={() => props.disabled || onOpen(true)}
       ></span>
 
       {isOpen && (

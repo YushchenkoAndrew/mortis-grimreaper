@@ -1,18 +1,19 @@
-import { useEffect, useState } from "react";
-import { Col, Container, Form, Row, Spinner } from "react-bootstrap";
-import InfiniteScroll from "react-infinite-scroll-component";
-import { useDispatch, useSelector } from "react-redux";
-import { Bounce, toast } from "react-toastify";
-import { basePath } from "../../../../config";
-import { ToastDefault } from "../../../../config/alert";
-import { CacheId } from "../../../../lib/public";
-import { preloadData } from "../../../../lib/public/api";
-import { StateToData } from "../../../../redux/admin/settings/reducer/pattern";
-import { PatternData } from "../../../../types/api";
-import { DefaultRes } from "../../../../types/request";
-import { DisplayPattern } from "../../../Display/DisplayPattern";
-import DefaultMoreOptions from "./DefaultMoreOptions";
-import DefaultPatternForm from "./DefaultPatternForm";
+import { useEffect, useState } from 'react';
+import { Col, Container, Form, Spinner } from 'react-bootstrap';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { useDispatch, useSelector } from 'react-redux';
+import { Bounce, toast } from 'react-toastify';
+
+import { basePath } from '../../../../config';
+import { ToastDefault } from '../../../../config/alert';
+import { CacheId } from '../../../../lib/public';
+import { preloadData } from '../../../../lib/public/api';
+import { StateToData } from '../../../../redux/admin/settings/reducer/pattern';
+import { PatternData } from '../../../../types/api';
+import { DefaultRes } from '../../../../types/request';
+import { DisplayPattern } from '../../../Display/DisplayPattern';
+import DefaultMoreOptions from './DefaultMoreOptions';
+import DefaultPatternForm from './DefaultPatternForm';
 
 export interface DefaultPatternProps {
   show?: boolean;
@@ -128,7 +129,7 @@ export default function DefaultPattern(props: DefaultPatternProps) {
           <h4 className="font-weight-bold mb-3">Patterns</h4>
           <hr />
         </Form.Group>
-        <Form.Group as={Row} className="pl-3 mb-0 w-100">
+        <Form.Group className="mb-0 w-100">
           <DefaultMoreOptions
             root={PREFIX}
             readFrom={PREFIX}

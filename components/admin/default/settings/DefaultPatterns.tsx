@@ -47,7 +47,7 @@ export default function DefaultPattern(props: DefaultPatternProps) {
     preloadData("pattern", pattern.page + 1)
       .then((data) =>
         dispatch({
-          type: `${PREFIX}_PATTERN_LOADED`.toUpperCase(),
+          type: `${PREFIX}_PAGE_LOADED`.toUpperCase(),
           value: data,
         })
       )
@@ -171,6 +171,7 @@ export default function DefaultPattern(props: DefaultPatternProps) {
             {pattern.items.map((item: PatternData, i: number) => {
               return (
                 <DisplayPattern
+                  key={i}
                   data={item}
                   event={{
                     onClick: () => {

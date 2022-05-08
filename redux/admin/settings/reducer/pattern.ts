@@ -1,7 +1,8 @@
-import { AnyAction } from "redux";
-import { basePath } from "../../../../config";
-import { CacheId } from "../../../../lib/public";
-import { CapitalizeString } from "../../../../lib/public/string";
+import { AnyAction } from 'redux';
+
+import { basePath } from '../../../../config';
+import { CacheId } from '../../../../lib/public';
+import { CapitalizeString } from '../../../../lib/public/string';
 
 export function DataToState(data?: { [name: string]: any }) {
   return data
@@ -75,7 +76,7 @@ export default function (state = INIT_STATE, action: AnyAction) {
     case `${PREFIX}_INIT`:
       return { ...state, ...DataToState(action.value) };
 
-    case `${PREFIX}_PATTERN_LOADED`:
+    case `${PREFIX}_PAGE_LOADED`:
       return {
         ...state,
         page: state.page + 1,
@@ -105,7 +106,7 @@ export default function (state = INIT_STATE, action: AnyAction) {
     }
 
     case `${PREFIX}_INFO_CHANGED`:
-      return { ...state, info: action.value, action: "info" };
+      return { ...state, info: action.value };
 
     case `${PREFIX}_MODE_CHANGED`:
       return { ...state, mode: action.value };

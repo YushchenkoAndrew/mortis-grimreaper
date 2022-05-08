@@ -29,7 +29,7 @@ function HEX2HSL(H: string) {
   }
   // Then to HSL
   rgb = { r: rgb.r / 255, g: rgb.g / 255, b: rgb.b / 255 };
-  let hsl = { h: 0, s: 0, l: 0 };
+  const hsl = { h: 0, s: 0, l: 0 };
 
   const cmin = Math.min(...Object.values(rgb));
   const cmax = Math.max(...Object.values(rgb));
@@ -50,6 +50,34 @@ function HEX2HSL(H: string) {
   hsl.l = +(hsl.l * 100).toFixed(1);
 
   return `hsla(${hsl.h},${hsl.s}%,${hsl.l}%,1)`;
+}
+
+function HSL2HEX(H: string) {
+  let values = [] as number[];
+  if (H.includes("hsl(")) {
+    values = H.slice(4, -1)
+      .replace(/%/g, "")
+      .split(",")
+      .map((v) => Number(v));
+  } else if (H.includes("hsla(")) {
+    values = H.slice(5, -1)
+      .replace(/%/g, "")
+      .split(",")
+      .slice(0, 3)
+      .map((v) => Number(v));
+  }
+
+  values[2] /= 100;
+  const a = (values[1] * Math.min(values[2], 1 - values[2])) / 100;
+  const f = (n: number) => {
+    const k = (n + values[0] / 30) % 12;
+    const color = values[2] - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+    return Math.round(255 * color)
+      .toString(16)
+      .padStart(2, "0"); // convert to Hex and prefix "0" if needed
+  };
+
+  return `#${f(0)}${f(8)}${f(4)}`;
 }
 
 const COLORS = [
@@ -83,4 +111,28 @@ export function svgBuild(
       .join("") +
     `</pattern></defs><rect width='100%' height='100%' fill='url(%23a)'/></svg>`
   );
+}
+
+export function palette() {
+  function color(hue?: number, sat?: number, light?: number) {
+    const hsl = { h: 0, s: 0, l: 0 };
+
+    hsl.h = hue || Math.round(Math.random() * 360);
+    hsl.s = sat || Math.round(Math.random() * 75 + 25);
+    hsl.l = light || Math.round(Math.random() * 70 + 30);
+
+    return hsl;
+  }
+
+  function hue(h: number, r: number) {
+    return h + r > 360 ? h + r - 360 : h + r;
+  }
+
+  const palette = [] as { h: number; s: number; l: number }[];
+  for (let i = 0; i < 5; i++) {
+    const index = Math.round((i - 1) / 2);
+    palette.push(i ? color(hue(palette[index].h, 40)) : color());
+  }
+
+  return palette.map(({ h, s, l }) => HSL2HEX(`hsla(${h},${s}%,${l}%,1)`));
 }

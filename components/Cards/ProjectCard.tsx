@@ -1,7 +1,8 @@
-import { CSSProperties, memo, useEffect, useRef, useState } from "react";
-import Image from "react-bootstrap/Image";
-import { basePath } from "../../config";
-import styles from "./ProjectCard.module.css";
+import { CSSProperties, memo, useEffect, useRef, useState } from 'react';
+import Image from 'react-bootstrap/Image';
+
+import { basePath } from '../../config';
+import styles from './ProjectCard.module.scss';
 
 export interface ProjectCardProps {
   img: string | string[];

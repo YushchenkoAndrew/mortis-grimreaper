@@ -17,7 +17,7 @@ export interface ProjectCardProps {
   children?: React.ReactNode;
 }
 
-export default memo(function ProjectCard(props: ProjectCardProps) {
+export default function ProjectCard(props: ProjectCardProps) {
   const divRef = useRef<HTMLDivElement>(null);
   const [frame, setLastFrame] = useState(0);
   const [offset, setOffset] = useState({ top: -1, left: -1 } as DOMRect);
@@ -137,4 +137,4 @@ export default memo(function ProjectCard(props: ProjectCardProps) {
       </a>
     </div>
   );
-});
+}

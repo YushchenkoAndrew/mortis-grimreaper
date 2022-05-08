@@ -1,17 +1,28 @@
-import styles from "./DisplayPattern.module.scss";
-import { Col } from "react-bootstrap";
-import { svgBuild } from "../../lib/public/svg";
-import { PatternData } from "../../types/api";
-import DisplayDataRecord from "./DisplayDataRecord";
+import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Col, ColProps } from 'react-bootstrap';
 
-export interface DisplayPatternProps {
+import { svgBuild } from '../../lib/public/svg';
+import { PatternData } from '../../types/api';
+import DisplayDataRecord from './DisplayDataRecord';
+import styles from './DisplayPattern.module.scss';
+
+export interface DisplayPatternProps extends ColProps {
   data: PatternData;
   event?: { href?: string; onClick: () => void };
+  selected?: boolean;
 }
 
 export function DisplayPattern(props: DisplayPatternProps) {
   return (
-    <Col xs="10" sm="4" md="6" lg="4" className="my-3 text-center">
+    <Col
+      xs={props.xs ?? "10"}
+      sm={props.sm ?? "4"}
+      md={props.md ?? "6"}
+      lg={props.lg ?? "4"}
+      xl={props.xl ?? "3"}
+      className="my-3 text-center"
+    >
       <DisplayDataRecord
         delay={650}
         title="Pattern info"
@@ -19,7 +30,7 @@ export function DisplayPattern(props: DisplayPatternProps) {
         data={props.data}
       >
         <a
-          className={`card p-2 square ${styles["card"]}`}
+          className={styles["card"]}
           style={{
             backgroundImage: `url("data:image/svg+xml,${svgBuild(
               props.data.width,
@@ -33,7 +44,21 @@ export function DisplayPattern(props: DisplayPatternProps) {
             backgroundSize: "100% 100% !important",
           }}
           {...(props.event ?? {})}
-        ></a>
+        >
+          <FontAwesomeIcon
+            className={`my-auto mx-auto ${
+              props.selected ? "d-block" : "d-none"
+            }`}
+            icon={faCheckCircle}
+            size="5x"
+            fontSize="1rem"
+          />
+
+          <span
+            hidden={!props.selected}
+            className={styles["card-middleware"]}
+          />
+        </a>
       </DisplayDataRecord>
     </Col>
   );

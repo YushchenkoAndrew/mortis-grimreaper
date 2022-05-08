@@ -1,5 +1,5 @@
-import React from "react";
-import { Col, Form } from "react-bootstrap";
+import React from 'react';
+import { Col, Form } from 'react-bootstrap';
 
 export interface InputTemplateProps {
   className?: string;

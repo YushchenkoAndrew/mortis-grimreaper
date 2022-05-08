@@ -1,7 +1,7 @@
-import { AnyAction } from "redux";
-import { basePath } from "../../../../config";
-import { CacheId } from "../../../../lib/public";
-import { GetDynamicParams } from "./namespace";
+import { AnyAction } from 'redux';
+
+import { basePath } from '../../../../config';
+import { CacheId } from '../../../../lib/public';
 
 const PREFIX = "STYLE";
 
@@ -10,23 +10,17 @@ const INIT_STATE = {
   // flag: "JS",
   title: "md",
 
-  pattern: "",
-  pallet: ["#ddd", "#ddd", "#ddd", "#ddd", "#ddd"],
+  pattern_id: -1,
+  pattern_page: 0,
+  patterns: [],
 
-  zoom: "0",
-  // ver: 0,
-  angle: "0",
-  colors: "5",
+  color_id: -1,
+  colors_page: 0,
+  colors: [],
 
-  // desc: "",
-  // note: "",
-  // // img: `${basePath}/img/CodeRain.webp`,
-  // img: [],
-
-  // repo: { name: "", version: "" },
-  // cron: { week: "*", month: "*", day: "*/1", hour: "0", min: "0", sec: "0" },
-
-  // links: { main: "" },
+  // zoom: "0",
+  // angle: "0",
+  // colors: "5",
 };
 
 export default function (state = INIT_STATE, action: AnyAction) {
@@ -35,6 +29,20 @@ export default function (state = INIT_STATE, action: AnyAction) {
       return {
         ...state,
         ...(action.value || {}),
+      };
+
+    case `${PREFIX}_PATTERN_PAGE_LOADED`:
+      return {
+        ...state,
+        pattern_page: state.pattern_page + 1,
+        patterns: [...state.patterns, ...action.value],
+      };
+
+    case `${PREFIX}_COLORS_PAGE_LOADED`:
+      return {
+        ...state,
+        colors_page: state.colors_page + 1,
+        colors: [...state.colors, ...action.value],
       };
 
     case `${PREFIX}_TITLE_CHANGED`:
@@ -46,6 +54,12 @@ export default function (state = INIT_STATE, action: AnyAction) {
     case `${PREFIX}_ANGLE_CHANGED`:
       return { ...state, angle: action.value };
 
+    case `${PREFIX}_PATTERN_ID_CHANGED`:
+      return { ...state, pattern_id: action.value };
+
+    case `${PREFIX}_COLOR_ID_CHANGED`:
+      return { ...state, color_id: action.value };
+
     case `${PREFIX}_COLORS_CHANGED`:
       return {
         ...state,
@@ -53,15 +67,15 @@ export default function (state = INIT_STATE, action: AnyAction) {
         pallet: ["#ddd", "#ddd", "#ddd", "#ddd", "#ddd"].slice(0, action.value),
       };
 
-    case `${PREFIX}_PALLET_CHANGED`: {
-      const index = GetDynamicParams(action.type, action.readFrom ?? "");
-      return {
-        ...state,
-        pallet: state.pallet.map((item, i) =>
-          i != index[0] ? item : action.value
-        ),
-      };
-    }
+    // case `${PREFIX}_PALLET_CHANGED`: {
+    //   const index = GetDynamicParams(action.type, action.readFrom ?? "");
+    //   return {
+    //     ...state,
+    //     pallet: state.pallet.map((item, i) =>
+    //       i != index[0] ? item : action.value
+    //     ),
+    //   };
+    // }
 
     case `${PREFIX}_CACHED`:
       fetch(`${basePath}/api/admin/cache?id=${CacheId(PREFIX)}`, {

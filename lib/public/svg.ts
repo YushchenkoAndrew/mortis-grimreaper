@@ -11,7 +11,7 @@ export function shuffleColors() {
   // return colorArray;
 }
 
-function HEX2HSL(H: string) {
+export function HEX2HSL(H: string) {
   // Convert hex to RGB first
   let rgb = { r: 0, g: 0, b: 0 };
   if (H.length == 4) {
@@ -52,7 +52,7 @@ function HEX2HSL(H: string) {
   return `hsla(${hsl.h},${hsl.s}%,${hsl.l}%,1)`;
 }
 
-function HSL2HEX(H: string) {
+export function HSL2HEX(H: string) {
   let values = [] as number[];
   if (H.includes("hsl(")) {
     values = H.slice(4, -1)
@@ -92,7 +92,8 @@ export function svgBuild(
   width: number,
   height: number,
   path: string,
-  mode: string
+  mode: string,
+  colors: string[] = COLORS
 ) {
   const handler = (function (mode: string) {
     switch (mode) {
@@ -104,10 +105,10 @@ export function svgBuild(
   })(mode);
 
   return (
-    `<svg width='100%' height='100%' xmlns='http://www.w3.org/2000/svg'><defs><pattern id='a' patternUnits='userSpaceOnUse' width='${width}' height='${height}'><rect x='0' y='0' width='100%' height='100%' fill='${COLORS[0]}'/>` +
+    `<svg width='100%' height='100%' xmlns='http://www.w3.org/2000/svg'><defs><pattern id='a' patternUnits='userSpaceOnUse' width='${width}' height='${height}'><rect x='0' y='0' width='100%' height='100%' fill='${colors[0]}'/>` +
     path
       .split("~")
-      .map((item, i) => item.replace("/>", ` ${handler(COLORS[i + 1])}/>`))
+      .map((item, i) => item.replace("/>", ` ${handler(colors[i + 1])}/>`))
       .join("") +
     `</pattern></defs><rect width='100%' height='100%' fill='url(%23a)'/></svg>`
   );

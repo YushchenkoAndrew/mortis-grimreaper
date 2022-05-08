@@ -1,11 +1,11 @@
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Col } from 'react-bootstrap';
+import { Col, ColProps } from 'react-bootstrap';
 
 import { ColorData } from '../../types/api';
 import styles from './DisplayColors.module.scss';
 
-export interface DisplayColorsProps {
+export interface DisplayColorsProps extends ColProps {
   data: ColorData;
   event?: { href?: string; onClick: () => void };
   selected?: boolean;
@@ -23,7 +23,14 @@ enum ColorIndex {
 export function DisplayColors(props: DisplayColorsProps) {
   const { colors } = props.data;
   return (
-    <Col xs="10" sm="6" md="6" lg="4" xl="3" className="my-3 text-center">
+    <Col
+      xs={props.xs ?? "10"}
+      sm={props.sm ?? "6"}
+      md={props.md ?? "6"}
+      lg={props.lg ?? "4"}
+      xl={props.xl ?? "3"}
+      className="my-3 text-center"
+    >
       {/* // TODO: Maybe one day to use this !!! */}
       {/* <DisplayDataRecord
         delay={650}

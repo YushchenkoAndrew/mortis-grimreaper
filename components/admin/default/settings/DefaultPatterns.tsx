@@ -157,7 +157,14 @@ export default function DefaultPattern(props: DefaultPatternProps) {
             next={onLoadNext}
             hasMore={hasMore}
             loader={
-              <Col xs="10" sm="4" md="6" lg="4" className="my-3 text-center">
+              <Col
+                xs="10"
+                sm="4"
+                md="6"
+                lg="4"
+                xl="3"
+                className="my-3 text-center"
+              >
                 <Container className="d-flex h-100 w-80">
                   <Col className="align-self-center text-center">
                     <Spinner animation="border" role="status">
@@ -173,6 +180,7 @@ export default function DefaultPattern(props: DefaultPatternProps) {
                 <DisplayPattern
                   key={i}
                   data={item}
+                  selected={item.id === pattern.id}
                   event={{
                     onClick: () => {
                       dispatch({

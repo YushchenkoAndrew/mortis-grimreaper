@@ -1,14 +1,21 @@
-import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
-import { Button, Col, Collapse, Form, InputGroup, Row } from "react-bootstrap";
-import { useDispatch, useSelector } from "react-redux";
-import { ProjectInfo } from "../../../../config/placeholder";
-import ProjectCard from "../../../Cards/ProjectCard";
-import InputColor from "../../../Inputs/InputColor";
-import InputRadio from "../../../Inputs/InputRadio";
-import InputRange from "../../../Inputs/InputRange";
-import InputTemplate from "../../../Inputs/InputTemplate";
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useEffect, useState } from 'react';
+import { Button, Col, Collapse, Container, Form, Row, Spinner } from 'react-bootstrap';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { useDispatch, useSelector } from 'react-redux';
+
+import { basePath } from '../../../../config';
+import { ProjectInfo } from '../../../../config/placeholder';
+import { CacheId } from '../../../../lib/public';
+import { preloadData } from '../../../../lib/public/api';
+import { HEX2HSL, svgBuild } from '../../../../lib/public/svg';
+import { ColorData, PatternData } from '../../../../types/api';
+import ProjectCard from '../../../Cards/ProjectCard';
+import { DisplayColors } from '../../../Display/DisplayColors';
+import { DisplayPattern } from '../../../Display/DisplayPattern';
+import InputRadio from '../../../Inputs/InputRadio';
+import InputTemplate from '../../../Inputs/InputTemplate';
 
 export interface DefaultStyleViewProps {
   show?: boolean;
@@ -21,11 +28,39 @@ const PREFIX = "style";
 // * Something similar to this (https://pattern.monster/circles-5/)
 
 export default function DefaultStyleView(props: DefaultStyleViewProps) {
-  const [minimized, onMinimize] = useState(false);
+  const [minimize, onMinimize] = useState({ patterns: false, colors: false });
+  const [hasMore, onReachEnd] = useState({ patterns: true, colors: true });
 
   const style = useSelector((state) => state[PREFIX]);
   const preview = useSelector((state: any) => state.preview);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    (async function () {
+      const prefix = PREFIX.toUpperCase();
+      await fetch(`${basePath}/api/admin/cache?id=${CacheId(prefix)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (!data.result) return;
+          dispatch({ type: `${prefix}_INIT`, value: data.result });
+        })
+        .catch(() => null);
+
+      await onLoadNext("pattern");
+      await onLoadNext("colors");
+    })();
+  }, []);
+
+  async function onLoadNext(path: string) {
+    preloadData(path, style[`${path}_page`] + 1)
+      .then((data) =>
+        dispatch({
+          type: `${PREFIX}_${path}_PAGE_LOADED`.toUpperCase(),
+          value: data,
+        })
+      )
+      .catch(() => onReachEnd({ ...hasMore, [path]: false }));
+  }
 
   return (
     <div className={props.show ? "" : "d-none"}>
@@ -42,6 +77,19 @@ export default function DefaultStyleView(props: DefaultStyleViewProps) {
             }
             title={preview.title || ProjectInfo.title}
             description={preview.desc || ProjectInfo.desc}
+            background={
+              style.patterns[style.pattern_id]
+                ? `url("data:image/svg+xml,${svgBuild(
+                    style.patterns[style.pattern_id].width,
+                    style.patterns[style.pattern_id].height,
+                    style.patterns[style.pattern_id].path,
+                    style.patterns[style.pattern_id].mode.toLowerCase(),
+                    style.colors[style.color_id]?.colors?.map?.((c: string) =>
+                      HEX2HSL(c)
+                    )
+                  )}")`
+                : undefined
+            }
           />
         </Form.Group>
         <Form.Group as={Col} md={{ order: 1, span: 7 }}>
@@ -60,41 +108,154 @@ export default function DefaultStyleView(props: DefaultStyleViewProps) {
           <h4 className="font-weight-bold mb-3">Thumbnail</h4>
           <InputTemplate
             className="px-0"
-            labelClassName="font-weight-bold ml-2"
+            labelClassName="font-weight-bold ml-2 pb-2"
             label={[
-              "Metadata ",
+              "Patterns ",
               <FontAwesomeIcon
                 key={"icon-metadata"}
                 icon={faChevronDown}
                 style={{
                   transitionDuration: "0.25s",
                   transitionProperty: "transform",
-                  transform: `rotate(${minimized ? "0deg" : "-90deg"}`,
+                  transform: `rotate(${minimize.patterns ? "0deg" : "-90deg"}`,
                 }}
               />,
             ]}
-            onClick={() => onMinimize(!minimized)}
+            onClick={() =>
+              onMinimize({ ...minimize, patterns: !minimize.patterns })
+            }
           >
-            <Collapse in={minimized}>
+            <Collapse in={minimize.patterns}>
               <div>
-                <InputRange
-                  root={PREFIX}
-                  label="Zoom"
-                  readFrom={`${PREFIX}_zoom`}
-                  property={{ min: 0, max: 30 }}
-                />
-                <InputRange
-                  root={PREFIX}
-                  label="Angle"
-                  readFrom={`${PREFIX}_angle`}
-                  property={{ min: 0, max: 180 }}
-                />
-                <InputRange
-                  root={PREFIX}
-                  label="Colors"
-                  readFrom={`${PREFIX}_colors`}
-                  property={{ min: 2, max: 5 }}
-                />
+                {/* // FIXME: https://github.com/danbovey/react-infinite-scroller/issues/91#issuecomment-552128273 */}
+                <InfiniteScroll
+                  className="row justify-content-center px-3"
+                  dataLength={style.patterns.length}
+                  // style={{ overflowY: "scroll", maxHeight: "500px" }}
+                  next={() => onLoadNext("pattern")}
+                  hasMore={hasMore.patterns}
+                  loader={
+                    <Col
+                      xs="10"
+                      sm="4"
+                      md="6"
+                      lg="4"
+                      xl="3"
+                      className="my-3 text-center"
+                    >
+                      <Container className="d-flex h-100 w-80">
+                        <Col className="align-self-center text-center">
+                          <Spinner animation="border" role="status">
+                            <span className="sr-only">Loading...</span>
+                          </Spinner>
+                        </Col>
+                      </Container>
+                    </Col>
+                  }
+                >
+                  {style.patterns.map((item: PatternData, i: number) => {
+                    return (
+                      <DisplayPattern
+                        key={i}
+                        xl="6"
+                        lg="6"
+                        md="11"
+                        data={item}
+                        selected={item.id === style.pattern_id}
+                        event={{
+                          onClick: () => {
+                            dispatch({
+                              type: `${PREFIX}_PATTERN_ID_CHANGED`.toUpperCase(),
+                              value: i,
+                            });
+
+                            setTimeout(
+                              () =>
+                                window.scrollTo({ top: 0, behavior: "smooth" }),
+                              0
+                            );
+                          },
+                        }}
+                      />
+                    );
+                  })}
+                </InfiniteScroll>
+              </div>
+            </Collapse>
+          </InputTemplate>
+
+          <InputTemplate
+            className="px-0"
+            labelClassName="font-weight-bold ml-2"
+            label={[
+              "Colors ",
+              <FontAwesomeIcon
+                key={"icon-metadata"}
+                icon={faChevronDown}
+                style={{
+                  transitionDuration: "0.25s",
+                  transitionProperty: "transform",
+                  transform: `rotate(${minimize.colors ? "0deg" : "-90deg"}`,
+                }}
+              />,
+            ]}
+            onClick={() =>
+              onMinimize({ ...minimize, colors: !minimize.colors })
+            }
+          >
+            <Collapse in={minimize.colors}>
+              <div>
+                <InfiniteScroll
+                  className="row justify-content-center px-3"
+                  dataLength={style.colors.length}
+                  style={{ overflowY: "scroll", maxHeight: "500px" }}
+                  next={() => onLoadNext("colors")}
+                  hasMore={hasMore.patterns}
+                  loader={
+                    <Col
+                      xs="10"
+                      sm="4"
+                      md="6"
+                      lg="4"
+                      xl="3"
+                      className="my-3 text-center"
+                    >
+                      <Container className="d-flex h-100 w-80">
+                        <Col className="align-self-center text-center">
+                          <Spinner animation="border" role="status">
+                            <span className="sr-only">Loading...</span>
+                          </Spinner>
+                        </Col>
+                      </Container>
+                    </Col>
+                  }
+                >
+                  {style.colors.map((item: ColorData, i: number) => {
+                    return (
+                      <DisplayColors
+                        xl="4"
+                        lg="5"
+                        md="8"
+                        data={item}
+                        selected={item.id === style.color_id}
+                        event={{
+                          onClick: () => {
+                            dispatch({
+                              type: `${PREFIX}_COLOR_ID_CHANGED`.toUpperCase(),
+                              value: i,
+                            });
+
+                            setTimeout(
+                              () =>
+                                window.scrollTo({ top: 0, behavior: "smooth" }),
+                              0
+                            );
+                          },
+                        }}
+                      />
+                    );
+                  })}
+                </InfiniteScroll>
               </div>
             </Collapse>
           </InputTemplate>
@@ -102,15 +263,17 @@ export default function DefaultStyleView(props: DefaultStyleViewProps) {
           <Row className="justify-content-between pt-2 mx-3">
             <Col xs="9" md="9" lg="10" className="px-0">
               <Row className="pt-2">
-                {(style.pallet as string[]).map((_, i) => (
-                  <Form.Group key={`pallet-color-${i}`} className="mx-2">
-                    <InputColor
-                      root={PREFIX}
-                      readFrom={`${PREFIX}_pallet_${i}`}
-                      writeTo={`${PREFIX}_pallet`}
-                    />
-                  </Form.Group>
-                ))}
+                {Array(5)
+                  .fill("")
+                  .map((_, i) => (
+                    <Form.Group key={`pallet-color-${i}`} className="mx-2">
+                      {/* <InputColor
+                        root={PREFIX}
+                        readFrom={`${PREFIX}_colors_${style.color_id}_${i}`}
+                        writeTo={`${PREFIX}_colors`}
+                      /> */}
+                    </Form.Group>
+                  ))}
               </Row>
             </Col>
 

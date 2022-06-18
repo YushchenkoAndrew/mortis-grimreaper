@@ -1,37 +1,37 @@
-import { ReactText, useEffect, useState } from "react";
-import { TreeObj } from "../../../../types/tree";
-import { basePath } from "../../../../config";
-import { FileData, ProjectData } from "../../../../types/api";
-import { formFile } from "../../../../lib/public/files";
-import { Bounce, toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import InputRadio from "../../../Inputs/InputRadio";
-import DefaultPreview from "./DefaultPreview";
-import DefaultCodeView from "./DefaultCodeView";
-import DefaultK3sConfig from "./DefaultK3sConfig";
-import { ToastDefault } from "../../../../config/alert";
-import { useDispatch, useSelector } from "react-redux";
-import { CacheId } from "../../../../lib/public";
-import { DefaultRes } from "../../../../types/request";
-import { createQuery } from "../../../../lib/api/query";
-import {
-  Button,
-  Container,
-  Form,
-  OverlayTrigger,
-  Popover,
-  Row,
-} from "react-bootstrap";
-import { CapitalizeString } from "../../../../lib/public/string";
-import DefaultStyleView from "./DefaultStyleView";
-import { CombineK3sConfig } from "../../../../lib/public/k3s";
-import { YamlToJson } from "../../../../lib/public/yaml";
+import 'react-toastify/dist/ReactToastify.css';
+
+import { ReactText, useEffect, useState } from 'react';
+import { Button, Container, Form, OverlayTrigger, Popover, Row } from 'react-bootstrap';
+import { useDispatch, useSelector } from 'react-redux';
+import { Bounce, toast, ToastContainer } from 'react-toastify';
+
+import { basePath } from '../../../../config';
+import { ToastDefault } from '../../../../config/alert';
+import { createQuery } from '../../../../lib/api/query';
+import { CacheId } from '../../../../lib/public';
+import { formFile } from '../../../../lib/public/files';
+import { CombineK3sConfig } from '../../../../lib/public/k3s';
+import { CapitalizeString } from '../../../../lib/public/string';
+import { YamlToJson } from '../../../../lib/public/yaml';
+import { FileData, ProjectData } from '../../../../types/api';
+import { DefaultRes } from '../../../../types/request';
+import { TreeObj } from '../../../../types/tree';
+import InputRadio from '../../../Inputs/InputRadio';
+import DefaultCodeView from './DefaultCodeView';
+import DefaultK3sConfig from './DefaultK3sConfig';
+import DefaultPreview from './DefaultPreview';
+import DefaultStyleView from './DefaultStyleView';
 
 export interface DefaultOperationsFormProps {
   operation: string;
   preview?: { [name: string]: any };
   code?: { tree: TreeObj };
 }
+
+// FIXME: Redux to slow on tree update (/Config)
+// TODO: READ THIS !!!!!!!!!!
+// https://reactrocket.com/post/react-redux-optimization/
+// https://redux.js.org/usage/structuring-reducers/normalizing-state-shape
 
 export default function DefaultOperationsForm(
   props: DefaultOperationsFormProps

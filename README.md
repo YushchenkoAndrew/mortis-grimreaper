@@ -73,6 +73,9 @@ What's currently created:
 ### Flowchart for creating a project
 ![Diagram](/public/img/Attach3.jpg)
 
+### Request diagram for creating Docker project
+![Diagram](/public/img/requests.jpg)
+
 ## How to use this project
 
 1. Clone this repo

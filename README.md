@@ -10,7 +10,7 @@ This microservice project is a **Part 1** of **'Web-Based Project Management Sys
 
 ![System](/public/img/System.jpg)
 
- So I guess you wondering, why I called it *'mortis-grimreaper'*. Ehh, because it's the dns name of my website is [mortis-grimreaper.ddns.net](https://mortis-grimreaper.ddns.net/projects), you know quite logical to name the project like this..., right ?
+ So I guess you wondering, why I called it *'mortis-grimreaper'*. Ehh, because it's the dns name of my website is [mortis-grimreaper.ddns.net](https://www.mortis-grimreaper.net/projects), you know quite logical to name the project like this..., right ?
 
 Anyway, this project is a user interface for interacting with whole microservice system **'Web-Based Project Management System'**.
 

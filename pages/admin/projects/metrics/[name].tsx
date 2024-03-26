@@ -1,21 +1,22 @@
-import { withIronSessionSsr } from "iron-session/next";
-import { useState } from "react";
-import { Badge, OverlayTrigger, Popover, Row } from "react-bootstrap";
-import { Provider } from "react-redux";
-import DefaultHeader from "../../../../components/admin/default/DefaultHeader";
-import DefaultMetrics from "../../../../components/admin/default/metrics/DefaultMetrics";
-import DefaultFooter from "../../../../components/default/DefaultFooter";
-import DefaultHead from "../../../../components/default/DefaultHead";
-import DefaultNav from "../../../../components/default/DefaultNav";
-import DisplayDataRecord from "../../../../components/Display/DisplayDataRecord";
-import DisplayRunningLine from "../../../../components/Display/DisplayRunningLine";
-import { basePath } from "../../../../config";
-import sessionConfig from "../../../../config/session";
-import { LoadRecords } from "../../../../lib/api/api";
-import { checkIfUserExist } from "../../../../lib/api/session";
-import { FormatDate } from "../../../../lib/public/string";
-import { store } from "../../../../redux/admin/projects/metrics/storage";
-import { MetricsData, ProjectData } from "../../../../types/api";
+import { withIronSessionSsr } from 'iron-session/next';
+import { useState } from 'react';
+import { Badge, Row } from 'react-bootstrap';
+import { Provider } from 'react-redux';
+
+import DefaultHeader from '../../../../components/admin/default/DefaultHeader';
+import DefaultMetrics from '../../../../components/admin/default/metrics/DefaultMetrics';
+import DefaultFooter from '../../../../components/default/DefaultFooter';
+import DefaultHead from '../../../../components/default/DefaultHead';
+import DefaultNav from '../../../../components/default/DefaultNav';
+import DisplayDataRecord from '../../../../components/Display/DisplayDataRecord';
+import DisplayRunningLine from '../../../../components/Display/DisplayRunningLine';
+import { basePath } from '../../../../config';
+import sessionConfig from '../../../../config/session';
+import { LoadRecords } from '../../../../lib/api/api';
+import { checkIfUserExist } from '../../../../lib/api/session';
+import { FormatDate } from '../../../../lib/public/string';
+import { store } from '../../../../redux/admin/projects/metrics/storage';
+import { MetricsData, ProjectData } from '../../../../types/api';
 
 export interface MetricsProps {
   project: { [name: string]: any };
@@ -134,7 +135,19 @@ export const getServerSideProps = withIronSessionSsr(
           ),
         },
 
-        metrics: project[0].metrics || [],
+        // metrics: project[0].metrics || [],
+        metrics: [...Array(10).keys()].map((_, i) => {
+          const now = new Date();
+          now.setDate(now.getDate() - i);
+
+          return {
+            created_at: FormatDate(now),
+            name: `kubernetes-test-${i % 2}`,
+            namespace: "demo",
+            cpu: Math.random(),
+            memory: Math.random(),
+          };
+        }),
       },
     };
   },

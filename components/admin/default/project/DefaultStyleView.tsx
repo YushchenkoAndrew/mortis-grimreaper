@@ -5,9 +5,7 @@ import { Button, Col, Collapse, Container, Form, Row, Spinner } from 'react-boot
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { basePath } from '../../../../config';
 import { ProjectInfo } from '../../../../config/placeholder';
-import { CacheId } from '../../../../lib/public';
 import { preloadData } from '../../../../lib/public/api';
 import { HEX2HSL, svgBuild } from '../../../../lib/public/svg';
 import { ColorData, PatternData } from '../../../../types/api';
@@ -35,21 +33,21 @@ export default function DefaultStyleView(props: DefaultStyleViewProps) {
   const preview = useSelector((state: any) => state.preview);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    (async function () {
-      const prefix = PREFIX.toUpperCase();
-      await fetch(`${basePath}/api/admin/cache?id=${CacheId(prefix)}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (!data.result) return;
-          dispatch({ type: `${prefix}_INIT`, value: data.result });
-        })
-        .catch(() => null);
+  // useEffect(() => {
+  //   (async function () {
+  //     const prefix = PREFIX.toUpperCase();
+  //     await fetch(`${basePath}/api/admin/cache?id=${CacheId(prefix)}`)
+  //       .then((res) => res.json())
+  //       .then((data) => {
+  //         if (!data.result) return;
+  //         dispatch({ type: `${prefix}_INIT`, value: data.result });
+  //       })
+  //       .catch(() => null);
 
-      await onLoadNext("pattern");
-      await onLoadNext("colors");
-    })();
-  }, []);
+  //     await onLoadNext("pattern");
+  //     await onLoadNext("colors");
+  //   })();
+  // }, []);
 
   async function onLoadNext(path: string) {
     preloadData(path, style[`${path}_page`] + 1)

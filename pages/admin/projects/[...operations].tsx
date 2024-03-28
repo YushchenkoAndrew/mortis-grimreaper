@@ -1,21 +1,21 @@
-import DefaultHeader from "../../../components/admin/default/DefaultHeader";
-import DefaultHead from "../../../components/default/DefaultHead";
-import { checkIfUserExist } from "../../../lib/api/session";
-import { TreeObj } from "../../../types/tree";
-import { basePath, voidUrl } from "../../../config";
-import { ProjectData } from "../../../types/api";
-import sessionConfig from "../../../config/session";
-import { PROJECT_TREE } from "../../../config/placeholder";
-import { Provider } from "react-redux";
-import { withIronSessionSsr } from "iron-session/next";
-import { useRouter } from "next/router";
-import DefaultOperationsForm from "../../../components/admin/default/project/DefaultOperationsForm";
-import { store } from "../../../redux/admin/projects/storage";
-import { LoadRecords } from "../../../lib/api/api";
-import { addFile, allowedReader, formPath } from "../../../lib/public/files";
-import { LoadFile } from "../../../lib/api/file";
-import { CapitalizeString } from "../../../lib/public/string";
-import { CRON_TIME } from "../../../redux/admin/projects/reducer/preview";
+import DefaultHeader from '../../../components/admin/default/DefaultHeader';
+import DefaultHead from '../../../components/Header/Header';
+import { checkIfUserExist } from '../../../lib/api/session';
+import { TreeObj } from '../../../types/tree';
+import { basePath, voidUrl } from '../../../config';
+import { ProjectData } from '../../../types/api';
+import sessionConfig from '../../../config/session';
+import { PROJECT_TREE } from '../../../config/placeholder';
+import { Provider } from 'react-redux';
+import { withIronSessionSsr } from 'iron-session/next';
+import { useRouter } from 'next/router';
+import DefaultOperationsForm from '../../../components/admin/default/project/DefaultOperationsForm';
+import { store } from '../../../redux/admin/projects/storage';
+import { LoadRecords } from '../../../lib/api/api';
+import { addFile, allowedReader, formPath } from '../../../lib/public/files';
+import { LoadFile } from '../../../lib/api/file';
+import { CapitalizeString } from '../../../lib/public/string';
+import { CRON_TIME } from '../../../redux/admin/projects/reducer/preview';
 
 export interface ProjectOperationProps {
   code?: { tree: TreeObj };
@@ -30,10 +30,10 @@ export default function ProjectOperation(props: ProjectOperationProps) {
       <DefaultHead>
         <title>
           {CapitalizeString(
-            [...(router.query?.operations ?? []), ""]
+            [...(router.query?.operations ?? []), '']
               .slice(0, 2)
-              .join(" Project ")
-              .replace(/ $/, "")
+              .join(' Project ')
+              .replace(/ $/, ''),
           )}
         </title>
       </DefaultHead>
@@ -41,7 +41,7 @@ export default function ProjectOperation(props: ProjectOperationProps) {
 
       <Provider store={store}>
         <DefaultOperationsForm
-          operation={router.query?.operations?.[0] ?? "create"}
+          operation={router.query?.operations?.[0] ?? 'create'}
           preview={props.preview}
           code={props.code}
         />
@@ -64,12 +64,12 @@ export const getServerSideProps = withIronSessionSsr(
     }
 
     switch (operations[0]) {
-      case "create":
+      case 'create':
         return { props: {} };
 
-      case "update":
+      case 'update':
         if (!operations[1]) break;
-        const project = await LoadRecords<ProjectData>("project", {
+        const project = await LoadRecords<ProjectData>('project', {
           name: operations[1],
         });
 
@@ -80,7 +80,7 @@ export const getServerSideProps = withIronSessionSsr(
 
         for (let file of project[0].files) {
           const path = `${project[0].name}/${formPath(file)}`;
-          if (file.role === "thumbnail") img = `${voidUrl}/${path}`;
+          if (file.role === 'thumbnail') img = `${voidUrl}/${path}`;
 
           const content = allowedReader.includes(file.type)
             ? await LoadFile(path)
@@ -94,21 +94,21 @@ export const getServerSideProps = withIronSessionSsr(
         return {
           props: {
             preview: {
-              ...["id", "name", "flag", "title", "desc", "note"].reduce(
+              ...['id', 'name', 'flag', 'title', 'desc', 'note'].reduce(
                 (acc, key) => ({ ...acc, [key]: project[0][key] }),
-                { img }
+                { img },
               ),
 
               links: project[0].links.reduce(
                 (acc, curr) => ({ ...acc, [curr.name]: curr.link }),
-                {}
+                {},
               ),
 
-              cron: (project[0].subscription?.[0]?.cron_time || "* * */1 0 0 0")
-                .split(" ")
+              cron: (project[0].subscription?.[0]?.cron_time || '* * */1 0 0 0')
+                .split(' ')
                 .reduce(
                   (acc, curr, i) => ({ ...acc, [CRON_TIME[i]]: curr }),
-                  {}
+                  {},
                 ),
 
               // FIXME:
@@ -130,5 +130,5 @@ export const getServerSideProps = withIronSessionSsr(
       },
     };
   },
-  sessionConfig
+  sessionConfig,
 );

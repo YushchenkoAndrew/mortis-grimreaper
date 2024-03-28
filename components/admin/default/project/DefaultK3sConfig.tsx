@@ -1,5 +1,4 @@
 import { forwardRef, useRef, useState } from "react";
-import { Container } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { basePath } from "../../../../config";
 import Deployment from "../../K3s/Deployment";
@@ -60,115 +59,116 @@ export default forwardRef((props: K3sConfigProps, ref) => {
   }
 
   return (
-    <div className={`${props.show ? "" : "d-none"}`}>
-      <Container className="mb-5">
-        <K3sField
-          name="Namespace"
-          show={minimized.namespace}
-          onAdd={() => dispatch({ type: "CONFIG_NAMESPACE_ADD" })}
-          onHide={() =>
-            onMinimize({ ...minimized, namespace: !minimized.namespace })
-          }
-        >
-          {namespaces.map((_, index) => (
-            <div
-              key={index}
-              className="col-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 p-0 p-md-2"
-            >
-              <Namespace
-                root={() => ParseConfig(namespaces, "CODE_NAMESPACE")}
-                readFrom={`config_namespace_${index}`}
-                writeTo="config_namespace"
-              />
-            </div>
-          ))}
-        </K3sField>
+    <></>
+    // <div className={`${props.show ? "" : "d-none"}`}>
+    //   <Container className="mb-5">
+    //     <K3sField
+    //       name="Namespace"
+    //       show={minimized.namespace}
+    //       onAdd={() => dispatch({ type: "CONFIG_NAMESPACE_ADD" })}
+    //       onHide={() =>
+    //         onMinimize({ ...minimized, namespace: !minimized.namespace })
+    //       }
+    //     >
+    //       {namespaces.map((_, index) => (
+    //         <div
+    //           key={index}
+    //           className="col-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 p-0 p-md-2"
+    //         >
+    //           <Namespace
+    //             root={() => ParseConfig(namespaces, "CODE_NAMESPACE")}
+    //             readFrom={`config_namespace_${index}`}
+    //             writeTo="config_namespace"
+    //           />
+    //         </div>
+    //       ))}
+    //     </K3sField>
 
-        <K3sField
-          name="Deployment"
-          show={minimized.deployment}
-          onAdd={() => {
-            dispatch({ type: "CONFIG_DEPLOYMENT_ADD" });
-            dispatch({ type: "TEMP_CONFIG_DEPLOYMENT_ADD" });
-          }}
-          onHide={() =>
-            onMinimize({ ...minimized, deployment: !minimized.deployment })
-          }
-        >
-          {deployments.map((_, index) => (
-            <div
-              key={index}
-              className="col-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 p-0 p-md-2"
-            >
-              <Deployment
-                root={() => ParseConfig(deployments, "CODE_DEPLOYMENT")}
-                readFrom={`config_deployment_${index}`}
-                writeTo="config_deployment"
-              />
-            </div>
-          ))}
-        </K3sField>
+    //     <K3sField
+    //       name="Deployment"
+    //       show={minimized.deployment}
+    //       onAdd={() => {
+    //         dispatch({ type: "CONFIG_DEPLOYMENT_ADD" });
+    //         dispatch({ type: "TEMP_CONFIG_DEPLOYMENT_ADD" });
+    //       }}
+    //       onHide={() =>
+    //         onMinimize({ ...minimized, deployment: !minimized.deployment })
+    //       }
+    //     >
+    //       {deployments.map((_, index) => (
+    //         <div
+    //           key={index}
+    //           className="col-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 p-0 p-md-2"
+    //         >
+    //           <Deployment
+    //             root={() => ParseConfig(deployments, "CODE_DEPLOYMENT")}
+    //             readFrom={`config_deployment_${index}`}
+    //             writeTo="config_deployment"
+    //           />
+    //         </div>
+    //       ))}
+    //     </K3sField>
 
-        <K3sField
-          name="Service"
-          show={minimized.service}
-          onAdd={() => {
-            dispatch({ type: "CONFIG_SERVICE_ADD" });
-            dispatch({ type: "TEMP_CONFIG_SERVICE_ADD" });
-          }}
-          onHide={() =>
-            onMinimize({ ...minimized, service: !minimized.service })
-          }
-        >
-          {services.map((_, index) => (
-            <div
-              key={index}
-              className="col-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 p-0 p-md-2"
-            >
-              <Service
-                root={() => ParseConfig(services, "CODE_SERVICE")}
-                readFrom={`config_service_${index}`}
-                writeTo="config_service"
-              />
-            </div>
-          ))}
-        </K3sField>
+    //     <K3sField
+    //       name="Service"
+    //       show={minimized.service}
+    //       onAdd={() => {
+    //         dispatch({ type: "CONFIG_SERVICE_ADD" });
+    //         dispatch({ type: "TEMP_CONFIG_SERVICE_ADD" });
+    //       }}
+    //       onHide={() =>
+    //         onMinimize({ ...minimized, service: !minimized.service })
+    //       }
+    //     >
+    //       {services.map((_, index) => (
+    //         <div
+    //           key={index}
+    //           className="col-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 p-0 p-md-2"
+    //         >
+    //           <Service
+    //             root={() => ParseConfig(services, "CODE_SERVICE")}
+    //             readFrom={`config_service_${index}`}
+    //             writeTo="config_service"
+    //           />
+    //         </div>
+    //       ))}
+    //     </K3sField>
 
-        <K3sField
-          name="Ingress"
-          show={minimized.ingress}
-          onAdd={() => dispatch({ type: "CONFIG_INGRESS_ADD" })}
-          onHide={() =>
-            onMinimize({ ...minimized, ingress: !minimized.ingress })
-          }
-        >
-          {ingress.map((_, index) => (
-            <div
-              key={index}
-              className="col-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 p-0 p-md-2"
-            >
-              <Ingress
-                root={() => {
-                  dispatch({ type: "CONFIG_INGRESS_CACHED" });
-                  ParseConfig(ingress, "CODE_INGRESS");
-                }}
-                readFrom={`config_ingress_${index}`}
-                writeTo="config_ingress"
-              />
-            </div>
-          ))}
-        </K3sField>
+    //     <K3sField
+    //       name="Ingress"
+    //       show={minimized.ingress}
+    //       onAdd={() => dispatch({ type: "CONFIG_INGRESS_ADD" })}
+    //       onHide={() =>
+    //         onMinimize({ ...minimized, ingress: !minimized.ingress })
+    //       }
+    //     >
+    //       {ingress.map((_, index) => (
+    //         <div
+    //           key={index}
+    //           className="col-12 col-sm-11 col-md-8 col-lg-6 col-xl-5 p-0 p-md-2"
+    //         >
+    //           <Ingress
+    //             root={() => {
+    //               dispatch({ type: "CONFIG_INGRESS_CACHED" });
+    //               ParseConfig(ingress, "CODE_INGRESS");
+    //             }}
+    //             readFrom={`config_ingress_${index}`}
+    //             writeTo="config_ingress"
+    //           />
+    //         </div>
+    //       ))}
+    //     </K3sField>
 
-        <K3sField
-          name="Terminal"
-          show={minimized.terminal}
-          onHide={() =>
-            onMinimize({ ...minimized, terminal: !minimized.terminal })
-          }
-        >
-          <Terminal ref={terminalRef} readFrom="code_terminal" />
-        </K3sField>
-      </Container>
-    </div>
+    //     <K3sField
+    //       name="Terminal"
+    //       show={minimized.terminal}
+    //       onHide={() =>
+    //         onMinimize({ ...minimized, terminal: !minimized.terminal })
+    //       }
+    //     >
+    //       <Terminal ref={terminalRef} readFrom="code_terminal" />
+    //     </K3sField>
+    //   </Container>
+    // </div>
   );
 });

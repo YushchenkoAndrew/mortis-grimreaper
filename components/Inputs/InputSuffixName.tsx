@@ -1,5 +1,4 @@
 import React from "react";
-import { InputGroup } from "react-bootstrap";
 import InputValue from "./InputValue";
 
 export interface InputSuffixNameProps {
@@ -17,11 +16,12 @@ export interface InputSuffixNameProps {
 
 export default function InputSuffixName(props: InputSuffixNameProps) {
   return (
-    <InputGroup hasValidation>
-      <InputValue {...props} className="rounded-left" />
-      <InputGroup.Append>
-        <InputGroup.Text>{props.char}</InputGroup.Text>
-      </InputGroup.Append>
-    </InputGroup>
+    // <InputGroup hasValidation>
+    //   <InputValue {...props} className="rounded-left" />
+    //   <InputGroup.Append>
+    //     <InputGroup.Text>{props.char}</InputGroup.Text>
+    //   </InputGroup.Append>
+    // </InputGroup>
+    <></>
   );
 }

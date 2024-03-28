@@ -1,7 +1,6 @@
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ReactNode, useState } from "react";
-import { Collapse, Nav, Row } from "react-bootstrap";
 import SideBarItem from "./SideBarItem";
 
 export interface SideBarItemProps {
@@ -16,7 +15,7 @@ export default function SideBarDropDown(props: SideBarItemProps) {
   const [show, onShow] = useState(false);
   return (
     <>
-      <SideBarItem
+      {/* <SideBarItem
         className="d-flex justify-content-between"
         event={{ onClick: () => onShow(!show) }}
       >
@@ -34,7 +33,7 @@ export default function SideBarDropDown(props: SideBarItemProps) {
 
       <Collapse in={show}>
         <Row className="ml-auto px-3">{props.children}</Row>
-      </Collapse>
+      </Collapse> */}
     </>
   );
 }

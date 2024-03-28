@@ -1,17 +1,17 @@
-import React from "react";
-import DefaultHeader from "../../components/admin/default/DefaultHeader";
-import DefaultHead from "../../components/default/DefaultHead";
-import defaultServerSideHandler from "../../lib/api/session";
+import React from 'react';
+import DefaultHeader from '../../components/admin/default/DefaultHeader';
+import Header from '../../components/Header/Header';
+import DefaultHead from '../../components/Header/Header';
+// import defaultServerSideHandler from '../../lib/api/session';
 
-export default function AdminHome() {
+export default function Index() {
   return (
     <>
-      <DefaultHead>
-        <title>Admin</title>
-      </DefaultHead>
+      <Header title="Admin"></Header>
+
       <DefaultHeader />
     </>
   );
 }
 
-export const getServerSideProps = defaultServerSideHandler;
+// export const getServerSideProps = defaultServerSideHandler;

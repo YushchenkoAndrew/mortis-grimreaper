@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Form } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 
 export interface InputValueProps {
@@ -24,7 +23,7 @@ export default function InputValue(props: InputValueProps) {
 
   return (
     <>
-      <Form.Control
+      {/* <Form.Control
         value={value ?? ""}
         type={props.type ?? "text"}
         name={props.readFrom}
@@ -59,7 +58,7 @@ export default function InputValue(props: InputValueProps) {
         tooltip
       >
         {invalid ?? "This field is required"}
-      </Form.Control.Feedback>
+      </Form.Control.Feedback> */}
     </>
   );
 }

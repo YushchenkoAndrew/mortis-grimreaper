@@ -1,5 +1,4 @@
 import React, { useEffect, useImperativeHandle, useRef, useState } from "react";
-import { Container } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { basePath } from "../../config";
 import styles from "./Terminal.module.css";
@@ -58,48 +57,49 @@ export default React.forwardRef(function Terminal(props: TerminalProps, ref) {
   }, [history]);
 
   return (
-    <Container hidden={props.hidden} className="rounded bg-dark p-1">
-      <div
-        ref={cmdRef}
-        className={`bg-dark py-3 pl-3 ${styles["terminal"]}`}
-        onClick={() => cmdLineRef?.current?.focus()}
-      >
-        {history.map((item, key) => (
-          <pre key={key} className="text-light mb-0">
-            {item}
-          </pre>
-        ))}
-        <div>
-          <span className="text-light mr-2">$</span>
-          <input
-            ref={cmdLineRef}
-            type="text"
-            value={line}
-            className={`w-75 bg-dark border-0 text-light ${styles["terminal-line"]}`}
-            onChange={(e) => setLine(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key !== "Enter") return;
-              e.preventDefault();
+    <></>
+    // <Container hidden={props.hidden} className="rounded bg-dark p-1">
+    //   <div
+    //     ref={cmdRef}
+    //     className={`bg-dark py-3 pl-3 ${styles["terminal"]}`}
+    //     onClick={() => cmdLineRef?.current?.focus()}
+    //   >
+    //     {history.map((item, key) => (
+    //       <pre key={key} className="text-light mb-0">
+    //         {item}
+    //       </pre>
+    //     ))}
+    //     <div>
+    //       <span className="text-light mr-2">$</span>
+    //       <input
+    //         ref={cmdLineRef}
+    //         type="text"
+    //         value={line}
+    //         className={`w-75 bg-dark border-0 text-light ${styles["terminal-line"]}`}
+    //         onChange={(e) => setLine(e.target.value)}
+    //         onKeyDown={(e) => {
+    //           if (e.key !== "Enter") return;
+    //           e.preventDefault();
 
-              if (line !== "") {
-                runCommand(line);
-                return setLine("");
-              }
+    //           if (line !== "") {
+    //             runCommand(line);
+    //             return setLine("");
+    //           }
 
-              dispatch({
-                type: `${
-                  props.writeTo ?? props.readFrom
-                }_CHANGED`.toUpperCase(),
-                value: "",
-              });
-            }}
-            onBlur={() => {
-              if (!props.root) return;
-              dispatch({ type: `${props.root}_CACHED`.toUpperCase() });
-            }}
-          />
-        </div>
-      </div>
-    </Container>
+    //           dispatch({
+    //             type: `${
+    //               props.writeTo ?? props.readFrom
+    //             }_CHANGED`.toUpperCase(),
+    //             value: "",
+    //           });
+    //         }}
+    //         onBlur={() => {
+    //           if (!props.root) return;
+    //           dispatch({ type: `${props.root}_CACHED`.toUpperCase() });
+    //         }}
+    //       />
+    //     </div>
+    //   </div>
+    // </Container>
   );
 });

@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 .text-decoration-none {
   text-decoration: none !important;
 }
@@ -6,23 +10,20 @@
   overflow: hidden;
 }
 
-// Include bootstrap lib
-@import "~bootstrap/scss/bootstrap";
-
-body {
-  background-color: $light;
-}
+// body {
+//   background-color: $light;
+// }
 
 .btn-outline-warning:hover {
   color: var(--light);
 }
 
-@import "./font";
-@import "./editor";
+@import './font';
+// @import "./editor";
 
 // @import "./canvas";
 
-@import "./card";
-@import "./calendar";
-@import "./color-picker";
-@import "./range-slider";
+// @import "./card";
+// @import "./calendar";
+// @import "./color-picker";
+// @import "./range-slider";

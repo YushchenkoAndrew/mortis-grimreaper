@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from "react";
-import InfoCard from "../components/Cards/InfoCard";
-import InfoCardStat from "../components/info/InfoCardStat";
-import Calendar from "react-calendar";
-import DefaultNav from "../components/default/DefaultNav";
-import DefaultHead from "../components/default/DefaultHead";
-import DefaultHeader from "../components/default/DefaultHeader";
-import DefaultFooter from "../components/default/DefaultFooter";
-import { WorldMap } from "../components/WorldMap/WorldMap";
-import { useSpring } from "react-spring";
-import { Doughnut, Line } from "react-chartjs-2";
-import { faEye, faGlobe, faUserPlus } from "@fortawesome/free-solid-svg-icons";
-import { Country, StatInfo } from "../types/info";
-import { AnalyticsData, StatisticData } from "../types/request";
-import { basePath } from "../config";
+import React, { useEffect, useState } from 'react';
+import InfoCard from '../components/Cards/InfoCard';
+import InfoCardStat from '../components/info/InfoCardStat';
+import Calendar from 'react-calendar';
+import DefaultNav from '../components/default/DefaultNav';
+import DefaultHead from '../components/Header/Header';
+import DefaultHeader from '../components/Navbar/Navbar';
+import DefaultFooter from '../components/default/DefaultFooter';
+import { WorldMap } from '../components/WorldMap/WorldMap';
+import { useSpring } from 'react-spring';
+import { Doughnut, Line } from 'react-chartjs-2';
+import { faEye, faGlobe, faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import { Country, StatInfo } from '../types/info';
+import { AnalyticsData, StatisticData } from '../types/request';
+import { basePath } from '../config';
 
 export function formatDate(date: Date) {
   return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
@@ -35,30 +35,30 @@ export default function Info() {
   const [chartSize, setChartSize] = useState({
     height: 310,
     width: 800,
-    size: "xl",
+    size: 'xl',
   });
 
   useEffect(() => {
     function handleChartResize() {
       if (window.innerWidth <= 1200 && window.innerWidth > 992)
-        return setChartSize({ height: 300, width: 800, size: "lg" });
+        return setChartSize({ height: 300, width: 800, size: 'lg' });
 
       if (window.innerWidth <= 992 && window.innerWidth > 767)
-        return setChartSize({ height: 400, width: 400, size: "xl" });
+        return setChartSize({ height: 400, width: 400, size: 'xl' });
 
       if (window.innerWidth <= 767 && window.innerWidth > 576)
-        return setChartSize({ height: 400, width: 400, size: "lg" });
+        return setChartSize({ height: 400, width: 400, size: 'lg' });
 
       if (window.innerWidth <= 576)
-        return setChartSize({ height: 400, width: 400, size: "responsive" });
+        return setChartSize({ height: 400, width: 400, size: 'responsive' });
 
-      return setChartSize({ height: 310, width: 800, size: "xl" });
+      return setChartSize({ height: 310, width: 800, size: 'xl' });
     }
 
-    window.addEventListener("resize", handleChartResize);
+    window.addEventListener('resize', handleChartResize);
     handleChartResize();
 
-    return () => window.removeEventListener("resize", handleChartResize);
+    return () => window.removeEventListener('resize', handleChartResize);
   }, []);
 
   // TODO: Maybe to run thous request in <head> ???
@@ -100,14 +100,14 @@ export default function Info() {
   function loadStaticData(date: Date) {
     fetch(
       `${basePath}/api/info/statistic?date=${formatDate(
-        date
-      )}&id=${localStorage.getItem("id")}`,
+        date,
+      )}&id=${localStorage.getItem('id')}`,
       // { cache: "default" }
-      { cache: "no-cache" }
+      { cache: 'no-cache' },
     )
       .then((res) => res.json())
       .then((data: StatisticData) => {
-        if (data.status !== "OK") return;
+        if (data.status !== 'OK') return;
         onMapLoad(data.map);
         onInfoLoad(data.info);
       })
@@ -117,19 +117,19 @@ export default function Info() {
   function loadAnalyticsData(date: Date) {
     fetch(
       `${basePath}/api/info/analytics?date=${formatDate(
-        date
-      )}&id=${localStorage.getItem("id")}`,
+        date,
+      )}&id=${localStorage.getItem('id')}`,
       // { cache: "default" }
-      { cache: "no-cache" }
+      { cache: 'no-cache' },
     )
       .then((res) => res.json())
       .then((data: AnalyticsData) => {
-        if (data.status !== "OK") return;
+        if (data.status !== 'OK') return;
         onLineLoad(data.line);
         onLabelsLoad(
           data.days.map((item) =>
-            new Date(item).toDateString().split(" ").slice(1).join(" ")
-          )
+            new Date(item).toDateString().split(' ').slice(1).join(' '),
+          ),
         );
 
         // TODO: Maybe sort value for showing specific colors more
@@ -196,7 +196,7 @@ export default function Info() {
                   data={[
                     // NOTE:  Need such hack for WorldMap Component to work properly
                     // with one country only
-                    { country: "ua", value: 0 },
+                    { country: 'ua', value: 0 },
                     ...mapData,
                   ]}
                 />
@@ -220,10 +220,10 @@ export default function Info() {
                   labels,
                   datasets: [
                     {
-                      label: "Visitors",
+                      label: 'Visitors',
                       data: lineData,
-                      backgroundColor: "rgba(255, 99, 132, 0.2)",
-                      borderColor: "rgba(255, 99, 132, 1)",
+                      backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                      borderColor: 'rgba(255, 99, 132, 1)',
                       borderWidth: 1,
                     },
                   ],
@@ -242,12 +242,12 @@ export default function Info() {
                   },
                 }}
                 data={{
-                  labels: ["CTR", "CR(media)", "CR(projects)"],
+                  labels: ['CTR', 'CR(media)', 'CR(projects)'],
                   datasets: [
                     {
                       data: doughnutData,
-                      backgroundColor: ["#ff6384", "#007bff", "#ffce56"],
-                      hoverBackgroundColor: ["#ff2e5b", "#0063cc", "#febb20"],
+                      backgroundColor: ['#ff6384', '#007bff', '#ffce56'],
+                      hoverBackgroundColor: ['#ff2e5b', '#0063cc', '#febb20'],
                     },
                   ],
                 }}

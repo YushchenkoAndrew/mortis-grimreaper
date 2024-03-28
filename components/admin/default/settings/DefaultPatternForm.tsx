@@ -1,13 +1,8 @@
-import { Col, Container, InputGroup, Row } from "react-bootstrap";
 import InputName from "../../../Inputs/InputName";
 import InputRadio from "../../../Inputs/InputRadio";
 import InputSuffixName from "../../../Inputs/InputSuffixName";
 import InputTemplate from "../../../Inputs/InputTemplate";
 import InputValue from "../../../Inputs/InputValue";
-import { highlight, languages } from "prismjs";
-import "prismjs/components/prism-markup";
-import "prismjs/themes/prism-coy.css";
-import Editor from "react-simple-code-editor";
 import { useDispatch, useSelector } from "react-redux";
 import { DisplayPattern } from "../../../Display/DisplayPattern";
 import { PatternData } from "../../../../types/api";
@@ -27,7 +22,7 @@ export default function DefaultPatternForm(props: DefaultPatternFormProps) {
 
   return (
     <>
-      <Row>
+      {/* <Row>
         <InputGroup as={Col} xs="12" sm="6" lg="3">
           <InputTemplate className="mb-3" label="Mode">
             <InputRadio
@@ -182,7 +177,7 @@ export default function DefaultPatternForm(props: DefaultPatternFormProps) {
             />
           </Container>
         </div>
-      </div>
+      </div> */}
     </>
   );
 }

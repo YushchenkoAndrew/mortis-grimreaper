@@ -1,38 +1,14 @@
 module.exports = {
-  reactStrictMode: true,
-  webpack5: true,
-  swcMinify: false,
-  basePath: process.env.BASE_PATH || "/projects",
+  reactStrictMode: false,
+  swcMinify: true,
+  basePath: process.env.BASE_PATH || '/projects',
 
-  async headers() {
+  async rewrites() {
     return [
       {
-        source: "/api/info/analytics",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=1000, must-revalidate",
-          },
-        ],
+        source: '/api/:projects*',
+        destination: 'http://192.168.0.106:31337/grape/:projects*',
       },
-      {
-        source: "/api/info/statistic",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=1000, must-revalidate",
-          },
-        ],
-      },
-      // {
-      //   source: "/api/view/rand",
-      //   headers: [
-      //     {
-      //       key: "Cache-Control",
-      //       value: "public, max-age=3600, must-revalidate",
-      //     },
-      //   ],
-      // },
     ];
   },
 
@@ -41,33 +17,29 @@ module.exports = {
     // NEXT_PUBLIC_RECAPTCHA_INVISIBLE_SITE_KEY:
     //   process.env.RECAPTCHA_INVISIBLE_SITE_KEY,
 
-    FETCH_TIMEOUT: 5000,
-    ALLOWED_INVALID_LOGIN_REQ: process.env.ENV === "test" ? 20 : 6,
+    ALLOWED_INVALID_LOGIN_REQ: process.env.ENV === 'test' ? 20 : 6,
     K3S_ALLOWED_TYPES: [
-      "deployment",
-      "service",
-      "ingress",
-      "pods",
-      "namespace",
+      'deployment',
+      'service',
+      'ingress',
+      'pods',
+      'namespace',
     ],
   },
 
   publicRuntimeConfig: {
-    BASE_PATH: process.env.BASE_PATH || "/projects",
+    BASE_PATH: process.env.BASE_PATH || '/projects',
+    GITHUB: process.env.GITHUB,
 
     RECAPTCHA_SITE_KEY:
-      process.env.ENV === "test"
-        ? "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+      process.env.ENV === 'test'
+        ? '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
         : process.env.RECAPTCHA_SITE_KEY,
     RECAPTCHA_INVISIBLE_SITE_KEY: process.env.RECAPTCHA_INVISIBLE_SITE_KEY,
   },
 
   serverRuntimeConfig: {
     BASE_PATH: process.env.BASE_PATH,
-
-    ADMIN_USER: process.env.ADMIN_USER,
-    ADMIN_PASS: process.env.ADMIN_PASS,
-    APPLICATION_SECRET: process.env.APPLICATION_SECRET,
 
     API_URL: process.env.API_URL,
     API_USER: process.env.API_USER,
@@ -77,9 +49,6 @@ module.exports = {
     BOT_URL: process.env.BOT_URL,
     BOT_KEY: process.env.BOT_KEY,
 
-    REDIS_HOST: process.env.REDIS_HOST,
-    REDIS_PORT: process.env.REDIS_PORT,
-
     WEB_KEY: process.env.WEB_KEY,
     WEB_PEPPER: process.env.WEB_PEPPER,
 
@@ -87,14 +56,10 @@ module.exports = {
     VOID_AUTH: process.env.VOID_AUTH,
 
     RECAPTCHA_SECRET_KEY:
-      process.env.ENV === "test"
-        ? "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"
+      process.env.ENV === 'test'
+        ? '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'
         : process.env.RECAPTCHA_SECRET_KEY,
     RECAPTCHA_INVISIBLE_SECRET_KEY: process.env.RECAPTCHA_INVISIBLE_SECRET_KEY,
-
-    EMAIL_TO: process.env.EMAIL_TO,
-    EMAIL_FROM: process.env.EMAIL_FROM,
-    EMAIL_PASS: process.env.EMAIL_PASS,
 
     SESSION_TTL: process.env.SESSION_TTL,
 

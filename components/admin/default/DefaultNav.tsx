@@ -1,6 +1,6 @@
-import React from "react";
-import { basePath } from "../../../config";
-import NavItem from "../../NavBar/NavItem";
+import React from 'react';
+import { basePath } from '../../../config';
+import GlitchItem from '../../Navbar/GlitchItem';
 
 export interface DefaultNavProps {
   home?: boolean;
@@ -13,13 +13,13 @@ export interface DefaultNavProps {
 export default function DefaultNav(props: DefaultNavProps) {
   return (
     <>
-      <NavItem
+      <GlitchItem
         name="Home"
         href={`${basePath}/admin`}
         style={props.style}
         active={props.home}
       />
-      <NavItem
+      <GlitchItem
         name="Projects"
         href={`${basePath}/admin/projects`}
         style={props.style}
@@ -32,13 +32,13 @@ export default function DefaultNav(props: DefaultNavProps) {
         style={props.style}
         active={props.settings}
       /> */}
-      <NavItem
+      <GlitchItem
         name="Settings"
         href={`${basePath}/admin/settings`}
         style={props.style}
         active={props.settings}
       />
-      <NavItem
+      <GlitchItem
         name="Logout"
         href={`${basePath}/admin/logout`}
         style={props.style}

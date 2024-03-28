@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Button, Col, Form, FormControl, InputGroup } from "react-bootstrap";
 import { DoubleType } from "./InputDoubleList";
 
 export interface ListEntityProps {
@@ -12,7 +11,7 @@ export interface ListEntityProps {
 export default function ListEntity(props: ListEntityProps) {
   return (
     <>
-      <InputGroup as={Col} md="6" sm={{ order: 1 }} className="p-2">
+      {/* <InputGroup as={Col} md="6" sm={{ order: 1 }} className="p-2">
         <InputGroup.Prepend>
           <InputGroup.Text>{props.char[0]}</InputGroup.Text>
         </InputGroup.Prepend>
@@ -34,7 +33,7 @@ export default function ListEntity(props: ListEntityProps) {
             Delete
           </Button>
         </InputGroup.Append>
-      </InputGroup>
+      </InputGroup> */}
     </>
   );
 }

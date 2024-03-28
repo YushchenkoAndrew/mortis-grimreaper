@@ -2,7 +2,7 @@
   padding-bottom: 1rem;
   box-shadow: 0 6px 12px #999;
   border-radius: 0.25rem;
-  background: $light;
+  // background: $light;
 
   position: absolute;
   z-index: 2;
@@ -11,7 +11,7 @@
     width: auto;
     padding: 16px;
     padding-bottom: 0px;
-    background: $light;
+    // background: $light;
 
     border-radius: 0.25rem;
   }
@@ -39,7 +39,7 @@
 .color-view {
   width: 2rem;
   height: 2rem;
-  border: 2px solid $dark;
+  // border: 2px solid $dark;
   border-radius: 0.25rem !important;
   transition-duration: 200ms;
   display: flex;

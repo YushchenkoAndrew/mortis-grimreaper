@@ -1,7 +1,7 @@
-import Projects from "../pages/projects";
-import { FileData } from "./api";
+import Projects from '../pages/projects';
+import { FileData } from './api';
 
-export type ProjectFields = "name" | "title" | "desc" | "img";
+export type ProjectFields = 'name' | 'title' | 'desc' | 'img';
 
 // export type ProjectFile = {
 //   name: string;

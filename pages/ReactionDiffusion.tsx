@@ -1,11 +1,11 @@
-import React from "react";
-import DefaultHead from "../components/default/DefaultHead";
-import DefaultHeader from "../components/default/DefaultHeader";
-import DefaultFooter from "../components/default/DefaultFooter";
-import DefaultEmscContainer from "../components/default/DefaultEmscContainer";
-import DefaultProjectInfo from "../components/default/DefaultProjectInfo";
-import { basePath } from "../config";
-import Script from "next/script";
+import React from 'react';
+import DefaultHead from '../components/Header/Header';
+import DefaultHeader from '../components/Navbar/Navbar';
+import DefaultFooter from '../components/default/DefaultFooter';
+import DefaultEmscContainer from '../components/default/DefaultEmscContainer';
+import DefaultProjectInfo from '../components/default/DefaultProjectInfo';
+import { basePath } from '../config';
+import Script from 'next/script';
 
 export default function ReactionDiffusion() {
   return (

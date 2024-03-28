@@ -1,0 +1,63 @@
+/* .explode-animation {
+  animation: explode 0.9s forwards;
+}
+
+.displode-animation {
+  animation: displode 0.5s forwards;
+}
+
+@keyframes explode {
+  0% {
+    width: 0px;
+    height: 0px;
+    margin-left: 0px;
+    margin-top: 0px;
+  }
+  100% {
+    width: 1400px;
+    height: 1400px;
+    margin-left: -700px;
+    margin-top: -700px;
+  }
+}
+
+@keyframes displode {
+  0% {
+    width: 1400px;
+    height: 1400px;
+    margin-left: -700px;
+    margin-top: -700px;
+  }
+  100% {
+    width: 0px;
+    height: 0px;
+    margin-left: 0px;
+    margin-top: 0px;
+  }
+}
+
+.dim {
+  animation: dim 0.5s forwards;
+}
+
+.appear {
+  animation: appear 0.8s forwards;
+}
+
+@keyframes dim {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes appear {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+} */

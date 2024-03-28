@@ -1,8 +1,6 @@
 import React from "react";
-import { marked } from "marked";
 import { HtmlMarkers } from "../../config/placeholder";
 import { voidUrl } from "../../config";
-import { Container } from "react-bootstrap";
 
 export interface DefaultMarkdownProjectProps {
   hidden?: boolean;
@@ -17,7 +15,7 @@ export default function DefaultMarkdownProject(
 ) {
   return (
     <>
-      <Container
+      {/* <Container
         hidden={props.hidden}
         className={`jumbotron bg-white ${props.className ?? ""}`}
         id="CanvasContainer0"
@@ -28,7 +26,7 @@ export default function DefaultMarkdownProject(
               .replace(new RegExp(HtmlMarkers.PROJECT_NAME, "g"), props.name)
           ),
         }}
-      ></Container>
+      ></Container> */}
     </>
   );
 }

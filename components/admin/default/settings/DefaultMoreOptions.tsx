@@ -1,9 +1,13 @@
-import { faPen, faPlus, faSearch, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { ReactNode } from 'react';
-import { Button, Collapse, Form, InputGroup, Row } from 'react-bootstrap';
-import { useDispatch, useSelector } from 'react-redux';
+import {
+  faPen,
+  faPlus,
+  faSearch,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
+import { ReactNode } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
-import HoverButton from '../../../HoverButton';
+import HoverButton from "../../../HoverButton";
 
 export interface DefaultMoreOptionsProps {
   root: string;
@@ -66,52 +70,53 @@ export default function DefaultMoreOptions(props: DefaultMoreOptionsProps) {
   }
 
   return (
-    <Form.Group className="mb-2">
-      <Row className="mr-auto pl-3">
-        <InputGroup className="ml-4 d-flex justify-content-between">
-          <Row className="py-3" style={{ width: "80%" }}>
-            <HoverButton
-              name="Info  "
-              variant="outline-info"
-              icon={faSearch}
-              event={{ onClick: onInfo }}
-            />
+    <></>
+    // <Form.Group className="mb-2">
+    //   <Row className="mr-auto pl-3">
+    //     <InputGroup className="ml-4 d-flex justify-content-between">
+    //       <Row className="py-3" style={{ width: "80%" }}>
+    //         <HoverButton
+    //           name="Info  "
+    //           variant="outline-info"
+    //           icon={faSearch}
+    //           event={{ onClick: onInfo }}
+    //         />
 
-            {props.buttons}
+    //         {props.buttons}
 
-            <HoverButton
-              name="Create"
-              variant="outline-success"
-              icon={faPlus}
-              event={{ onClick: onCreate }}
-            />
-            <HoverButton
-              name="Edit  "
-              variant="outline-warning"
-              icon={faPen}
-              event={{ onClick: onEdit }}
-            />
-            <HoverButton
-              name="Delete"
-              variant="danger"
-              icon={faTrash}
-              event={{ onClick: onDelete }}
-            />
-          </Row>
+    //         <HoverButton
+    //           name="Create"
+    //           variant="outline-success"
+    //           icon={faPlus}
+    //           event={{ onClick: onCreate }}
+    //         />
+    //         <HoverButton
+    //           name="Edit  "
+    //           variant="outline-warning"
+    //           icon={faPen}
+    //           event={{ onClick: onEdit }}
+    //         />
+    //         <HoverButton
+    //           name="Delete"
+    //           variant="danger"
+    //           icon={faTrash}
+    //           event={{ onClick: onDelete }}
+    //         />
+    //       </Row>
 
-          <Button
-            type="submit"
-            hidden={!["create", "update"].includes(value.action)}
-            variant="outline-primary"
-            className="my-auto"
-          >
-            Submit
-          </Button>
-        </InputGroup>
-      </Row>
-      <Collapse className="justify-content-center" in={value.info}>
-        <div>{props.children}</div>
-      </Collapse>
-    </Form.Group>
+    //       <Button
+    //         type="submit"
+    //         hidden={!["create", "update"].includes(value.action)}
+    //         variant="outline-primary"
+    //         className="my-auto"
+    //       >
+    //         Submit
+    //       </Button>
+    //     </InputGroup>
+    //   </Row>
+    //   <Collapse className="justify-content-center" in={value.info}>
+    //     <div>{props.children}</div>
+    //   </Collapse>
+    // </Form.Group>
   );
 }

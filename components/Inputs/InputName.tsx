@@ -1,5 +1,4 @@
 import React from "react";
-import { InputGroup } from "react-bootstrap";
 import InputValue from "./InputValue";
 
 export interface InputNameProps {
@@ -17,11 +16,12 @@ export interface InputNameProps {
 
 export default function InputName(props: InputNameProps) {
   return (
-    <InputGroup hasValidation>
-      <InputGroup.Prepend>
-        <InputGroup.Text>{props.char}</InputGroup.Text>
-      </InputGroup.Prepend>
-      <InputValue {...props} className="rounded-right" />
-    </InputGroup>
+    <></>
+    // <InputGroup hasValidation>
+    //   <InputGroup.Prepend>
+    //     <InputGroup.Text>{props.char}</InputGroup.Text>
+    //   </InputGroup.Prepend>
+    //   <InputValue {...props} className="rounded-right" />
+    // </InputGroup>
   );
 }

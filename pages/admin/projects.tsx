@@ -1,24 +1,20 @@
-import { useState } from "react";
-import DefaultHeader from "../../components/admin/default/DefaultHeader";
-import DefaultFooter from "../../components/default/DefaultFooter";
-import DefaultHead from "../../components/default/DefaultHead";
-import DefaultNav from "../../components/default/DefaultNav";
-import { checkIfUserExist } from "../../lib/api/session";
-import { ProjectData } from "../../types/api";
-import { basePath, voidUrl } from "../../config";
-import { FlagType } from "../../types/flag";
-import { formPath } from "../../lib/public/files";
-import InfiniteScroll from "react-infinite-scroll-component";
-import { preloadData } from "../../lib/public/api";
-import sessionConfig from "../../config/session";
-import { DefaultRes } from "../../types/request";
-import { Bounce, toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { withIronSessionSsr } from "iron-session/next";
-import { LoadRecords } from "../../lib/api/api";
-import { Col, Container, Spinner } from "react-bootstrap";
-import AddCard from "../../components/Cards/AddCard";
-import AdminCard from "../../components/Cards/AdminCard";
+import { useState } from 'react';
+import DefaultHeader from '../../components/admin/default/DefaultHeader';
+import DefaultFooter from '../../components/default/DefaultFooter';
+import DefaultHead from '../../components/Header/Header';
+import DefaultNav from '../../components/default/DefaultNav';
+import { checkIfUserExist } from '../../lib/api/session';
+import { ProjectData } from '../../types/api';
+import { basePath, voidUrl } from '../../config';
+import { FlagType } from '../../types/flag';
+import { formPath } from '../../lib/public/files';
+import { preloadData } from '../../lib/public/api';
+import sessionConfig from '../../config/session';
+import { DefaultRes } from '../../types/request';
+import 'react-toastify/dist/ReactToastify.css';
+import { LoadRecords } from '../../lib/api/api';
+import AddCard from '../../components/Cards/AddCard';
+import AdminCard from '../../components/Cards/AdminCard';
 
 export interface AdminProjectsProps {
   hasMore: boolean;
@@ -79,7 +75,7 @@ export default function AdminProjects(props: AdminProjectsProps) {
       </DefaultHead>
       <DefaultHeader />
 
-      <ToastContainer
+      {/* <ToastContainer
         position="top-right"
         autoClose={5000}
         hideProgressBar={false}
@@ -89,9 +85,9 @@ export default function AdminProjects(props: AdminProjectsProps) {
         theme="colored"
         rtl={false}
         draggable
-      />
+      /> */}
 
-      <Container className="mt-4">
+      {/* <Container className="mt-4">
         <InfiniteScroll
           className="row"
           dataLength={projects.length}
@@ -165,7 +161,7 @@ export default function AdminProjects(props: AdminProjectsProps) {
             );
           })}
         </InfiniteScroll>
-      </Container>
+      </Container> */}
 
       <DefaultFooter name="Menu">
         <ul className="list-unstyled">
@@ -176,29 +172,29 @@ export default function AdminProjects(props: AdminProjectsProps) {
   );
 }
 
-export const getServerSideProps = withIronSessionSsr(
-  async function getServerSideProps({ req }) {
-    if (!req.session.user || !(await checkIfUserExist(req.session.user))) {
-      return {
-        redirect: {
-          basePath: false,
-          destination: `${basePath}/admin/login`,
-          permanent: false,
-        },
-      };
-    }
+// export const getServerSideProps = withIronSessionSsr(
+//   async function getServerSideProps({ req }) {
+//     if (!req.session.user || !(await checkIfUserExist(req.session.user))) {
+//       return {
+//         redirect: {
+//           basePath: false,
+//           destination: `${basePath}/admin/login`,
+//           permanent: false,
+//         },
+//       };
+//     }
 
-    const projects = await LoadRecords("project", {
-      page: 0,
-      "file[role]": "thumbnail",
-    });
+//     const projects = await LoadRecords("project", {
+//       page: 0,
+//       "file[role]": "thumbnail",
+//     });
 
-    return {
-      props: {
-        hasMore: !!projects,
-        projects: projects || [],
-      },
-    };
-  },
-  sessionConfig
-);
+//     return {
+//       props: {
+//         hasMore: !!projects,
+//         projects: projects || [],
+//       },
+//     };
+//   },
+//   sessionConfig
+// );

@@ -1,19 +1,16 @@
-import { useEffect, useState } from 'react';
-import { Col, Container, Form, Spinner } from 'react-bootstrap';
-import InfiniteScroll from 'react-infinite-scroll-component';
-import { useDispatch, useSelector } from 'react-redux';
-import { Bounce, toast } from 'react-toastify';
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
-import { basePath } from '../../../../config';
-import { ToastDefault } from '../../../../config/alert';
-import { CacheId } from '../../../../lib/public';
-import { preloadData } from '../../../../lib/public/api';
-import { StateToData } from '../../../../redux/admin/settings/reducer/pattern';
-import { PatternData } from '../../../../types/api';
-import { DefaultRes } from '../../../../types/request';
-import { DisplayPattern } from '../../../Display/DisplayPattern';
-import DefaultMoreOptions from './DefaultMoreOptions';
-import DefaultPatternForm from './DefaultPatternForm';
+import { basePath } from "../../../../config";
+import { ToastDefault } from "../../../../config/alert";
+import { CacheId } from "../../../../lib/public";
+import { preloadData } from "../../../../lib/public/api";
+import { StateToData } from "../../../../redux/admin/settings/reducer/pattern";
+import { PatternData } from "../../../../types/api";
+import { DefaultRes } from "../../../../types/request";
+import { DisplayPattern } from "../../../Display/DisplayPattern";
+import DefaultMoreOptions from "./DefaultMoreOptions";
+import DefaultPatternForm from "./DefaultPatternForm";
 
 export interface DefaultPatternProps {
   show?: boolean;
@@ -79,132 +76,133 @@ export default function DefaultPattern(props: DefaultPatternProps) {
   }
 
   return (
-    <Form
-      noValidate
-      hidden={!props.show}
-      validated={validated}
-      onSubmit={async (event) => {
-        event?.preventDefault();
-        if (!event.currentTarget.checkValidity()) {
-          event.stopPropagation();
-          return setValidated(true);
-        }
+    // <Form
+    //   noValidate
+    //   hidden={!props.show}
+    //   validated={validated}
+    //   onSubmit={async (event) => {
+    //     event?.preventDefault();
+    //     if (!event.currentTarget.checkValidity()) {
+    //       event.stopPropagation();
+    //       return setValidated(true);
+    //     }
 
-        const toastId = toast.loading("Please wait...");
+    //     const toastId = toast.loading("Please wait...");
 
-        try {
-          // NOTE: This is fix strange bug (https://github.com/fkhadra/react-toastify/issues/575)
-          await new Promise<void>((resolve) =>
-            setTimeout(() => resolve(), 1000)
-          );
+    //     try {
+    //       // NOTE: This is fix strange bug (https://github.com/fkhadra/react-toastify/issues/575)
+    //       await new Promise<void>((resolve) =>
+    //         setTimeout(() => resolve(), 1000)
+    //       );
 
-          toast.update(toastId, {
-            ...ToastDefault,
-            render: await onAction(pattern.action),
-            type: "success",
-            isLoading: false,
-            transition: Bounce,
-          });
+    //       toast.update(toastId, {
+    //         ...ToastDefault,
+    //         render: await onAction(pattern.action),
+    //         type: "success",
+    //         isLoading: false,
+    //         transition: Bounce,
+    //       });
 
-          setTimeout(() => window.location.reload(), 5000);
-          toast("Page will be refresh after 5s", {
-            ...ToastDefault,
-            autoClose: 5000,
-            transition: Bounce,
-            type: "info",
-          });
-        } catch (err: any) {
-          toast.update(toastId, {
-            ...ToastDefault,
-            render: err,
-            type: "error",
-            isLoading: false,
-            transition: Bounce,
-          });
-        }
-      }}
-    >
-      <Form.Row>
-        <Form.Group className="pl-4 mb-1 w-100">
-          <h4 className="font-weight-bold mb-3">Patterns</h4>
-          <hr />
-        </Form.Group>
-        <Form.Group className="mb-0 w-100">
-          <DefaultMoreOptions
-            root={PREFIX}
-            readFrom={PREFIX}
-            onValidate={() => {
-              if (pattern.id != -1) return true;
+    //       setTimeout(() => window.location.reload(), 5000);
+    //       toast("Page will be refresh after 5s", {
+    //         ...ToastDefault,
+    //         autoClose: 5000,
+    //         transition: Bounce,
+    //         type: "info",
+    //       });
+    //     } catch (err: any) {
+    //       toast.update(toastId, {
+    //         ...ToastDefault,
+    //         render: err,
+    //         type: "error",
+    //         isLoading: false,
+    //         transition: Bounce,
+    //       });
+    //     }
+    //   }}
+    // >
+    //   <Form.Row>
+    //     <Form.Group className="pl-4 mb-1 w-100">
+    //       <h4 className="font-weight-bold mb-3">Patterns</h4>
+    //       <hr />
+    //     </Form.Group>
+    //     <Form.Group className="mb-0 w-100">
+    //       <DefaultMoreOptions
+    //         root={PREFIX}
+    //         readFrom={PREFIX}
+    //         onValidate={() => {
+    //           if (pattern.id != -1) return true;
 
-              toast.error("Pattern is not chosen", {
-                ...ToastDefault,
-                type: "error",
-                transition: Bounce,
-              });
-              return false;
-            }}
-            onDelete={() => onAction("delete")}
-          >
-            <DefaultPatternForm root={PREFIX} readFrom={PREFIX} />
-          </DefaultMoreOptions>
-        </Form.Group>
+    //           toast.error("Pattern is not chosen", {
+    //             ...ToastDefault,
+    //             type: "error",
+    //             transition: Bounce,
+    //           });
+    //           return false;
+    //         }}
+    //         onDelete={() => onAction("delete")}
+    //       >
+    //         <DefaultPatternForm root={PREFIX} readFrom={PREFIX} />
+    //       </DefaultMoreOptions>
+    //     </Form.Group>
 
-        <Form.Group className="w-100">
-          <hr hidden={!pattern.info} />
-          <InfiniteScroll
-            className="row justify-content-center"
-            dataLength={pattern.items.length}
-            next={onLoadNext}
-            hasMore={hasMore}
-            loader={
-              <Col
-                xs="10"
-                sm="4"
-                md="6"
-                lg="4"
-                xl="3"
-                className="my-3 text-center"
-              >
-                <Container className="d-flex h-100 w-80">
-                  <Col className="align-self-center text-center">
-                    <Spinner animation="border" role="status">
-                      <span className="sr-only">Loading...</span>
-                    </Spinner>
-                  </Col>
-                </Container>
-              </Col>
-            }
-          >
-            {pattern.items.map((item: PatternData, i: number) => {
-              return (
-                <DisplayPattern
-                  key={i}
-                  data={item}
-                  selected={item.id === pattern.id}
-                  event={{
-                    onClick: () => {
-                      dispatch({
-                        type: `${PREFIX}_INIT`.toUpperCase(),
-                        value: item,
-                      });
+    //     <Form.Group className="w-100">
+    //       <hr hidden={!pattern.info} />
+    //       <InfiniteScroll
+    //         className="row justify-content-center"
+    //         dataLength={pattern.items.length}
+    //         next={onLoadNext}
+    //         hasMore={hasMore}
+    //         loader={
+    //           <Col
+    //             xs="10"
+    //             sm="4"
+    //             md="6"
+    //             lg="4"
+    //             xl="3"
+    //             className="my-3 text-center"
+    //           >
+    //             <Container className="d-flex h-100 w-80">
+    //               <Col className="align-self-center text-center">
+    //                 <Spinner animation="border" role="status">
+    //                   <span className="sr-only">Loading...</span>
+    //                 </Spinner>
+    //               </Col>
+    //             </Container>
+    //           </Col>
+    //         }
+    //       >
+    //         {pattern.items.map((item: PatternData, i: number) => {
+    //           return (
+    //             <DisplayPattern
+    //               key={i}
+    //               data={item}
+    //               selected={item.id === pattern.id}
+    //               event={{
+    //                 onClick: () => {
+    //                   dispatch({
+    //                     type: `${PREFIX}_INIT`.toUpperCase(),
+    //                     value: item,
+    //                   });
 
-                      dispatch({
-                        type: `${PREFIX}_INFO_CHANGED`.toUpperCase(),
-                        value: true,
-                      });
+    //                   dispatch({
+    //                     type: `${PREFIX}_INFO_CHANGED`.toUpperCase(),
+    //                     value: true,
+    //                   });
 
-                      setTimeout(
-                        () => window.scrollTo({ top: 0, behavior: "smooth" }),
-                        0
-                      );
-                    },
-                  }}
-                />
-              );
-            })}
-          </InfiniteScroll>
-        </Form.Group>
-      </Form.Row>
-    </Form>
+    //                   setTimeout(
+    //                     () => window.scrollTo({ top: 0, behavior: "smooth" }),
+    //                     0
+    //                   );
+    //                 },
+    //               }}
+    //             />
+    //           );
+    //         })}
+    //       </InfiniteScroll>
+    //     </Form.Group>
+    //   </Form.Row>
+    // </Form>
+    <></>
   );
 }

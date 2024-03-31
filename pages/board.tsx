@@ -4,11 +4,11 @@ import Header from '../components/Header/Header';
 import GlitchItem from '../components/Navbar/GlitchItem';
 import Navbar from '../components/Navbar/Navbar';
 import { Config } from '../config';
-import { PUBLIC_FONT_4BITFONT } from '../constants';
+import { NAVIGATION } from '../constants';
 
-export interface BoardPageProps {}
+export interface BoardProps {}
 
-export default function BoardPage(props: BoardPageProps) {
+export default function Board(props: BoardProps) {
   return (
     <>
       <Header title="Mortis Dashboard"></Header>
@@ -17,7 +17,7 @@ export default function BoardPage(props: BoardPageProps) {
         Navbar={
           <Navbar
             Item={GlitchItem}
-            navigation={Config.self.navigation}
+            navigation={NAVIGATION}
             avatar={Config.self.github}
           />
         }

@@ -1,11 +1,10 @@
-import React, { ComponentType, memo } from 'react';
+import { ComponentType, memo } from 'react';
 import { Disclosure } from '@headlessui/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { StringService } from '../../lib';
 import { usePathname } from 'next/navigation';
 import { NavbarItemProps } from './NavbarItem';
 import Avatar, { AvatarProps } from './Avatar';
-import { faXmark, faBars } from '@fortawesome/free-solid-svg-icons';
+import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
 
 export interface NavbarProps {
   Item: ComponentType<NavbarItemProps>;
@@ -21,11 +20,11 @@ export default memo(function Navbar({ Item, ...props }: NavbarProps) {
     <Disclosure as="nav" className="bg-gray-800">
       {({ open }) => (
         <>
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="px-4 sm:px-6 lg:px-8">
             <div className="flex h-16 items-center justify-between">
               <div className="flex items-center">
                 <div className="hidden md:block">
-                  <div className="ml-10 flex items-baseline space-x-4">
+                  <div className="flex items-baseline space-x-4">
                     {props.navigation.map((item, index) => (
                       <Item
                         key={index}
@@ -42,9 +41,9 @@ export default memo(function Navbar({ Item, ...props }: NavbarProps) {
               </div>
               <div className="-mr-2 flex md:hidden">
                 {/* Mobile menu button */}
-                <Disclosure.Button className="relative inline-flex items-center justify-center rounded-md bg-gray-800 p-2 text-gray-400 hover:bg-gray-700 hover:text-white">
+                <Disclosure.Button className="relative inline-flex items-center justify-center rounded-md bg-gray-700 p-2 text-gray-400 ring-1 ring-gray-600">
                   <FontAwesomeIcon
-                    icon={open ? faXmark : faBars}
+                    icon={faEllipsis}
                     className="block h-6 w-6"
                   />
                 </Disclosure.Button>

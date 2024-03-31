@@ -1,6 +1,6 @@
 import DefaultHeader from '../../../components/admin/default/DefaultHeader';
 import DefaultHead from '../../../components/Header/Header';
-import { checkIfUserExist } from '../../../lib/api/session';
+import { checkIfUserExist } from '../../../lib/auth';
 import { TreeObj } from '../../../types/tree';
 import { basePath, voidUrl } from '../../../config';
 import { ProjectData } from '../../../types/api';

@@ -4,19 +4,20 @@ import Header from '../components/Header/Header';
 import GlitchItem from '../components/Navbar/GlitchItem';
 import Navbar from '../components/Navbar/Navbar';
 import { Config } from '../config';
+import { NAVIGATION } from '../constants';
 
-export interface PortfolioPageProps {}
+export interface ArtPageProps {}
 
-export default function PortfolioPage(props: PortfolioPageProps) {
+export default function ArtPage(props: ArtPageProps) {
   return (
     <>
-      <Header title="Mortis Portfolio"></Header>
+      <Header title="Mortis Art Portfolio"></Header>
 
       <Container
         Navbar={
           <Navbar
             Item={GlitchItem}
-            navigation={Config.self.navigation}
+            navigation={NAVIGATION}
             avatar={Config.self.github}
           />
         }

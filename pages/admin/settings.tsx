@@ -1,6 +1,6 @@
 import DefaultHeader from '../../components/admin/default/DefaultHeader';
 import DefaultHead from '../../components/Header/Header';
-import defaultServerSideHandler from '../../lib/api/session';
+import defaultServerSideHandler from '../../lib/auth';
 import DefaultFooter from '../../components/default/DefaultFooter';
 import { store } from '../../redux/admin/settings/storage';
 import { Provider } from 'react-redux';

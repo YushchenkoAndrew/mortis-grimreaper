@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { CommonEntity } from '../entities/common.entity';
+import { CommonEntity } from '../entities/common/common.entity';
 
 export enum RequestPropKey {
   type = 'ENTITY',

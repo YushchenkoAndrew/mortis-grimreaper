@@ -13,28 +13,20 @@ export class Config {
   public readonly base = {
     web: publicRuntimeConfig.BASE_PATH,
     api: publicRuntimeConfig.BASE_PATH + '/api',
+
+    timeout: 5000,
+    // TODO:
+    // ALLOWED_INVALID_LOGINS
   };
 
   public readonly api = {
     url: serverRuntimeConfig.API_URL,
   };
 
-  public readonly fetch = {
-    timeout: 5000,
-  };
-
   public readonly captcha = {
     url: `https://www.google.com/recaptcha/api/siteverify?secret=${serverRuntimeConfig.RECAPTCHA_SECRET_KEY}&response={{captcha}}`,
     sitekey: publicRuntimeConfig.RECAPTCHA_SITE_KEY,
   };
-
-  public readonly navigation = [
-    { name: 'home', href: '/' },
-    { name: 'board', href: '/board' },
-    { name: 'projects', href: '/projects' },
-    { name: 'portfolio', href: '/portfolio' },
-    { name: 'contacts', href: '/contacts' },
-  ];
 
   public readonly github = {
     href: publicRuntimeConfig.GITHUB,

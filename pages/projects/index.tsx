@@ -11,21 +11,21 @@ import { useAppDispatch, useAppSelector } from '../../redux/store';
 import GlitchItem from '../../components/Navbar/GlitchItem';
 import Container from '../../components/Container/Container';
 import {
+  NAVIGATION,
   PUBLIC_FONT_4BITFONT,
   PUBLIC_FONT_ABSTRACT,
   PUBLIC_FONT_ROBOTO,
 } from '../../constants';
 import { Virtuoso } from 'react-virtuoso';
+import { ErrorService } from '../../lib/toast';
+import Breadcrumbs from '../../components/Breadcrumbs/Breadcrumbs';
 
-// const temp =
-
-let page = 1;
-export interface ProjectsListPageProps {
+export interface ProjectsProps {
   // hasMore: boolean;
   // projects: ProjectData[][];
 }
 
-export default function ProjectsListPage(props: ProjectsListPageProps) {
+export default function ProjectsPage(props: ProjectsProps) {
   const dispatch = useAppDispatch();
   const { page, projects } = useAppSelector((state) => state.project);
 
@@ -46,19 +46,21 @@ export default function ProjectsListPage(props: ProjectsListPageProps) {
         Navbar={
           <Navbar
             Item={GlitchItem}
-            navigation={Config.self.navigation}
+            navigation={NAVIGATION}
             avatar={Config.self.github}
           />
         }
+        Breadcrumbs={<Breadcrumbs path={['Home', 'Projects']} />}
       >
         <div className="grid grid-cols-1 items-center gap-x-2 gap-y-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 xl:gap-y-8">
           <Virtuoso
             data={projects}
-            endReached={() => {
-              dispatch(ProjectPageEntity.self.select({ page: page + 1 }))
-                .unwrap()
-                .catch((err) => toast(err.message, { type: 'error' }));
-            }}
+            endReached={() =>
+              ErrorService.envelop(
+                dispatch(ProjectPageEntity.self.select({ page: page + 1 }))
+                  .unwrap,
+              )
+            }
             increaseViewportBy={200}
             itemContent={(_, project) => (
               <Thumbnail

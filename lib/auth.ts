@@ -1,7 +1,7 @@
 // import { withIronSession } from "next-iron-session";
-import sessionConfig from "../../config/session";
+import sessionConfig from '../../config/session';
 // import { NextSessionArgs } from "../../types/session";
-import { basePath } from "../../config";
+import { basePath } from '../config';
 
 export function checkIfUserExist(sessionID: string) {
   // return new Promise<boolean>((resolve) => {
@@ -38,3 +38,7 @@ export function checkIfUserExist(sessionID: string) {
 //     },
 //   };
 // }, sessionConfig);
+
+class AuthService {
+  static validate(req: Request) {}
+}

@@ -1,20 +1,15 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import 'reflect-metadata';
-
-import {
-  PropertyKey,
-  PropertyProps,
-  Property,
-} from '../../decorators/property';
 import {
   Entity,
   RequestPropKey,
   RequestProps,
 } from '../../decorators/request-entity';
 import { ColumnKey, ColumnProps, Column } from '../../decorators/column';
-import { ErrorService, StringService } from '../../lib';
+import { StringService } from '../../lib';
 import { ObjectLiteral } from '../../types';
 import { Config } from '../../config';
+import { ErrorService } from '../../lib/toast';
 
 @Entity()
 export class CommonEntity {
@@ -34,27 +29,22 @@ export class CommonEntity {
    * This method will build response-dto/request-dto
    * @see {@link Column}
    */
-  build<T>(entity: T, request?: true): this {
+  build<T>(entity: T, type: ColumnKey = ColumnKey.type): this {
     if (!entity) return null;
-    // const res = new (this as any).constructor();
+    const keys = this.getGlobal<Set<string>>(ColumnKey.keys) || new Set();
 
-    for (const k of this.getGlobal(ColumnKey.keys) || []) {
-      const req = request && this.getGlobal(ColumnKey.request, k);
-      const transformer = req || this.getGlobal(ColumnKey.type, k);
-
+    for (const k of Array.from(keys)) {
+      const transformer = this.getGlobal(type, k);
       const defined = this.getLocal(ColumnKey.defined, k);
-      if (defined && !req) continue;
 
+      if (defined) continue;
       if (typeof transformer !== 'function') {
         this[k] = entity[k as string];
         continue;
       }
 
       const props: ColumnProps = this.getGlobal(ColumnKey.props, k);
-
-      this[k] =
-        transformer(entity, new PropertyProps({ ...props, self: this })) ??
-        props.default;
+      this[k] = transformer(entity, props) ?? props.default;
     }
 
     return this;
@@ -64,11 +54,9 @@ export class CommonEntity {
    * This method will build response-dto/request-dto
    * @see {@link Column}
    */
-  buildAll<T>(entities: T[], request?: true): this[] {
+  buildAll<T>(entities: T[], type: ColumnKey = ColumnKey.type): this[] {
     return entities?.length
-      ? entities.map((item) =>
-          this.newInstance(this.defined()).build(item, request),
-        )
+      ? entities.map((item) => this.newInstance(this.defined()).build(item, type)) // prettier-ignore
       : [];
   }
 
@@ -90,29 +78,6 @@ export class CommonEntity {
 
   static get self(): CommonEntity {
     return new (this.prototype.constructor as any)();
-  }
-
-  /**
-   * This method will return info about Column
-   * @see {@link Property}
-   */
-  static get columns(): ObjectLiteral<PropertyProps> {
-    const saved = this.prototype.constructor['_columns'];
-    if (saved) return saved;
-
-    const options = {};
-    for (const k of this.self.getGlobal(PropertyKey.keys) || []) {
-      const props = this.self.getGlobal(PropertyKey.props, k);
-      if (props) options[k] = props;
-    }
-
-    return (this.prototype.constructor['_columns'] = options);
-  }
-
-  // NOTE: Singleton
-  private static _columns: ObjectLiteral<PropertyProps>;
-  get columns(): ObjectLiteral<PropertyProps> {
-    return this.constructor['columns'];
   }
 
   get select() {
@@ -162,8 +127,11 @@ export class CommonEntity {
 
     return createAsyncThunk(
       options.action?.save ?? 'action/save',
-      async (init: ObjectLiteral) => {
-        console.log(init);
+      async (init: ObjectLiteral | CommonEntity) => {
+        const instance: CommonEntity =
+          init instanceof CommonEntity
+            ? init.newInstance()
+            : this.newInstance();
 
         return this.newInstance().build(
           await fetch(
@@ -174,7 +142,7 @@ export class CommonEntity {
             ),
             {
               method: options.id ?? (this as any).id ? 'PUT' : 'POST',
-              body: JSON.stringify(this.newInstance(init).build(this, true)),
+              body: JSON.stringify(instance.build(init, ColumnKey.request)),
               headers: { 'Content-Type': 'application/json' },
             },
           ).then((res) => (ErrorService.validate(res), res.json())),
@@ -204,12 +172,12 @@ export class CommonEntity {
     );
   }
 
-  protected getGlobal(type: string, key?: string) {
+  protected getGlobal<T = any>(type: string, key?: string): T {
     if (!key) return Reflect.getMetadata(type, this.constructor.prototype);
     return Reflect.getMetadata(type, this.constructor.prototype, key);
   }
 
-  protected getLocal(type: string, key: string) {
+  protected getLocal<T = any>(type: string, key: string): T {
     return Reflect.getMetadata(type, this, key);
   }
 

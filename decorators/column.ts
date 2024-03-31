@@ -46,36 +46,30 @@ export function Column(transformer?: TransformerT | PropsT, props?: PropsT) {
     const set = (flag: ColumnKey, value: any) =>
       Reflect.defineMetadata(flag, value, target, key);
 
-    const keys = Reflect.getMetadata(ColumnKey.keys, target) || [];
-    Reflect.defineMetadata(ColumnKey.keys, [...keys, key], target);
+    const get = (flag: ColumnKey) => Reflect.getMetadata(flag, target, key);
 
-    if (typeof transformer == 'function' || typeof transformer == 'undefined') {
-      set(ColumnKey.type, transformer ?? true);
-      set(ColumnKey.props, new ColumnProps({ ...(props || {}), key }));
+    const keys: Set<string> = Reflect.getMetadata(ColumnKey.keys, target) || new Set(); // prettier-ignore
+    Reflect.defineMetadata(ColumnKey.keys, keys.add(key), target);
+
+    if (typeof transformer == 'function') {
+      set(ColumnKey.type, transformer);
+      set(ColumnKey.props, new ColumnProps({ ...props, key }));
       return;
     }
 
-    set(ColumnKey.type, true);
-    set(ColumnKey.props, new ColumnProps({ ...transformer, key }));
+    set(ColumnKey.type, get(ColumnKey.type) ?? true);
+    set(ColumnKey.props,new ColumnProps({ ...transformer, ...get(ColumnKey.props), key })); // prettier-ignore
   };
 }
 
 export function Request(transformer?: TransformerT | PropsT, props?: PropsT) {
   return function (target: any, key: string) {
-    const set = (flag: ColumnKey, value: any) =>
-      Reflect.defineMetadata(flag, value, target, key);
-
-    // const keys = Reflect.getMetadata(ColumnKey.keys, target) || [];
-    // Reflect.defineMetadata(ColumnKey.keys, [...keys, key], target);
-
-    if (typeof transformer == 'function' || typeof transformer == 'undefined') {
-      set(ColumnKey.request, transformer ?? true);
-      // set(ColumnKey.props, new ColumnProps({ ...(props || {}), key }));
-      return;
-    }
-
-    // NOTE: For now I don't see any reason to impl this
-    // set(ColumnKey.type, true);
-    // set(ColumnKey.props, new ColumnProps({ ...transformer, key }));
+    Column()(target, key);
+    Reflect.defineMetadata(
+      ColumnKey.request,
+      typeof transformer == 'function' ? transformer : true,
+      target,
+      key,
+    );
   };
 }

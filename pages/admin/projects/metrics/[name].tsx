@@ -11,7 +11,7 @@ import DisplayRunningLine from '../../../../components/Display/RunningLine';
 import { basePath } from '../../../../config';
 import sessionConfig from '../../../../config/session';
 import { LoadRecords } from '../../../../lib/api/api';
-import { checkIfUserExist } from '../../../../lib/api/session';
+import { checkIfUserExist } from '../../../../lib/auth';
 import { FormatDate } from '../../../../lib/public/string';
 import { store } from '../../../../redux/admin/projects/metrics/storage';
 import { MetricsData, ProjectData } from '../../../../types/api';

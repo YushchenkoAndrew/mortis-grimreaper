@@ -2,24 +2,9 @@ import { useState } from 'react';
 import DefaultHeader from '../../components/admin/default/DefaultHeader';
 import DefaultFooter from '../../components/default/DefaultFooter';
 import DefaultHead from '../../components/Header/Header';
-import DefaultNav from '../../components/default/DefaultNav';
-import { checkIfUserExist } from '../../lib/api/session';
-import { ProjectData } from '../../types/api';
-import { basePath, voidUrl } from '../../config';
-import { FlagType } from '../../types/flag';
-import { formPath } from '../../lib/public/files';
-import { preloadData } from '../../lib/public/api';
-import sessionConfig from '../../config/session';
-import { DefaultRes } from '../../types/request';
-import 'react-toastify/dist/ReactToastify.css';
-import { LoadRecords } from '../../lib/api/api';
-import AddCard from '../../components/Cards/AddCard';
-import AdminCard from '../../components/Cards/AdminCard';
+import { checkIfUserExist } from '../../lib/auth';
 
-export interface AdminProjectsProps {
-  hasMore: boolean;
-  projects: ProjectData[];
-}
+export interface AdminProjectsProps {}
 
 // function FetchHandler(url: string, type: string = "Project") {
 //   return new Promise((resolve, reject) => {

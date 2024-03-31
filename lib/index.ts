@@ -59,16 +59,6 @@ export class ArrayService {
   }
 }
 
-export class ErrorService {
-  static validate(res: Response) {
-    if (res.ok) return;
-    throw new Error(
-      // `HTTP  status code: ${res.status}; '${res.url.replace(API_URL, '')}'`,
-      `HTTP  status code: ${res.status}; '${res.url.replace('', '')}'`,
-    );
-  }
-}
-
 export class ObjectService {
   static keys<T extends object>(obj: T): (keyof T)[] {
     return Object.keys(obj) as any;

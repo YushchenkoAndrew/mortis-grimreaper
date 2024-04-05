@@ -36,15 +36,14 @@ export class CommonEntity {
     for (const k of Array.from(keys)) {
       const transformer = this.getGlobal(type, k);
       const defined = this.getLocal(ColumnKey.defined, k);
+      const props: ColumnProps = this.getGlobal(ColumnKey.props, k);
 
       if (defined) continue;
-      if (typeof transformer !== 'function') {
-        this[k] = entity[k as string];
-        continue;
-      }
+      if (typeof transformer === 'function') {
+        this[k] = transformer(entity, props) ?? props.default;
+      } else this[k] = entity[k as string] ?? props.default;
 
-      const props: ColumnProps = this.getGlobal(ColumnKey.props, k);
-      this[k] = transformer(entity, props) ?? props.default;
+      if (props.nullable) this[k] ??= null;
     }
 
     return this;

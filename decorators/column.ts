@@ -30,12 +30,12 @@ export class ColumnProps {
    * Define default value that will be assigned if entity doesn't has requested
    * property, default values is ```null```
    */
-  default: any = null;
+  default: any;
 
   /**
-   * If set to ```true``` then will overwrite property to {@link default} value
+   * If set to ```true``` then will set ```null``` if property is undefined
    */
-  overwrite: true;
+  nullable: true;
 }
 
 type TransformerT = (entity: any, props: ColumnProps) => any;

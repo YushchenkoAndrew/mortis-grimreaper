@@ -6,6 +6,7 @@ import {
   useStore,
 } from 'react-redux';
 import { loginStore } from './reducer/admin/login.reducer';
+import { projectFormStore } from './reducer/admin/projects/project-form.reducer';
 import { projectStore } from './reducer/project.reducer';
 
 export const store = () => {
@@ -14,6 +15,9 @@ export const store = () => {
       project: projectStore.reducer,
       admin: combineReducers({
         login: loginStore.reducer,
+        projects: combineReducers({
+          form: projectFormStore.reducer,
+        }),
       }),
     },
 

@@ -6,9 +6,7 @@ import Navbar from '../components/Navbar/Navbar';
 import { Config } from '../config';
 import { NAVIGATION } from '../constants';
 
-export interface ArtPageProps {}
-
-export default function ArtPage(props: ArtPageProps) {
+export default function () {
   return (
     <>
       <Header title="Mortis Art Portfolio"></Header>
@@ -17,7 +15,7 @@ export default function ArtPage(props: ArtPageProps) {
         Navbar={
           <Navbar
             Item={GlitchItem}
-            navigation={NAVIGATION}
+            navigation={NAVIGATION.default}
             avatar={Config.self.github}
           />
         }

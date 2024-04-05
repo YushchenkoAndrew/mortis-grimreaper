@@ -1,18 +1,19 @@
 export interface ContainerProps {
   Navbar?: React.ReactNode;
-  Breadcrumbs?: React.ReactNode;
+  Actions?: React.ReactNode;
 
   children?: React.ReactNode;
+  className?: string;
 }
 
 export default function Container(props: ContainerProps) {
   return (
-    <div className="min-h-full">
+    <div className={`${props.className ?? ''} min-h-full`}>
       {props.Navbar}
 
-      <header className="bg-white shadow">
+      <header className="bg-transparent shadow">
         <div className="ml-2 max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          {props.Breadcrumbs}
+          {props.Actions}
         </div>
       </header>
       <main>

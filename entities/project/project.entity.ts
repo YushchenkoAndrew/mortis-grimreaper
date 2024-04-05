@@ -17,6 +17,9 @@ export class ProjectEntity extends IdEntity {
   @Column()
   description: string;
 
+  @Column({ nullable: true })
+  footer: string;
+
   @Column((e) => ProjectTypeEnum[e.type] ?? ProjectTypeEnum.html)
   type: ProjectTypeEnum;
 

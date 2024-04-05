@@ -20,12 +20,7 @@ import { Virtuoso } from 'react-virtuoso';
 import { ErrorService } from '../../lib/toast';
 import Breadcrumbs from '../../components/Breadcrumbs/Breadcrumbs';
 
-export interface ProjectsProps {
-  // hasMore: boolean;
-  // projects: ProjectData[][];
-}
-
-export default function ProjectsPage(props: ProjectsProps) {
+export default function () {
   const dispatch = useAppDispatch();
   const { page, projects } = useAppSelector((state) => state.project);
 
@@ -46,11 +41,11 @@ export default function ProjectsPage(props: ProjectsProps) {
         Navbar={
           <Navbar
             Item={GlitchItem}
-            navigation={NAVIGATION}
+            navigation={NAVIGATION.default}
             avatar={Config.self.github}
           />
         }
-        Breadcrumbs={<Breadcrumbs path={['Home', 'Projects']} />}
+        Actions={<Breadcrumbs path={['Home', 'Projects']} />}
       >
         <div className="grid grid-cols-1 items-center gap-x-2 gap-y-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 xl:gap-y-8">
           <Virtuoso

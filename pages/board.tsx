@@ -6,9 +6,7 @@ import Navbar from '../components/Navbar/Navbar';
 import { Config } from '../config';
 import { NAVIGATION } from '../constants';
 
-export interface BoardProps {}
-
-export default function Board(props: BoardProps) {
+export default function () {
   return (
     <>
       <Header title="Mortis Dashboard"></Header>
@@ -17,7 +15,7 @@ export default function Board(props: BoardProps) {
         Navbar={
           <Navbar
             Item={GlitchItem}
-            navigation={NAVIGATION}
+            navigation={NAVIGATION.default}
             avatar={Config.self.github}
           />
         }

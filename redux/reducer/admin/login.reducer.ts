@@ -8,7 +8,7 @@ type LoginStoreT = Pick<LoginEntity, 'username' | 'password'> & {
 };
 
 export const loginStore = createSlice({
-  name: 'login',
+  name: 'admin-login',
   initialState: {
     username: '',
     password: '',

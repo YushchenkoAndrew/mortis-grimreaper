@@ -1,13 +1,11 @@
 import React from 'react';
-import DefaultHeader from '../../components/admin/default/DefaultHeader';
-import Breadcrumbs from '../../components/Breadcrumbs/Breadcrumbs';
-import Container from '../../components/Container/Container';
-import Header from '../../components/Header/Header';
-import DefaultHead from '../../components/Header/Header';
-import GlitchItem from '../../components/Navbar/GlitchItem';
-import Navbar from '../../components/Navbar/Navbar';
-import { Config } from '../../config';
-import { NAVIGATION } from '../../constants';
+import Breadcrumbs from '../../../components/Breadcrumbs/Breadcrumbs';
+import Container from '../../../components/Container/Container';
+import Header from '../../../components/Header/Header';
+import Navbar from '../../../components/Navbar/Navbar';
+import NavbarItem from '../../../components/Navbar/NavbarItem';
+import { Config } from '../../../config';
+import { NAVIGATION } from '../../../constants';
 // import defaultServerSideHandler from '../../lib/api/session';
 
 export default function () {
@@ -18,8 +16,8 @@ export default function () {
       <Container
         Navbar={
           <Navbar
-            Item={GlitchItem}
-            navigation={NAVIGATION.default}
+            Item={NavbarItem}
+            navigation={NAVIGATION.admin}
             avatar={Config.self.github}
           />
         }

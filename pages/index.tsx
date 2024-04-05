@@ -9,7 +9,7 @@ import DefaultHeadShape from '../components/default/ShapeDivider/DefaultHeadShap
 import DefaultContactMeShape from '../components/default/ShapeDivider/DefaultContactMeShape';
 import { MediaView } from '../components/default/DefaultLinks';
 
-export default function Index() {
+export default function () {
   return (
     <>
       <DefaultHead>

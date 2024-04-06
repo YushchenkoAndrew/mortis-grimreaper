@@ -9,6 +9,7 @@ type ProjectFormStoreT = Pick<
 > & {
   step: ProjectStepEnum;
   processing: boolean;
+  readme: boolean;
 };
 
 export const projectFormStore = createSlice({
@@ -20,6 +21,7 @@ export const projectFormStore = createSlice({
     name: '',
     description: '',
     footer: '',
+    readme: false,
 
     processing: false,
   } as ProjectFormStoreT,
@@ -38,6 +40,9 @@ export const projectFormStore = createSlice({
     },
     setFooter: (state, action: PayloadAction<string>) => {
       state.footer = action.payload || '';
+    },
+    invertREADME: (state) => {
+      state.readme = !state.readme;
     },
   },
   extraReducers(builder) {

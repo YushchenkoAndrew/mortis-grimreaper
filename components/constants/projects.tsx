@@ -10,9 +10,15 @@ import { ProjectTypeEnum } from '../../entities/project/types/project-type.enum'
 
 export const PROJECT_FORM_STEPS = {
   [ProjectStepEnum.resources]: 'Resources',
-  [ProjectStepEnum.attachments]: 'Attachments',
   [ProjectStepEnum.links]: 'Links',
+  [ProjectStepEnum.attachments]: 'Attachments',
   [ProjectStepEnum.review]: 'Review',
+};
+
+export const PROJECT_FILE_ACTIONS = {
+  create: 'Create File',
+  upload: 'Upload File',
+  delete: 'Delete File',
 };
 
 export const PROJECT_TYPES_OPTIONS = {

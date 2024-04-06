@@ -10,6 +10,7 @@ import { StringService } from '../../lib';
 import { ObjectLiteral } from '../../types';
 import { Config } from '../../config';
 import { ErrorService } from '../../lib/toast';
+import moment from 'moment';
 
 @Entity()
 export class CommonEntity {
@@ -69,6 +70,45 @@ export class CommonEntity {
     }
 
     return res;
+  }
+
+  /**
+   * This method will return str
+   * @see {@link Column}
+   */
+  stringify(key: string): string {
+    const keys = this.getGlobal<Set<string>>(ColumnKey.keys) || new Set();
+    if (!keys.has(key)) return '';
+
+    const transformer = this.getGlobal(ColumnKey.string, key);
+    const props: ColumnProps = this.getGlobal(ColumnKey.props, key);
+
+    const serializer = (value: any) => {
+      if (value === '' || value === null || value === undefined) return '';
+
+      if (Number(value)) {
+        const result = Number(value);
+        return result % 1 !== 0 ? result.toFixed(2) : result.toString();
+      }
+
+      if (value instanceof Date) return value.toISOString();
+      if (typeof value === 'string' && moment(value).isValid()) {
+        return moment(value).toISOString();
+      }
+
+      if (typeof value === 'object' && typeof value.toString === 'function') {
+        return value.toString();
+      }
+
+      return String(value);
+    };
+
+    if (typeof transformer === 'function') {
+      const result = transformer(this[key], props);
+      return props.serializer ? serializer(result) : String(result);
+    }
+
+    return props.serializer ? serializer(this[key]) : String(this[key]);
   }
 
   newInstance(props?: any): this {

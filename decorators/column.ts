@@ -4,6 +4,7 @@ import { CommonEntity } from '../entities/common/common.entity';
 export enum ColumnKey {
   type = 'COLUMN',
   props = 'COLUMN_PROPS',
+  string = 'COLUMN_STRING',
   request = 'COLUMN_REQUEST',
   defined = 'COLUMN_DEFINED',
   keys = 'COLUMN_KEYS',
@@ -36,6 +37,11 @@ export class ColumnProps {
    * If set to ```true``` then will set ```null``` if property is undefined
    */
   nullable: true;
+
+  /**
+   * If set to ```true``` then will pass result through string serializer
+   */
+  serializer: boolean;
 }
 
 type TransformerT = (entity: any, props: ColumnProps) => any;

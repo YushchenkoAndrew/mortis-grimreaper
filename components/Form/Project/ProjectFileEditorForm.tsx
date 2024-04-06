@@ -1,29 +1,22 @@
 import { Dispatch } from 'react';
-import { Config } from '../../../config';
 import { useAppDispatch, useAppSelector } from '../../../redux/store';
+import { AceEditor } from '../../dynamic';
 import NextFormElement from '../Elements/NextFormElement';
 
-export interface ProjectSourceFormProps {
+export interface ProjectFileEditorFormProps {
   next: Dispatch<void>;
 }
 
-export default function ProjectSourceForm(props: ProjectSourceFormProps) {
+export default function ProjectFileEditorForm(
+  props: ProjectFileEditorFormProps,
+) {
   const dispatch = useAppDispatch();
   const form = useAppSelector((state) => state.admin.projects.form);
 
   return (
     <>
-      <div className="flex items-center">
-        <img
-          className="h-14 w-auto rounded my-8 mr-3"
-          src={Config.self.github.src}
-          alt="Admin"
-        />
-
-        <span className="text-2xl font-semibold">{form.name}</span>
-      </div>
-      {/* <AceEditor
-        className="w-full"
+      <AceEditor
+        className="w-full h-full"
         mode="javascript"
         theme="tomorrow_night"
         name="blah2"
@@ -45,7 +38,7 @@ export default function ProjectSourceForm(props: ProjectSourceFormProps) {
           highlightGutterLine: true,
           enableSnippets: false,
         }}
-      /> */}
+      />
 
       <NextFormElement processing={form.processing} next={props.next} />
       {/* </div> */}

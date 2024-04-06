@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Dispatch } from 'react';
 
 export interface NextFormElementProps {
+  name?: string;
   processing?: boolean;
   next: Dispatch<void>;
   back?: Dispatch<void>;
@@ -26,7 +27,7 @@ export default function NextFormElement(props: NextFormElementProps) {
         type="button"
         onClick={() => props.next()}
       >
-        Next
+        {props.name || 'Next'}
         <FontAwesomeIcon
           className={`${
             props.processing ? 'block' : 'hidden'

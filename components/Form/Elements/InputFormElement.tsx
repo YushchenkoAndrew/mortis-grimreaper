@@ -19,7 +19,7 @@ export interface InputFormElementProps {
 export default function InputFormElement(props: InputFormElementProps) {
   const [error, onError] = useState(false);
   return (
-    <div className={`${props.className || ''} max-w-xl `}>
+    <div className={props.className || ''}>
       <label className="block text-sm font-medium leading-6 text-gray-800">
         {props.name}
         {props.required ? (

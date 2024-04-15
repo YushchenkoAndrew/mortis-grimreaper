@@ -1,12 +1,12 @@
-import InputName from "../../../Inputs/InputName";
-import InputRadio from "../../../Inputs/InputRadio";
-import InputSuffixName from "../../../Inputs/InputSuffixName";
-import InputTemplate from "../../../Inputs/InputTemplate";
-import InputValue from "../../../Inputs/InputValue";
-import { useDispatch, useSelector } from "react-redux";
-import { DisplayPattern } from "../../../Display/DisplayPattern";
-import { PatternData } from "../../../../types/api";
-import { StateToData } from "../../../../redux/admin/settings/reducer/pattern";
+import InputName from '../../../Inputs/InputName';
+import InputRadio from '../../../Inputs/InputRadio';
+import InputSuffixName from '../../../Inputs/InputSuffixName';
+import InputTemplate from '../../../Inputs/InputTemplate';
+import InputValue from '../../../Inputs/InputValue';
+import { useDispatch, useSelector } from 'react-redux';
+import { DisplayPattern } from '../../../Display/DisplayPattern';
+import { PatternData } from '../../../../lib/common/types/api';
+import { StateToData } from '../../../../redux/admin/settings/reducer/pattern';
 
 export interface DefaultPatternFormProps {
   root: string;
@@ -17,7 +17,7 @@ export interface DefaultPatternFormProps {
 export default function DefaultPatternForm(props: DefaultPatternFormProps) {
   const dispatch = useDispatch();
   const pattern = useSelector((state: any) =>
-    props.readFrom.split("_").reduce((acc, curr) => acc[curr], state)
+    props.readFrom.split('_').reduce((acc, curr) => acc[curr], state),
   );
 
   return (

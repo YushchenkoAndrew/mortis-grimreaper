@@ -1,6 +1,6 @@
-import { FlagType } from "../../types/flag";
-import DefaultJsProject from "./DefaultJsProject";
-import DefaultMarkdownProject from "./DefaultMarkdownProject";
+import { FlagType } from '../../lib/common/types/flag';
+import DefaultJsProject from './DefaultJsProject';
+import DefaultMarkdownProject from './DefaultMarkdownProject';
 
 export interface DefaultTemplateProps {
   name: string;
@@ -10,10 +10,10 @@ export interface DefaultTemplateProps {
 
 export default function DefaultTemplate(props: DefaultTemplateProps) {
   switch (props.flag) {
-    case "JS":
+    case 'JS':
       return <DefaultJsProject name={props.name} template={props.template} />;
 
-    case "Markdown":
+    case 'Markdown':
       return (
         <DefaultMarkdownProject name={props.name} template={props.template} />
       );

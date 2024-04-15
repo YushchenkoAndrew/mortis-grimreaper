@@ -1,10 +1,10 @@
-import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { svgBuild } from "../../lib/public/svg";
-import { PatternData } from "../../types/api";
-import DisplayDataRecord from "./DisplayDataRecord";
-import styles from "./DisplayPattern.module.scss";
+import { svgBuild } from '../../lib/public/svg';
+import { PatternData } from '../../lib/common/types/api';
+import DisplayDataRecord from './DisplayDataRecord';
+import styles from './DisplayPattern.module.scss';
 
 export interface DisplayPatternProps extends ColProps {
   data: PatternData;

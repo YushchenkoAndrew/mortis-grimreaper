@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { CaptchaService } from '../../../../lib/captcha';
+import { CaptchaService } from '../../../../lib/captcha/captcha.service';
 
 export default async function handler(
   req: NextApiRequest,

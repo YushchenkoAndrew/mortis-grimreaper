@@ -1,25 +1,25 @@
-import { faCube } from "@fortawesome/free-solid-svg-icons";
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { faCube } from '@fortawesome/free-solid-svg-icons';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { basePath } from "../../../../config";
-import { ToastDefault } from "../../../../config/alert";
-import { CacheId } from "../../../../lib/public";
-import { preloadData } from "../../../../lib/public/api";
-import { palette } from "../../../../lib/public/svg";
-import { StateToData } from "../../../../redux/admin/settings/reducer/pattern";
-import { ColorData } from "../../../../types/api";
-import { DefaultRes } from "../../../../types/request";
-import { DisplayColors } from "../../../Display/DisplayColors";
-import HoverButton from "../../../HoverButton";
-import DefaultColorsForm from "./DefaultColorsForm";
-import DefaultMoreOptions from "./DefaultMoreOptions";
+import { basePath } from '../../../../config';
+import { ToastDefault } from '../../../../config/alert';
+import { CacheId } from '../../../../lib/public';
+import { preloadData } from '../../../../lib/public/api';
+import { palette } from '../../../../lib/public/svg';
+import { StateToData } from '../../../../redux/admin/settings/reducer/pattern';
+import { ColorData } from '../../../../lib/common/types/api';
+import { DefaultRes } from '../../../../lib/common/types/request';
+import { DisplayColors } from '../../../Display/DisplayColors';
+import HoverButton from '../../../HoverButton';
+import DefaultColorsForm from './DefaultColorsForm';
+import DefaultMoreOptions from './DefaultMoreOptions';
 
 export interface DefaultColorsProps {
   show?: boolean;
 }
 
-const PREFIX = "colors";
+const PREFIX = 'colors';
 
 export default function DefaultColors(props: DefaultColorsProps) {
   const [hasMore, onReachEnd] = useState(true);
@@ -44,12 +44,12 @@ export default function DefaultColors(props: DefaultColorsProps) {
   }, []);
 
   async function onLoadNext() {
-    preloadData("colors", colors.page + 1)
+    preloadData('colors', colors.page + 1)
       .then((data) =>
         dispatch({
           type: `${PREFIX}_PAGE_LOADED`.toUpperCase(),
           value: data,
-        })
+        }),
       )
       .catch(() => onReachEnd(false));
   }
@@ -60,20 +60,20 @@ export default function DefaultColors(props: DefaultColorsProps) {
         const res = await fetch(
           `${basePath}/api/colors/${action}?id=${CacheId()}`,
           {
-            method: "POST",
-            headers: { "content-type": "application/json" },
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
             body: JSON.stringify(StateToData(colors)),
-          }
+          },
         );
         const data = (await res.json()) as DefaultRes<ColorData[]>;
-        if (data.status !== "OK" || !data.result?.length) {
+        if (data.status !== 'OK' || !data.result?.length) {
           return reject(data.message);
         }
 
         dispatch({ type: `${PREFIX}_CACHE_FLUSH` });
-        return resolve("New Color was created successfully");
+        return resolve('New Color was created successfully');
       } catch (_) {
-        return reject("Color: Server error");
+        return reject('Color: Server error');
       }
     });
   }

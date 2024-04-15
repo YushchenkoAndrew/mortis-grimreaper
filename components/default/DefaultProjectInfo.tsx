@@ -1,5 +1,5 @@
-import { basePath } from "../../config";
-import { LinkData } from "../../types/api";
+import { basePath } from '../../config';
+import { LinkData } from '../../lib/common/types/api';
 export interface DefaultProjectInfoProps {
   href?: string;
   links?: LinkData[];
@@ -13,18 +13,18 @@ export default function DefaultProjectInfo(props: DefaultProjectInfoProps) {
         Description: <small className="text-muted">{props.description}</small>
       </p>
       <p className="text-dark">
-        {"Source: "}
+        {'Source: '}
         {props.href ? (
           <a
             className="font-weight-bold"
             href={props.href}
             onClick={() =>
-              localStorage.getItem("id")
+              localStorage.getItem('id')
                 ? fetch(
                     `${basePath}/api/view/media?id=${localStorage.getItem(
-                      "id"
+                      'id',
                     )}`,
-                    { method: "PATCH" }
+                    { method: 'PATCH' },
                   )
                     .then((res) => null)
                     .catch((err) => null)
@@ -43,12 +43,12 @@ export default function DefaultProjectInfo(props: DefaultProjectInfoProps) {
                 href={item.link}
                 key={key}
                 onClick={() =>
-                  localStorage.getItem("id")
+                  localStorage.getItem('id')
                     ? fetch(
                         `${basePath}/api/view/media?id=${localStorage.getItem(
-                          "id"
+                          'id',
                         )}`,
-                        { method: "PATCH" }
+                        { method: 'PATCH' },
                       )
                         .then((res) => null)
                         .catch((err) => null)
@@ -57,7 +57,7 @@ export default function DefaultProjectInfo(props: DefaultProjectInfoProps) {
                 target="_blank"
                 rel="noreferrer"
               >
-                {item.name === "main" && !props.href ? "Github" : item.name}
+                {item.name === 'main' && !props.href ? 'Github' : item.name}
               </a>
             ))
           : null}

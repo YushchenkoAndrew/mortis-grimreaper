@@ -9,7 +9,16 @@ module.exports = {
       destination: `${process.env.API_URL}/${dst || src}`,
     });
 
-    return [proxy('projects'), proxy('admin/login', 'login')];
+    return [
+      proxy('projects'),
+      proxy('projects/:id'),
+      proxy('attachments/:id'),
+      proxy('admin/projects'),
+      proxy('admin/projects/:id'),
+      proxy('admin/attachments'),
+      proxy('admin/attachments/:id'),
+      proxy('admin/login', 'login'),
+    ];
   },
 
   env: {},

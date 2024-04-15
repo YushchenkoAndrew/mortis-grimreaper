@@ -1,7 +1,7 @@
 import { AppProps } from 'next/app';
 import { Provider } from 'react-redux';
 import { useRef } from 'react';
-import { AppStore, store } from '../redux/store';
+import { AppStore, store } from '../lib/common/store';
 import { ToastContainer } from 'react-toastify';
 import { config } from '@fortawesome/fontawesome-svg-core';
 

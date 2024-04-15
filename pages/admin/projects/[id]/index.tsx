@@ -1,7 +1,9 @@
 import { faFile } from '@fortawesome/free-regular-svg-icons';
 import { faFolder } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { marked } from 'marked';
+import { GetServerSidePropsContext } from 'next';
+import { useRouter } from 'next/router';
+import { useEffect, useRef } from 'react';
 import { PROJECT_FILE_ACTIONS } from '../../../../components/constants/projects';
 import Container from '../../../../components/Container/Container';
 import { RenderHtml } from '../../../../components/dynamic';
@@ -12,11 +14,40 @@ import Navbar from '../../../../components/Navbar/Navbar';
 import NavbarItem from '../../../../components/Navbar/NavbarItem';
 import { Config } from '../../../../config';
 import { NAVIGATION } from '../../../../constants';
-import { useAppDispatch, useAppSelector } from '../../../../redux/store';
+import { AttachmentEntity } from '../../../../lib/attachment/entities/attachment.entity';
+import { AdminProjectEntity } from '../../../../lib/project/entities/admin-project.entity';
+import { ErrorService } from '../../../../lib/common/error.service';
+import { AdminProjectStore } from '../../../../lib/project/stores/admin-project.store';
+import { useAppDispatch, useAppSelector } from '../../../../lib/common/store';
+import { AttachmentService } from '../../../../lib/attachment/attachment.service';
+import { AdminAttachmentEntity } from '../../../../lib/attachment/entities/admin-attachment.entity';
+import { AttachmentAttachableTypeEnum } from '../../../../lib/attachment/types/attachment-attachable-type.enum';
 
 export default function () {
+  const router = useRouter();
   const dispatch = useAppDispatch();
-  const form = useAppSelector((state) => state.admin.projects.form);
+  const project = useAppSelector((state) => state.admin.projects.index);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const redirect = (path: string[]) =>
+    router.push({
+      pathname: `${router.route}/tree/[...path]`,
+      query: { ...router.query, path },
+    });
+
+  useEffect(() => {
+    ErrorService.envelop(async () => {
+      const project = (await dispatch(
+        AdminProjectEntity.self.load.thunk(router.query.id),
+      ).unwrap()) as AdminProjectEntity;
+
+      const readme = AttachmentService.readme(project.attachments);
+      if (!readme) return;
+
+      const preview = await AttachmentEntity.self.load.markdown(readme.id);
+      dispatch(AdminProjectStore.actions.setREADME(preview));
+    });
+  }, []);
 
   return (
     <>
@@ -36,50 +67,76 @@ export default function () {
             <img
               className="h-14 w-auto rounded my-8 mr-3"
               src={Config.self.github.src}
-              alt="Admin"
+              alt="thumbnailLL"
             />
 
-            <span className="text-2xl font-semibold">
-              {form.name || 'test'}
-            </span>
+            <span className="text-2xl font-semibold">{project.name}</span>
+            <input
+              ref={fileRef}
+              type="file"
+              className="hidden"
+              onChange={(event) =>
+                ErrorService.envelop(async () => {
+                  await Promise.all(
+                    Array.from(event.target.files).map((file) =>
+                      AdminAttachmentEntity.self.save.build(
+                        new AdminAttachmentEntity({
+                          path: '/',
+                          file: file as any,
+                          attachable_id: project.id,
+                          attachable_type:
+                            AttachmentAttachableTypeEnum.projects,
+                        }),
+                        false,
+                      ),
+                    ),
+                  );
+
+                  await dispatch(
+                    AdminProjectEntity.self.load.thunk(router.query.id),
+                  ).unwrap();
+                })
+              }
+            />
             <MenuFormElement
               className="ml-auto"
               name="Action"
               actions={PROJECT_FILE_ACTIONS}
-              onChange={() => null}
+              onChange={(action) => {
+                switch (action) {
+                  case 'upload':
+                    return fileRef.current.click();
+                }
+              }}
             />
           </div>
           <TableFormElement
             className="mb-8"
-            columns={{ name: 'Name', updated_at: 'Last updated' }}
-            data={[
-              {
-                id: 'yes1',
-                name: '/Test.js',
-                updated_at: '2024-04-05T21:41:26.660Z',
-              },
-
-              {
-                id: 'yes2',
-                name: '/temp/Test2.js',
-                updated_at: '2024-04-05T21:41:26.660Z',
-              },
-            ]}
-            first={(value) => {
-              const index = value.indexOf('/', 1);
-              return (
+            columns={{ name: 'Name', created_at: 'Last updated' }}
+            data={AttachmentService.toList<AdminAttachmentEntity>(
+              project.attachments,
+            )}
+            onClick={(attachment) =>
+              redirect(AttachmentService.filepath(attachment))
+            }
+            stringify={{
+              name: (attachment) => (
                 <span className="flex text-gray-800 whitespace-nowrap">
                   <FontAwesomeIcon
                     className="text-gray-500 text-lg mr-2"
-                    icon={index != -1 ? faFolder : faFile}
+                    icon={attachment.type ? faFile : faFolder}
                   />
-                  {value.slice(1, index != -1 ? index : undefined)}
+                  {attachment.name}
                 </span>
-              );
+              ),
             }}
           />
 
-          <div className="relative overflow-x-auto border rounded-md">
+          <div
+            className={`${
+              project.readme ? 'block' : 'hidden'
+            } relative border rounded-md`}
+          >
             <div className="flex text-sm font-medium text-gray-800 bg-gray-100 px-4 py-2">
               <FontAwesomeIcon
                 className="text-gray-500 text-lg mr-1.5"
@@ -89,10 +146,8 @@ export default function () {
             </div>
 
             <RenderHtml
-              className="w-full p-5"
-              html={marked.parse(
-                '# Marked in the browser\n\nRendered by **marked**.',
-              )}
+              className="w-full h-full overflow-y-hidden p-5"
+              html={project.readme}
             />
           </div>
         </div>
@@ -101,4 +156,6 @@ export default function () {
   );
 }
 
-// export const getServerSideProps = defaultServerSideHandler;
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+  return { props: ctx.params };
+}

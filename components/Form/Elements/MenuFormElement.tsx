@@ -5,7 +5,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Menu } from '@headlessui/react';
 import { Dispatch, HTMLInputAutoCompleteAttribute, useState } from 'react';
-import { ObjectLiteral } from '../../../types';
+import { ObjectLiteral } from '../../../lib/common/types';
 
 export interface MenuFormElementProps<T extends ObjectLiteral> {
   className?: string;

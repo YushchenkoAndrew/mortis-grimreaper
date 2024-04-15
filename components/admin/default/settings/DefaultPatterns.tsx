@@ -1,22 +1,22 @@
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { basePath } from "../../../../config";
-import { ToastDefault } from "../../../../config/alert";
-import { CacheId } from "../../../../lib/public";
-import { preloadData } from "../../../../lib/public/api";
-import { StateToData } from "../../../../redux/admin/settings/reducer/pattern";
-import { PatternData } from "../../../../types/api";
-import { DefaultRes } from "../../../../types/request";
-import { DisplayPattern } from "../../../Display/DisplayPattern";
-import DefaultMoreOptions from "./DefaultMoreOptions";
-import DefaultPatternForm from "./DefaultPatternForm";
+import { basePath } from '../../../../config';
+import { ToastDefault } from '../../../../config/alert';
+import { CacheId } from '../../../../lib/public';
+import { preloadData } from '../../../../lib/public/api';
+import { StateToData } from '../../../../redux/admin/settings/reducer/pattern';
+import { PatternData } from '../../../../lib/common/types/api';
+import { DefaultRes } from '../../../../lib/common/types/request';
+import { DisplayPattern } from '../../../Display/DisplayPattern';
+import DefaultMoreOptions from './DefaultMoreOptions';
+import DefaultPatternForm from './DefaultPatternForm';
 
 export interface DefaultPatternProps {
   show?: boolean;
 }
 
-const PREFIX = "pattern";
+const PREFIX = 'pattern';
 
 export default function DefaultPattern(props: DefaultPatternProps) {
   const [hasMore, onReachEnd] = useState(true);
@@ -41,12 +41,12 @@ export default function DefaultPattern(props: DefaultPatternProps) {
   }, []);
 
   async function onLoadNext() {
-    preloadData("pattern", pattern.page + 1)
+    preloadData('pattern', pattern.page + 1)
       .then((data) =>
         dispatch({
           type: `${PREFIX}_PAGE_LOADED`.toUpperCase(),
           value: data,
-        })
+        }),
       )
       .catch(() => onReachEnd(false));
   }
@@ -57,20 +57,20 @@ export default function DefaultPattern(props: DefaultPatternProps) {
         const res = await fetch(
           `${basePath}/api/pattern/${action}?id=${CacheId()}`,
           {
-            method: "POST",
-            headers: { "content-type": "application/json" },
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
             body: JSON.stringify(StateToData(pattern)),
-          }
+          },
         );
         const data = (await res.json()) as DefaultRes<PatternData[]>;
-        if (data.status !== "OK" || !data.result?.length) {
+        if (data.status !== 'OK' || !data.result?.length) {
           return reject(data.message);
         }
 
         dispatch({ type: `${PREFIX}_CACHE_FLUSH` });
-        return resolve("New Patter was created successfully");
+        return resolve('New Patter was created successfully');
       } catch (_) {
-        return reject("Pattern: Server error");
+        return reject('Pattern: Server error');
       }
     });
   }

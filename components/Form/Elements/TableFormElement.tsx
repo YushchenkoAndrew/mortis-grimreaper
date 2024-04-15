@@ -1,4 +1,5 @@
-import { ObjectLiteral } from '../../../types';
+import { Dispatch } from 'react';
+import { ObjectLiteral } from '../../../lib/common/types';
 
 type IdEntity = { id: string; stringify?: (_: string) => string };
 
@@ -6,7 +7,8 @@ export interface TableFormElementProps<T extends ObjectLiteral & IdEntity> {
   className?: string;
   columns: { [name in keyof T]?: string };
   data: T[];
-  first?: (value: string) => React.ReactNode;
+  stringify?: { [key in keyof T]?: (value: T) => React.ReactNode };
+  onClick?: Dispatch<T>;
 }
 
 export default function TableFormElement<T extends ObjectLiteral & IdEntity>(
@@ -30,7 +32,11 @@ export default function TableFormElement<T extends ObjectLiteral & IdEntity>(
         </thead>
         <tbody>
           {props.data.map((row) => (
-            <tr key={row.id} className="border-b hover:bg-blue-50">
+            <tr
+              key={row.id}
+              className="border-b cursor-pointer hover:bg-blue-50"
+              onClick={() => props.onClick?.(row)}
+            >
               {Object.keys(props.columns).map((col, index) => {
                 const value =
                   typeof row.stringify === 'function'
@@ -39,7 +45,7 @@ export default function TableFormElement<T extends ObjectLiteral & IdEntity>(
 
                 return (
                   <td key={index} className="px-6 py-4 last:text-right">
-                    {props.first && !index ? props.first(value) : value}
+                    {props.stringify?.[col] ? props.stringify[col](row) : value}
                   </td>
                 );
               })}

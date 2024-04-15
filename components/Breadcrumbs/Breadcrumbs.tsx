@@ -1,16 +1,24 @@
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { faAngleRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
-import { IdEntity } from '../../entities/common/id.entity';
+import { IdEntity } from '../../lib/common/entities/id.entity';
+import { DeepEntity } from '../../lib/common/types';
 
-export interface BreadcrumbsProps {
-  path: (string | IdEntity)[];
+export interface BreadcrumbsProps<T extends object> {
+  className?: string;
+  path: (string | DeepEntity<T>)[];
+  icon?: IconProp;
 }
 
-export default function Breadcrumbs(props: BreadcrumbsProps) {
+export default function Breadcrumbs<T extends IdEntity>(
+  props: BreadcrumbsProps<T>,
+) {
   return (
     <ol
-      className="flex items-center text-3xl whitespace-nowrap"
+      className={`${
+        props.className ?? ''
+      } flex items-center text-3xl whitespace-nowrap`}
       aria-label="Breadcrumb"
     >
       {props.path.map((item, index) => {
@@ -21,12 +29,12 @@ export default function Breadcrumbs(props: BreadcrumbsProps) {
               className="flex py-1 px-2 text-lg font-semibold tracking-tight text-gray-900 rounded-md hover:bg-gray-200"
               href={'../'.repeat(count)}
             >
-              {item instanceof IdEntity ? item.name : item}
+              {typeof item == 'object' ? item.name : item}
             </Link>
 
             {count ? (
               <FontAwesomeIcon
-                icon={faAngleRight}
+                icon={props.icon ?? faAngleRight}
                 className="flex-shrink-0 overflow-visible size-4 text-gray-600"
               />
             ) : (

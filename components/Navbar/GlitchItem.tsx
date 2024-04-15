@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { NumberService, StringService } from '../../lib';
+import { NumberService, StringService } from '../../lib/common';
 import styles from './GlitchItem.module.scss';
 import { NavbarItemProps } from './NavbarItem';
 

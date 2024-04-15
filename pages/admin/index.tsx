@@ -23,7 +23,7 @@ export default function () {
             avatar={Config.self.github}
           />
         }
-        Actions={<Breadcrumbs path={['Home', 'Projects']} />}
+        Breadcrumbs={<Breadcrumbs path={['Home', 'Projects']} />}
       >
         {/* <div className="grid grid-cols-1 items-center gap-x-2 gap-y-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 xl:gap-y-8">
           <Virtuoso

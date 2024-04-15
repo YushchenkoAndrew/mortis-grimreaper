@@ -5,9 +5,9 @@ import Thumbnail from '../../components/Thumbnail/Thumbnail';
 import Header from '../../components/Header/Header';
 import Navbar from '../../components/Navbar/Navbar';
 import { Config } from '../../config';
-import { ProjectPageEntity } from '../../entities/project/project-page.entity';
-import { StringService } from '../../lib';
-import { useAppDispatch, useAppSelector } from '../../redux/store';
+import { ProjectPageEntity } from '../../lib/project/project-page.entity';
+import { StringService } from '../../lib/common';
+import { useAppDispatch, useAppSelector } from '../../lib/common/store';
 import GlitchItem from '../../components/Navbar/GlitchItem';
 import Container from '../../components/Container/Container';
 import {
@@ -17,7 +17,7 @@ import {
   PUBLIC_FONT_ROBOTO,
 } from '../../constants';
 import { Virtuoso } from 'react-virtuoso';
-import { ErrorService } from '../../lib/toast';
+import { ErrorService } from '../../lib/common/error.service';
 import Breadcrumbs from '../../components/Breadcrumbs/Breadcrumbs';
 
 export default function () {
@@ -25,7 +25,7 @@ export default function () {
   const { page, projects } = useAppSelector((state) => state.project);
 
   useEffect(() => {
-    dispatch(ProjectPageEntity.self.select({ page: 1 }))
+    dispatch(ProjectPageEntity.self.select.thunk({ page: 1 }))
       .unwrap()
       .catch((err) => toast(err.message, { type: 'error' }));
   }, []);
@@ -45,15 +45,16 @@ export default function () {
             avatar={Config.self.github}
           />
         }
-        Actions={<Breadcrumbs path={['Home', 'Projects']} />}
+        Breadcrumbs={<Breadcrumbs path={['Home', 'Projects']} />}
       >
         <div className="grid grid-cols-1 items-center gap-x-2 gap-y-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 xl:gap-y-8">
           <Virtuoso
             data={projects}
             endReached={() =>
               ErrorService.envelop(
-                dispatch(ProjectPageEntity.self.select({ page: page + 1 }))
-                  .unwrap,
+                dispatch(
+                  ProjectPageEntity.self.select.thunk({ page: page + 1 }),
+                ).unwrap,
               )
             }
             increaseViewportBy={200}

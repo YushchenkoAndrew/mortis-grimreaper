@@ -1,6 +1,6 @@
 import { RadioGroup } from '@headlessui/react';
 import { Dispatch } from 'react';
-import { ObjectLiteral } from '../../types';
+import { ObjectLiteral } from '../../lib/common/types';
 
 export interface RadioProps<T extends ObjectLiteral<React.ReactNode>> {
   className?: string;

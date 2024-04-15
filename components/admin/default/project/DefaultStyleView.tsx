@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ProjectInfo } from '../../../../config/placeholder';
 import { preloadData } from '../../../../lib/public/api';
 import { HEX2HSL, svgBuild } from '../../../../lib/public/svg';
-import { ColorData, PatternData } from '../../../../types/api';
+import { ColorData, PatternData } from '../../../../lib/common/types/api';
 import Thumbnail from '../../../Thumbnail/Thumbnail';
 import { DisplayColors } from '../../../Display/DisplayColors';
 import { DisplayPattern } from '../../../Display/DisplayPattern';

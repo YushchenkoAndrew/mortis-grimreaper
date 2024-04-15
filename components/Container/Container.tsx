@@ -1,6 +1,9 @@
+import Sidebar from '../Sidebar/Sidebar';
+
 export interface ContainerProps {
   Navbar?: React.ReactNode;
-  Actions?: React.ReactNode;
+  Sidebar?: React.ReactNode;
+  Breadcrumbs?: React.ReactNode;
 
   children?: React.ReactNode;
   className?: string;
@@ -8,23 +11,30 @@ export interface ContainerProps {
 
 export default function Container(props: ContainerProps) {
   return (
-    <div className={`${props.className ?? ''} min-h-full`}>
+    <div className="flex flex-col min-h-screen overflow-hidden">
       {props.Navbar}
 
-      <header
-        className={`${
-          props.Actions ? 'block' : 'hidden'
-        } bg-transparent shadow`}
-      >
-        <div className="ml-2 max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          {props.Actions}
-        </div>
-      </header>
-      <main>
-        <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 md:max-w-4xl lg:max-w-7xl lg:px-8">
-          {props.children}
-        </div>
-      </main>
+      <div className="flex">
+        {props.Sidebar}
+        <main className="w-full">
+          <div
+            className={
+              props.className ??
+              'mx-auto max-w-4xl px-4 py-6 sm:px-6 md:max-w-4xl lg:max-w-7xl lg:px-8'
+            }
+          >
+            {props.Breadcrumbs ? (
+              <header className="bg-transparent shadow py-4">
+                {props.Breadcrumbs}
+              </header>
+            ) : (
+              <></>
+            )}
+
+            {props.children}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

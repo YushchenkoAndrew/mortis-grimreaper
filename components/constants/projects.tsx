@@ -5,8 +5,8 @@ import {
 } from '@fortawesome/free-brands-svg-icons';
 import { faGlobe } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ProjectStepEnum } from '../../entities/project/types/project-step.enum';
-import { ProjectTypeEnum } from '../../entities/project/types/project-type.enum';
+import { ProjectStepEnum } from '../../lib/project/types/project-step.enum';
+import { ProjectTypeEnum } from '../../lib/project/types/project-type.enum';
 
 export const PROJECT_FORM_STEPS = {
   [ProjectStepEnum.resources]: 'Resources',

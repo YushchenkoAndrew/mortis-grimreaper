@@ -1,8 +1,8 @@
-import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { ColorData } from "../../types/api";
-import styles from "./DisplayColors.module.scss";
+import { ColorData } from '../../lib/common/types/api';
+import styles from './DisplayColors.module.scss';
 
 // export interface DisplayColorsProps extends ColProps {
 export interface DisplayColorsProps {

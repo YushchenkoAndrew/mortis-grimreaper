@@ -6,11 +6,13 @@ import Radio from '../../../components/Radio/Radio';
 import { Config } from '../../../config';
 import { NAVIGATION } from '../../../constants';
 import { PROJECT_TYPES_OPTIONS } from '../../../components/constants/projects';
-import { useAppDispatch, useAppSelector } from '../../../redux/store';
-import { projectFormStore } from '../../../redux/reducer/admin/projects/project-form.reducer';
+import { useAppDispatch, useAppSelector } from '../../../lib/common/store';
+import { AdminProjectFormStore } from '../../../lib/project/stores/admin-project-form.store';
 import InputFormElement from '../../../components/Form/Elements/InputFormElement';
 import CheckFormElement from '../../../components/Form/Elements/CheckFormElement';
 import NextFormElement from '../../../components/Form/Elements/NextFormElement';
+import { ErrorService } from '../../../lib/common/error.service';
+import { AdminProjectEntity } from '../../../lib/project/entities/admin-project.entity';
 
 export default function () {
   const dispatch = useAppDispatch();
@@ -36,7 +38,7 @@ export default function () {
           <Radio
             name="Project Provider"
             value={form.type}
-            onChange={(e) => dispatch(projectFormStore.actions.setType(e))}
+            onChange={(e) => dispatch(AdminProjectFormStore.actions.setType(e))}
             options={PROJECT_TYPES_OPTIONS}
           ></Radio>
 
@@ -45,7 +47,9 @@ export default function () {
               name="Project Name"
               placeholder="Project Name"
               value={form.name}
-              onChange={(e) => dispatch(projectFormStore.actions.setName(e))}
+              onChange={(e) =>
+                dispatch(AdminProjectFormStore.actions.setName(e))
+              }
               required
             />
 
@@ -55,7 +59,7 @@ export default function () {
               placeholder="Provide project synopsis"
               value={form.description}
               onChange={(e) =>
-                dispatch(projectFormStore.actions.setDescription(e))
+                dispatch(AdminProjectFormStore.actions.setDescription(e))
               }
             />
 
@@ -64,7 +68,9 @@ export default function () {
               description="This input with offer in-depth project description"
               placeholder="Provide in-depth project summary"
               value={form.footer}
-              onChange={(e) => dispatch(projectFormStore.actions.setFooter(e))}
+              onChange={(e) =>
+                dispatch(AdminProjectFormStore.actions.setFooter(e))
+              }
             />
 
             <div>
@@ -77,7 +83,7 @@ export default function () {
                 description="Delivers a comprehensive project overview from development point perspective"
                 value={form.readme}
                 onChange={() =>
-                  dispatch(projectFormStore.actions.invertREADME())
+                  dispatch(AdminProjectFormStore.actions.invertREADME())
                 }
               />
             </div>
@@ -85,7 +91,11 @@ export default function () {
             <NextFormElement
               name="Create project"
               processing={form.processing}
-              next={() => null}
+              next={() =>
+                ErrorService.envelop(
+                  dispatch(AdminProjectEntity.self.save(form)).unwrap,
+                )
+              }
             />
           </div>
         </div>

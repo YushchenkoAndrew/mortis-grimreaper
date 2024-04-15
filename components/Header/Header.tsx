@@ -2,7 +2,7 @@ import Head from 'next/head';
 import React, { memo } from 'react';
 import { Config } from '../../config';
 import { PUBLIC_FONT_4BITFONT } from '../../constants';
-import { StringService } from '../../lib';
+import { StringService } from '../../lib/common';
 
 export interface HeaderProps {
   title: string;

@@ -6,7 +6,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { RadioGroup } from '@headlessui/react';
 import { Dispatch, useEffect, useState } from 'react';
-import { ObjectLiteral } from '../../types';
+import { ObjectLiteral } from '../../lib/common/types';
 
 export interface StepsProps<T extends ObjectLiteral> {
   value: keyof T & string;

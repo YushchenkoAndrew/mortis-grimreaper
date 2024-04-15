@@ -2,15 +2,15 @@ import { useRef } from 'react';
 import Container from '../../components/Container/Container';
 import Header from '../../components/Header/Header';
 import { Config } from '../../config';
-import { LoginEntity } from '../../entities/auth/login.entity';
-import { loginStore } from '../../redux/reducer/admin/login.reducer';
-import { useAppDispatch, useAppSelector } from '../../redux/store';
+import { LoginEntity } from '../../lib/auth/entities/login.entity';
+import { LoginStore } from '../../lib/auth/stores/login.store';
+import { useAppDispatch, useAppSelector } from '../../lib/common/store';
 import ReCAPTCHA from 'react-google-recaptcha';
-import { ErrorService } from '../../lib/toast';
-import { CaptchaEntity } from '../../entities/auth/captcha.entity';
-import { AuthEntity } from '../../entities/auth/auth.entity';
-import { RecaptchaSizeEnum } from '../../types/recaptcha-size.enum';
+import { ErrorService } from '../../lib/common/error.service';
+import { CaptchaEntity } from '../../lib/captcha/entities/captcha.entity';
+import { AuthEntity } from '../../lib/auth/entities/auth.entity';
 import InputFormElement from '../../components/Form/Elements/InputFormElement';
+import { RecaptchaSizeEnum } from '../../lib/captcha/types/recaptcha-size.enum';
 
 export default function () {
   const dispatch = useAppDispatch();
@@ -43,7 +43,7 @@ export default function () {
               name="Username"
               autoComplete="username"
               value={username}
-              onChange={(e) => dispatch(loginStore.actions.setUsername(e))}
+              onChange={(e) => dispatch(LoginStore.actions.setUsername(e))}
               required
             />
             <InputFormElement
@@ -51,7 +51,7 @@ export default function () {
               autoComplete="current-password"
               type="password"
               value={password}
-              onChange={(e) => dispatch(loginStore.actions.setPassword(e))}
+              onChange={(e) => dispatch(LoginStore.actions.setPassword(e))}
               required
             />
 
@@ -81,11 +81,15 @@ export default function () {
                       if (!captcha) throw new Error('Please verify that you are not a robot');
 
                       await dispatch(
-                        CaptchaEntity.self.save(new CaptchaEntity({ captcha })),
+                        CaptchaEntity.self.save.thunk(
+                          new CaptchaEntity({ captcha }),
+                        ),
                       ).unwrap();
 
                       await dispatch(
-                        AuthEntity.self.save(new LoginEntity({ username, password })), // prettier-ignore
+                        AuthEntity.self.save.thunk(
+                          new LoginEntity({ username, password }),
+                        ),
                       ).unwrap();
                     },
                     async () => reCaptchaRef.current?.reset(),

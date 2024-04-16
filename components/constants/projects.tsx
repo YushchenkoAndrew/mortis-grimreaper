@@ -5,6 +5,7 @@ import {
 } from '@fortawesome/free-brands-svg-icons';
 import { faGlobe } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { IdEntity } from '../../lib/common/entities/id.entity';
 import { ProjectStepEnum } from '../../lib/project/types/project-step.enum';
 import { ProjectTypeEnum } from '../../lib/project/types/project-type.enum';
 
@@ -14,6 +15,8 @@ export const PROJECT_FORM_STEPS = {
   [ProjectStepEnum.attachments]: 'Attachments',
   [ProjectStepEnum.review]: 'Review',
 };
+
+export const PROJECT_ACTIONS = [{ Links: new IdEntity({ name: 'Link' }) }];
 
 export const PROJECT_FILE_ACTIONS = {
   create: 'Create File',

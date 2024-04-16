@@ -3,6 +3,8 @@ import { marked } from 'marked';
 import { Config } from '../../config';
 import { ObjectLiteral } from './types';
 import { CommonEntity } from './entities/common.entity';
+import { RequestOptionsType } from './types/request-options.type';
+import { RequestTypeEnum } from './types/request-type.enum';
 
 export class CommonRequest<
   T extends (...args: any) => Promise<Response>,
@@ -13,16 +15,24 @@ export class CommonRequest<
     private readonly action: string,
     private readonly fetch: (
       base: string,
-      init: RequestInit,
+      init: (options?: RequestOptionsType) => RequestInit,
     ) => (...args: Args) => Promise<Response>,
   ) {}
 
   public get exec() {
-    return this.fetch(Config.self.base.api, {
-      headers: {
-        'Content-Type': 'application/json',
-        ...(typeof window === 'undefined' ? this.server : this.client),
-      },
+    return this.fetch(Config.self.base.api, (options?: RequestOptionsType) => {
+      const headers: ObjectLiteral = {};
+
+      if (!options?.type || options.type == RequestTypeEnum.json) {
+        headers['Content-Type'] = 'application/json';
+      }
+
+      if (typeof window !== 'undefined') {
+        const access_token = localStorage.getItem('access_token');
+        if (access_token) headers.Authorization = `Bearer ${access_token}`;
+      }
+
+      return { headers };
     });
   }
 
@@ -61,21 +71,5 @@ export class CommonRequest<
   public get markdown() {
     return (...args: Args) =>
       this.text(...args).then((text) => marked.parse(text));
-  }
-
-  private get client(): ObjectLiteral {
-    const headers: ObjectLiteral = {};
-
-    const access_token = localStorage.getItem('access_token');
-    if (access_token) {
-      Object.assign(headers, { Authorization: `Bearer ${access_token}` });
-    }
-
-    return headers;
-  }
-
-  private get server(): ObjectLiteral {
-    const headers: ObjectLiteral = {};
-    return headers;
   }
 }

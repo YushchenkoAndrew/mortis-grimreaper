@@ -1,4 +1,4 @@
-import { faFile } from '@fortawesome/free-regular-svg-icons';
+import { faFile, faPenToSquare } from '@fortawesome/free-regular-svg-icons';
 import { faFolder } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { GetServerSidePropsContext } from 'next';
@@ -22,18 +22,19 @@ import { useAppDispatch, useAppSelector } from '../../../../lib/common/store';
 import { AttachmentService } from '../../../../lib/attachment/attachment.service';
 import { AdminAttachmentEntity } from '../../../../lib/attachment/entities/admin-attachment.entity';
 import { AttachmentAttachableTypeEnum } from '../../../../lib/attachment/types/attachment-attachable-type.enum';
+import moment from 'moment';
+import { RequestTypeEnum } from '../../../../lib/common/types/request-type.enum';
+import Link from 'next/link';
+import CustomMenuFormElement from '../../../../components/Form/Custom/CustomMenuFormElement';
+import { CommonRequest } from '../../../../lib/common/common.request';
 
 export default function () {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const project = useAppSelector((state) => state.admin.projects.index);
-  const fileRef = useRef<HTMLInputElement>(null);
 
-  const redirect = (path: string[]) =>
-    router.push({
-      pathname: `${router.route}/tree/[...path]`,
-      query: { ...router.query, path },
-    });
+  const imgRef = useRef<HTMLInputElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     ErrorService.envelop(async () => {
@@ -49,6 +50,36 @@ export default function () {
     });
   }, []);
 
+  const redirect = (path: string[]) =>
+    router.push({
+      pathname: `${router.route}/tree/[...path]`,
+      query: { ...router.query, path },
+    });
+
+  const onFile = (files: File[]) =>
+    ErrorService.envelop(async () => {
+      await Promise.all(
+        files.map((file) => {
+          const attachment = project.attachments.find(
+            (e) => e.name == file.name && e.path == '/',
+          );
+
+          return AdminAttachmentEntity.self.save.build(
+            new AdminAttachmentEntity({
+              id: attachment?.id,
+              path: '/',
+              file: file as any,
+              attachable_id: project.id,
+              attachable_type: AttachmentAttachableTypeEnum.projects,
+            }),
+            { type: RequestTypeEnum.form },
+          );
+        }),
+      );
+
+      await dispatch(AdminProjectEntity.self.load.thunk(router.query.id)).unwrap(); // prettier-ignore
+    });
+
   return (
     <>
       <Header title="Admin project create"></Header>
@@ -61,67 +92,127 @@ export default function () {
             avatar={Config.self.github}
           />
         }
+        // TODO:
+        // Sidebar={
+        //   <Sidebar
+        //     Element={SidebarElement}
+        //     data={PROJECT_ACTIONS}
+        //     onClick={(data) => {
+        //       // TODO:
+        //       ErrorService.envelop(async () => {
+        //         throw new Error('Impl this button !!');
+        //       });
+        //     }}
+        //   />
+        // }
       >
         <div className="flex flex-col mx-auto max-w-3xl w-full">
           <div className="flex items-center">
-            <img
-              className="h-14 w-auto rounded my-8 mr-3"
-              src={Config.self.github.src}
-              alt="thumbnailLL"
-            />
+            <div
+              className="block relative group h-14 w-14 my-8 mr-3 cursor-pointer"
+              onClick={() => imgRef.current.click()}
+            >
+              <input
+                ref={imgRef}
+                className="hidden"
+                type="file"
+                accept="image/*"
+                onChange={(event) => {
+                  const file = event.target.files[0];
+                  if (!file) return;
 
-            <span className="text-2xl font-semibold">{project.name}</span>
-            <input
-              ref={fileRef}
-              type="file"
-              className="hidden"
-              onChange={(event) =>
-                ErrorService.envelop(async () => {
-                  await Promise.all(
-                    Array.from(event.target.files).map((file) =>
-                      AdminAttachmentEntity.self.save.build(
-                        new AdminAttachmentEntity({
-                          path: '/',
-                          file: file as any,
-                          attachable_id: project.id,
-                          attachable_type:
-                            AttachmentAttachableTypeEnum.projects,
-                        }),
-                        false,
-                      ),
-                    ),
-                  );
+                  const ext = file.name.split('.').at(-1);
+                  return onFile([new File([file], `thumbnail.${ext}`)]);
+                }}
+              />
+              <span className="absolute block top-0 left-0 h-full w-full rounded group-hover:bg-gray-400">
+                <div className="hidden group-hover:flex w-full h-full justify-center items-center">
+                  <FontAwesomeIcon
+                    className="text-2xl text-gray-800"
+                    icon={faPenToSquare}
+                  />
+                </div>
+              </span>
+              <img
+                className="relative block top-0 left-0 h-full w-full rounded mix-blend-multiply"
+                src={
+                  project.thumbnail?.file
+                    ? project.thumbnail.url()
+                    : project.avatar
+                }
+                alt="thumbnailLL"
+              />
+            </div>
 
-                  await dispatch(
-                    AdminProjectEntity.self.load.thunk(router.query.id),
-                  ).unwrap();
-                })
-              }
-            />
-            <MenuFormElement
+            <Link
+              className="text-2xl font-semibold hover:underline"
+              href={{
+                pathname: '/projects/[id]',
+                query: { id: project.id },
+              }}
+            >
+              {project.name}
+            </Link>
+
+            <CustomMenuFormElement
               className="ml-auto"
-              name="Action"
+              fileRef={fileRef}
+              next="Delete files..."
               actions={PROJECT_FILE_ACTIONS}
+              isSubmitButton={!!project.trash}
               onChange={(action) => {
                 switch (action) {
                   case 'upload':
                     return fileRef.current.click();
+
+                  case 'create':
+                    return router.push({
+                      pathname: `${router.route}/new`,
+                      query: { ...router.query },
+                    });
+
+                  case 'delete':
+                    return dispatch(AdminProjectStore.actions.initTrash());
                 }
               }}
+              onFile={(event) => onFile(Array.from(event.target.files))}
+              onNext={() =>
+                ErrorService.envelop(async () => {
+                  if (!project.trash) return;
+
+                  await Promise.all(
+                    Object.keys(project.trash).map((id) =>
+                      AdminAttachmentEntity.self.delete.exec(id),
+                    ),
+                  );
+
+                  await dispatch(AdminProjectEntity.self.load.thunk(router.query.id)).unwrap(); // prettier-ignore
+                  dispatch(AdminProjectStore.actions.clearTrash());
+                })
+              }
+              onBack={() => dispatch(AdminProjectStore.actions.clearTrash())}
             />
           </div>
           <TableFormElement
             className="mb-8"
-            columns={{ name: 'Name', created_at: 'Last updated' }}
+            columns={{ name: 'Name', updated_at: 'Last updated' }}
             data={AttachmentService.toList<AdminAttachmentEntity>(
               project.attachments,
             )}
             onClick={(attachment) =>
-              redirect(AttachmentService.filepath(attachment))
+              project.trash
+                ? dispatch(AdminProjectStore.actions.pushTrash(attachment))
+                : redirect(AttachmentService.filepath(attachment))
             }
             stringify={{
               name: (attachment) => (
-                <span className="flex text-gray-800 whitespace-nowrap">
+                <span
+                  className={`flex whitespace-nowrap ${
+                    project.trash?.[attachment.id]
+                      ? 'line-through text-gray-500'
+                      : 'text-gray-800'
+                  }`}
+                >
                   <FontAwesomeIcon
                     className="text-gray-500 text-lg mr-2"
                     icon={attachment.type ? faFile : faFolder}
@@ -129,6 +220,7 @@ export default function () {
                   {attachment.name}
                 </span>
               ),
+              updated_at: (attachment) => moment(attachment.updated_at).toNow(),
             }}
           />
 

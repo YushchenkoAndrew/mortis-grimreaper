@@ -5,7 +5,6 @@ import Thumbnail from '../../components/Thumbnail/Thumbnail';
 import Header from '../../components/Header/Header';
 import Navbar from '../../components/Navbar/Navbar';
 import { Config } from '../../config';
-import { ProjectPageEntity } from '../../lib/project/project-page.entity';
 import { StringService } from '../../lib/common';
 import { useAppDispatch, useAppSelector } from '../../lib/common/store';
 import GlitchItem from '../../components/Navbar/GlitchItem';
@@ -19,6 +18,7 @@ import {
 import { Virtuoso } from 'react-virtuoso';
 import { ErrorService } from '../../lib/common/error.service';
 import Breadcrumbs from '../../components/Breadcrumbs/Breadcrumbs';
+import { ProjectPageEntity } from '../../lib/project/entities/project-page.entity';
 
 export default function () {
   const dispatch = useAppDispatch();
@@ -45,7 +45,7 @@ export default function () {
             avatar={Config.self.github}
           />
         }
-        Breadcrumbs={<Breadcrumbs path={['Home', 'Projects']} />}
+        // Breadcrumbs={<Breadcrumbs path={['Home', 'Projects']} />}
       >
         <div className="grid grid-cols-1 items-center gap-x-2 gap-y-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 xl:gap-y-8">
           <Virtuoso

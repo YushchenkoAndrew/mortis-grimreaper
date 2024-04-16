@@ -10,7 +10,12 @@ import 'ace-builds/src-noconflict/mode-html';
 import 'ace-builds/src-noconflict/mode-css';
 import 'ace-builds/src-noconflict/mode-markdown';
 import 'ace-builds/src-noconflict/mode-handlebars';
+
+import 'ace-builds/src-noconflict/mode-json';
+import 'ace-builds/src-noconflict/mode-yaml';
+
 import 'ace-builds/src-noconflict/mode-javascript';
+
 import modelist from 'ace-builds/src-noconflict/ext-modelist';
 
 export default function (props: IAceEditorProps) {

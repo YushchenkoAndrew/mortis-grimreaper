@@ -1,6 +1,6 @@
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import Breadcrumbs from '../../../../../components/Breadcrumbs/Breadcrumbs';
 import Container from '../../../../../components/Container/Container';
 import { AceEditor } from '../../../../../components/dynamic';
@@ -13,7 +13,10 @@ import { Config } from '../../../../../config';
 import { NAVIGATION } from '../../../../../constants';
 import { AdminProjectEntity } from '../../../../../lib/project/entities/admin-project.entity';
 import { ErrorService } from '../../../../../lib/common/error.service';
-import { AdminAttachmentStore } from '../../../../../lib/attachment/stores/admin-attachment.store';
+import {
+  AdminAttachmentStore,
+  AdminAttachmentStoreT,
+} from '../../../../../lib/attachment/stores/admin-attachment.store';
 import {
   useAppDispatch,
   useAppSelector,
@@ -26,7 +29,14 @@ import TableFormElement from '../../../../../components/Form/Elements/TableFormE
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFile } from '@fortawesome/free-regular-svg-icons';
 import { faFolder } from '@fortawesome/free-solid-svg-icons';
-import { useState } from 'react';
+import moment from 'moment';
+import { RequestTypeEnum } from '../../../../../lib/common/types/request-type.enum';
+import InputFormElement from '../../../../../components/Form/Elements/InputFormElement';
+import MenuFormElement from '../../../../../components/Form/Elements/MenuFormElement';
+import { PROJECT_FILE_ACTIONS } from '../../../../../components/constants/projects';
+import CustomMenuFormElement from '../../../../../components/Form/Custom/CustomMenuFormElement';
+import { AdminProjectStore } from '../../../../../lib/project/stores/admin-project.store';
+import { AttachmentAttachableTypeEnum } from '../../../../../lib/attachment/types/attachment-attachable-type.enum';
 
 export default function () {
   const router = useRouter();
@@ -34,36 +44,37 @@ export default function () {
   const project = useAppSelector((state) => state.admin.projects.index);
   const attachment = useAppSelector((state) => state.admin.attachment);
 
-  const redirect = (path: string[]) =>
-    router.push({
-      pathname: router.route,
-      query: { ...router.query, path },
-    });
+  const fileRef = useRef<HTMLInputElement>(null);
+  const attachmentRef = useRef<AdminAttachmentStoreT>(null);
+  attachmentRef.current = attachment as any;
 
   useEffect(() => {
     ErrorService.envelop(async () => {
       if (!Array.isArray(router.query.path)) return;
-      const entity = project.id
-        ? project
-        : ((await dispatch(
-            AdminProjectEntity.self.load.thunk(router.query.id),
-          ).unwrap()) as AdminProjectEntity);
+      dispatch(AdminAttachmentStore.actions.setBuffer(''));
+
+      const project = (await dispatch(
+        AdminProjectEntity.self.load.thunk(router.query.id),
+      ).unwrap()) as AdminProjectEntity;
 
       const root = '/' + router.query.path.join('/');
-      const attachment = entity.attachments.find((e) => e.filepath() == root);
+      const attachment = project.attachments.find((e) => e.filepath() == root);
 
-      if (!attachment) {
-        return dispatch(AdminAttachmentStore.actions.setBuffer(null));
-      }
+      // prettier-ignore
+      if (!attachment) return dispatch(AdminAttachmentStore.actions.setBuffer(null));
 
       dispatch(AdminAttachmentStore.actions.setAttachment(attachment as any));
-      AttachmentEntity.self.load
+      await AttachmentEntity.self.load
         .text(attachment.id)
         .then((buf) => dispatch(AdminAttachmentStore.actions.setBuffer(buf)));
     });
   }, [router.query.path]);
 
-  console.log(attachment);
+  const redirect = (path: string[]) =>
+    router.push({
+      pathname: router.route,
+      query: { ...router.query, path },
+    });
 
   return (
     <>
@@ -90,10 +101,76 @@ export default function () {
           />
         }
         Breadcrumbs={
-          <Breadcrumbs
-            className="px-4"
-            path={[project.name].concat(router.query.path)}
-          />
+          <div className="flex px-4 items-center">
+            <Breadcrumbs path={[project.name].concat(router.query.path)} />
+
+            <CustomMenuFormElement
+              className="ml-auto"
+              fileRef={fileRef}
+              next="Delete files..."
+              actions={PROJECT_FILE_ACTIONS}
+              isSubmitButton={!!project.trash}
+              onChange={(action) => {
+                switch (action) {
+                  case 'upload':
+                    return fileRef.current.click();
+
+                  case 'create':
+                    return router.push({
+                      pathname: `${router.route}/../../new`,
+                      query: { ...router.query },
+                    });
+
+                  case 'delete':
+                    return dispatch(AdminProjectStore.actions.initTrash());
+                }
+              }}
+              onFile={(event) =>
+                ErrorService.envelop(async () => {
+                  await Promise.all(
+                    Array.from(event.target.files).map((file) => {
+                      const path = Array.isArray(router.query.path)
+                        ? ['', ...router.query.path, ''].join('/')
+                        : '/';
+
+                      const attachment = project.attachments.find(
+                        (e) => e.name == file.name && e.path == path,
+                      );
+
+                      return AdminAttachmentEntity.self.save.build(
+                        new AdminAttachmentEntity({
+                          id: attachment?.id,
+                          path: path,
+                          file: file as any,
+                          attachable_id: project.id,
+                          attachable_type:
+                            AttachmentAttachableTypeEnum.projects,
+                        }),
+                        { type: RequestTypeEnum.form },
+                      );
+                    }),
+                  );
+
+                  await dispatch(AdminProjectEntity.self.load.thunk(router.query.id)).unwrap(); // prettier-ignore
+                })
+              }
+              onNext={() =>
+                ErrorService.envelop(async () => {
+                  if (!project.trash) return;
+
+                  await Promise.all(
+                    Object.keys(project.trash).map((id) =>
+                      AdminAttachmentEntity.self.delete.exec(id),
+                    ),
+                  );
+
+                  await dispatch(AdminProjectEntity.self.load.thunk(router.query.id)).unwrap(); // prettier-ignore
+                  dispatch(AdminProjectStore.actions.clearTrash());
+                })
+              }
+              onBack={() => dispatch(AdminProjectStore.actions.clearTrash())}
+            />
+          </div>
         }
       >
         <AceEditor
@@ -115,14 +192,31 @@ export default function () {
           onChange={(value) =>
             dispatch(AdminAttachmentStore.actions.setBuffer(value))
           }
-          onLoad={(editor) => {
-            editor.commands.addCommand({
+          commands={[
+            {
               name: 'write',
-              exec: (editor, args) => {
-                console.log(args);
-              },
-            });
-          }}
+              bindKey: null,
+              exec: () =>
+                ErrorService.envelop(async () => {
+                  const blob = new Blob([attachmentRef.current.buffer]);
+                  const file = new File([blob], attachmentRef.current.name);
+
+                  await AdminAttachmentEntity.self.save.build(
+                    new AdminAttachmentEntity({
+                      id: attachmentRef.current.id,
+                      file: file as any,
+                    }),
+                    { type: RequestTypeEnum.form },
+                  );
+
+                  await AttachmentEntity.self.load
+                    .text(attachmentRef.current.id)
+                    .then((buf) =>
+                      dispatch(AdminAttachmentStore.actions.setBuffer(buf)),
+                    );
+                }),
+            },
+          ]}
           setOptions={{
             spellcheck: true,
             showLineNumbers: true,
@@ -131,18 +225,28 @@ export default function () {
           }}
         />
         <TableFormElement
-          className={`mb-8 ${attachment.buffer !== null ? 'hidden' : 'block'}`}
-          columns={{ name: 'Name', created_at: 'Last updated' }}
+          className={`mb-8 mx-4 ${
+            attachment.buffer !== null ? 'hidden' : 'block'
+          }`}
+          columns={{ name: 'Name', updated_at: 'Last updated' }}
           data={AttachmentService.toList<AdminAttachmentEntity>(
             project.attachments,
             Array.isArray(router.query.path) ? router.query.path : [],
           )}
           onClick={(attachment) =>
-            redirect(AttachmentService.filepath(attachment))
+            project.trash
+              ? dispatch(AdminProjectStore.actions.pushTrash(attachment))
+              : redirect(AttachmentService.filepath(attachment))
           }
           stringify={{
             name: (attachment) => (
-              <span className="flex text-gray-800 whitespace-nowrap">
+              <span
+                className={`flex whitespace-nowrap ${
+                  project.trash?.[attachment.id]
+                    ? 'line-through text-gray-500'
+                    : 'text-gray-800'
+                }`}
+              >
                 <FontAwesomeIcon
                   className="text-gray-500 text-lg mr-2"
                   icon={attachment.type ? faFile : faFolder}
@@ -150,6 +254,7 @@ export default function () {
                 {attachment.name}
               </span>
             ),
+            updated_at: (attachment) => moment(attachment.updated_at).toNow(),
           }}
         />
       </Container>

@@ -59,18 +59,18 @@ export function Column(transformer?: TransformerT | PropsT, props?: PropsT) {
 
     if (typeof transformer == 'function') {
       set(ColumnKey.type, transformer);
-      set(ColumnKey.props, new ColumnProps({ ...props, key }));
+      set(ColumnKey.props, new ColumnProps({ ...get(ColumnKey.props), ...props, key })); // prettier-ignore
       return;
     }
 
     set(ColumnKey.type, get(ColumnKey.type) ?? true);
-    set(ColumnKey.props,new ColumnProps({ ...transformer, ...get(ColumnKey.props), key })); // prettier-ignore
+    set(ColumnKey.props,new ColumnProps({ ...get(ColumnKey.props), ...transformer, key })); // prettier-ignore
   };
 }
 
 export function Request(transformer?: TransformerT | PropsT, props?: PropsT) {
   return function (target: any, key: string) {
-    Column()(target, key);
+    Column(typeof transformer == 'function' ? props : transformer)(target, key);
     Reflect.defineMetadata(
       ColumnKey.request,
       typeof transformer == 'function' ? transformer : true,

@@ -9,6 +9,8 @@ import { ObjectLiteral } from '../types';
 import moment from 'moment';
 import { CommonRequest } from '../common.request';
 import { ArrayService, StringService } from '..';
+import { RequestOptionsType } from '../types/request-options.type';
+import { RequestTypeEnum } from '../types/request-type.enum';
 
 @Entity()
 export class CommonEntity {
@@ -37,12 +39,16 @@ export class CommonEntity {
       const defined = this.getLocal(ColumnKey.defined, k);
       const props: ColumnProps = this.getGlobal(ColumnKey.props, k);
 
+      if (!transformer) delete this[k];
       if (!transformer || defined) continue;
       if (typeof transformer === 'function') {
         this[k] = transformer(entity, props) ?? props.default;
       } else this[k] = entity[k as string] ?? props.default;
 
-      if (props.nullable) this[k] ??= null;
+      if (props.nullable) {
+        if (type == ColumnKey.request && !this[k]) delete this[k];
+        else this[k] ??= null;
+      }
     }
 
     return this;
@@ -110,84 +116,86 @@ export class CommonEntity {
   }
 
   get select() {
-    const options: RequestProps = this.getGlobal(RequestPropKey.props);
-    if (!options) return null;
+    const props: RequestProps = this.getGlobal(RequestPropKey.props);
+    if (!props) return null;
 
     return new CommonRequest(
       this.newInstance(),
-      `${''}${options.route}/action/select`,
-      (base: string, init: RequestInit) => (query: ObjectLiteral) =>
-        fetch(`${base}/${options.route}?${StringService.toQuery(query)}`, init),
+      `${''}${props.route}/action/select`,
+      (base: string, init) =>
+        (query: ObjectLiteral, options?: RequestOptionsType) =>
+          fetch(
+            `${base}/${props.route}?${StringService.toQuery(query)}`,
+            init(options),
+          ),
     );
   }
 
   get load() {
-    const options: RequestProps = this.getGlobal(RequestPropKey.props);
-    if (!options) return null;
+    const props: RequestProps = this.getGlobal(RequestPropKey.props);
+    if (!props) return null;
 
     return new CommonRequest(
       this.newInstance(),
-      `${''}${options.route}/action/load`,
-      (base: string, init: RequestInit) => (id: string | string[]) =>
-        fetch(`${base}/${options.route}/${ArrayService.first(id)}`, init),
+      `${''}${props.route}/action/load`,
+      (base: string, init) =>
+        (id: string | string[], options?: RequestOptionsType) =>
+          fetch(
+            `${base}/${props.route}/${ArrayService.first(id)}`,
+            init(options),
+          ),
     );
   }
 
   get save() {
-    const options: RequestProps = this.getGlobal(RequestPropKey.props);
-    if (!options) return null;
+    const props: RequestProps = this.getGlobal(RequestPropKey.props);
+    if (!props) return null;
 
     return new CommonRequest(
       this.newInstance(),
-      `${''}${options.route}/action/save`,
-      (base: string, init: RequestInit) =>
-        (entity: ObjectLiteral | CommonEntity, json: boolean = true) => {
+      `${''}${props.route}/action/save`,
+      (base: string, init) =>
+        (
+          entity: ObjectLiteral | CommonEntity,
+          options?: RequestOptionsType,
+        ) => {
           const instance: CommonEntity =
             entity instanceof CommonEntity
               ? entity.newInstance()
               : this.newInstance();
 
           const body = instance.build(entity, ColumnKey.request);
-
-          console.log(body);
-
           const form = new FormData();
           Object.entries(body).forEach(([key, value]) =>
             form.append(key, value),
           );
 
-          const headers = { ...init.headers };
-          delete headers['Content-Type'];
-
           const id = (entity as any).id || (this as any).id || '';
-          console.log({ id });
-
-          return fetch(`${base}/${options.route}/${id}`, {
-            ...init,
-            headers,
-            // : {
-            //   ...init.headers,
-            //   '': undefined,
-            // },
+          return fetch(`${base}/${props.route}/${id}`, {
+            ...init(options),
             method: id ? 'PUT' : 'POST',
-            body: json ? JSON.stringify(body) : form,
+            body:
+              options.type == RequestTypeEnum.form
+                ? form
+                : JSON.stringify(body),
           });
         },
     );
   }
 
   get delete() {
-    const options: RequestProps = this.getGlobal(RequestPropKey.props);
-    if (!options) return null;
+    const props: RequestProps = this.getGlobal(RequestPropKey.props);
+    if (!props) return null;
 
     return new CommonRequest(
       this.newInstance(),
-      `${''}${options.route}/action/delete`,
-      (base: string, init: RequestInit) => (id: string | string[]) =>
-        fetch(`${base}/${options.route}/${ArrayService.first(id)}`, {
-          ...init,
-          method: 'DELETE',
-        }),
+      `${''}${props.route}/action/delete`,
+      (base: string, init) =>
+        (id: string | string[], options?: RequestOptionsType) =>
+          fetch(`${base}/${props.route}/${ArrayService.first(id)}`, {
+            ...init(options),
+            method: 'DELETE',
+          }),
     );
   }
 

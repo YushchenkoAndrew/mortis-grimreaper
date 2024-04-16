@@ -80,17 +80,11 @@ export default function () {
                       // prettier-ignore
                       if (!captcha) throw new Error('Please verify that you are not a robot');
 
-                      await dispatch(
-                        CaptchaEntity.self.save.thunk(
-                          new CaptchaEntity({ captcha }),
-                        ),
-                      ).unwrap();
+                      // prettier-ignore
+                      await dispatch(CaptchaEntity.self.save.thunk(new CaptchaEntity({ captcha }))).unwrap();
 
-                      await dispatch(
-                        AuthEntity.self.save.thunk(
-                          new LoginEntity({ username, password }),
-                        ),
-                      ).unwrap();
+                      // prettier-ignore
+                      await dispatch(AuthEntity.self.save.thunk(new LoginEntity({ username, password }))).unwrap();
                     },
                     async () => reCaptchaRef.current?.reset(),
                   )

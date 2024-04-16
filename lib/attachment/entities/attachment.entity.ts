@@ -1,3 +1,4 @@
+import { Config } from '../../../config';
 import { Column, Request } from '../../common/decorators/column';
 import { Entity } from '../../common/decorators/request-entity';
 import { IdEntity } from '../../common/entities/id.entity';
@@ -10,18 +11,22 @@ export class AttachmentEntity extends IdEntity {
   }
 
   @Column()
-  @Request()
+  @Request({ nullable: true })
   path: string = '';
 
   @Column()
-  @Request()
+  @Request({ nullable: true })
   file: string = '';
 
   @Column()
-  @Request(() => undefined)
+  @Request({ nullable: true })
   type: string = '';
 
   filepath() {
     return this.path + this.name;
+  }
+
+  url() {
+    return `${Config.self.base.api}${this.file}`;
   }
 }

@@ -1,10 +1,15 @@
+import { identicon } from '@dicebear/collection';
+import { createAvatar } from '@dicebear/core';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AdminAttachmentEntity } from '../../attachment/entities/admin-attachment.entity';
+import { ObjectLiteral } from '../../common/types';
 import { AdminProjectEntity } from '../entities/admin-project.entity';
 import { ProjectTypeEnum } from '../types/project-type.enum';
 
 type StoreT = AdminProjectEntity & {
+  avatar: string;
   readme: string;
+  trash: ObjectLiteral<AdminAttachmentEntity>;
 };
 
 export const AdminProjectStore = createSlice({
@@ -13,6 +18,7 @@ export const AdminProjectStore = createSlice({
     name: '',
     attachments: [],
 
+    trash: null,
     readme: '',
   } as StoreT,
   reducers: {
@@ -31,6 +37,18 @@ export const AdminProjectStore = createSlice({
     setREADME: (state, action: PayloadAction<string>) => {
       state.readme = action.payload || '';
     },
+    initTrash: (state) => {
+      state.trash = {};
+    },
+    pushTrash: (state, action: PayloadAction<AdminAttachmentEntity>) => {
+      const id = action.payload.id;
+
+      if (state.trash[id]) delete state.trash[id];
+      else state.trash[id] = action.payload;
+    },
+    clearTrash: (state) => {
+      state.trash = null;
+    },
   },
   extraReducers(builder) {
     builder.addCase(
@@ -45,20 +63,11 @@ export const AdminProjectStore = createSlice({
         state.description = res.description;
         state.footer = res.footer;
 
-        state.attachments = res.attachments
-          .concat(
-            res.attachments.map(
-              (k) => new AdminAttachmentEntity({ ...k, path: '/test/' }),
-            ),
-          )
-          .concat(
-            res.attachments.map(
-              (k) => new AdminAttachmentEntity({ ...k, path: '/test2/' }),
-            ),
-          );
-
-        console.log(state.attachments);
-        // TODO:
+        state.attachments = res.attachments;
+        state.thumbnail = res.thumbnail;
+        state.avatar = createAvatar(identicon, {
+          seed: res.id,
+        }).toDataUriSync();
       },
     );
   },

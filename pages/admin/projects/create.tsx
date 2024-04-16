@@ -91,9 +91,9 @@ export default function () {
             <NextFormElement
               name="Create project"
               processing={form.processing}
-              next={() =>
+              onNext={() =>
                 ErrorService.envelop(
-                  dispatch(AdminProjectEntity.self.save(form)).unwrap,
+                  dispatch(AdminProjectEntity.self.save.thunk(form)).unwrap,
                 )
               }
             />

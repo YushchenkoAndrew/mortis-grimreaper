@@ -8,10 +8,10 @@ export class IdEntity extends CommonEntity {
   }
 
   @Column()
-  @Request()
+  @Request(() => undefined, { nullable: true })
   id: string = null;
 
   @Request()
-  @Column()
+  @Request({ nullable: true })
   name: string = '';
 }

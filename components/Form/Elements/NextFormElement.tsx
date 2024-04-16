@@ -3,31 +3,38 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Dispatch } from 'react';
 
 export interface NextFormElementProps {
-  name?: string;
+  className?: string;
+  next?: string;
+  back?: string;
+
   processing?: boolean;
-  next: Dispatch<void>;
-  back?: Dispatch<void>;
+  onNext: Dispatch<void>;
+  onBack?: Dispatch<void>;
+
+  setOptions?: Partial<{ buttonPadding: string }>;
 }
 
 export default function NextFormElement(props: NextFormElementProps) {
   return (
-    <div className="flex w-full bg-blue-100 p-3 rounded shadow-md space-x-2">
+    // w-full bg-blue-100 p-3 rounded shadow-md
+    <div className={`${props.className || ''} flex space-x-2`}>
       <button
-        className={`${
-          props.back ? 'block' : 'hidden'
-        } bg-transparent px-4 py-3 text-sm font-semibold leading-6 text-blue-600 hover:text-blue-500 hover:underline`}
+        className={`${props.onBack ? 'block' : 'hidden'} bg-transparent ${
+          props.setOptions?.buttonPadding || 'px-4 py-3'
+        } text-sm font-semibold border border-gray-300 rounded text-gray-700 hover:border-gray-400 hover:bg-gray-200`}
         type="button"
-        onClick={() => props.back?.()}
+        onClick={() => props.onBack?.()}
       >
-        Back
+        {props.back || 'Back'}
       </button>
-
       <button
-        className="flex items-center rounded bg-blue-600 px-4 py-3 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-500"
+        className={`flex items-center rounded ${
+          props.setOptions?.buttonPadding || 'px-4 py-3'
+        } text-sm font-semibold shadow-sm  text-white bg-blue-600  hover:bg-blue-500`}
         type="button"
-        onClick={() => props.next()}
+        onClick={() => props.onNext()}
       >
-        {props.name || 'Next'}
+        {props.next || 'Next'}
         <FontAwesomeIcon
           className={`${
             props.processing ? 'block' : 'hidden'

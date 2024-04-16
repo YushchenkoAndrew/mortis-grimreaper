@@ -24,7 +24,8 @@ export default function Container(props: ContainerProps) {
             }
           >
             {props.Breadcrumbs ? (
-              <header className="bg-transparent shadow py-4">
+              // <header className="bg-transparent shadow py-4">
+              <header className="bg-transparent py-4">
                 {props.Breadcrumbs}
               </header>
             ) : (

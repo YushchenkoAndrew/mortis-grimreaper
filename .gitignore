@@ -40,3 +40,4 @@ cypress.env.json
 # vercel
 .vercel
 .env.local
+.env.local

@@ -10,14 +10,14 @@ export class AdminAttachmentEntity extends AttachmentEntity {
   }
 
   @Column()
-  created_at: string = '';
+  updated_at: string = '';
 
   @Column()
   size: number = 0;
 
-  @Request()
-  attachable_id: string = '';
+  @Request({ nullable: true })
+  attachable_id: string = null;
 
-  @Request()
-  attachable_type: string = '';
+  @Request({ nullable: true })
+  attachable_type: string = null;
 }

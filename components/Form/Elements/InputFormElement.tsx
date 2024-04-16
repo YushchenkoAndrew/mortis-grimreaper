@@ -1,11 +1,17 @@
 import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Dispatch, HTMLInputAutoCompleteAttribute, useState } from 'react';
+import {
+  Dispatch,
+  HTMLInputAutoCompleteAttribute,
+  KeyboardEvent,
+  useState,
+} from 'react';
 
 export interface InputFormElementProps {
-  name: string;
+  name?: string;
   value: string;
   onChange: Dispatch<string>;
+  onKeyDown?: Dispatch<KeyboardEvent<HTMLInputElement>>;
 
   placeholder?: string;
   description?: string;
@@ -14,13 +20,19 @@ export interface InputFormElementProps {
   required?: boolean;
   autoComplete?: HTMLInputAutoCompleteAttribute;
   type?: 'password' | 'text';
+
+  setOptions?: Partial<{ inputPadding?: string }>;
 }
 
 export default function InputFormElement(props: InputFormElementProps) {
   const [error, onError] = useState(false);
   return (
     <div className={props.className || ''}>
-      <label className="block text-sm font-medium leading-6 text-gray-800">
+      <label
+        className={`${
+          props.name ? 'block' : 'hidden'
+        } text-sm font-medium leading-6 text-gray-800`}
+      >
         {props.name}
         {props.required ? (
           <span className="text-blue-400">*</span>
@@ -37,7 +49,9 @@ export default function InputFormElement(props: InputFormElementProps) {
       </label>
       <div className="mt-1">
         <input
-          className={`block w-full rounded border-0 py-3.5 text-gray-800 shadow-sm ring-1 ring-inset placeholder:text-gray-400 focus:ring-inset sm:text-sm sm:leading-6 ${
+          className={`block w-full rounded border-0 ${
+            props.setOptions?.inputPadding ?? 'py-3.5'
+          } text-gray-800 shadow-sm ring-1 ring-inset placeholder:text-gray-400 focus:ring-inset sm:text-sm sm:leading-6 ${
             error
               ? 'ring-red-600 hover:ring-red-600 focus:ring-red-600'
               : 'ring-gray-700 hover:ring-blue-600 focus:ring-blue-600'
@@ -51,6 +65,7 @@ export default function InputFormElement(props: InputFormElementProps) {
             props.required && onError(!e.target.value)
           )}
           onBlur={(e) => props.required && onError(!e.target.value)}
+          onKeyDown={(e) => props.onKeyDown?.(e)}
         />
         <div className={error ? 'block' : 'hidden'}>
           <span className="mt-1 text-sm text-red-600 font-medium">

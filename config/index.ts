@@ -5,14 +5,12 @@ export class Config {
   public readonly base = {
     web: publicRuntimeConfig.BASE_PATH,
     api: publicRuntimeConfig.BASE_PATH + '/api',
+    grape: serverRuntimeConfig.API_URL,
 
     timeout: 5000,
+    secret: serverRuntimeConfig.SESSION_SECRET,
     // TODO:
     // ALLOWED_INVALID_LOGINS
-  };
-
-  public readonly api = {
-    url: serverRuntimeConfig.API_URL,
   };
 
   public readonly captcha = {

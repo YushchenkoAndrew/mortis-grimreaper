@@ -16,7 +16,6 @@ export interface NextFormElementProps {
 
 export default function NextFormElement(props: NextFormElementProps) {
   return (
-    // w-full bg-blue-100 p-3 rounded shadow-md
     <div className={`${props.className || ''} flex space-x-2`}>
       <button
         className={`${props.onBack ? 'block' : 'hidden'} bg-transparent ${

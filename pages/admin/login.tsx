@@ -2,22 +2,25 @@ import { useRef } from 'react';
 import Container from '../../components/Container/Container';
 import Header from '../../components/Header/Header';
 import { Config } from '../../config';
-import { LoginEntity } from '../../lib/auth/entities/login.entity';
 import { LoginStore } from '../../lib/auth/stores/login.store';
 import { useAppDispatch, useAppSelector } from '../../lib/common/store';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { ErrorService } from '../../lib/common/error.service';
 import { CaptchaEntity } from '../../lib/captcha/entities/captcha.entity';
-import { AuthEntity } from '../../lib/auth/entities/auth.entity';
 import InputFormElement from '../../components/Form/Elements/InputFormElement';
 import { RecaptchaSizeEnum } from '../../lib/captcha/types/recaptcha-size.enum';
+import { signIn } from 'next-auth/react';
+import { GetServerSidePropsContext } from 'next';
+import { getServerSession } from 'next-auth';
+import { options } from '../api/admin/auth/[...nextauth]';
+import { useRouter } from 'next/router';
 
 export default function () {
   const dispatch = useAppDispatch();
+  const form = useAppSelector((state) => state.admin.login);
+
+  const router = useRouter();
   const reCaptchaRef = useRef<ReCAPTCHA>(null);
-  const { username, password, recaptcha } = useAppSelector(
-    (state) => state.admin.login,
-  );
 
   return (
     <>
@@ -42,7 +45,7 @@ export default function () {
             <InputFormElement
               name="Username"
               autoComplete="username"
-              value={username}
+              value={form.username}
               onChange={(e) => dispatch(LoginStore.actions.setUsername(e))}
               required
             />
@@ -50,14 +53,14 @@ export default function () {
               name="Password"
               autoComplete="current-password"
               type="password"
-              value={password}
+              value={form.password}
               onChange={(e) => dispatch(LoginStore.actions.setPassword(e))}
               required
             />
 
             <ReCAPTCHA
               ref={reCaptchaRef}
-              size={RecaptchaSizeEnum[recaptcha]}
+              size={RecaptchaSizeEnum[form.recaptcha]}
               sitekey={Config.self.captcha.sitekey}
             />
 
@@ -68,12 +71,12 @@ export default function () {
                 onClick={() =>
                   ErrorService.envelop(
                     async () => {
-                      if (!username || !password) {
+                      if (!form.username || !form.password) {
                         throw new Error(`username or password can't be blank`);
                       }
 
                       const captcha =
-                        recaptcha == RecaptchaSizeEnum.invisible
+                        form.recaptcha == RecaptchaSizeEnum.invisible
                           ? await reCaptchaRef.current?.executeAsync()
                           : reCaptchaRef.current?.getValue();
 
@@ -82,9 +85,9 @@ export default function () {
 
                       // prettier-ignore
                       await dispatch(CaptchaEntity.self.save.thunk(new CaptchaEntity({ captcha }))).unwrap();
+                      await signIn('credentials', { ...form, redirect: false }); // prettier-ignore
 
-                      // prettier-ignore
-                      await dispatch(AuthEntity.self.save.thunk(new LoginEntity({ username, password }))).unwrap();
+                      router.push('/admin/projects');
                     },
                     async () => reCaptchaRef.current?.reset(),
                   )
@@ -98,4 +101,11 @@ export default function () {
       </Container>
     </>
   );
+}
+
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+  const session = await getServerSession(ctx.req, ctx.res, options);
+  if (session) return { redirect: { destination: '/admin/projects' } };
+
+  return { props: {} };
 }

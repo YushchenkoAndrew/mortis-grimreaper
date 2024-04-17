@@ -2,7 +2,7 @@ import Container from '../../../components/Container/Container';
 import Header from '../../../components/Header/Header';
 import Navbar from '../../../components/Navbar/Navbar';
 import NavbarItem from '../../../components/Navbar/NavbarItem';
-import Radio from '../../../components/Radio/Radio';
+import RadioFormElement from '../../../components/Form/Elements/RadioFormElement';
 import { Config } from '../../../config';
 import { NAVIGATION } from '../../../constants';
 import { PROJECT_TYPES_OPTIONS } from '../../../components/constants/projects';
@@ -13,10 +13,13 @@ import CheckFormElement from '../../../components/Form/Elements/CheckFormElement
 import NextFormElement from '../../../components/Form/Elements/NextFormElement';
 import { ErrorService } from '../../../lib/common/error.service';
 import { AdminProjectEntity } from '../../../lib/project/entities/admin-project.entity';
+import { GetServerSidePropsContext } from 'next';
+import { options } from '../../api/admin/auth/[...nextauth]';
+import { getServerSession } from 'next-auth';
 
 export default function () {
   const dispatch = useAppDispatch();
-  const form = useAppSelector((state) => state.admin.projects.form);
+  const form = useAppSelector((state) => state.admin.project.form);
 
   return (
     <>
@@ -35,12 +38,12 @@ export default function () {
           <span className="text-xl font-semibold my-8">
             Create Project From Source Code
           </span>
-          <Radio
+          <RadioFormElement
             name="Project Provider"
             value={form.type}
             onChange={(e) => dispatch(AdminProjectFormStore.actions.setType(e))}
             options={PROJECT_TYPES_OPTIONS}
-          ></Radio>
+          />
 
           <div className="mt-8 space-y-7">
             <InputFormElement
@@ -89,12 +92,13 @@ export default function () {
             </div>
 
             <NextFormElement
-              name="Create project"
+              className="w-full bg-blue-100 p-3 rounded shadow-md"
+              next="Create project"
               processing={form.processing}
               onNext={() =>
-                ErrorService.envelop(
-                  dispatch(AdminProjectEntity.self.save.thunk(form)).unwrap,
-                )
+                ErrorService.envelop(async () => {
+                  dispatch(AdminProjectEntity.self.save.thunk(form)).unwrap();
+                })
               }
             />
           </div>
@@ -104,4 +108,9 @@ export default function () {
   );
 }
 
-// export const getServerSideProps = defaultServerSideHandler;
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+  const session = await getServerSession(ctx.req, ctx.res, options);
+  if (!session) return { redirect: { destination: '/admin/login' } };
+
+  return { props: ctx.params || {} };
+}

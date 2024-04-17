@@ -3,7 +3,7 @@ import { Column } from '../../common/decorators/column';
 import { Entity } from '../../common/decorators/request-entity';
 import { ProjectEntity } from './project.entity';
 
-@Entity({ route: 'admin/projects', private: true })
+@Entity({ route: 'admin/projects', session: true })
 export class AdminProjectEntity extends ProjectEntity {
   constructor(init?: Partial<AdminProjectEntity>) {
     super();

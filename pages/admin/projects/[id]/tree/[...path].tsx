@@ -37,11 +37,13 @@ import { PROJECT_FILE_ACTIONS } from '../../../../../components/constants/projec
 import CustomMenuFormElement from '../../../../../components/Form/Custom/CustomMenuFormElement';
 import { AdminProjectStore } from '../../../../../lib/project/stores/admin-project.store';
 import { AttachmentAttachableTypeEnum } from '../../../../../lib/attachment/types/attachment-attachable-type.enum';
+import { getServerSession } from 'next-auth';
+import { options } from '../../../../api/admin/auth/[...nextauth]';
 
 export default function () {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const project = useAppSelector((state) => state.admin.projects.index);
+  const project = useAppSelector((state) => state.admin.project.index);
   const attachment = useAppSelector((state) => state.admin.attachment);
 
   const fileRef = useRef<HTMLInputElement>(null);
@@ -58,7 +60,7 @@ export default function () {
       ).unwrap()) as AdminProjectEntity;
 
       const root = '/' + router.query.path.join('/');
-      const attachment = project.attachments.find((e) => e.filepath() == root);
+      const attachment = project.attachments.find((e) => e._filepath() == root);
 
       // prettier-ignore
       if (!attachment) return dispatch(AdminAttachmentStore.actions.setBuffer(null));
@@ -263,5 +265,8 @@ export default function () {
 }
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  return { props: ctx.params };
+  const session = await getServerSession(ctx.req, ctx.res, options);
+  if (!session) return { redirect: { destination: '/admin/login' } };
+
+  return { props: ctx.params || {} };
 }

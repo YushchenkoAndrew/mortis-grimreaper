@@ -1,8 +1,4 @@
-import sessionConfig from '../../config/session';
-import { checkIfUserExist } from '../../lib/auth';
-import { basePath } from '../../config';
-
-export default function Logout() {
+export default function () {
   return <></>;
 }
 

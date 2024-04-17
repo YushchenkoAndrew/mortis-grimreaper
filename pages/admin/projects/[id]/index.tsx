@@ -26,12 +26,13 @@ import moment from 'moment';
 import { RequestTypeEnum } from '../../../../lib/common/types/request-type.enum';
 import Link from 'next/link';
 import CustomMenuFormElement from '../../../../components/Form/Custom/CustomMenuFormElement';
-import { CommonRequest } from '../../../../lib/common/common.request';
+import { getServerSession } from 'next-auth';
+import { options } from '../../../api/admin/auth/[...nextauth]';
 
 export default function () {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const project = useAppSelector((state) => state.admin.projects.index);
+  const project = useAppSelector((state) => state.admin.project.index);
 
   const imgRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -82,7 +83,7 @@ export default function () {
 
   return (
     <>
-      <Header title="Admin project create"></Header>
+      <Header title={project.name || 'Project'}></Header>
 
       <Container
         Navbar={
@@ -135,11 +136,7 @@ export default function () {
               </span>
               <img
                 className="relative block top-0 left-0 h-full w-full rounded mix-blend-multiply"
-                src={
-                  project.thumbnail?.file
-                    ? project.thumbnail.url()
-                    : project.avatar
-                }
+                src={project.avatar}
                 alt="thumbnailLL"
               />
             </div>
@@ -249,5 +246,8 @@ export default function () {
 }
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  return { props: ctx.params };
+  const session = await getServerSession(ctx.req, ctx.res, options);
+  if (!session) return { redirect: { destination: '/admin/login' } };
+
+  return { props: ctx.params || {} };
 }

@@ -5,6 +5,8 @@ import { IdEntity } from '../../common/entities/id.entity';
 import { PaletteEntity } from '../../palette/palette.entity';
 import { PatternEntity } from '../../pattern/pattern.entity';
 import { ProjectTypeEnum } from '../types/project-type.enum';
+import { createAvatar } from '@dicebear/core';
+import { identicon } from '@dicebear/collection';
 
 @Entity({ route: 'projects' })
 export class ProjectEntity extends IdEntity {
@@ -36,4 +38,9 @@ export class ProjectEntity extends IdEntity {
 
   @Column((e) => new AttachmentEntity().buildAll(e.attachments ?? []))
   attachments: AttachmentEntity[] = [];
+
+  _avatar() {
+    if (this.thumbnail?.file) return this.thumbnail._url();
+    return createAvatar(identicon, { seed: this.id }).toDataUriSync();
+  }
 }

@@ -15,25 +15,41 @@ export class CommonRequest<
     private readonly action: string,
     private readonly fetch: (
       base: string,
-      init: (options?: RequestOptionsType) => RequestInit,
+      init: (options?: RequestOptionsType) => Promise<RequestInit>,
     ) => (...args: Args) => Promise<Response>,
   ) {}
 
   public get exec() {
-    return this.fetch(Config.self.base.api, (options?: RequestOptionsType) => {
-      const headers: ObjectLiteral = {};
+    return this.fetch(
+      Config.self.base.api,
+      async (options?: RequestOptionsType) => {
+        const headers: ObjectLiteral = { ...options?.headers };
 
-      if (!options?.type || options.type == RequestTypeEnum.json) {
-        headers['Content-Type'] = 'application/json';
-      }
+        if (!options?.type || options.type == RequestTypeEnum.json) {
+          headers['Content-Type'] ||= 'application/json';
+        }
 
-      if (typeof window !== 'undefined') {
-        const access_token = localStorage.getItem('access_token');
-        if (access_token) headers.Authorization = `Bearer ${access_token}`;
-      }
+        if (options?.session) {
+          const getSession = async () => {
+            if (typeof window !== 'undefined') {
+              const { getSession } = await import('next-auth/react');
+              return getSession();
+            }
 
-      return { headers };
-    });
+            const { getServerSession } = await import('next-auth');
+            return getServerSession();
+          };
+
+          const auth: { access_token: string } = (await getSession()) as any;
+
+          if (auth.access_token) {
+            headers.Authorization ||= `Bearer ${auth.access_token}`;
+          }
+        }
+
+        return { headers };
+      },
+    );
   }
 
   public get thunk() {

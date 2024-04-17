@@ -16,6 +16,6 @@ export class AuthEntity extends CommonEntity {
   @Column()
   refresh_token: string = '';
 
-  @Column((e) => new UserEntity().build(e))
+  @Column((e) => new UserEntity().build(e.user))
   user: UserEntity = null;
 }

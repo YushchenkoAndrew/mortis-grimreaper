@@ -1,4 +1,7 @@
-import React from 'react';
+import { GetServerSidePropsContext } from 'next';
+import { getServerSession } from 'next-auth';
+import React, { useEffect } from 'react';
+import { Virtuoso } from 'react-virtuoso';
 import Breadcrumbs from '../../../components/Breadcrumbs/Breadcrumbs';
 import Container from '../../../components/Container/Container';
 import Header from '../../../components/Header/Header';
@@ -6,9 +9,23 @@ import Navbar from '../../../components/Navbar/Navbar';
 import NavbarItem from '../../../components/Navbar/NavbarItem';
 import { Config } from '../../../config';
 import { NAVIGATION } from '../../../constants';
-// import defaultServerSideHandler from '../../lib/api/session';
+import { ErrorService } from '../../../lib/common/error.service';
+import { useAppDispatch, useAppSelector } from '../../../lib/common/store';
+import { AdminProjectPageEntity } from '../../../lib/project/entities/admin-project-page.entity';
+import { options } from '../../api/admin/auth/[...nextauth]';
 
 export default function () {
+  const dispatch = useAppDispatch();
+  const projects = useAppSelector((state) => state.admin.projects);
+
+  useEffect(() => {
+    ErrorService.envelop(async () => {
+      dispatch(AdminProjectPageEntity.self.select.thunk({ page: 1 })).unwrap();
+    });
+  }, []);
+
+  console.log(projects);
+
   return (
     <>
       <Header title="Admin Projects"></Header>
@@ -23,43 +40,39 @@ export default function () {
         }
         Breadcrumbs={<Breadcrumbs path={['Home', 'Projects']} />}
       >
-        {/* <div className="grid grid-cols-1 items-center gap-x-2 gap-y-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 xl:gap-y-8">
+        <div className="grid grid-cols-1 items-center gap-x-2 gap-y-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 xl:gap-y-8">
           <Virtuoso
-            data={projects}
-            endReached={() =>
-              ErrorService.envelop(
-                dispatch(ProjectPageEntity.self.select({ page: page + 1 }))
-                  .unwrap,
-              )
+            data={projects.result}
+            endReached={
+              () => []
+              // ErrorService.envelop(
+              //   dispatch(ProjectPageEntity.self.select({ page: page + 1 }))
+              //     .unwrap,
+              // )
             }
             increaseViewportBy={200}
-            itemContent={(_, project) => (
-              <Thumbnail
-                key={project.id}
-                img={project.thumbnail?.path || ''}
-                title={project.name}
-                href={StringService.href('projects', project.id)}
-                description={project.description}
-                curtain
-              />
-            )}
+            itemContent={
+              (_, project) => <p>{project.id}</p>
+              // <Thumbnail
+              //   key={project.id}
+              //   img={project.thumbnail?.path || ''}
+              //   title={project.name}
+              //   href={StringService.href('projects', project.id)}
+              //   description={project.description}
+              //   curtain
+              // />
+            }
             // components={{ Footer }}
           />
-
-          {new Array(20).fill(0).map((_, i) => (
-            <Thumbnail
-              key={i}
-              img={`${Config.self.base.web}/img/CodeRain.webp`}
-              title="Code Rain"
-              href={`${Config.self.base}/CodeRain`}
-              description="Take the blue pill and the site will close, or take the red pill and I show how deep the rabbit hole goes"
-              curtain
-            />
-          ))}
-        </div> */}
+        </div>
       </Container>
     </>
   );
 }
 
-// export const getServerSideProps = defaultServerSideHandler;
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+  const session = await getServerSession(ctx.req, ctx.res, options);
+  if (!session) return { redirect: { destination: '/admin/login' } };
+
+  return { props: ctx.params || {} };
+}

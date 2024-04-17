@@ -33,7 +33,7 @@ export class RequestProps {
   /**
    * If private then send access_token in Authorization
    */
-  private: true;
+  session: true;
 }
 
 type PropsT = Partial<Omit<RequestProps, 'self' | 'key'>>;

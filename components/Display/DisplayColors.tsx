@@ -1,12 +1,11 @@
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
-import { ColorData } from '../../lib/common/types/api';
 import styles from './DisplayColors.module.scss';
 
 // export interface DisplayColorsProps extends ColProps {
 export interface DisplayColorsProps {
-  data: ColorData;
+  data: any;
+  // data: ColorData;
   event?: { href?: string; onClick: () => void };
   selected?: boolean;
 }

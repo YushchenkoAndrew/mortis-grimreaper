@@ -9,16 +9,18 @@ import { LoginStore } from '../auth/stores/login.store';
 import { AdminProjectFormStore } from '../project/stores/admin-project-form.store';
 import { AdminProjectStore } from '../project/stores/admin-project.store';
 import { AdminAttachmentStore } from '../attachment/stores/admin-attachment.store';
-import { ProjectStore } from '../project/stores/project.store';
+import { ProjectsStore } from '../project/stores/projects.store';
+import { AdminProjectsStore } from '../project/stores/admin-projects.store';
 
 export const store = () => {
   return configureStore({
     reducer: {
-      project: ProjectStore.reducer,
+      project: ProjectsStore.reducer,
       admin: combineReducers({
         login: LoginStore.reducer,
         attachment: AdminAttachmentStore.reducer,
-        projects: combineReducers({
+        projects: AdminProjectsStore.reducer,
+        project: combineReducers({
           index: AdminProjectStore.reducer,
           form: AdminProjectFormStore.reducer,
         }),

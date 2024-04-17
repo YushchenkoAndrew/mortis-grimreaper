@@ -9,7 +9,7 @@ type StoreT = Pick<ProjectPageEntity, 'total' | 'page'> & {
   projects: ProjectEntity[];
 };
 
-export const ProjectStore = createSlice({
+export const ProjectsStore = createSlice({
   name: 'project',
   initialState: { query: {}, total: 0, page: 0, projects: [] } as StoreT,
   reducers: {

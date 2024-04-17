@@ -2,7 +2,7 @@ import { Column, Request } from '../../common/decorators/column';
 import { Entity } from '../../common/decorators/request-entity';
 import { AttachmentEntity } from './attachment.entity';
 
-@Entity({ route: 'admin/attachments' })
+@Entity({ route: 'admin/attachments', session: true })
 export class AdminAttachmentEntity extends AttachmentEntity {
   constructor(init?: Partial<AdminAttachmentEntity>) {
     super();

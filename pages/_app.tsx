@@ -4,14 +4,19 @@ import { useRef } from 'react';
 import { AppStore, store } from '../lib/common/store';
 import { ToastContainer } from 'react-toastify';
 import { config } from '@fortawesome/fontawesome-svg-core';
+import { SessionProvider } from 'next-auth/react';
 
 import 'react-toastify/dist/ReactToastify.css';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import '../styles/globals.scss';
+import { Config } from '../config';
 
 config.autoAddCss = false;
 
-export default function MyApp({ Component, pageProps }: AppProps) {
+export default function MyApp({
+  Component,
+  pageProps: { session, ...pageProps },
+}: AppProps) {
   const storeRef = useRef<AppStore>();
   storeRef.current ??= store();
 
@@ -45,10 +50,15 @@ export default function MyApp({ Component, pageProps }: AppProps) {
         id="ip-min-js"
         data-path={Config.self.base}
       ></Script> */}
-      <Provider store={storeRef.current}>
-        <ToastContainer />
-        <Component {...pageProps} />
-      </Provider>
+      <SessionProvider
+        basePath={`${Config.self.base.api}/admin/auth`}
+        session={session}
+      >
+        <Provider store={storeRef.current}>
+          <ToastContainer />
+          <Component {...pageProps} />
+        </Provider>
+      </SessionProvider>
     </>
   );
 }

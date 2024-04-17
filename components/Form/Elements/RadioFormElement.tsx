@@ -1,8 +1,10 @@
 import { RadioGroup } from '@headlessui/react';
 import { Dispatch } from 'react';
-import { ObjectLiteral } from '../../lib/common/types';
+import { ObjectLiteral } from '../../../lib/common/types';
 
-export interface RadioProps<T extends ObjectLiteral<React.ReactNode>> {
+export interface RadioFormElementProps<
+  T extends ObjectLiteral<React.ReactNode>,
+> {
   className?: string;
   name: string;
   value: keyof T & string;
@@ -10,9 +12,9 @@ export interface RadioProps<T extends ObjectLiteral<React.ReactNode>> {
   options: T;
 }
 
-export default function Radio<T extends ObjectLiteral<React.ReactNode>>(
-  props: RadioProps<T>,
-) {
+export default function RadioFormElement<
+  T extends ObjectLiteral<React.ReactNode>,
+>(props: RadioFormElementProps<T>) {
   return (
     <div className={`${props.className || ''} max-w-sm w-full`}>
       <span className="text-sm font-medium">{props.name}</span>

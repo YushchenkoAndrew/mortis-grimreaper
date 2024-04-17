@@ -23,11 +23,13 @@ import { AdminAttachmentEntity } from '../../../../lib/attachment/entities/admin
 import { RequestTypeEnum } from '../../../../lib/common/types/request-type.enum';
 import InputFormElement from '../../../../components/Form/Elements/InputFormElement';
 import { AttachmentAttachableTypeEnum } from '../../../../lib/attachment/types/attachment-attachable-type.enum';
+import { getServerSession } from 'next-auth';
+import { options } from '../../../api/admin/auth/[...nextauth]';
 
 export default function () {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const project = useAppSelector((state) => state.admin.projects.index);
+  const project = useAppSelector((state) => state.admin.project.index);
   const attachment = useAppSelector((state) => state.admin.attachment);
 
   const attachmentRef = useRef<AdminAttachmentStoreT>(null);
@@ -168,5 +170,8 @@ export default function () {
 }
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  return { props: ctx.params };
+  const session = await getServerSession(ctx.req, ctx.res, options);
+  if (!session) return { redirect: { destination: '/admin/login' } };
+
+  return { props: ctx.params || {} };
 }

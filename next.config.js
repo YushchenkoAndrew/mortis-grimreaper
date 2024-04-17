@@ -17,7 +17,7 @@ module.exports = {
       proxy('admin/projects/:id'),
       proxy('admin/attachments'),
       proxy('admin/attachments/:id'),
-      proxy('admin/login', 'login'),
+      // proxy('admin/login', 'login'),
     ];
   },
 
@@ -36,6 +36,7 @@ module.exports = {
   serverRuntimeConfig: {
     BASE_PATH: process.env.BASE_PATH,
     API_URL: process.env.API_URL,
+    SESSION_SECRET: process.env.SESSION_SECRET,
 
     RECAPTCHA_SECRET_KEY: process.env.RECAPTCHA_SECRET_KEY,
     RECAPTCHA_INVISIBLE_SECRET_KEY: process.env.RECAPTCHA_INVISIBLE_SECRET_KEY,

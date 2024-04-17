@@ -9,6 +9,7 @@ export const NAVIGATION = {
   admin: [
     { name: 'Home', href: '/admin' },
     { name: 'Projects', href: '/admin/projects' },
+    { name: 'Logout', href: '/admin/logout' },
   ],
   default: [
     { name: 'home', href: '/' },

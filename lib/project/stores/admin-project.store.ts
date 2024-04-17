@@ -1,5 +1,3 @@
-import { identicon } from '@dicebear/collection';
-import { createAvatar } from '@dicebear/core';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AdminAttachmentEntity } from '../../attachment/entities/admin-attachment.entity';
 import { ObjectLiteral } from '../../common/types';
@@ -55,7 +53,6 @@ export const AdminProjectStore = createSlice({
       AdminProjectEntity.self.load.thunk.fulfilled,
       (state, { payload }) => {
         const res: AdminProjectEntity = payload as any;
-        // window.location.href = `./${res.id}`;
 
         state.id = res.id;
         state.name = res.name;
@@ -64,10 +61,7 @@ export const AdminProjectStore = createSlice({
         state.footer = res.footer;
 
         state.attachments = res.attachments;
-        state.thumbnail = res.thumbnail;
-        state.avatar = createAvatar(identicon, {
-          seed: res.id,
-        }).toDataUriSync();
+        state.avatar = res._avatar();
       },
     );
   },

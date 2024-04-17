@@ -123,11 +123,13 @@ export class CommonEntity {
       this.newInstance(),
       `${''}${props.route}/action/select`,
       (base: string, init) =>
-        (query: ObjectLiteral, options?: RequestOptionsType) =>
-          fetch(
-            `${base}/${props.route}?${StringService.toQuery(query)}`,
-            init(options),
-          ),
+        async (query: ObjectLiteral, options?: RequestOptionsType) => {
+          const pathname = options?.pathname || `${base}/${props.route}`;
+          return fetch(
+            `${pathname}?${StringService.toQuery(query)}`,
+            await init({ ...options, session: props.session }),
+          );
+        },
     );
   }
 
@@ -139,11 +141,13 @@ export class CommonEntity {
       this.newInstance(),
       `${''}${props.route}/action/load`,
       (base: string, init) =>
-        (id: string | string[], options?: RequestOptionsType) =>
-          fetch(
-            `${base}/${props.route}/${ArrayService.first(id)}`,
-            init(options),
-          ),
+        async (id: string | string[], options?: RequestOptionsType) => {
+          const pathname = options?.pathname || `${base}/${props.route}`;
+          return fetch(
+            `${pathname}/${ArrayService.first(id)}`,
+            await init({ ...options, session: props.session }),
+          );
+        },
     );
   }
 
@@ -155,7 +159,7 @@ export class CommonEntity {
       this.newInstance(),
       `${''}${props.route}/action/save`,
       (base: string, init) =>
-        (
+        async (
           entity: ObjectLiteral | CommonEntity,
           options?: RequestOptionsType,
         ) => {
@@ -171,11 +175,14 @@ export class CommonEntity {
           );
 
           const id = (entity as any).id || (this as any).id || '';
-          return fetch(`${base}/${props.route}/${id}`, {
-            ...init(options),
+          const pathname = options?.pathname || `${base}/${props.route}`;
+          const config = await init({ ...options, session: props.session });
+
+          return fetch(pathname + (id ? `/${id}` : ''), {
+            ...config,
             method: id ? 'PUT' : 'POST',
             body:
-              options.type == RequestTypeEnum.form
+              options?.type == RequestTypeEnum.form
                 ? form
                 : JSON.stringify(body),
           });
@@ -191,11 +198,15 @@ export class CommonEntity {
       this.newInstance(),
       `${''}${props.route}/action/delete`,
       (base: string, init) =>
-        (id: string | string[], options?: RequestOptionsType) =>
-          fetch(`${base}/${props.route}/${ArrayService.first(id)}`, {
-            ...init(options),
+        async (id: string | string[], options?: RequestOptionsType) => {
+          const pathname = options?.pathname || `${base}/${props.route}`;
+          const config = await init({ ...options, session: props.session });
+
+          return fetch(`${pathname}/${ArrayService.first(id)}`, {
+            ...config,
             method: 'DELETE',
-          }),
+          });
+        },
     );
   }
 

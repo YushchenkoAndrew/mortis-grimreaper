@@ -22,11 +22,11 @@ export class AttachmentEntity extends IdEntity {
   @Request({ nullable: true })
   type: string = '';
 
-  filepath() {
+  _filepath() {
     return this.path + this.name;
   }
 
-  url() {
+  _url() {
     return `${Config.self.base.api}${this.file}`;
   }
 }

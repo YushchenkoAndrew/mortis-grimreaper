@@ -1,3 +1,4 @@
+import console from 'console';
 import nextAuth, { AuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { Config } from '../../../../config';
@@ -28,20 +29,20 @@ export const options: AuthOptions = {
           {},
           {
             headers: { Authorization: `Bearer ${token.access_token}` },
-            pathname: `${Config.self.base.grape}/ping`,
+            pathname: `${Config.self.base.grape}/auth/ping`,
           },
         )
-        .catch((err) => null);
+        .catch(() => null);
 
       if (ping) return token;
       const refreshed = (await AuthEntity.self.save
         .build(
           new RefreshEntity({ refresh_token: token.refresh_token as any }),
-          { pathname: `${Config.self.base.grape}/refresh` },
+          { pathname: `${Config.self.base.grape}/auth/refresh` },
         )
         .catch(() => null)) as AuthEntity;
 
-      if (!refreshed) return {};
+      if (!refreshed) return token;
       token.user = refreshed.user;
       token.access_token = refreshed.access_token;
       token.refresh_token = refreshed.refresh_token;
@@ -70,7 +71,7 @@ export const options: AuthOptions = {
       authorize(credentials) {
         return AuthEntity.self.save
           .build(new LoginEntity(credentials), {
-            pathname: `${Config.self.base.grape}/login`,
+            pathname: `${Config.self.base.grape}/auth/login`,
           })
           .catch(() => null);
       },

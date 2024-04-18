@@ -3,7 +3,7 @@ import { Entity } from '../../common/decorators/request-entity';
 import { CommonEntity } from '../../common/entities/common.entity';
 import { UserEntity } from '../../user/entities/user.entity';
 
-@Entity({ route: 'admin/login' })
+@Entity({ route: 'auth/login' })
 export class AuthEntity extends CommonEntity {
   constructor(init?: Partial<AuthEntity>) {
     super();

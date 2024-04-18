@@ -11,7 +11,7 @@ type StoreT = AdminProjectPageEntity;
 export const AdminProjectsStore = createSlice({
   name: 'admin-projects',
   initialState: {
-    page: 1,
+    page: 0,
     result: [],
   } as StoreT,
   reducers: {
@@ -29,7 +29,7 @@ export const AdminProjectsStore = createSlice({
         state.per_page = res.per_page;
         state.total = res.total;
 
-        state.result = res.result;
+        state.result.push(...res.result);
       },
     );
   },

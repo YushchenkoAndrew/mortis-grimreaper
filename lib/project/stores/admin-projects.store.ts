@@ -1,23 +1,33 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { ObjectLiteral } from '../../common/types';
 import { AdminProjectPageEntity } from '../entities/admin-project-page.entity';
+import { AdminProjectEntity } from '../entities/admin-project.entity';
 
-type StoreT = AdminProjectPageEntity;
-// & {
-//   avatar: string;
-//   readme: string;
-//   trash: ObjectLiteral<AdminAttachmentEntity>;
-// };
+type StoreT = AdminProjectPageEntity & {
+  trash: ObjectLiteral<AdminProjectEntity>;
+};
 
 export const AdminProjectsStore = createSlice({
   name: 'admin-projects',
   initialState: {
     page: 0,
     result: [],
+
+    trash: null,
   } as StoreT,
   reducers: {
-    // setType: (state, action: PayloadAction<ProjectTypeEnum>) => {
-    //   state.type = action.payload;
-    // },
+    initTrash: (state) => {
+      state.trash = {};
+    },
+    pushTrash: (state, action: PayloadAction<AdminProjectEntity>) => {
+      const id = action.payload.id;
+
+      if (state.trash[id]) delete state.trash[id];
+      else state.trash[id] = action.payload;
+    },
+    clearTrash: (state) => {
+      state.trash = null;
+    },
   },
   extraReducers(builder) {
     builder.addCase(

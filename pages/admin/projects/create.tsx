@@ -16,6 +16,7 @@ import { AdminProjectEntity } from '../../../lib/project/entities/admin-project.
 import { GetServerSidePropsContext } from 'next';
 import { options } from '../../api/admin/auth/[...nextauth]';
 import { getServerSession } from 'next-auth';
+import { ProjectTypeEnum } from '../../../lib/project/types/project-type.enum';
 
 export default function () {
   const dispatch = useAppDispatch();
@@ -76,20 +77,33 @@ export default function () {
               }
             />
 
-            <div>
-              <label className="block text-sm font-medium leading-6 text-gray-800">
-                Initialize project with:
-              </label>
-              <CheckFormElement
-                className="mt-1"
-                name="Add a README file"
-                description="Delivers a comprehensive project overview from development point perspective"
-                value={form.readme}
-                onChange={() =>
-                  dispatch(AdminProjectFormStore.actions.invertREADME())
+            {form.type == ProjectTypeEnum.link ? (
+              <InputFormElement
+                name="Redirect link"
+                description="This redirection link will provide seamless access to the desired destination"
+                placeholder="Provide in-depth project summary"
+                value={form.link}
+                required
+                onChange={(e) =>
+                  dispatch(AdminProjectFormStore.actions.setLink(e))
                 }
               />
-            </div>
+            ) : (
+              <div>
+                <label className="block text-sm font-medium leading-6 text-gray-800">
+                  Initialize project with:
+                </label>
+                <CheckFormElement
+                  className="mt-1"
+                  name="Add a README file"
+                  description="Delivers a comprehensive project overview from development point perspective"
+                  value={form.readme}
+                  onChange={() =>
+                    dispatch(AdminProjectFormStore.actions.invertREADME())
+                  }
+                />
+              </div>
+            )}
 
             <NextFormElement
               className="w-full bg-blue-100 p-3 rounded shadow-md"

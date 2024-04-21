@@ -240,7 +240,7 @@ export default function () {
               ? dispatch(AdminProjectStore.actions.pushTrash(attachment))
               : redirect(AttachmentService.filepath(attachment))
           }
-          stringify={{
+          dataComponent={{
             name: (attachment) => (
               <span
                 className={`flex whitespace-nowrap ${

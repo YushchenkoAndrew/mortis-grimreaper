@@ -1,9 +1,11 @@
+import { useSortable } from '@dnd-kit/sortable';
 import {
   faDocker,
   faHtml5,
   faMarkdown,
 } from '@fortawesome/free-brands-svg-icons';
-import { faGlobe } from '@fortawesome/free-solid-svg-icons';
+import { faWindowMaximize } from '@fortawesome/free-regular-svg-icons';
+import { faGlobe, faStarOfLife } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IdEntity } from '../../lib/common/entities/id.entity';
 import { ProjectStepEnum } from '../../lib/project/types/project-step.enum';
@@ -16,15 +18,41 @@ export const PROJECT_FORM_STEPS = {
   [ProjectStepEnum.review]: 'Review',
 };
 
-export const PROJECT_ACTIONS = [{ Links: new IdEntity({ name: 'Link' }) }];
-
 export const PROJECT_FILE_ACTIONS = {
   create: 'Create File',
   upload: 'Upload File',
   delete: 'Delete File',
 };
 
+export const PROJECT_ACTIONS = {
+  status: 'Change project visibility',
+  delete: 'Delete this project',
+};
+
+export const PROJECTS_ACTIONS = {
+  create: 'New Project',
+  delete: 'Delete Projects',
+};
+
 export const PROJECT_TYPES_OPTIONS = {
+  [ProjectTypeEnum.p5js]: (
+    <>
+      <FontAwesomeIcon
+        className="text-2xl pr-2 text-red-500"
+        icon={faStarOfLife}
+      />
+      p5js graphic
+    </>
+  ),
+  [ProjectTypeEnum.emscripten]: (
+    <>
+      <FontAwesomeIcon
+        className="text-2xl pl-2 text-lime-500 rotate-180"
+        icon={faWindowMaximize}
+      />
+      Emscripten Project
+    </>
+  ),
   [ProjectTypeEnum.html]: (
     <>
       <FontAwesomeIcon

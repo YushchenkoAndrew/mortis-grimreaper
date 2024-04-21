@@ -4,19 +4,24 @@ import { ObjectLiteral } from '../../common/types';
 import { AdminProjectEntity } from '../entities/admin-project.entity';
 import { ProjectTypeEnum } from '../types/project-type.enum';
 
-type StoreT = AdminProjectEntity & {
+type StoreT = Omit<AdminProjectEntity, 'readme'> & {
   avatar: string;
   readme: string;
   trash: ObjectLiteral<AdminAttachmentEntity>;
+  picked: AdminAttachmentEntity;
 };
 
 export const AdminProjectStore = createSlice({
   name: 'admin-project',
   initialState: {
     name: '',
+    status: '' as any,
+
+    links: [],
     attachments: [],
 
     trash: null,
+    picked: null,
     readme: '',
   } as StoreT,
   reducers: {
@@ -47,6 +52,18 @@ export const AdminProjectStore = createSlice({
     clearTrash: (state) => {
       state.trash = null;
     },
+    onPick: (state, action: PayloadAction<string>) => {
+      const id = action.payload;
+      state.picked = state.attachments.find((e) => e.id == id) || null;
+    },
+    onReorder: (state, action: PayloadAction<AdminAttachmentEntity[]>) => {
+      state.attachments = action.payload.map(
+        (e, index) => ((e.order = index), e),
+      );
+    },
+    onDrop: (state) => {
+      state.picked = null;
+    },
   },
   extraReducers(builder) {
     builder.addCase(
@@ -57,11 +74,16 @@ export const AdminProjectStore = createSlice({
         state.id = res.id;
         state.name = res.name;
         state.type = res.type;
+        state.status = res.status;
         state.description = res.description;
         state.footer = res.footer;
 
         state.attachments = res.attachments;
         state.avatar = res._avatar();
+
+        state.trash = null;
+        state.picked = null;
+        state.readme = '';
       },
     );
   },

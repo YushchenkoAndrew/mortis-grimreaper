@@ -1,88 +1,52 @@
-import DefaultHead from '../../components/Header/Header';
-import DefaultHeader from '../../components/Navbar/Navbar';
-import DefaultFooter from '../../components/default/DefaultFooter';
-import DefaultProjectInfo from '../../components/default/DefaultProjectInfo';
 import { GetServerSidePropsContext } from 'next';
-import { LinkData, ProjectData } from '../../lib/common/types/api';
-import { FlagType } from '../../lib/common/types/flag';
-import { LoadRecords } from '../../lib/api/api';
-import { LoadFile } from '../../lib/api/file';
-import { formPath } from '../../lib/public/files';
-import { HtmlMarkers } from '../../config/placeholder';
-import { voidUrl } from '../../config';
-import DefaultTemplate from '../../components/default/DefaultTemplate';
-export interface ProjectPageProps {
-  name: string;
-  title: string;
-  flag: FlagType;
-  note: string;
-  template: string;
-  links: LinkData[];
+import { Config } from '../../config';
+import Header from '../../components/Header/Header';
+import Container from '../../components/Container/Container';
+import GlitchItem from '../../components/Navbar/GlitchItem';
+import { NAVIGATION } from '../../constants';
+import Navbar from '../../components/Navbar/Navbar';
+import { ProjectEntity } from '../../lib/project/entities/project.entity';
+import { AttachmentService } from '../../lib/attachment/attachment.service';
+import { ProjectTypeEnum } from '../../lib/project/types/project-type.enum';
+import P5js from '../../components/Container/P5js';
+
+interface PropsT {
+  project: ProjectEntity;
 }
 
-export default function ProjectPage(props: ProjectPageProps) {
+export default function (props: PropsT) {
+  const scripts = AttachmentService.js(props.project.attachments, 'file');
+
   return (
     <>
-      <DefaultHead>
-        <title>{props.title}</title>
-      </DefaultHead>
-      <DefaultHeader name={props.title} projects />
+      <Header title={props.project.name}></Header>
 
-      <DefaultTemplate
-        flag={props.flag}
-        name={props.name}
-        template={props.template}
-      />
-
-      <DefaultFooter name={props.title}>
-        <DefaultProjectInfo
-          links={props.links.map(({ link, name }) => ({
-            name: name,
-            link:
-              'http://' +
-              link
-                .replace(new RegExp(HtmlMarkers.FILE_SERVER, 'g'), voidUrl)
-                .replace(new RegExp(HtmlMarkers.PROJECT_NAME, 'g'), props.name)
-                .replace(/http:\/\/|https:\/\//g, ''),
-          }))}
-          description={props.note}
-        />
-      </DefaultFooter>
+      <Container
+        className="overflow-y-hidden w-full h-[calc(100vh-4rem)]"
+        Navbar={
+          <Navbar
+            Item={GlitchItem}
+            navigation={NAVIGATION.default}
+            avatar={Config.self.github}
+          />
+        }
+      >
+        {props.project.type == ProjectTypeEnum.p5js ? (
+          <P5js scripts={scripts} />
+        ) : (
+          <></>
+        )}
+      </Container>
     </>
   );
 }
 
-export const getServerSideProps = async ({
-  params,
-}: GetServerSidePropsContext) => {
-  const project = await LoadRecords<ProjectData>('project', {
-    name: params?.project || '',
-    'link[name]': 'main',
-    'file[role]': 'template',
-  });
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+  const project = await ProjectEntity.self.load
+    .build(ctx.params.id, { hostname: Config.self.base.grape })
+    .then((res) => JSON.parse(JSON.stringify(res)))
+    .catch(() => null);
 
-  if (!project) return { notFound: true };
-  if (['Link', 'Docker'].includes(project[0].flag)) {
-    return {
-      redirect: {
-        basePath: false,
-        permanent: false,
-        destination:
-          'http://' +
-          project[0].links[0].link
-            .replace(new RegExp(HtmlMarkers.FILE_SERVER, 'g'), voidUrl)
-            .replace(new RegExp(HtmlMarkers.PROJECT_NAME, 'g'), project[0].name)
-            .replace(/http:\/\/|https:\/\//g, ''),
-      },
-    };
-  }
-
-  return {
-    props: {
-      ...project[0],
-      template: await LoadFile(
-        `${project[0].name}/${formPath(project[0].files[0])}`,
-      ),
-    },
-  };
-};
+  if (!project) return { redirect: { destination: '/projects' } };
+  return { props: { ...ctx.params, project } };
+}

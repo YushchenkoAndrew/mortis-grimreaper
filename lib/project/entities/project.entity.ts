@@ -7,6 +7,7 @@ import { PatternEntity } from '../../pattern/pattern.entity';
 import { ProjectTypeEnum } from '../types/project-type.enum';
 import { createAvatar } from '@dicebear/core';
 import { identicon } from '@dicebear/collection';
+import { LinkEntity } from '../../link/entities/link.entity';
 
 @Entity({ route: 'projects' })
 export class ProjectEntity extends IdEntity {
@@ -15,7 +16,7 @@ export class ProjectEntity extends IdEntity {
     this.assign(init, this);
   }
 
-  @Request()
+  @Request({ nullable: true })
   @Column()
   description: string = '';
 
@@ -36,8 +37,14 @@ export class ProjectEntity extends IdEntity {
   @Column((e) => new AttachmentEntity().build(e.thumbnail ?? {}))
   thumbnail: AttachmentEntity = null;
 
+  @Column((e) => new LinkEntity().build(e.redirect ?? {}))
+  redirect: LinkEntity = null;
+
   @Column((e) => new AttachmentEntity().buildAll(e.attachments ?? []))
   attachments: AttachmentEntity[] = [];
+
+  @Column((e) => new LinkEntity().build(e.links ?? {}))
+  links: LinkEntity[] = [];
 
   _avatar() {
     if (this.thumbnail?.file) return this.thumbnail._url();

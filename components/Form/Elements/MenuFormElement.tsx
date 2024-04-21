@@ -4,14 +4,25 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Menu } from '@headlessui/react';
-import { Dispatch, HTMLInputAutoCompleteAttribute, useState } from 'react';
+import {
+  Dispatch,
+  HTMLInputAutoCompleteAttribute,
+  ReactNode,
+  useState,
+} from 'react';
 import { ObjectLiteral } from '../../../lib/common/types';
 
 export interface MenuFormElementProps<T extends ObjectLiteral> {
   className?: string;
-  name: string;
+  name: ReactNode;
+  noChevronDown?: boolean;
   actions: T;
   onChange: Dispatch<keyof T>;
+  setOptions?: Partial<{
+    buttonPadding: string;
+    buttonColor: string;
+    buttonTextColor: string;
+  }>;
 }
 
 export default function MenuFormElement<T extends ObjectLiteral>(
@@ -23,10 +34,18 @@ export default function MenuFormElement<T extends ObjectLiteral>(
       className={`${props.className || ''} relative inline-block text-left`}
     >
       <div>
-        <Menu.Button className="inline-flex w-full px-3 py-2 justify-center items-center rounded bg-blue-600 text-sm font-semibold text-gray-50 hover:bg-blue-500 focus:outline-none">
+        <Menu.Button
+          className={`inline-flex w-full ${
+            props.setOptions?.buttonPadding || 'px-3 py-2'
+          } justify-center items-center rounded text-sm font-semibold focus:outline-none ${
+            props.setOptions?.buttonColor || 'bg-blue-600 hover:bg-blue-500'
+          } ${props.setOptions?.buttonTextColor || 'text-gray-50'}`}
+        >
           {props.name}
           <FontAwesomeIcon
-            className="-mr-1 ml-2 pb-0.5 "
+            className={`-mr-1 ml-2 pb-0.5 ${
+              props.noChevronDown ? 'hidden' : ''
+            }`}
             icon={faChevronDown}
           />
         </Menu.Button>

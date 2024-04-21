@@ -2,9 +2,11 @@ import { faBookmark } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Url } from 'next/dist/shared/lib/router/router';
 import Link from 'next/link';
-import { ReactNode } from 'react';
+import { Dispatch, ReactNode } from 'react';
 
 export interface CardProps {
+  className?: string;
+
   name: string;
   href: Url;
   img: string;
@@ -12,19 +14,26 @@ export interface CardProps {
   header?: ReactNode;
   description?: string;
   children?: ReactNode;
+
+  onClick?: Dispatch<void>;
 }
 
 export default function Card(props: CardProps) {
   return (
-    <div className="flex p-4 rounded border w-96 max-h-32 border-gray-400 justify-between">
-      <div className="flex flex-col max-w-72 mr-2">
+    <div
+      className={`flex p-4 rounded border w-96 max-h-32 border-gray-400 justify-between ${
+        props.className ?? ''
+      }`}
+      onClick={() => props.onClick?.()}
+    >
+      <div className="flex flex-col max-w-64 mr-2">
         <div className="flex items-center">
           <FontAwesomeIcon
             className="ml-0.5 mr-2 text-gray-500"
             icon={faBookmark}
           />
           <Link
-            className="font-medium text-sky-600 hover:underline"
+            className="font-medium text-sky-600 hover:underline truncate"
             href={props.href}
           >
             {props.name}

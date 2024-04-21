@@ -20,7 +20,7 @@ export default function NextFormElement(props: NextFormElementProps) {
       <button
         className={`${props.onBack ? 'block' : 'hidden'} bg-transparent ${
           props.setOptions?.buttonPadding || 'px-4 py-3'
-        } text-sm font-semibold border border-gray-300 rounded text-gray-700 hover:border-gray-400 hover:bg-gray-200`}
+        } text-sm font-semibold border border-gray-400 rounded text-gray-700 hover:border-gray-500 hover:bg-gray-200`}
         type="button"
         onClick={() => props.onBack?.()}
       >

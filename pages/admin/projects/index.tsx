@@ -1,4 +1,5 @@
 import { faFile } from '@fortawesome/free-regular-svg-icons';
+import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { GetServerSidePropsContext } from 'next';
 import { getServerSession } from 'next-auth';
@@ -7,7 +8,14 @@ import React, { forwardRef, useEffect } from 'react';
 import { VirtuosoGrid } from 'react-virtuoso';
 import Breadcrumbs from '../../../components/Breadcrumbs/Breadcrumbs';
 import Card from '../../../components/Card/Card';
+import {
+  PROJECTS_ACTIONS,
+  PROJECT_FILE_ACTIONS,
+} from '../../../components/constants/projects';
 import Container from '../../../components/Container/Container';
+import CustomMenuFormElement from '../../../components/Form/Custom/CustomMenuFormElement';
+import MenuFormElement from '../../../components/Form/Elements/MenuFormElement';
+import NextFormElement from '../../../components/Form/Elements/NextFormElement';
 import Header from '../../../components/Header/Header';
 import Navbar from '../../../components/Navbar/Navbar';
 import NavbarItem from '../../../components/Navbar/NavbarItem';
@@ -17,6 +25,7 @@ import { StringService } from '../../../lib/common';
 import { ErrorService } from '../../../lib/common/error.service';
 import { useAppDispatch, useAppSelector } from '../../../lib/common/store';
 import { AdminProjectPageEntity } from '../../../lib/project/entities/admin-project-page.entity';
+import { AdminProjectsStore } from '../../../lib/project/stores/admin-projects.store';
 import { ProjectTypeEnum } from '../../../lib/project/types/project-type.enum';
 import { options } from '../../api/admin/auth/[...nextauth]';
 
@@ -37,6 +46,8 @@ export default function () {
       ).unwrap();
     });
 
+  console.log(projects);
+
   return (
     <>
       <Header title="Admin Projects"></Header>
@@ -51,7 +62,61 @@ export default function () {
           />
         }
         Breadcrumbs={
-          <Breadcrumbs className="px-6" path={['Home', 'Projects']} />
+          <div className="flex mx-auto w-full max-w-96 md:max-w-[calc(49.5rem)] lg:max-w-[calc(74rem)] 2xl:max-w-[calc(99rem)]">
+            <div className="flex ml-auto">
+              <MenuFormElement
+                noChevronDown
+                name={<FontAwesomeIcon icon={faEllipsisVertical} />}
+                actions={PROJECTS_ACTIONS}
+                setOptions={{
+                  buttonPadding: 'py-2 px-3.5',
+                  buttonColor:
+                    'bg-transparent border border-gray-400 hover:border-gray-500 hover:bg-gray-200',
+                  buttonTextColor: 'text-gray-700 ',
+                }}
+                onChange={(action) => {
+                  switch (action) {
+                    case 'create':
+                      // prettier-ignore
+                      return router.push({ pathname: `${router.route}/create` });
+
+                    case 'delete':
+                      return dispatch(AdminProjectsStore.actions.initTrash());
+                  }
+                }}
+              />
+
+              <NextFormElement
+                className="ml-auto pr-3"
+                setOptions={{ buttonPadding: 'py-1.5 px-3' }}
+                next="New Project"
+                onNext={() =>
+                  router.push({ pathname: `${router.route}/create` })
+                }
+              />
+            </div>
+
+            {/* <CustomMenuFormElement
+              next="Delete projects..."
+              actions={PROJECTS_ACTIONS}
+              isSubmitButton={!!projects.trash}
+              onChange={(action) => {
+                switch (action) {
+                }
+              }}
+              onNext={() =>
+                ErrorService.envelop(async () => {
+                  if (!projects.trash) return;
+                  for (const id in projects.trash) {
+                    await AdminProjectEntity.self.delete.exec(id);
+                  }
+
+                  router.reload();
+                })
+              }
+              onBack={() => dispatch(AdminProjectsStore.actions.clearTrash())}
+            /> */}
+          </div>
         }
       >
         <VirtuosoGrid
@@ -79,6 +144,13 @@ export default function () {
           }}
           itemContent={(_, project) => (
             <Card
+              className={
+                projects.trash
+                  ? projects.trash[project.id]
+                    ? 'cursor-pointer line-through'
+                    : 'cursor-pointer'
+                  : ''
+              }
               name={project.name}
               href={{
                 pathname: `${router.route}/[id]`,
@@ -94,12 +166,20 @@ export default function () {
                   {StringService.humanize(project.status)}
                 </span>
               }
+              onClick={() => {
+                if (!projects.trash) return;
+                dispatch(AdminProjectsStore.actions.pushTrash(project as any));
+              }}
             >
               <div className="flex text-sm items-center mt-1">
                 <div className="flex items-center">
                   <span
                     className={`h-3 w-3 rounded-full mr-1 ${
-                      project.type == ProjectTypeEnum.html
+                      project.type == ProjectTypeEnum.p5js
+                        ? 'bg-red-500'
+                        : project.type == ProjectTypeEnum.emscripten
+                        ? 'bg-lime-400'
+                        : project.type == ProjectTypeEnum.html
                         ? 'bg-orange-400'
                         : project.type == ProjectTypeEnum.markdown
                         ? 'bg-red-400'

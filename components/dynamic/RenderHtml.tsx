@@ -1,10 +1,17 @@
 import DOMPurify from 'dompurify';
+import { LegacyRef } from 'react';
 
-export default function (
-  props: React.DetailedHTMLProps<
-    React.IframeHTMLAttributes<HTMLIFrameElement>,
-    HTMLIFrameElement
-  > & { html: string },
-) {
-  return <iframe {...props} srcDoc={DOMPurify.sanitize(props.html)} />;
+export type RenderHtmlProps = React.DetailedHTMLProps<
+  React.IframeHTMLAttributes<HTMLIFrameElement>,
+  HTMLIFrameElement
+> & { html: string; iframe_ref?: LegacyRef<HTMLIFrameElement> };
+
+export default function (props: RenderHtmlProps) {
+  return (
+    <iframe
+      {...props}
+      ref={props.iframe_ref}
+      srcDoc={DOMPurify.sanitize(props.html)}
+    />
+  );
 }

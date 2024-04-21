@@ -1,14 +1,20 @@
 import { faFile, faPenToSquare } from '@fortawesome/free-regular-svg-icons';
-import { faFolder } from '@fortawesome/free-solid-svg-icons';
+import {
+  faArrowUpRightFromSquare,
+  faEllipsisVertical,
+  faFolder,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
-import { useEffect, useRef } from 'react';
-import { PROJECT_FILE_ACTIONS } from '../../../../components/constants/projects';
+import { useEffect, useRef, useState } from 'react';
+import {
+  PROJECT_ACTIONS,
+  PROJECT_FILE_ACTIONS,
+} from '../../../../components/constants/projects';
 import Container from '../../../../components/Container/Container';
-import { RenderHtml } from '../../../../components/dynamic';
+import { RenderHtmlRef } from '../../../../components/dynamic';
 import MenuFormElement from '../../../../components/Form/Elements/MenuFormElement';
-import TableFormElement from '../../../../components/Form/Elements/TableFormElement';
 import Header from '../../../../components/Header/Header';
 import Navbar from '../../../../components/Navbar/Navbar';
 import NavbarItem from '../../../../components/Navbar/NavbarItem';
@@ -28,6 +34,11 @@ import Link from 'next/link';
 import CustomMenuFormElement from '../../../../components/Form/Custom/CustomMenuFormElement';
 import { getServerSession } from 'next-auth';
 import { options } from '../../../api/admin/auth/[...nextauth]';
+import { StringService } from '../../../../lib/common';
+import { ProjectStatusEnum } from '../../../../lib/project/types/project-status.enum';
+import TableFormGraggable from '../../../../components/Form/Draggable/TableFormDraggable';
+import { arrayMove } from '@dnd-kit/sortable';
+import { AdminAttachmentPositionEntity } from '../../../../lib/attachment/entities/admin-attachment-position.entity';
 
 export default function () {
   const router = useRouter();
@@ -36,6 +47,8 @@ export default function () {
 
   const imgRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>();
+  const [height, setHeight] = useState(0);
 
   useEffect(() => {
     ErrorService.envelop(async () => {
@@ -108,100 +121,207 @@ export default function () {
         // }
       >
         <div className="flex flex-col mx-auto max-w-3xl w-full">
-          <div className="flex items-center">
-            <div
-              className="block relative group h-14 w-14 my-8 mr-3 cursor-pointer"
-              onClick={() => imgRef.current.click()}
-            >
-              <input
-                ref={imgRef}
-                className="hidden"
-                type="file"
-                accept="image/*"
-                onChange={(event) => {
-                  const file = event.target.files[0];
-                  if (!file) return;
+          <div className="flex flex-col">
+            <div className="flex items-center my-4">
+              <div
+                className="block relative group h-14 w-14 mr-3 cursor-pointer"
+                onClick={() => imgRef.current.click()}
+              >
+                <input
+                  ref={imgRef}
+                  className="hidden"
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => {
+                    const file = event.target.files[0];
+                    if (!file) return;
 
-                  const ext = file.name.split('.').at(-1);
-                  return onFile([new File([file], `thumbnail.${ext}`)]);
+                    const ext = file.name.split('.').at(-1);
+                    return onFile([new File([file], `thumbnail.${ext}`)]);
+                  }}
+                />
+                <span className="absolute block top-0 left-0 h-full w-full rounded group-hover:bg-gray-400">
+                  <div className="hidden group-hover:flex w-full h-full justify-center items-center">
+                    <FontAwesomeIcon
+                      className="text-2xl text-gray-800"
+                      icon={faPenToSquare}
+                    />
+                  </div>
+                </span>
+                <img
+                  className="relative block top-0 left-0 h-full w-full rounded mix-blend-multiply"
+                  src={project.avatar}
+                  alt="thumbnail"
+                />
+              </div>
+
+              <Link
+                className="text-2xl font-semibold hover:underline"
+                href={{
+                  pathname: '/projects/[id]',
+                  query: { id: project.id },
                 }}
-              />
-              <span className="absolute block top-0 left-0 h-full w-full rounded group-hover:bg-gray-400">
-                <div className="hidden group-hover:flex w-full h-full justify-center items-center">
-                  <FontAwesomeIcon
-                    className="text-2xl text-gray-800"
-                    icon={faPenToSquare}
-                  />
-                </div>
+              >
+                {project.name}
+              </Link>
+
+              <span className="text-xs font-normal leading-4 mx-2 px-1 rounded-xl border border-gray-400 text-gray-500 ">
+                {StringService.humanize(project.status)}
               </span>
-              <img
-                className="relative block top-0 left-0 h-full w-full rounded mix-blend-multiply"
-                src={project.avatar}
-                alt="thumbnailLL"
+
+              <MenuFormElement
+                noChevronDown
+                className="ml-auto"
+                name={<FontAwesomeIcon icon={faEllipsisVertical} />}
+                actions={PROJECT_ACTIONS}
+                setOptions={{
+                  buttonPadding: 'py-2 px-3.5',
+                  buttonColor:
+                    'bg-transparent border border-gray-400 hover:border-gray-500 hover:bg-gray-200',
+                  buttonTextColor: 'text-gray-700 ',
+                }}
+                onChange={(action) =>
+                  ErrorService.envelop(async () => {
+                    const status =
+                      project.status == ProjectStatusEnum.active
+                        ? ProjectStatusEnum.inactive
+                        : ProjectStatusEnum.active;
+
+                    switch (action) {
+                      case 'status':
+                        return await dispatch(
+                          AdminProjectEntity.self.save.thunk(
+                            new AdminProjectEntity({ id: project.id, status }),
+                          ),
+                        ).unwrap();
+
+                      case 'delete':
+                        await AdminProjectEntity.self.delete.exec(project.id);
+                        return router.push({ pathname: `${router.route}/..` });
+                    }
+                  })
+                }
               />
             </div>
 
-            <Link
-              className="text-2xl font-semibold hover:underline"
-              href={{
-                pathname: '/projects/[id]',
-                query: { id: project.id },
-              }}
-            >
-              {project.name}
-            </Link>
+            <div className="flex">
+              <div className="flex ml-1 items-center text-sm">
+                <div className="flex items-center text-gray-600">
+                  <FontAwesomeIcon
+                    className="text-gray-400 mr-1 pb-0.5"
+                    icon={faFile}
+                  />
+                  <span className="font-medium mr-1">
+                    {project.attachments.length}
+                  </span>
+                  Files
+                </div>
+                <div className="flex items-center ml-4 text-gray-600">
+                  <FontAwesomeIcon
+                    className="text-gray-400 mr-1 pb-0.5"
+                    icon={faArrowUpRightFromSquare}
+                  />
+                  <span className="font-medium mr-1">
+                    {project.links.length}
+                  </span>
+                  Links
+                </div>
+              </div>
 
-            <CustomMenuFormElement
-              className="ml-auto"
-              fileRef={fileRef}
-              next="Delete files..."
-              actions={PROJECT_FILE_ACTIONS}
-              isSubmitButton={!!project.trash}
-              onChange={(action) => {
-                switch (action) {
-                  case 'upload':
-                    return fileRef.current.click();
+              <CustomMenuFormElement
+                className="ml-auto mb-3"
+                fileRef={fileRef}
+                next="Delete files..."
+                actions={PROJECT_FILE_ACTIONS}
+                isSubmitButton={!!project.trash}
+                onChange={(action) => {
+                  switch (action) {
+                    case 'upload':
+                      return fileRef.current.click();
 
-                  case 'create':
-                    return router.push({
-                      pathname: `${router.route}/new`,
-                      query: { ...router.query },
-                    });
+                    case 'create':
+                      return router.push({
+                        pathname: `${router.route}/new`,
+                        query: { ...router.query },
+                      });
 
-                  case 'delete':
-                    return dispatch(AdminProjectStore.actions.initTrash());
+                    case 'delete':
+                      return dispatch(AdminProjectStore.actions.initTrash());
+                  }
+                }}
+                onFile={(event) => onFile(Array.from(event.target.files))}
+                onNext={() =>
+                  ErrorService.envelop(async () => {
+                    if (!project.trash) return;
+
+                    await Promise.all(
+                      Object.keys(project.trash).map((id) =>
+                        AdminAttachmentEntity.self.delete.exec(id),
+                      ),
+                    );
+
+                    await dispatch(AdminProjectEntity.self.load.thunk(router.query.id)).unwrap(); // prettier-ignore
+                    dispatch(AdminProjectStore.actions.clearTrash());
+                  })
                 }
-              }}
-              onFile={(event) => onFile(Array.from(event.target.files))}
-              onNext={() =>
-                ErrorService.envelop(async () => {
-                  if (!project.trash) return;
-
-                  await Promise.all(
-                    Object.keys(project.trash).map((id) =>
-                      AdminAttachmentEntity.self.delete.exec(id),
-                    ),
-                  );
-
-                  await dispatch(AdminProjectEntity.self.load.thunk(router.query.id)).unwrap(); // prettier-ignore
-                  dispatch(AdminProjectStore.actions.clearTrash());
-                })
-              }
-              onBack={() => dispatch(AdminProjectStore.actions.clearTrash())}
-            />
+                onBack={() => dispatch(AdminProjectStore.actions.clearTrash())}
+              />
+            </div>
           </div>
-          <TableFormElement
-            className="mb-8"
+
+          <TableFormGraggable
+            className="mb-8 rounded-md"
             columns={{ name: 'Name', updated_at: 'Last updated' }}
+            picked={project.picked}
             data={AttachmentService.toList<AdminAttachmentEntity>(
               project.attachments,
             )}
-            onClick={(attachment) =>
+            onDragStart={(e) =>
+              dispatch(AdminProjectStore.actions.onPick(e.active.id as string))
+            }
+            onDragEnd={({ active, over }) =>
+              ErrorService.envelop(async () => {
+                if (!over?.id) {
+                  return dispatch(AdminProjectStore.actions.onDrop());
+                }
+
+                const index = {
+                  prev: project.attachments.findIndex((e) => e.id == active.id),
+                  next: project.attachments.findIndex((e) => e.id == over.id),
+                };
+
+                dispatch(
+                  AdminProjectStore.actions.onReorder(
+                    arrayMove(
+                      project.attachments.concat() as any,
+                      index.prev,
+                      index.next,
+                    ),
+                  ),
+                );
+
+                await AdminAttachmentPositionEntity.self.save.build(
+                  new AdminAttachmentPositionEntity({
+                    id: project.attachments[index.prev].id,
+                    position: project.attachments[index.next].order,
+                  }),
+                );
+
+                await dispatch(
+                  AdminProjectEntity.self.load.thunk(router.query.id),
+                ).unwrap();
+              })
+            }
+            onDragCancel={() => dispatch(AdminProjectStore.actions.onDrop())}
+            onClick={(attachment: AdminAttachmentEntity) =>
               project.trash
                 ? dispatch(AdminProjectStore.actions.pushTrash(attachment))
                 : redirect(AttachmentService.filepath(attachment))
             }
-            stringify={{
+            firstComponent={(props) =>
+              props.row.type ? props.children : <span className="pl-7 py-6" />
+            }
+            dataComponent={{
               name: (attachment) => (
                 <span
                   className={`flex whitespace-nowrap ${
@@ -225,6 +345,7 @@ export default function () {
             className={`${
               project.readme ? 'block' : 'hidden'
             } relative border rounded-md`}
+            style={{ height: `calc(${height}px + 6rem)` }}
           >
             <div className="flex text-sm font-medium text-gray-800 bg-gray-100 px-4 py-2">
               <FontAwesomeIcon
@@ -234,9 +355,15 @@ export default function () {
               README
             </div>
 
-            <RenderHtml
+            <RenderHtmlRef
+              ref={iframeRef}
               className="w-full h-full overflow-y-hidden p-5"
               html={project.readme}
+              onLoad={() =>
+                setHeight(
+                  iframeRef.current.contentWindow.document.body.scrollHeight,
+                )
+              }
             />
           </div>
         </div>
@@ -250,4 +377,12 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   if (!session) return { redirect: { destination: '/admin/login' } };
 
   return { props: ctx.params || {} };
+  // const project = await AdminProjectEntity.self.load
+  //   .build(ctx.params.id, { ctx, hostname: Config.self.base.grape })
+  //   .catch((err) => null);
+
+  // if (!project) return { redirect: { destination: '/admin/projects' } };
+  // return {
+  //   props: { ...ctx.params, project: JSON.parse(JSON.stringify(project)) },
+  // };
 }

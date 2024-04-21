@@ -36,8 +36,13 @@ export class CommonRequest<
               return getSession();
             }
 
+            if (!options.ctx) throw new Error('options.ctx cant be empty');
+
             const { getServerSession } = await import('next-auth');
-            return getServerSession();
+            const { options: auth } = await import(
+              '../../pages/api/admin/auth/[...nextauth]'
+            );
+            return getServerSession(options.ctx.req, options.ctx.res, auth);
           };
 
           const auth: { access_token: string } = (await getSession()) as any;

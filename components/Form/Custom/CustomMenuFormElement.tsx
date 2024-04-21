@@ -27,6 +27,7 @@ export default function CustomMenuFormElement<T extends ObjectLiteral>(
         <input
           ref={props.fileRef}
           type="file"
+          multiple
           className="hidden"
           onChange={(event) => props.onFile?.(event)}
         />

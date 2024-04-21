@@ -3,10 +3,7 @@ import { AdminProjectEntity } from '../entities/admin-project.entity';
 import { ProjectEntity } from '../entities/project.entity';
 import { ProjectTypeEnum } from '../types/project-type.enum';
 
-type StoreT = Pick<
-  ProjectEntity,
-  'name' | 'type' | 'description' | 'footer'
-> & {
+type StoreT = AdminProjectEntity & {
   processing: boolean;
   readme: boolean;
 };
@@ -14,7 +11,7 @@ type StoreT = Pick<
 export const AdminProjectFormStore = createSlice({
   name: 'admin-project-form',
   initialState: {
-    type: ProjectTypeEnum.html,
+    type: ProjectTypeEnum.p5js,
     name: '',
     description: '',
     footer: '',
@@ -25,6 +22,8 @@ export const AdminProjectFormStore = createSlice({
   reducers: {
     setType: (state, action: PayloadAction<ProjectTypeEnum>) => {
       state.type = action.payload;
+      state.link = '';
+      state.readme = false;
     },
     setName: (state, action: PayloadAction<string>) => {
       state.name = action.payload || '';
@@ -34,6 +33,9 @@ export const AdminProjectFormStore = createSlice({
     },
     setFooter: (state, action: PayloadAction<string>) => {
       state.footer = action.payload || '';
+    },
+    setLink: (state, action: PayloadAction<string>) => {
+      state.link = action.payload || '';
     },
     invertREADME: (state) => {
       state.readme = !state.readme;

@@ -123,13 +123,11 @@ export class CommonEntity {
       this.newInstance(),
       `${''}${props.route}/action/select`,
       (base: string, init) =>
-        async (query: ObjectLiteral, options?: RequestOptionsType) => {
-          const pathname = options?.pathname || `${base}/${props.route}`;
-          return fetch(
-            `${pathname}?${StringService.toQuery(query)}`,
+        async (query: ObjectLiteral, options?: RequestOptionsType) =>
+          fetch(
+            `${this.url(base, props, options)}?${StringService.toQuery(query)}`,
             await init({ ...options, session: props.session }),
-          );
-        },
+          ),
     );
   }
 
@@ -141,13 +139,11 @@ export class CommonEntity {
       this.newInstance(),
       `${''}${props.route}/action/load`,
       (base: string, init) =>
-        async (id: string | string[], options?: RequestOptionsType) => {
-          const pathname = options?.pathname || `${base}/${props.route}`;
-          return fetch(
-            `${pathname}/${ArrayService.first(id)}`,
+        async (id: string | string[], options?: RequestOptionsType) =>
+          fetch(
+            `${this.url(base, props, options)}/${ArrayService.first(id)}`,
             await init({ ...options, session: props.session }),
-          );
-        },
+          ),
     );
   }
 
@@ -175,10 +171,9 @@ export class CommonEntity {
           );
 
           const id = (entity as any).id || (this as any).id || '';
-          const pathname = options?.pathname || `${base}/${props.route}`;
           const config = await init({ ...options, session: props.session });
 
-          return fetch(pathname + (id ? `/${id}` : ''), {
+          return fetch(this.url(base, props, options) + (id ? `/${id}` : ''), {
             ...config,
             method: id ? 'PUT' : 'POST',
             body:
@@ -199,13 +194,12 @@ export class CommonEntity {
       `${''}${props.route}/action/delete`,
       (base: string, init) =>
         async (id: string | string[], options?: RequestOptionsType) => {
-          const pathname = options?.pathname || `${base}/${props.route}`;
           const config = await init({ ...options, session: props.session });
 
-          return fetch(`${pathname}/${ArrayService.first(id)}`, {
-            ...config,
-            method: 'DELETE',
-          });
+          return fetch(
+            `${this.url(base, props, options)}/${ArrayService.first(id)}`,
+            { ...config, method: 'DELETE' },
+          );
         },
     );
   }
@@ -234,5 +228,15 @@ export class CommonEntity {
 
   protected setLocal(type: string, value: any, key: string) {
     return Reflect.defineMetadata(type, value, this, key);
+  }
+
+  private url(
+    base: string,
+    props: RequestProps,
+    options?: RequestOptionsType,
+  ): string {
+    if (options?.pathname) return options.pathname;
+    const hostname = options?.hostname || base;
+    return `${hostname}/${props.route}`;
   }
 }

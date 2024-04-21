@@ -1,4 +1,5 @@
 import { DeepEntity, TreeT } from '../common/types';
+import { AdminAttachmentEntity } from './entities/admin-attachment.entity';
 import { AttachmentEntity } from './entities/attachment.entity';
 
 export class AttachmentService {
@@ -20,7 +21,7 @@ export class AttachmentService {
     return tree;
   }
 
-  static toList<T extends AttachmentEntity>(
+  static toList<T extends AdminAttachmentEntity>(
     attachments: DeepEntity<T>[],
     root: string[] = [],
   ): T[] {
@@ -38,17 +39,29 @@ export class AttachmentService {
       )
       .sort(
         (a: T, b: T) =>
-          Number(!!a.type) - Number(!!b.type) || a.name.localeCompare(b.name),
+          Number(!!a.type) - Number(!!b.type) ||
+          (a.order || 0) - (b.order || 0),
       );
   }
 
-  static readme(
-    attachments: DeepEntity<AttachmentEntity>[],
-  ): DeepEntity<AttachmentEntity> | null {
+  static readme<T extends AttachmentEntity>(
+    attachments: DeepEntity<T>[],
+  ): DeepEntity<T> | null {
     return (
       attachments.find(
         (e) => e.path === '/' && e.name.toLowerCase().includes('readme'),
       ) || null
     );
+  }
+
+  static js<T extends AttachmentEntity, K extends keyof T & string>(
+    attachments: DeepEntity<T>[],
+    key?: K,
+  ): K extends string ? T[K][] : DeepEntity<T>[] {
+    if (!attachments) return [] as any;
+
+    const scripts = attachments.filter((e) => e.type == '.js');
+    if (!key) return scripts.map((e) => new AttachmentEntity(e as any)) as any;
+    return scripts.map((e) => e[key as string]) as any;
   }
 }

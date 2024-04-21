@@ -1,3 +1,4 @@
+import { GetServerSidePropsContext } from 'next';
 import { RequestTypeEnum } from './request-type.enum';
 
 export type RequestOptionsType = Partial<{
@@ -5,4 +6,6 @@ export type RequestOptionsType = Partial<{
   type: RequestTypeEnum;
   headers: HeadersInit;
   pathname: string;
+  hostname: string;
+  ctx: GetServerSidePropsContext;
 }>;

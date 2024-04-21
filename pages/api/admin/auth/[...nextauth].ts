@@ -1,4 +1,3 @@
-import console from 'console';
 import nextAuth, { AuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { Config } from '../../../../config';
@@ -40,9 +39,9 @@ export const options: AuthOptions = {
           new RefreshEntity({ refresh_token: token.refresh_token as any }),
           { pathname: `${Config.self.base.grape}/auth/refresh` },
         )
-        .catch(() => null)) as AuthEntity;
+        .catch((err) => (console.log(err), null))) as AuthEntity;
 
-      if (!refreshed) return token;
+      if (!refreshed) return null;
       token.user = refreshed.user;
       token.access_token = refreshed.access_token;
       token.refresh_token = refreshed.refresh_token;

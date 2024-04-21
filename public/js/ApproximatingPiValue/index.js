@@ -1,18 +1,16 @@
 let SIZE;
 let RECT_SIZE;
 
-let canvas;
 let dots = 0;
 let dotsInCircle = 0;
 
 function setup() {
   SIZE =
     window.innerWidth < 900
-      ? document.getElementById("CanvasContainer0").offsetWidth / 1.2
+      ? document.getElementById('CanvasContainer0').offsetWidth / 1.2
       : 700;
   RECT_SIZE = SIZE / 1.75;
-  canvas = createCanvas(SIZE, SIZE);
-  canvas.parent(document.getElementById("CanvasContainer0"));
+  createCanvas(SIZE, SIZE).parent(document.getElementById('p5js-container'));
 
   background(0);
 }
@@ -33,20 +31,20 @@ function addDots() {
 }
 
 window.addEventListener(
-  "resize",
+  'resize',
   (event) => {
     SIZE =
       window.innerWidth < 900
-        ? document.getElementById("CanvasContainer0").offsetWidth / 1.2
+        ? document.getElementById('CanvasContainer0').offsetWidth / 1.2
         : 700;
     // SIZE = window.innerWidth < 560 ? 400 : SIZE;
     // SIZE = window.innerWidth < 400 ? 300 : SIZE;
     RECT_SIZE = SIZE / 1.75;
-    canvas.resize(SIZE, SIZE);
+    resize(SIZE, SIZE);
 
     background(0);
   },
-  true
+  true,
 );
 
 function draw() {
@@ -74,8 +72,8 @@ function draw() {
 
   fill(255);
   text(
-    dots ? ((4 * dotsInCircle) / dots).toFixed(6) : "0.000000",
+    dots ? ((4 * dotsInCircle) / dots).toFixed(6) : '0.000000',
     -RECT_SIZE / 6.6,
-    RECT_SIZE / 1.3
+    RECT_SIZE / 1.3,
   );
 }

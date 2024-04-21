@@ -10,6 +10,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import '../styles/globals.scss';
 import { Config } from '../config';
+import Script from 'next/script';
 
 config.autoAddCss = false;
 

@@ -16,6 +16,11 @@ export const AdminProjectsStore = createSlice({
     trash: null,
   } as StoreT,
   reducers: {
+    init: (state) => {
+      state.page = 0;
+      state.result = [];
+      state.trash = null;
+    },
     initTrash: (state) => {
       state.trash = {};
     },

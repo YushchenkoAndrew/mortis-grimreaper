@@ -25,20 +25,28 @@ import { AttachmentService } from '../../../../../lib/attachment/attachment.serv
 import { AttachmentEntity } from '../../../../../lib/attachment/entities/attachment.entity';
 import { mode } from '../../../../../components/dynamic/AceEditor';
 import { AdminAttachmentEntity } from '../../../../../lib/attachment/entities/admin-attachment.entity';
-import TableFormElement from '../../../../../components/Form/Elements/TableFormElement';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFile } from '@fortawesome/free-regular-svg-icons';
 import { faFolder } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment';
 import { RequestTypeEnum } from '../../../../../lib/common/types/request-type.enum';
-import InputFormElement from '../../../../../components/Form/Elements/InputFormElement';
-import MenuFormElement from '../../../../../components/Form/Elements/MenuFormElement';
-import { PROJECT_FILE_ACTIONS } from '../../../../../components/constants/projects';
+import {
+  PROJECT_FILE_ACTIONS,
+  PROJECT_HANDLEBAR_SHORTCUTS,
+} from '../../../../../components/constants/projects';
 import CustomMenuFormElement from '../../../../../components/Form/Custom/CustomMenuFormElement';
 import { AdminProjectStore } from '../../../../../lib/project/stores/admin-project.store';
 import { AttachmentAttachableTypeEnum } from '../../../../../lib/attachment/types/attachment-attachable-type.enum';
 import { getServerSession } from 'next-auth';
 import { options } from '../../../../api/admin/auth/[...nextauth]';
+import Handlebars from 'handlebars';
+import PopupFormElement from '../../../../../components/Form/Elements/PopupFormElement';
+import InputFormElement from '../../../../../components/Form/Elements/InputFormElement';
+import NextFormElement from '../../../../../components/Form/Elements/NextFormElement';
+import CustomPopupSimpleFormElement from '../../../../../components/Form/Custom/CustomPopupSimpleFormElement';
+import TableFormGraggable from '../../../../../components/Form/Draggable/TableFormDraggable';
+import { arrayMove } from '@dnd-kit/sortable';
+import { PositionEntity } from '../../../../../lib/common/entities/position.entity';
 
 export default function () {
   const router = useRouter();
@@ -47,7 +55,9 @@ export default function () {
   const attachment = useAppSelector((state) => state.admin.attachment);
 
   const fileRef = useRef<HTMLInputElement>(null);
+  const projectRef = useRef<AdminProjectEntity>(null);
   const attachmentRef = useRef<AdminAttachmentStoreT>(null);
+  projectRef.current = project as any;
   attachmentRef.current = attachment as any;
 
   useEffect(() => {
@@ -100,12 +110,33 @@ export default function () {
                 Array.isArray(data) ? data : AttachmentService.filepath(data),
               )
             }
+            sortBy={([_a, a], [_b, b]) =>
+              Number(!!a.type) - Number(!!b.type) ||
+              ((a as any).order || 0) - ((b as any).order || 0)
+            }
           />
         }
         Breadcrumbs={
           <div className="flex px-4 items-center">
             <Breadcrumbs path={[project.name].concat(router.query.path)} />
 
+            <CustomPopupSimpleFormElement
+              name="Directory name"
+              value={project.directory || ''}
+              open={project.directory !== null}
+              onClose={() => dispatch(AdminProjectStore.actions.clearDir())}
+              onChange={(v) => dispatch(AdminProjectStore.actions.setDir(v))}
+              onNext={() => {
+                const path = project.directory.split('/').filter(Boolean);
+                if (!path.length) return dispatch(AdminProjectStore.actions.clearDir()); // prettier-ignore
+
+                const final = Array.isArray(router.query.path)
+                  ? router.query.path.concat(path)
+                  : path;
+
+                redirect(AttachmentService.filepath({ path: final.join("/")  } as any)); // prettier-ignore
+              }}
+            />
             <CustomMenuFormElement
               className="ml-auto"
               fileRef={fileRef}
@@ -114,6 +145,9 @@ export default function () {
               isSubmitButton={!!project.trash}
               onChange={(action) => {
                 switch (action) {
+                  case 'dir':
+                    return dispatch(AdminProjectStore.actions.initDir());
+
                   case 'upload':
                     return fileRef.current.click();
 
@@ -129,31 +163,31 @@ export default function () {
               }}
               onFile={(event) =>
                 ErrorService.envelop(async () => {
-                  await Promise.all(
-                    Array.from(event.target.files).map((file) => {
-                      const path = Array.isArray(router.query.path)
+                  for (const file of Array.from(event.target.files)) {
+                    const path =
+                      attachment.buffer !== null
+                        ? attachment.path
+                        : Array.isArray(router.query.path)
                         ? ['', ...router.query.path, ''].join('/')
                         : '/';
 
-                      const attachment = project.attachments.find(
-                        (e) => e.name == file.name && e.path == path,
-                      );
+                    const entity = project.attachments.find(
+                      (e) => e.name == file.name && e.path == path,
+                    );
 
-                      return AdminAttachmentEntity.self.save.build(
-                        new AdminAttachmentEntity({
-                          id: attachment?.id,
-                          path: path,
-                          file: file as any,
-                          attachable_id: project.id,
-                          attachable_type:
-                            AttachmentAttachableTypeEnum.projects,
-                        }),
-                        { type: RequestTypeEnum.form },
-                      );
-                    }),
-                  );
+                    await AdminAttachmentEntity.self.save.build(
+                      new AdminAttachmentEntity({
+                        id: entity?.id,
+                        path: path,
+                        file: file as any,
+                        attachable_id: project.id,
+                        attachable_type: AttachmentAttachableTypeEnum.projects,
+                      }),
+                      { type: RequestTypeEnum.form },
+                    );
 
-                  await dispatch(AdminProjectEntity.self.load.thunk(router.query.id)).unwrap(); // prettier-ignore
+                    await dispatch(AdminProjectEntity.self.load.thunk(router.query.id)).unwrap(); // prettier-ignore
+                  }
                 })
               }
               onNext={() =>
@@ -200,7 +234,11 @@ export default function () {
               bindKey: null,
               exec: () =>
                 ErrorService.envelop(async () => {
-                  const blob = new Blob([attachmentRef.current.buffer]);
+                  const vars = AttachmentService.handlebarLink(projectRef.current.attachments); // prettier-ignore
+                  const template = Handlebars.compile(attachmentRef.current.buffer); // prettier-ignore
+                  const buffer = template(Object.assign(vars, PROJECT_HANDLEBAR_SHORTCUTS)); // prettier-ignore
+
+                  const blob = new Blob([buffer]);
                   const file = new File([blob], attachmentRef.current.name);
 
                   await AdminAttachmentEntity.self.save.build(
@@ -226,16 +264,54 @@ export default function () {
             enableSnippets: false,
           }}
         />
-        <TableFormElement
+        <TableFormGraggable
           className={`mb-8 mx-4 ${
             attachment.buffer !== null ? 'hidden' : 'block'
           }`}
           columns={{ name: 'Name', updated_at: 'Last updated' }}
+          picked={project.picked}
           data={AttachmentService.toList<AdminAttachmentEntity>(
             project.attachments,
             Array.isArray(router.query.path) ? router.query.path : [],
           )}
-          onClick={(attachment) =>
+          onDragStart={(e) =>
+            dispatch(AdminProjectStore.actions.onPick(e.active.id as string))
+          }
+          onDragEnd={({ active, over }) =>
+            ErrorService.envelop(async () => {
+              const position =
+                project.attachments.find((e) => e.id == over?.id)?.order ??
+                null;
+
+              if (!over?.id || position === null) {
+                return dispatch(AdminProjectStore.actions.onDrop());
+              }
+
+              dispatch(
+                AdminProjectStore.actions.onReorder(
+                  arrayMove(
+                    project.attachments.concat() as any,
+                    project.attachments.findIndex((e) => e.id == active.id),
+                    project.attachments.findIndex((e) => e.id == over.id),
+                  ),
+                ),
+              );
+
+              await AdminAttachmentEntity.self.save.build(
+                new PositionEntity({ position }),
+                {
+                  method: 'PUT',
+                  route: `admin/attachments/${active.id}/order`,
+                },
+              );
+
+              await dispatch(
+                AdminProjectEntity.self.load.thunk(router.query.id),
+              ).unwrap();
+            })
+          }
+          onDragCancel={() => dispatch(AdminProjectStore.actions.onDrop())}
+          onClick={(attachment: AdminAttachmentEntity) =>
             project.trash
               ? dispatch(AdminProjectStore.actions.pushTrash(attachment))
               : redirect(AttachmentService.filepath(attachment))

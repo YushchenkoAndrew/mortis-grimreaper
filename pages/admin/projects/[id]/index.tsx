@@ -7,7 +7,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import {
   PROJECT_ACTIONS,
   PROJECT_FILE_ACTIONS,
@@ -38,13 +38,19 @@ import { StringService } from '../../../../lib/common';
 import { ProjectStatusEnum } from '../../../../lib/project/types/project-status.enum';
 import TableFormGraggable from '../../../../components/Form/Draggable/TableFormDraggable';
 import { arrayMove } from '@dnd-kit/sortable';
-import { AdminAttachmentPositionEntity } from '../../../../lib/attachment/entities/admin-attachment-position.entity';
+import { PositionEntity } from '../../../../lib/common/entities/position.entity';
+import { Dialog, Popover, Transition } from '@headlessui/react';
+import InputFormElement from '../../../../components/Form/Elements/InputFormElement';
+import NextFormElement from '../../../../components/Form/Elements/NextFormElement';
+import PopupFormElement from '../../../../components/Form/Elements/PopupFormElement';
+import CustomPopupSimpleFormElement from '../../../../components/Form/Custom/CustomPopupSimpleFormElement';
 
 export default function () {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const project = useAppSelector((state) => state.admin.project.index);
 
+  const [open, setOpen] = useState(false);
   const imgRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>();
@@ -72,26 +78,24 @@ export default function () {
 
   const onFile = (files: File[]) =>
     ErrorService.envelop(async () => {
-      await Promise.all(
-        files.map((file) => {
-          const attachment = project.attachments.find(
-            (e) => e.name == file.name && e.path == '/',
-          );
+      for (const file of files) {
+        const attachment = project.attachments.find(
+          (e) => e.name == file.name && e.path == '/',
+        );
 
-          return AdminAttachmentEntity.self.save.build(
-            new AdminAttachmentEntity({
-              id: attachment?.id,
-              path: '/',
-              file: file as any,
-              attachable_id: project.id,
-              attachable_type: AttachmentAttachableTypeEnum.projects,
-            }),
-            { type: RequestTypeEnum.form },
-          );
-        }),
-      );
+        await AdminAttachmentEntity.self.save.build(
+          new AdminAttachmentEntity({
+            id: attachment?.id,
+            path: '/',
+            file: file as any,
+            attachable_id: project.id,
+            attachable_type: AttachmentAttachableTypeEnum.projects,
+          }),
+          { type: RequestTypeEnum.form },
+        );
 
-      await dispatch(AdminProjectEntity.self.load.thunk(router.query.id)).unwrap(); // prettier-ignore
+        await dispatch(AdminProjectEntity.self.load.thunk(router.query.id)).unwrap(); // prettier-ignore
+      }
     });
 
   return (
@@ -120,6 +124,20 @@ export default function () {
         //   />
         // }
       >
+        <CustomPopupSimpleFormElement
+          name="Directory name"
+          value={project.directory || ''}
+          open={project.directory !== null}
+          onClose={() => dispatch(AdminProjectStore.actions.clearDir())}
+          onChange={(v) => dispatch(AdminProjectStore.actions.setDir(v))}
+          onNext={() => {
+            const path = project.directory.split('/').filter(Boolean);
+            if (!path.length) return dispatch(AdminProjectStore.actions.clearDir()); // prettier-ignore
+
+            redirect(AttachmentService.filepath({ path: project.directory } as any)); // prettier-ignore
+          }}
+        />
+
         <div className="flex flex-col mx-auto max-w-3xl w-full">
           <div className="flex flex-col">
             <div className="flex items-center my-4">
@@ -156,7 +174,8 @@ export default function () {
               </div>
 
               <Link
-                className="text-2xl font-semibold hover:underline"
+                className="text-2xl font-semibold max-w-xl truncate hover:underline"
+                target="_blank"
                 href={{
                   pathname: '/projects/[id]',
                   query: { id: project.id },
@@ -170,7 +189,6 @@ export default function () {
               </span>
 
               <MenuFormElement
-                noChevronDown
                 className="ml-auto"
                 name={<FontAwesomeIcon icon={faEllipsisVertical} />}
                 actions={PROJECT_ACTIONS}
@@ -179,6 +197,7 @@ export default function () {
                   buttonColor:
                     'bg-transparent border border-gray-400 hover:border-gray-500 hover:bg-gray-200',
                   buttonTextColor: 'text-gray-700 ',
+                  noChevronDown: true,
                 }}
                 onChange={(action) =>
                   ErrorService.envelop(async () => {
@@ -236,6 +255,9 @@ export default function () {
                 isSubmitButton={!!project.trash}
                 onChange={(action) => {
                   switch (action) {
+                    case 'dir':
+                      return dispatch(AdminProjectStore.actions.initDir());
+
                     case 'upload':
                       return fileRef.current.click();
 
@@ -281,30 +303,30 @@ export default function () {
             }
             onDragEnd={({ active, over }) =>
               ErrorService.envelop(async () => {
-                if (!over?.id) {
+                const position =
+                  project.attachments.find((e) => e.id == over?.id)?.order ??
+                  null;
+
+                if (!over?.id || position === null) {
                   return dispatch(AdminProjectStore.actions.onDrop());
                 }
-
-                const index = {
-                  prev: project.attachments.findIndex((e) => e.id == active.id),
-                  next: project.attachments.findIndex((e) => e.id == over.id),
-                };
 
                 dispatch(
                   AdminProjectStore.actions.onReorder(
                     arrayMove(
                       project.attachments.concat() as any,
-                      index.prev,
-                      index.next,
+                      project.attachments.findIndex((e) => e.id == active.id),
+                      project.attachments.findIndex((e) => e.id == over.id),
                     ),
                   ),
                 );
 
-                await AdminAttachmentPositionEntity.self.save.build(
-                  new AdminAttachmentPositionEntity({
-                    id: project.attachments[index.prev].id,
-                    position: project.attachments[index.next].order,
-                  }),
+                await AdminAttachmentEntity.self.save.build(
+                  new PositionEntity({ position }),
+                  {
+                    method: 'PUT',
+                    route: `admin/attachments/${active.id}/order`,
+                  },
                 );
 
                 await dispatch(

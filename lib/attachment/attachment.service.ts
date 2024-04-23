@@ -1,10 +1,19 @@
-import { DeepEntity, TreeT } from '../common/types';
+import { DeepEntity, ObjectLiteral, TreeT } from '../common/types';
 import { AdminAttachmentEntity } from './entities/admin-attachment.entity';
 import { AttachmentEntity } from './entities/attachment.entity';
 
 export class AttachmentService {
   static filepath<T extends AttachmentEntity>(entity: T): string[] {
     return entity.path.split('/').concat(entity.name).filter(Boolean);
+  }
+
+  static handlebarLink<T extends AttachmentEntity>(
+    attachments: DeepEntity<T>[],
+  ): ObjectLiteral<string> {
+    return attachments.reduce(
+      (acc, curr) => ((acc['file:/' + curr._filepath()] = curr._url()), acc),
+      {},
+    );
   }
 
   static toTree<T extends AttachmentEntity>(
@@ -57,7 +66,7 @@ export class AttachmentService {
   static js<T extends AttachmentEntity, K extends keyof T & string>(
     attachments: DeepEntity<T>[],
     key?: K,
-  ): K extends string ? T[K][] : DeepEntity<T>[] {
+  ): K extends string ? T[K][] : T[] {
     if (!attachments) return [] as any;
 
     const scripts = attachments.filter((e) => e.type == '.js');

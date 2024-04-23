@@ -2,12 +2,13 @@ import { ComponentType, Dispatch } from 'react';
 import { IdEntity } from '../../lib/common/entities/id.entity';
 import { TreeT } from '../../lib/common/types';
 import { SidebarElementProps } from './SidebarElement';
-import SidebarItem from './SidebarItem';
+import SidebarItem, { SidebarItemProps } from './SidebarItem';
 
 export interface SidebarProps<T extends IdEntity> {
   data: TreeT<T>[];
   Element: ComponentType<SidebarElementProps>;
   onClick?: Dispatch<string[] | T>;
+  sortBy?: SidebarItemProps<T>['sortBy'];
 }
 
 export default function Sidebar<T extends IdEntity>({

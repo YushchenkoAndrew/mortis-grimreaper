@@ -25,6 +25,7 @@ import { StringService } from '../../../lib/common';
 import { ErrorService } from '../../../lib/common/error.service';
 import { useAppDispatch, useAppSelector } from '../../../lib/common/store';
 import { AdminProjectPageEntity } from '../../../lib/project/entities/admin-project-page.entity';
+import { AdminProjectEntity } from '../../../lib/project/entities/admin-project.entity';
 import { AdminProjectsStore } from '../../../lib/project/stores/admin-projects.store';
 import { ProjectTypeEnum } from '../../../lib/project/types/project-type.enum';
 import { options } from '../../api/admin/auth/[...nextauth]';
@@ -35,6 +36,7 @@ export default function () {
   const projects = useAppSelector((state) => state.admin.projects);
 
   useEffect(() => {
+    dispatch(AdminProjectsStore.actions.init());
     nextPage();
   }, []);
 
@@ -45,8 +47,6 @@ export default function () {
         AdminProjectPageEntity.self.select.thunk({ page: projects.page + 1 }),
       ).unwrap();
     });
-
-  console.log(projects);
 
   return (
     <>
@@ -64,15 +64,43 @@ export default function () {
         Breadcrumbs={
           <div className="flex mx-auto w-full max-w-96 md:max-w-[calc(49.5rem)] lg:max-w-[calc(74rem)] 2xl:max-w-[calc(99rem)]">
             <div className="flex ml-auto">
+              <NextFormElement
+                className={`${projects.trash ? 'hidden' : ''} mr-3`}
+                setOptions={{ buttonPadding: 'py-1.5 px-3' }}
+                next="New Project"
+                onNext={() =>
+                  router.push({ pathname: `${router.route}/create` })
+                }
+              />
+
+              <NextFormElement
+                className={`${projects.trash ? '' : 'hidden'} mr-2`}
+                setOptions={{ buttonPadding: 'py-1.5 px-3' }}
+                next="Delete projects..."
+                onNext={() =>
+                  ErrorService.envelop(async () => {
+                    if (!projects.trash) return;
+                    for (const id in projects.trash) {
+                      await AdminProjectEntity.self.delete.exec(id);
+                    }
+
+                    router.reload();
+                  })
+                }
+                onBack={() => dispatch(AdminProjectsStore.actions.clearTrash())}
+              />
+
               <MenuFormElement
-                noChevronDown
+                disabled={!!projects.trash}
                 name={<FontAwesomeIcon icon={faEllipsisVertical} />}
+                className="mr-3"
                 actions={PROJECTS_ACTIONS}
                 setOptions={{
                   buttonPadding: 'py-2 px-3.5',
                   buttonColor:
-                    'bg-transparent border border-gray-400 hover:border-gray-500 hover:bg-gray-200',
-                  buttonTextColor: 'text-gray-700 ',
+                    'bg-transparent border border-gray-400 hover:border-gray-500 hover:bg-gray-200 disabled:bg-gray-200 disabled:hover:border-gray-400',
+                  buttonTextColor: 'text-gray-700 disabled:text-gray-400',
+                  noChevronDown: true,
                 }}
                 onChange={(action) => {
                   switch (action) {
@@ -85,37 +113,7 @@ export default function () {
                   }
                 }}
               />
-
-              <NextFormElement
-                className="ml-auto pr-3"
-                setOptions={{ buttonPadding: 'py-1.5 px-3' }}
-                next="New Project"
-                onNext={() =>
-                  router.push({ pathname: `${router.route}/create` })
-                }
-              />
             </div>
-
-            {/* <CustomMenuFormElement
-              next="Delete projects..."
-              actions={PROJECTS_ACTIONS}
-              isSubmitButton={!!projects.trash}
-              onChange={(action) => {
-                switch (action) {
-                }
-              }}
-              onNext={() =>
-                ErrorService.envelop(async () => {
-                  if (!projects.trash) return;
-                  for (const id in projects.trash) {
-                    await AdminProjectEntity.self.delete.exec(id);
-                  }
-
-                  router.reload();
-                })
-              }
-              onBack={() => dispatch(AdminProjectsStore.actions.clearTrash())}
-            /> */}
           </div>
         }
       >

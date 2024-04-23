@@ -1,6 +1,8 @@
-import { ChangeEvent, Dispatch, MutableRefObject } from 'react';
+import { ChangeEvent, Dispatch, MutableRefObject, useState } from 'react';
 import { ObjectLiteral } from '../../../lib/common/types';
-import MenuFormElement from '../Elements/MenuFormElement';
+import MenuFormElement, {
+  MenuFormElementProps,
+} from '../Elements/MenuFormElement';
 import NextFormElement from '../Elements/NextFormElement';
 
 export interface CustomMenuFormElementProps<T extends ObjectLiteral> {
@@ -12,8 +14,11 @@ export interface CustomMenuFormElementProps<T extends ObjectLiteral> {
   onNext: Dispatch<void>;
   onBack?: Dispatch<void>;
 
+  name?: string;
   actions: T;
   onChange: Dispatch<keyof T>;
+  setOptions?: MenuFormElementProps<T>['setOptions'];
+  itemComponent?: MenuFormElementProps<T>['itemComponent'];
 
   isSubmitButton?: boolean;
 }
@@ -21,6 +26,7 @@ export interface CustomMenuFormElementProps<T extends ObjectLiteral> {
 export default function CustomMenuFormElement<T extends ObjectLiteral>(
   props: CustomMenuFormElementProps<T>,
 ) {
+  const [open, setOpen] = useState(true);
   return (
     <div className={props.className}>
       {props.fileRef ? (
@@ -45,9 +51,11 @@ export default function CustomMenuFormElement<T extends ObjectLiteral>(
         />
       ) : (
         <MenuFormElement
-          name="Action"
+          name={props.name || 'Action'}
           actions={props.actions}
           onChange={props.onChange}
+          setOptions={props.setOptions}
+          itemComponent={props.itemComponent}
         />
       )}
     </div>

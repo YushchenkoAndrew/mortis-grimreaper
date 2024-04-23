@@ -4,9 +4,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Link from 'next/link';
 import { IdEntity } from '../../lib/common/entities/id.entity';
 import { DeepEntity } from '../../lib/common/types';
+import type { UrlObject } from 'url';
 
 export interface BreadcrumbsProps<T extends object> {
   className?: string;
+  // path: (UrlObject | string | DeepEntity<T>)[];
   path: (string | DeepEntity<T>)[];
   icon?: IconProp;
 }

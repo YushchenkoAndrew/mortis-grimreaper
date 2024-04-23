@@ -15,8 +15,6 @@ interface PropsT {
 }
 
 export default function (props: PropsT) {
-  const scripts = AttachmentService.js(props.project.attachments, 'file');
-
   return (
     <>
       <Header title={props.project.name}></Header>
@@ -32,7 +30,9 @@ export default function (props: PropsT) {
         }
       >
         {props.project.type == ProjectTypeEnum.p5js ? (
-          <P5js scripts={scripts} />
+          <P5js
+            scripts={AttachmentService.js(props.project.attachments) as any}
+          />
         ) : (
           <></>
         )}

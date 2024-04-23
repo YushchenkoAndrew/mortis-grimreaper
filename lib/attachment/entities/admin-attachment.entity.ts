@@ -15,7 +15,7 @@ export class AdminAttachmentEntity extends AttachmentEntity {
   @Column()
   size: number = 0;
 
-  @Column(() => null)
+  @Column()
   order: number = 0;
 
   @Request({ nullable: true })

@@ -175,7 +175,7 @@ export class CommonEntity {
 
           return fetch(this.url(base, props, options) + (id ? `/${id}` : ''), {
             ...config,
-            method: id ? 'PUT' : 'POST',
+            method: options?.method || (id ? 'PUT' : 'POST'),
             body:
               options?.type == RequestTypeEnum.form
                 ? form
@@ -237,6 +237,6 @@ export class CommonEntity {
   ): string {
     if (options?.pathname) return options.pathname;
     const hostname = options?.hostname || base;
-    return `${hostname}/${props.route}`;
+    return `${hostname}/${options?.route || props.route}`;
   }
 }

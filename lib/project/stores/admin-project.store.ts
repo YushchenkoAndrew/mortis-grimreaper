@@ -7,6 +7,7 @@ import { ProjectTypeEnum } from '../types/project-type.enum';
 type StoreT = Omit<AdminProjectEntity, 'readme'> & {
   avatar: string;
   readme: string;
+  directory: string;
   trash: ObjectLiteral<AdminAttachmentEntity>;
   picked: AdminAttachmentEntity;
 };
@@ -23,6 +24,7 @@ export const AdminProjectStore = createSlice({
     trash: null,
     picked: null,
     readme: '',
+    directory: null,
   } as StoreT,
   reducers: {
     setType: (state, action: PayloadAction<ProjectTypeEnum>) => {
@@ -39,6 +41,15 @@ export const AdminProjectStore = createSlice({
     },
     setREADME: (state, action: PayloadAction<string>) => {
       state.readme = action.payload || '';
+    },
+    initDir: (state) => {
+      state.directory = '';
+    },
+    setDir: (state, action: PayloadAction<string>) => {
+      state.directory = action.payload || '';
+    },
+    clearDir: (state) => {
+      state.directory = null;
     },
     initTrash: (state) => {
       state.trash = {};
@@ -84,6 +95,7 @@ export const AdminProjectStore = createSlice({
         state.trash = null;
         state.picked = null;
         state.readme = '';
+        state.directory = null;
       },
     );
   },

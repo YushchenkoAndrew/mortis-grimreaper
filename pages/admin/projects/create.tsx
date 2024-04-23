@@ -17,9 +17,12 @@ import { GetServerSidePropsContext } from 'next';
 import { options } from '../../api/admin/auth/[...nextauth]';
 import { getServerSession } from 'next-auth';
 import { ProjectTypeEnum } from '../../../lib/project/types/project-type.enum';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 export default function () {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const form = useAppSelector((state) => state.admin.project.form);
 
   return (
@@ -36,7 +39,15 @@ export default function () {
         }
       >
         <div className="flex flex-col mx-auto max-w-3xl w-full">
-          <span className="text-xl font-semibold my-8">
+          <div className="mt-8 ">
+            <Link
+              className="text-sm underline hover:text-blue-600"
+              href={{ pathname: `${router.route}/..` }}
+            >
+              Return back to the projects page
+            </Link>
+          </div>
+          <span className="text-xl font-semibold mb-8 mt-2">
             Create Project From Source Code
           </span>
           <RadioFormElement

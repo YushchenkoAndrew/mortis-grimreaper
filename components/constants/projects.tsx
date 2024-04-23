@@ -1,4 +1,3 @@
-import { useSortable } from '@dnd-kit/sortable';
 import {
   faDocker,
   faHtml5,
@@ -7,7 +6,6 @@ import {
 import { faWindowMaximize } from '@fortawesome/free-regular-svg-icons';
 import { faGlobe, faStarOfLife } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { IdEntity } from '../../lib/common/entities/id.entity';
 import { ProjectStepEnum } from '../../lib/project/types/project-step.enum';
 import { ProjectTypeEnum } from '../../lib/project/types/project-type.enum';
 
@@ -18,7 +16,12 @@ export const PROJECT_FORM_STEPS = {
   [ProjectStepEnum.review]: 'Review',
 };
 
+export const PROJECT_HANDLEBAR_SHORTCUTS = {
+  // p5js: '.parent(document.getElementById(`p5js-container`))',
+};
+
 export const PROJECT_FILE_ACTIONS = {
+  dir: 'Create Directory',
   create: 'Create File',
   upload: 'Upload File',
   delete: 'Delete File',

@@ -27,7 +27,7 @@ export default function RadioFormElement<
           <RadioGroup.Option key={i} value={key}>
             {({ checked }) => (
               <div
-                className={`flex relative p-5 rounded ${
+                className={`flex relative p-5 rounded cursor-pointer ${
                   checked
                     ? 'bg-blue-50 ring-1 ring-blue-600 text-blue-600'
                     : 'bg-transparent ring-1 ring-gray-700 text-gray-800'

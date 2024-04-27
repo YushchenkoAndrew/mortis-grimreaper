@@ -1,19 +1,17 @@
 import { faFile } from '@fortawesome/free-regular-svg-icons';
-import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
+import {
+  faArrowUpRightFromSquare,
+  faEllipsisVertical,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { GetServerSidePropsContext } from 'next';
 import { getServerSession } from 'next-auth';
 import { useRouter } from 'next/router';
-import React, { forwardRef, useEffect } from 'react';
-import { VirtuosoGrid } from 'react-virtuoso';
-import Breadcrumbs from '../../../components/Breadcrumbs/Breadcrumbs';
-import Card from '../../../components/Card/Card';
 import {
+  ProjectCircle,
   PROJECTS_ACTIONS,
-  PROJECT_FILE_ACTIONS,
 } from '../../../components/constants/projects';
 import Container from '../../../components/Container/Container';
-import CustomMenuFormElement from '../../../components/Form/Custom/CustomMenuFormElement';
 import MenuFormElement from '../../../components/Form/Elements/MenuFormElement';
 import NextFormElement from '../../../components/Form/Elements/NextFormElement';
 import Header from '../../../components/Header/Header';
@@ -27,26 +25,15 @@ import { useAppDispatch, useAppSelector } from '../../../lib/common/store';
 import { AdminProjectPageEntity } from '../../../lib/project/entities/admin-project-page.entity';
 import { AdminProjectEntity } from '../../../lib/project/entities/admin-project.entity';
 import { AdminProjectsStore } from '../../../lib/project/stores/admin-projects.store';
-import { ProjectTypeEnum } from '../../../lib/project/types/project-type.enum';
 import { options } from '../../api/admin/auth/[...nextauth]';
+import CardFormGraggable from '../../../components/Form/Draggable/CardFormDraggable';
+import { arrayMove } from '@dnd-kit/sortable';
+import { PositionEntity } from '../../../lib/common/entities/position.entity';
 
 export default function () {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const projects = useAppSelector((state) => state.admin.projects);
-
-  useEffect(() => {
-    dispatch(AdminProjectsStore.actions.init());
-    nextPage();
-  }, []);
-
-  const nextPage = () =>
-    ErrorService.envelop(async () => {
-      if (projects.result.length >= projects.total) return;
-      dispatch(
-        AdminProjectPageEntity.self.select.thunk({ page: projects.page + 1 }),
-      ).unwrap();
-    });
 
   return (
     <>
@@ -117,77 +104,92 @@ export default function () {
           </div>
         }
       >
-        <VirtuosoGrid
-          data={projects.result}
+        <CardFormGraggable
           className="overflow-x-hidden w-auto h-[calc(100vh-8rem)]"
-          style={{ height: null }}
-          endReached={() => nextPage()}
-          components={{
-            List: forwardRef(({ children, className, style }, ref) => (
-              <div
-                ref={ref}
-                className={`grid mx-auto grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 max-w-96 md:max-w-[calc(49.5rem)] lg:max-w-[calc(74rem)] 2xl:max-w-[calc(99rem)] ${
-                  className || ''
-                }`}
-                style={style}
-              >
-                {children}
-              </div>
-            )),
-            Item: (props: any) => (
-              <div className={`pr-3 pb-3 ${props.className || ''}`}>
-                {props.children}
-              </div>
-            ),
+          atBottomStateChange={() =>
+            ErrorService.envelop(async () => {
+              if (projects.result.length >= projects.total) return;
+              dispatch(
+                AdminProjectPageEntity.self.select.thunk({
+                  page: projects.page + 1,
+                }),
+              ).unwrap();
+            })
+          }
+          data={projects.result}
+          picked={projects.picked}
+          onDragStart={(e) =>
+            dispatch(AdminProjectsStore.actions.onPick(e.active.id as string))
+          }
+          onDragEnd={({ active, over }) =>
+            ErrorService.envelop(async () => {
+              const position =
+                projects.result.find((e) => e.id == over?.id)?.order ?? null;
+
+              if (!over?.id || position === null) {
+                return dispatch(AdminProjectsStore.actions.onDrop());
+              }
+
+              dispatch(
+                AdminProjectsStore.actions.onReorder(
+                  arrayMove(
+                    projects.result.concat() as any,
+                    projects.result.findIndex((e) => e.id == active.id),
+                    projects.result.findIndex((e) => e.id == over.id),
+                  ),
+                ),
+              );
+
+              await AdminProjectEntity.self.save.build(
+                new PositionEntity({ position }),
+                {
+                  method: 'PUT',
+                  route: `admin/projects/${active.id}/order`,
+                },
+              );
+
+              const saved = await Promise.all<any>(
+                Array(projects.page)
+                  .fill(0)
+                  .map((_, index) => AdminProjectPageEntity.self.select.build({ page: index + 1 })), // prettier-ignore
+              );
+
+              dispatch(AdminProjectsStore.actions.onReorderSaved(saved));
+            })
+          }
+          onDragCancel={() => dispatch(AdminProjectsStore.actions.onDrop())}
+          setOptions={{
+            listClassName:
+              'mx-auto grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 max-w-96 md:max-w-[calc(49.5rem)] lg:max-w-[calc(74rem)] 2xl:max-w-[calc(99rem)]',
+            itemClassName: 'pr-3 pb-3',
           }}
-          itemContent={(_, project) => (
-            <Card
-              className={
-                projects.trash
-                  ? projects.trash[project.id]
-                    ? 'cursor-pointer line-through'
-                    : 'cursor-pointer'
-                  : ''
-              }
-              name={project.name}
-              href={{
-                pathname: `${router.route}/[id]`,
-                query: { id: project.id },
-              }}
-              img={project._avatar()}
-              description={
-                project.description ||
-                `Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus quia, nulla! Maiores et perferendis eaque, exercitationem praesentium nihil.`
-              }
-              header={
-                <span className="text-xs font-normal leading-4 mx-2 px-1 rounded-xl border border-gray-400 text-gray-500 ">
-                  {StringService.humanize(project.status)}
-                </span>
-              }
-              onClick={() => {
-                if (!projects.trash) return;
-                dispatch(AdminProjectsStore.actions.pushTrash(project as any));
-              }}
-            >
+          cardComponent={{
+            className: (project) => {
+              if (!projects.trash) return '';
+              return projects.trash[project.id]
+                ? 'cursor-pointer line-through'
+                : 'cursor-pointer';
+            },
+            name: (project) => project.name,
+            description: (project) => project.description,
+            img: (project) => project._avatar(),
+            href: (project) => ({
+              pathname: `${router.route}/[id]`,
+              query: { id: project.id },
+            }),
+            headerComponent: (project) => (
+              <span className="text-xs font-normal leading-4 mx-2 px-1 rounded-xl border border-gray-400 text-gray-500 ">
+                {StringService.humanize(project.status)}
+              </span>
+            ),
+            onClick: (project) => () => {
+              if (!projects.trash) return;
+              dispatch(AdminProjectsStore.actions.pushTrash(project as any));
+            },
+            contextComponent: (project) => (
               <div className="flex text-sm items-center mt-1">
                 <div className="flex items-center">
-                  <span
-                    className={`h-3 w-3 rounded-full mr-1 ${
-                      project.type == ProjectTypeEnum.p5js
-                        ? 'bg-red-500'
-                        : project.type == ProjectTypeEnum.emscripten
-                        ? 'bg-lime-400'
-                        : project.type == ProjectTypeEnum.html
-                        ? 'bg-orange-400'
-                        : project.type == ProjectTypeEnum.markdown
-                        ? 'bg-red-400'
-                        : project.type == ProjectTypeEnum.link
-                        ? 'bg-cyan-500'
-                        : project.type == ProjectTypeEnum.k3s
-                        ? 'bg-blue-400'
-                        : 'border border-gray-500'
-                    }`}
-                  />
+                  <ProjectCircle type={project.type} />
                   {project.type}
                 </div>
                 <div className="flex items-center ml-3 text-gray-600">
@@ -197,10 +199,16 @@ export default function () {
                   />
                   {project.attachments.length}
                 </div>
+                <div className="flex items-center ml-3 text-gray-600">
+                  <FontAwesomeIcon
+                    className="text-gray-400 mr-1 pb-0.5"
+                    icon={faArrowUpRightFromSquare}
+                  />
+                  {project.links.length}
+                </div>
               </div>
-            </Card>
-          )}
-          // components={{ Footer }}
+            ),
+          }}
         />
       </Container>
     </>

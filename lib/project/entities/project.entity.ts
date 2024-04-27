@@ -43,7 +43,7 @@ export class ProjectEntity extends IdEntity {
   @Column((e) => new AttachmentEntity().buildAll(e.attachments ?? []))
   attachments: AttachmentEntity[] = [];
 
-  @Column((e) => new LinkEntity().build(e.links ?? {}))
+  @Column((e) => new LinkEntity().buildAll(e.links ?? {}))
   links: LinkEntity[] = [];
 
   _avatar() {

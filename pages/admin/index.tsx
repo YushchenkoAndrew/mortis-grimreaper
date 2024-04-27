@@ -1,5 +1,4 @@
 import React from 'react';
-import Breadcrumbs from '../../components/Breadcrumbs/Breadcrumbs';
 import Container from '../../components/Container/Container';
 import Header from '../../components/Header/Header';
 import GlitchItem from '../../components/Navbar/GlitchItem';
@@ -20,7 +19,7 @@ export default function () {
             avatar={Config.self.github}
           />
         }
-        Breadcrumbs={<Breadcrumbs path={['Home', 'Projects']} />}
+        // Breadcrumbs={<Breadcrumbs path={['Home', 'Projects']} />}
       >
         {/* <div className="grid grid-cols-1 items-center gap-x-2 gap-y-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 xl:gap-y-8">
           <Virtuoso

@@ -17,6 +17,9 @@ export class AdminProjectEntity extends ProjectEntity {
   @Request({ nullable: true })
   link: string = '';
 
+  @Column()
+  order: number = 0;
+
   @Request()
   @Column()
   status: ProjectStatusEnum = null;

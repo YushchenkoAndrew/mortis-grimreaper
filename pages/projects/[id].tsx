@@ -15,6 +15,20 @@ interface PropsT {
 }
 
 export default function (props: PropsT) {
+  const container = () => {
+    switch (props.project.type) {
+      case ProjectTypeEnum.p5js:
+        return (
+          <P5js
+            scripts={AttachmentService.js(props.project.attachments) as any}
+          />
+        );
+
+      default:
+        <></>;
+    }
+  };
+
   return (
     <>
       <Header title={props.project.name}></Header>
@@ -29,24 +43,20 @@ export default function (props: PropsT) {
           />
         }
       >
-        {props.project.type == ProjectTypeEnum.p5js ? (
-          <P5js
-            scripts={AttachmentService.js(props.project.attachments) as any}
-          />
-        ) : (
-          <></>
-        )}
+        {container()}
       </Container>
     </>
   );
 }
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  const project = await ProjectEntity.self.load
+  const project: ProjectEntity = await ProjectEntity.self.load
     .build(ctx.params.id, { hostname: Config.self.base.grape })
     .then((res) => JSON.parse(JSON.stringify(res)))
     .catch(() => null);
 
   if (!project) return { redirect: { destination: '/projects' } };
+  if (project.redirect?.link) return { redirect: { destination: project.redirect.link } }; // prettier-ignore
+
   return { props: { ...ctx.params, project } };
 }

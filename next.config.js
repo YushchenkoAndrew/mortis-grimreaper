@@ -15,6 +15,7 @@ module.exports = {
       proxy('attachments/:id'),
       proxy('admin/projects'),
       proxy('admin/projects/:id'),
+      proxy('admin/projects/:id/order'),
       proxy('admin/attachments'),
       proxy('admin/attachments/:id'),
       proxy('admin/attachments/:id/order'),

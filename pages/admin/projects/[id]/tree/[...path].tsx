@@ -118,7 +118,17 @@ export default function () {
         }
         Breadcrumbs={
           <div className="flex px-4 items-center">
-            <Breadcrumbs path={[project.name].concat(router.query.path)} />
+            <Breadcrumbs
+              href={[
+                {
+                  name: project.name,
+                  path: {
+                    pathname: `${router.route}/../..`,
+                    query: { id: router.query.id },
+                  },
+                },
+              ]}
+            />
 
             <CustomPopupSimpleFormElement
               name="Directory name"

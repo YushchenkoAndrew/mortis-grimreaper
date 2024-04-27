@@ -5,6 +5,7 @@ import { AdminProjectEntity } from '../entities/admin-project.entity';
 
 type StoreT = AdminProjectPageEntity & {
   trash: ObjectLiteral<AdminProjectEntity>;
+  picked: AdminProjectEntity;
 };
 
 export const AdminProjectsStore = createSlice({
@@ -14,6 +15,7 @@ export const AdminProjectsStore = createSlice({
     result: [],
 
     trash: null,
+    picked: null,
   } as StoreT,
   reducers: {
     init: (state) => {
@@ -32,6 +34,23 @@ export const AdminProjectsStore = createSlice({
     },
     clearTrash: (state) => {
       state.trash = null;
+    },
+
+    onPick: (state, action: PayloadAction<string>) => {
+      const id = action.payload;
+      state.picked = state.result.find((e) => e.id == id) || null;
+    },
+    onReorder: (state, action: PayloadAction<AdminProjectEntity[]>) => {
+      state.result = action.payload.map((e, index) => ((e.order = index), e));
+    },
+    onDrop: (state) => {
+      state.picked = null;
+    },
+    onReorderSaved: (
+      state,
+      action: PayloadAction<AdminProjectPageEntity[]>,
+    ) => {
+      state.result = action.payload.map((e) => e.result).flat();
     },
   },
   extraReducers(builder) {

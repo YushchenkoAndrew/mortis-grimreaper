@@ -27,6 +27,19 @@ export const AdminProjectStore = createSlice({
     directory: null,
   } as StoreT,
   reducers: {
+    init: (state) => {
+      state.name = '';
+      state.status = '' as any;
+
+      state.links = [];
+      state.attachments = [];
+
+      state.avatar = null;
+      state.trash = null;
+      state.picked = null;
+      state.readme = '';
+      state.directory = null;
+    },
     setType: (state, action: PayloadAction<ProjectTypeEnum>) => {
       state.type = action.payload;
     },

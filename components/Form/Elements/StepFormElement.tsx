@@ -5,15 +5,17 @@ import {
 } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { RadioGroup } from '@headlessui/react';
-import { Dispatch, useEffect, useState } from 'react';
-import { ObjectLiteral } from '../../lib/common/types';
+import { useEffect, useState } from 'react';
+import { ObjectLiteral } from '../../../lib/common/types';
 
-export interface StepsProps<T extends ObjectLiteral> {
+export interface StepFormElementProps<T extends ObjectLiteral> {
   value: keyof T & string;
   states: T;
 }
 
-export default function Steps<T extends ObjectLiteral>(props: StepsProps<T>) {
+export default function StepFormElement<T extends ObjectLiteral>(
+  props: StepFormElementProps<T>,
+) {
   const [active, onActive] = useState(-1);
 
   useEffect(

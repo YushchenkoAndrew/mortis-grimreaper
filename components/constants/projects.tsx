@@ -50,7 +50,7 @@ export const PROJECT_TYPES_OPTIONS = {
   [ProjectTypeEnum.emscripten]: (
     <>
       <FontAwesomeIcon
-        className="text-2xl pl-2 text-lime-500 rotate-180"
+        className="text-2xl pl-2 text-lime-600 rotate-180"
         icon={faWindowMaximize}
       />
       Emscripten Project
@@ -87,3 +87,30 @@ export const PROJECT_TYPES_OPTIONS = {
     </>
   ),
 };
+
+export function ProjectCircle(props: { type: ProjectTypeEnum }) {
+  const className = 'h-3 w-3 rounded-full mr-1';
+
+  switch (props.type) {
+    case ProjectTypeEnum.p5js:
+      return <span className={`${className} bg-red-500`} />;
+
+    case ProjectTypeEnum.emscripten:
+      return <span className={`${className} bg-lime-600`} />;
+
+    case ProjectTypeEnum.html:
+      return <span className={`${className} bg-orange-400`} />;
+
+    case ProjectTypeEnum.markdown:
+      return <span className={`${className} bg-pink-400`} />;
+
+    case ProjectTypeEnum.link:
+      return <span className={`${className} bg-cyan-500`} />;
+
+    case ProjectTypeEnum.k3s:
+      return <span className={`${className} bg-blue-400`} />;
+
+    default:
+      return <span className={`${className} border border-gray-500`} />;
+  }
+}

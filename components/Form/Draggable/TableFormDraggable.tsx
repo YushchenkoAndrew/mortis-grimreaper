@@ -77,15 +77,17 @@ export default function TableFormGraggable<T extends ObjectLiteral & IdEntity>(
     );
   };
 
-  const FirstComponent = ({ row }) => {
-    const { attributes, listeners } = useSortable({ id: row.id });
+  const FirstComponent = (props: { row: T; isDragging?: boolean }) => {
+    const { attributes, listeners } = useSortable({ id: props.row.id });
 
     return (
       <FontAwesomeIcon
         {...attributes}
         {...listeners}
         icon={faGripVertical}
-        className="text-gray-400 text-lg pl-3 pr-2 py-4"
+        className={`text-gray-400 text-lg pl-3 pr-2 py-4 ${
+          props.isDragging ? 'cursor-grabbing' : 'cursor-grab'
+        }`}
       />
     );
   };
@@ -130,8 +132,8 @@ export default function TableFormGraggable<T extends ObjectLiteral & IdEntity>(
           firstComponent={(row) =>
             props.firstComponent?.({
               row,
-              children: <FirstComponent row={row} />,
-            }) ?? <FirstComponent row={row} />
+              children: <FirstComponent row={row} isDragging />,
+            }) ?? <FirstComponent row={row} isDragging />
           }
           setOptions={{ rowColor: 'bg-white', dataPadding: 'pr-6' }}
         />

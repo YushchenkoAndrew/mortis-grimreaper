@@ -58,6 +58,8 @@ export default function () {
 
   useEffect(() => {
     ErrorService.envelop(async () => {
+      dispatch(() => dispatch(AdminProjectStore.actions.init()));
+
       const project = (await dispatch(
         AdminProjectEntity.self.load.thunk(router.query.id),
       ).unwrap()) as AdminProjectEntity;

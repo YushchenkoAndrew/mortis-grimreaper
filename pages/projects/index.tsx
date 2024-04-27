@@ -17,7 +17,6 @@ import {
 } from '../../constants';
 import { Virtuoso } from 'react-virtuoso';
 import { ErrorService } from '../../lib/common/error.service';
-import Breadcrumbs from '../../components/Breadcrumbs/Breadcrumbs';
 import { ProjectPageEntity } from '../../lib/project/entities/project-page.entity';
 
 export default function () {

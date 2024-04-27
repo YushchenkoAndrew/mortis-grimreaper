@@ -14,7 +14,7 @@ export interface NavbarProps {
   avatar?: AvatarProps;
 }
 
-export default memo(function Navbar({ Item, ...props }: NavbarProps) {
+export default function Navbar({ Item, ...props }: NavbarProps) {
   const pathname = props.pathname ?? usePathname();
   return (
     <Disclosure as="nav" className="bg-gray-800">
@@ -74,4 +74,4 @@ export default memo(function Navbar({ Item, ...props }: NavbarProps) {
       )}
     </Disclosure>
   );
-});
+}

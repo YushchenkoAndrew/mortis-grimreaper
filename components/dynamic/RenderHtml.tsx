@@ -1,17 +1,41 @@
 import DOMPurify from 'dompurify';
-import { LegacyRef } from 'react';
+import { ReactNode, useRef, useState } from 'react';
 
 export type RenderHtmlProps = React.DetailedHTMLProps<
   React.IframeHTMLAttributes<HTMLIFrameElement>,
   HTMLIFrameElement
-> & { html: string; iframe_ref?: LegacyRef<HTMLIFrameElement> };
+> & {
+  html: string;
+  headerComponent?: ReactNode;
+  setOptions: Partial<{
+    containerClassName: string;
+    containerHeighOffset: number;
+  }>;
+};
 
 export default function (props: RenderHtmlProps) {
+  const iframeRef = useRef<HTMLIFrameElement>();
+  const [height, setHeight] = useState(0);
+
   return (
-    <iframe
-      {...props}
-      ref={props.iframe_ref}
-      srcDoc={DOMPurify.sanitize(props.html)}
-    />
+    <div
+      className={props.setOptions?.containerClassName}
+      style={{
+        height: `calc(${height}px + ${
+          props.setOptions?.containerHeighOffset ?? 6
+        }rem)`,
+      }}
+    >
+      {props.headerComponent}
+
+      <iframe
+        {...props}
+        ref={iframeRef}
+        srcDoc={DOMPurify.sanitize(props.html)}
+        onLoad={() =>
+          setHeight(iframeRef.current.contentWindow.document.body.scrollHeight)
+        }
+      />
+    </div>
   );
 }

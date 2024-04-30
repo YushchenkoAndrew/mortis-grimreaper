@@ -7,13 +7,14 @@ export class AttachmentService {
     return entity.path.split('/').concat(entity.name).filter(Boolean);
   }
 
-  static handlebarLink<T extends AttachmentEntity>(
+  static vars<T extends AttachmentEntity>(
     attachments: DeepEntity<T>[],
   ): ObjectLiteral<string> {
-    return attachments.reduce(
-      (acc, curr) => ((acc['file:/' + curr._filepath()] = curr._url()), acc),
-      {},
-    );
+    return attachments.reduce((acc, curr) => {
+      acc['id:/' + curr._filepath()] = curr.id;
+      acc['file:/' + curr._filepath()] = curr._url();
+      return acc;
+    }, {});
   }
 
   static toTree<T extends AttachmentEntity>(
@@ -63,14 +64,17 @@ export class AttachmentService {
     );
   }
 
-  static js<T extends AttachmentEntity, K extends keyof T & string>(
-    attachments: DeepEntity<T>[],
-    key?: K,
-  ): K extends string ? T[K][] : T[] {
+  static js<T extends AttachmentEntity>(attachments: DeepEntity<T>[]): T[] {
     if (!attachments) return [] as any;
 
     const scripts = attachments.filter((e) => e.type == '.js');
-    if (!key) return scripts.map((e) => new AttachmentEntity(e as any)) as any;
-    return scripts.map((e) => e[key as string]) as any;
+    return scripts.map((e) => new AttachmentEntity(e as any)) as any;
+  }
+
+  static cpp<T extends AttachmentEntity>(attachments: DeepEntity<T>[]): T[] {
+    if (!attachments) return [] as any;
+
+    const scripts = attachments.filter((e) => ['.cpp', '.h'].includes(e.type));
+    return scripts.map((e) => new AttachmentEntity(e as any)) as any;
   }
 }

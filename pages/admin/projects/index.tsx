@@ -2,6 +2,7 @@ import { faFile } from '@fortawesome/free-regular-svg-icons';
 import {
   faArrowUpRightFromSquare,
   faEllipsisVertical,
+  faMagnifyingGlass,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { GetServerSidePropsContext } from 'next';
@@ -29,6 +30,8 @@ import { options } from '../../api/admin/auth/[...nextauth]';
 import CardFormGraggable from '../../../components/Form/Draggable/CardFormDraggable';
 import { arrayMove } from '@dnd-kit/sortable';
 import { PositionEntity } from '../../../lib/common/entities/position.entity';
+import { ProjectStatusEnum } from '../../../lib/project/types/project-status.enum';
+import InputFormElement from '../../../components/Form/Elements/InputFormElement';
 
 export default function () {
   const router = useRouter();
@@ -50,7 +53,34 @@ export default function () {
         }
         Breadcrumbs={
           <div className="flex mx-auto w-full max-w-96 md:max-w-[calc(49.5rem)] lg:max-w-[calc(74rem)] 2xl:max-w-[calc(99rem)]">
-            <div className="flex ml-auto">
+            <div className="flex -ml-1 w-full max-w-72">
+              <InputFormElement
+                className="w-full"
+                value={projects.query}
+                placeholder="Search..."
+                onChange={(v) =>
+                  ErrorService.envelop(async () => {
+                    dispatch(AdminProjectsStore.actions.setQuery(v));
+
+                    const page = await AdminProjectPageEntity.self.select.build({ page: 1, query: v }); // prettier-ignore
+                    dispatch(AdminProjectsStore.actions.search(page as any));
+                  })
+                }
+                setOptions={{
+                  inputFocus:
+                    'bg-gray-100 focus:bg-white focus:ring-inset ring-gray-400',
+                  inputPadding: 'py-[calc(0.1875rem)] pl-8 pr-3',
+                  divClassName: 'relative',
+                  headComponent: (
+                    <FontAwesomeIcon
+                      className="absolute py-0.5 inset-y-0 start-0 flex items-center ml-2 mt-1.5 pointer-events-none text-gray-500"
+                      icon={faMagnifyingGlass}
+                    />
+                  ),
+                }}
+              />
+            </div>
+            <div className="flex ml-auto mr-2">
               <NextFormElement
                 className={`${projects.trash ? 'hidden' : ''} mr-3`}
                 setOptions={{ buttonPadding: 'py-1.5 px-3' }}
@@ -111,11 +141,13 @@ export default function () {
               if (projects.result.length >= projects.total) return;
               dispatch(
                 AdminProjectPageEntity.self.select.thunk({
+                  query: projects.query || null,
                   page: projects.page + 1,
                 }),
               ).unwrap();
             })
           }
+          graggable={!projects.query}
           data={projects.result}
           picked={projects.picked}
           onDragStart={(e) =>
@@ -151,7 +183,12 @@ export default function () {
               const saved = await Promise.all<any>(
                 Array(projects.page)
                   .fill(0)
-                  .map((_, index) => AdminProjectPageEntity.self.select.build({ page: index + 1 })), // prettier-ignore
+                  .map((_, index) =>
+                    AdminProjectPageEntity.self.select.build({
+                      query: projects.query || null,
+                      page: index + 1,
+                    }),
+                  ),
               );
 
               dispatch(AdminProjectsStore.actions.onReorderSaved(saved));
@@ -178,7 +215,28 @@ export default function () {
               query: { id: project.id },
             }),
             headerComponent: (project) => (
-              <span className="text-xs font-normal leading-4 mx-2 px-1 rounded-xl border border-gray-400 text-gray-500 ">
+              <span
+                className={`text-xs font-normal leading-4 mx-2 px-1 rounded-xl border border-gray-400 text-gray-500 hover:bg-gray-200 cursor-pointer ${
+                  project.status == ProjectStatusEnum.inactive
+                    ? 'bg-gray-300'
+                    : ''
+                }`}
+                onClick={() =>
+                  ErrorService.envelop(async () => {
+                    await AdminProjectEntity.self.save.build(
+                      new AdminProjectEntity({
+                        id: project.id,
+                        status: project.invertStatus(),
+                      }),
+                    );
+
+                    const updated = await AdminProjectEntity.self.load.build(project.id); // prettier-ignore
+                    dispatch(
+                      AdminProjectsStore.actions.replace(updated as any),
+                    );
+                  })
+                }
+              >
                 {StringService.humanize(project.status)}
               </span>
             ),

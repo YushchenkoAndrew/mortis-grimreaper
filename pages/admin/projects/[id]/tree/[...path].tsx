@@ -244,7 +244,7 @@ export default function () {
               bindKey: null,
               exec: () =>
                 ErrorService.envelop(async () => {
-                  const vars = AttachmentService.handlebarLink(projectRef.current.attachments); // prettier-ignore
+                  const vars = AttachmentService.vars(projectRef.current.attachments); // prettier-ignore
                   const template = Handlebars.compile(attachmentRef.current.buffer); // prettier-ignore
                   const buffer = template(Object.assign(vars, PROJECT_HANDLEBAR_SHORTCUTS)); // prettier-ignore
 

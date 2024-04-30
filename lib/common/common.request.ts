@@ -1,10 +1,10 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { marked } from 'marked';
 import { Config } from '../../config';
 import { ObjectLiteral } from './types';
 import { CommonEntity } from './entities/common.entity';
 import { RequestOptionsType } from './types/request-options.type';
 import { RequestTypeEnum } from './types/request-type.enum';
+import { StringService } from '.';
 
 export class CommonRequest<
   T extends (...args: any) => Promise<Response>,
@@ -91,6 +91,6 @@ export class CommonRequest<
 
   public get markdown() {
     return (...args: Args) =>
-      this.text(...args).then((text) => marked.parse(text));
+      this.text(...args).then((text) => StringService.markdown(text));
   }
 }

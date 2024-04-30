@@ -4,6 +4,7 @@ import {
   Dispatch,
   HTMLInputAutoCompleteAttribute,
   KeyboardEvent,
+  ReactNode,
   useState,
 } from 'react';
 
@@ -21,7 +22,12 @@ export interface InputFormElementProps {
   autoComplete?: HTMLInputAutoCompleteAttribute;
   type?: 'password' | 'text';
 
-  setOptions?: Partial<{ inputPadding?: string }>;
+  setOptions?: Partial<{
+    divClassName: string;
+    headComponent: ReactNode;
+    inputPadding: string;
+    inputFocus: string;
+  }>;
 }
 
 export default function InputFormElement(props: InputFormElementProps) {
@@ -47,11 +53,14 @@ export default function InputFormElement(props: InputFormElementProps) {
       >
         {props.description}
       </label>
-      <div className="mt-1">
+      <div className={`mt-1 ${props.setOptions?.divClassName || ''}`}>
+        {props.setOptions?.headComponent}
         <input
           className={`block w-full rounded border-0 ${
             props.setOptions?.inputPadding ?? 'py-3.5'
-          } text-gray-800 shadow-sm ring-1 ring-inset placeholder:text-gray-400 focus:ring-inset sm:text-sm sm:leading-6 ${
+          } text-gray-800 shadow-sm ring-1 ring-inset placeholder:text-gray-400 focus:ring-inset ${
+            props.setOptions?.inputFocus ?? ''
+          } sm:text-sm sm:leading-6 ${
             error
               ? 'ring-red-600 hover:ring-red-600 focus:ring-red-600'
               : 'ring-gray-700 hover:ring-blue-600 focus:ring-blue-600'

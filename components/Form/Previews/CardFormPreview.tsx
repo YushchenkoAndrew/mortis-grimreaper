@@ -3,8 +3,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Url } from 'next/dist/shared/lib/router/router';
 import Link from 'next/link';
 import { CSSProperties, Dispatch, forwardRef, ReactNode } from 'react';
+import TooltipFormPreview from './TooltipFormPreview';
 
-export interface CardFormElementProps {
+export interface CardFormPreviewProps {
   className?: string;
 
   name: string;
@@ -21,8 +22,8 @@ export interface CardFormElementProps {
   style?: CSSProperties;
 }
 
-export default forwardRef<HTMLDivElement, CardFormElementProps>(
-  function CardFormElement(props: CardFormElementProps, ref) {
+export default forwardRef<HTMLDivElement, CardFormPreviewProps>(
+  function CardFormPreview(props: CardFormPreviewProps, ref) {
     const loading = (value: ReactNode, className: string, repeat?: number) =>
       props.setOptions?.loading ? (
         <div className="flex flex-col w-full">
@@ -52,14 +53,15 @@ export default forwardRef<HTMLDivElement, CardFormElementProps>(
           {loading(
             <>
               <FontAwesomeIcon
-                className="ml-0.5 mr-2 text-gray-500"
+                className="ml-0.5 mr-2 text-gray-400"
                 icon={faBookmark}
               />
               <Link
-                className="font-medium text-sky-600 hover:underline truncate max-w-48"
+                className="group font-medium text-sky-600 hover:underline truncate max-w-48"
                 href={props.href}
               >
                 {props.name}
+                <TooltipFormPreview value={props.name} />
               </Link>
             </>,
             'h-2 ',

@@ -26,4 +26,17 @@ export class AdminProjectEntity extends ProjectEntity {
 
   @Column((e) => new AdminAttachmentEntity().buildAll(e.attachments ?? []))
   attachments: AdminAttachmentEntity[] = [];
+
+  invertStatus(): ProjectStatusEnum {
+    switch (this.status) {
+      case ProjectStatusEnum.active:
+        return ProjectStatusEnum.inactive;
+
+      case ProjectStatusEnum.inactive:
+        return ProjectStatusEnum.active;
+
+      default:
+        return null;
+    }
+  }
 }

@@ -1,3 +1,4 @@
+import { marked } from 'marked';
 import { Config } from '../../config';
 import { ObjectLiteral } from './types';
 
@@ -38,6 +39,7 @@ export class StringService {
 
     for (var p in obj) {
       if (!obj.hasOwnProperty(p)) continue;
+      if (obj[p] === null || obj[p] === undefined) continue;
       params.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
     }
 
@@ -46,6 +48,15 @@ export class StringService {
 
   static href(...path: string[]): string {
     return `${Config.self.base.web}/${path.join('/')}`;
+  }
+
+  static async markdown(src: string): Promise<string> {
+    const markdown = await marked.parse(src);
+    return `
+    <div>
+      <style scoped>@import url("${Config.self.base.web}/styles/markdown.css");</style>
+      ${markdown}
+    </div>`;
   }
 }
 

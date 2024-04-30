@@ -26,6 +26,7 @@ export default function Sidebar<T extends IdEntity>({
             <SidebarItem
               tree={tree}
               Element={Element}
+              sortBy={props.sortBy}
               onClick={props.onClick}
             />
           </div>

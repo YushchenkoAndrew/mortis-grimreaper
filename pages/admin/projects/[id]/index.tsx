@@ -7,13 +7,12 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   PROJECT_ACTIONS,
   PROJECT_FILE_ACTIONS,
 } from '../../../../components/constants/projects';
 import Container from '../../../../components/Container/Container';
-import { RenderHtmlRef } from '../../../../components/dynamic';
 import MenuFormElement from '../../../../components/Form/Elements/MenuFormElement';
 import Header from '../../../../components/Header/Header';
 import Navbar from '../../../../components/Navbar/Navbar';
@@ -39,22 +38,16 @@ import { ProjectStatusEnum } from '../../../../lib/project/types/project-status.
 import TableFormGraggable from '../../../../components/Form/Draggable/TableFormDraggable';
 import { arrayMove } from '@dnd-kit/sortable';
 import { PositionEntity } from '../../../../lib/common/entities/position.entity';
-import { Dialog, Popover, Transition } from '@headlessui/react';
-import InputFormElement from '../../../../components/Form/Elements/InputFormElement';
-import NextFormElement from '../../../../components/Form/Elements/NextFormElement';
-import PopupFormElement from '../../../../components/Form/Elements/PopupFormElement';
 import CustomPopupSimpleFormElement from '../../../../components/Form/Custom/CustomPopupSimpleFormElement';
+import { RenderHtml } from '../../../../components/dynamic';
+import ImgFormElement from '../../../../components/Form/Elements/ImgFormElement';
+import TooltipFormPreview from '../../../../components/Form/Previews/TooltipFormPreview';
 
 export default function () {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const project = useAppSelector((state) => state.admin.project.index);
-
-  const [open, setOpen] = useState(false);
-  const imgRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-  const iframeRef = useRef<HTMLIFrameElement>();
-  const [height, setHeight] = useState(0);
 
   useEffect(() => {
     ErrorService.envelop(async () => {
@@ -143,40 +136,16 @@ export default function () {
         <div className="flex flex-col mx-auto max-w-3xl w-full">
           <div className="flex flex-col">
             <div className="flex items-center my-4">
-              <div
-                className="block relative group h-14 w-14 mr-3 cursor-pointer"
-                onClick={() => imgRef.current.click()}
-              >
-                <input
-                  ref={imgRef}
-                  className="hidden"
-                  type="file"
-                  accept="image/*"
-                  onChange={(event) => {
-                    const file = event.target.files[0];
-                    if (!file) return;
-
-                    const ext = file.name.split('.').at(-1);
-                    return onFile([new File([file], `thumbnail.${ext}`)]);
-                  }}
-                />
-                <span className="absolute block top-0 left-0 h-full w-full rounded group-hover:bg-gray-400">
-                  <div className="hidden group-hover:flex w-full h-full justify-center items-center">
-                    <FontAwesomeIcon
-                      className="text-2xl text-gray-800"
-                      icon={faPenToSquare}
-                    />
-                  </div>
-                </span>
-                <img
-                  className="relative block top-0 left-0 h-full w-full rounded mix-blend-multiply"
-                  src={project.avatar}
-                  alt="thumbnail"
-                />
-              </div>
+              <ImgFormElement
+                img={project.avatar}
+                onFile={(file) => {
+                  const ext = file.name.split('.').at(-1);
+                  return onFile([new File([file], `thumbnail.${ext}`)]);
+                }}
+              />
 
               <Link
-                className="text-2xl font-semibold max-w-xl truncate hover:underline"
+                className="group text-2xl font-semibold max-w-xl truncate hover:underline"
                 target="_blank"
                 href={{
                   pathname: '/projects/[id]',
@@ -184,6 +153,11 @@ export default function () {
                 }}
               >
                 {project.name}
+
+                <TooltipFormPreview
+                  value={project.name}
+                  setOptions={{ margin: '-ml-2' }}
+                />
               </Link>
 
               <span className="text-xs font-normal leading-4 mx-2 px-1 rounded-xl border border-gray-400 text-gray-500 ">
@@ -365,31 +339,25 @@ export default function () {
             }}
           />
 
-          <div
-            className={`${
-              project.readme ? 'block' : 'hidden'
-            } relative border rounded-md`}
-            style={{ height: `calc(${height}px + 6rem)` }}
-          >
-            <div className="flex text-sm font-medium text-gray-800 bg-gray-100 px-4 py-2">
-              <FontAwesomeIcon
-                className="text-gray-500 text-lg mr-1.5"
-                icon={faFile}
-              />
-              README
-            </div>
-
-            <RenderHtmlRef
-              ref={iframeRef}
-              className="w-full h-full overflow-y-hidden p-5"
-              html={project.readme}
-              onLoad={() =>
-                setHeight(
-                  iframeRef.current.contentWindow.document.body.scrollHeight,
-                )
-              }
-            />
-          </div>
+          <RenderHtml
+            className="w-full h-full overflow-y-hidden p-5"
+            html={project.readme}
+            headerComponent={
+              <div className="flex text-sm font-medium text-gray-800 bg-gray-100 px-4 py-2">
+                <FontAwesomeIcon
+                  className="text-gray-500 text-lg mr-1.5"
+                  icon={faFile}
+                />
+                README
+              </div>
+            }
+            setOptions={{
+              containerHeighOffset: 8,
+              containerClassName: `${
+                project.readme ? 'block' : 'hidden'
+              } relative border rounded-md`,
+            }}
+          />
         </div>
       </Container>
     </>

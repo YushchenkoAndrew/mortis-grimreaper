@@ -19,15 +19,11 @@ import { DispatchComponent, ObjectLiteral } from '../../../lib/common/types';
 import { CSS } from '@dnd-kit/utilities';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGripVertical } from '@fortawesome/free-solid-svg-icons';
-import { Dispatch, forwardRef, ReactNode, useEffect, useRef } from 'react';
-import {
-  StateSnapshot,
-  VirtuosoGrid,
-  VirtuosoGridHandle,
-} from 'react-virtuoso';
-import CardFormElement, {
-  CardFormElementProps,
-} from '../Elements/CardFormElement';
+import { Dispatch, forwardRef, useEffect, useRef } from 'react';
+import { VirtuosoGrid, VirtuosoGridHandle } from 'react-virtuoso';
+import CardFormPreview, {
+  CardFormPreviewProps,
+} from '../Previews/CardFormPreview';
 
 type IdEntity = { id: string };
 
@@ -39,13 +35,14 @@ export interface CardFormGraggableProps<T extends ObjectLiteral & IdEntity> {
   onDragEnd?: Dispatch<DragEndEvent>;
 
   picked?: T;
+  graggable?: boolean;
 
   data: T[];
   atBottomStateChange?: Dispatch<void>;
 
   setOptions?: Partial<{ listClassName: string; itemClassName: string }>;
   cardComponent: DispatchComponent<
-    Omit<CardFormElementProps, 'style' | 'ref'>,
+    Omit<CardFormPreviewProps, 'style' | 'ref'>,
     T
   >;
 }
@@ -70,7 +67,7 @@ export default function CardFormGraggable<T extends ObjectLiteral & IdEntity>(
     });
 
     return (
-      <CardFormElement
+      <CardFormPreview
         ref={setNodeRef}
         style={{ transition, transform: CSS.Transform.toString(transform) }}
         className={props.cardComponent.className?.(data)}
@@ -98,8 +95,8 @@ export default function CardFormGraggable<T extends ObjectLiteral & IdEntity>(
           {...listeners}
           icon={faGripVertical}
           className={`text-gray-400 text-lg ml-auto focus:outline-none ${
-            isDragging ? 'cursor-grabbing' : 'cursor-grab'
-          }`}
+            props.graggable === false ? 'invisible' : ''
+          } ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
         />
       </>
     );
@@ -179,7 +176,7 @@ export default function CardFormGraggable<T extends ObjectLiteral & IdEntity>(
 
       <DragOverlay>
         {props.picked ? (
-          <CardFormElement
+          <CardFormPreview
             href=""
             className={props.cardComponent.className?.(props.picked)}
             name={props.cardComponent.name(props.picked)}

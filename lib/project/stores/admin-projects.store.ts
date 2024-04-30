@@ -4,6 +4,8 @@ import { AdminProjectPageEntity } from '../entities/admin-project-page.entity';
 import { AdminProjectEntity } from '../entities/admin-project.entity';
 
 type StoreT = AdminProjectPageEntity & {
+  query: string;
+
   trash: ObjectLiteral<AdminProjectEntity>;
   picked: AdminProjectEntity;
 };
@@ -12,6 +14,7 @@ export const AdminProjectsStore = createSlice({
   name: 'admin-projects',
   initialState: {
     page: 0,
+    query: '',
     result: [],
 
     trash: null,
@@ -22,6 +25,22 @@ export const AdminProjectsStore = createSlice({
       state.page = 0;
       state.result = [];
       state.trash = null;
+    },
+    setQuery: (state, action: PayloadAction<string>) => {
+      state.query = action.payload || '';
+    },
+    replace: (state, action: PayloadAction<AdminProjectEntity>) => {
+      const index = state.result.findIndex((e) => e.id == action.payload.id);
+      if (index == -1) return;
+
+      state.result[index] = action.payload;
+    },
+    search: (state, action: PayloadAction<AdminProjectPageEntity>) => {
+      state.result = action.payload.result;
+
+      state.page = action.payload.page;
+      state.per_page = action.payload.per_page;
+      state.total = action.payload.total;
     },
     initTrash: (state) => {
       state.trash = {};

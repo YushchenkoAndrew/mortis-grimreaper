@@ -8,19 +8,26 @@ import Navbar from '../../components/Navbar/Navbar';
 import { ProjectEntity } from '../../lib/project/entities/project.entity';
 import { AttachmentService } from '../../lib/attachment/attachment.service';
 import { ProjectTypeEnum } from '../../lib/project/types/project-type.enum';
-import P5js from '../../components/Container/P5js';
+import Emscripten from '../../components/Container/Project/Emscripten';
+import P5js from '../../components/Container/Project/P5js';
 
 interface PropsT {
   project: ProjectEntity;
 }
 
 export default function (props: PropsT) {
+  const scripts = AttachmentService.js(props.project.attachments);
+
   const container = () => {
     switch (props.project.type) {
       case ProjectTypeEnum.p5js:
+        return <P5js scripts={scripts} preview={scripts} />;
+
+      case ProjectTypeEnum.emscripten:
         return (
-          <P5js
-            scripts={AttachmentService.js(props.project.attachments) as any}
+          <Emscripten
+            scripts={scripts}
+            preview={AttachmentService.cpp(props.project.attachments)}
           />
         );
 

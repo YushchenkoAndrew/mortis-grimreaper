@@ -1,4 +1,3 @@
-import { AttachmentEntity } from '../../../lib/attachment/entities/attachment.entity';
 import hljs from 'highlight.js/lib/core';
 import cpp from 'highlight.js/lib/languages/cpp';
 
@@ -6,29 +5,17 @@ import 'highlight.js/styles/github.css';
 import { Config } from '../../../config';
 import ScriptFormPreview from '../../Form/Previews/ScriptFormPreview';
 import { ProjectContainer } from './ProjectContainer';
-import { memo, useEffect, useState } from 'react';
-import { ErrorService } from '../../../lib/common/error.service';
+import { memo, useMemo } from 'react';
 
 hljs.registerLanguage('cpp', cpp);
 
 export default memo(function Emscripten(props: ProjectContainer) {
-  const [scripts, setScripts] = useState<(readonly [string, string])[]>([]);
-
-  useEffect(() => {
-    ErrorService.envelop(async () => {
-      const list = await Promise.all(
-        props.preview.map(
-          (e) =>
-          AttachmentEntity.self.load
-            .text(e.id)
-            .then((text) => [e.name, hljs.highlight(text, {  language: 'cpp' }).value] as const), // prettier-ignore
-        ),
-      );
-
-      // hljs.initLineNumbersOnLoad();
-      setScripts(list);
-    });
-  }, []);
+  const scripts = useMemo(() => {
+    return props.preview.map(
+      ([name, text]) =>
+        [name, hljs.highlight(text, { language: 'cpp' }).value] as const,
+    );
+  }, [props.scripts]);
 
   return (
     <>
@@ -42,7 +29,7 @@ export default memo(function Emscripten(props: ProjectContainer) {
 
           <script src={`${Config.self.base.web}/js/lib/emscripten.js`} />
           {props.scripts.map((src) => (
-            <script async key={src.id} src={src._url()} />
+            <script key={src.id} src={src._url()} />
           ))}
         </div>
 

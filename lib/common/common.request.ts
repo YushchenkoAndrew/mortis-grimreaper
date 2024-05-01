@@ -85,12 +85,16 @@ export class CommonRequest<
     return (...args: Args) => this.file('_tmp', ...args);
   }
 
-  public get text() {
+  public get raw() {
     return (...args: Args) => this.tmp(...args).then((res) => res.text());
+  }
+
+  public get text() {
+    return (...args: Args) => this.exec(...args).then((res) => res.text());
   }
 
   public get markdown() {
     return (...args: Args) =>
-      this.text(...args).then((text) => StringService.markdown(text));
+      this.raw(...args).then((text) => StringService.markdown(text));
   }
 }

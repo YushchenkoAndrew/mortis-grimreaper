@@ -1,4 +1,5 @@
 import { DeepEntity, ObjectLiteral, TreeT } from '../common/types';
+import { ProjectTypeEnum } from '../project/types/project-type.enum';
 import { AdminAttachmentEntity } from './entities/admin-attachment.entity';
 import { AttachmentEntity } from './entities/attachment.entity';
 
@@ -64,17 +65,27 @@ export class AttachmentService {
     );
   }
 
-  static js<T extends AttachmentEntity>(attachments: DeepEntity<T>[]): T[] {
-    if (!attachments) return [] as any;
+  static filter<T extends AttachmentEntity>(
+    type: ProjectTypeEnum,
+    attachments: DeepEntity<T>[],
+  ): DeepEntity<T>[] {
+    if (!attachments?.length) return [];
 
-    const scripts = attachments.filter((e) => e.type == '.js');
-    return scripts.map((e) => new AttachmentEntity(e as any)) as any;
-  }
+    switch (type) {
+      case ProjectTypeEnum.p5js:
+        return attachments.filter((e) => ['.js'].includes(e.type));
 
-  static cpp<T extends AttachmentEntity>(attachments: DeepEntity<T>[]): T[] {
-    if (!attachments) return [] as any;
+      case ProjectTypeEnum.emscripten:
+        return attachments.filter((e) => ['.cpp', '.h'].includes(e.type));
 
-    const scripts = attachments.filter((e) => ['.cpp', '.h'].includes(e.type));
-    return scripts.map((e) => new AttachmentEntity(e as any)) as any;
+      case ProjectTypeEnum.markdown:
+        return attachments.filter((e) => ['.md'].includes(e.type));
+
+      case ProjectTypeEnum.html:
+        return attachments.filter((e) => ['.html'].includes(e.type));
+
+      default:
+        return [];
+    }
   }
 }

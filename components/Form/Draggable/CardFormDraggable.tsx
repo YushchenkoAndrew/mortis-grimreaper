@@ -55,12 +55,6 @@ export default function CardFormGraggable<T extends ObjectLiteral & IdEntity>(
     useSensor(TouchSensor, {}),
   );
 
-  const virtuosoRef = useRef<VirtuosoGridHandle>(null);
-
-  useEffect(() => {
-    virtuosoRef.current.scrollToIndex({ index: 0 });
-  }, []);
-
   const CardComponent = ({ data }: { data: T }) => {
     const { transform, transition, setNodeRef, isDragging } = useSortable({
       id: data.id,
@@ -133,7 +127,6 @@ export default function CardFormGraggable<T extends ObjectLiteral & IdEntity>(
       /> */}
 
       <VirtuosoGrid
-        ref={virtuosoRef}
         data={props.data}
         className={props.className}
         style={{ height: null }}

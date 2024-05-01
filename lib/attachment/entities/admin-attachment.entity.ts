@@ -18,6 +18,9 @@ export class AdminAttachmentEntity extends AttachmentEntity {
   @Column()
   order: number = 0;
 
+  @Column()
+  preview: boolean = false;
+
   @Request({ nullable: true })
   attachable_id: string = null;
 

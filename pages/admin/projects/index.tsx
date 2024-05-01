@@ -32,11 +32,14 @@ import { arrayMove } from '@dnd-kit/sortable';
 import { PositionEntity } from '../../../lib/common/entities/position.entity';
 import { ProjectStatusEnum } from '../../../lib/project/types/project-status.enum';
 import InputFormElement from '../../../components/Form/Elements/InputFormElement';
+import NoData from '../../../components/Container/NoData';
 
 export default function () {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const projects = useAppSelector((state) => state.admin.projects);
+  const className =
+    'max-w-96 md:max-w-[calc(49.5rem)] lg:max-w-[calc(74rem)] 2xl:max-w-[calc(99rem)]';
 
   return (
     <>
@@ -52,7 +55,7 @@ export default function () {
           />
         }
         Breadcrumbs={
-          <div className="flex mx-auto w-full max-w-96 md:max-w-[calc(49.5rem)] lg:max-w-[calc(74rem)] 2xl:max-w-[calc(99rem)]">
+          <div className={`flex mx-auto w-full ${className}`}>
             <div className="flex -ml-1 w-full max-w-72">
               <InputFormElement
                 className="w-full"
@@ -134,8 +137,16 @@ export default function () {
           </div>
         }
       >
+        <NoData
+          className={`h-[calc(100vh-9rem)] ${className} ${
+            projects.result?.length ? 'hidden' : 'block'
+          }`}
+          title="No projects found"
+        />
         <CardFormGraggable
-          className="overflow-x-hidden w-auto h-[calc(100vh-8rem)]"
+          className={`overflow-x-hidden w-auto h-[calc(100vh-8rem)] ${
+            projects.result?.length ? 'block' : 'hidden'
+          }`}
           atBottomStateChange={() =>
             ErrorService.envelop(async () => {
               if (projects.result.length >= projects.total) return;
@@ -216,7 +227,7 @@ export default function () {
             }),
             headerComponent: (project) => (
               <span
-                className={`text-xs font-normal leading-4 mx-2 px-1 rounded-xl border border-gray-400 text-gray-500 hover:bg-gray-200 cursor-pointer ${
+                className={`text-xs font-normal leading-4 mx-2 px-1 rounded-xl border border-gray-400 text-gray-500 hover:bg-gray-200 hover:underline cursor-pointer ${
                   project.status == ProjectStatusEnum.inactive
                     ? 'bg-gray-300'
                     : ''

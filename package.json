@@ -24,6 +24,7 @@
     "@reduxjs/toolkit": "^2.2.2",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@types/dompurify": "^3.0.5",
+    "@types/uuid": "^9.0.8",
     "ace-builds": "^1.32.9",
     "dompurify": "^3.0.11",
     "handlebars": "^4.7.8",
@@ -40,7 +41,8 @@
     "react-toastify": "^10.0.5",
     "react-virtuoso": "^4.7.5",
     "reflect-metadata": "^0.2.1",
-    "sass": "^1.72.0"
+    "sass": "^1.72.0",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@tailwindcss/aspect-ratio": "^0.4.2",

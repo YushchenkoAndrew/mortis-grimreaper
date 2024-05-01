@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useRef } from 'react';
 import Breadcrumbs from '../../../../../components/Breadcrumbs/Breadcrumbs';
 import Container from '../../../../../components/Container/Container';
-import { AceEditor } from '../../../../../components/dynamic';
+import { AceEditor, RenderHtml } from '../../../../../components/dynamic';
 import Header from '../../../../../components/Header/Header';
 import Navbar from '../../../../../components/Navbar/Navbar';
 import NavbarItem from '../../../../../components/Navbar/NavbarItem';
@@ -40,13 +40,12 @@ import { AttachmentAttachableTypeEnum } from '../../../../../lib/attachment/type
 import { getServerSession } from 'next-auth';
 import { options } from '../../../../api/admin/auth/[...nextauth]';
 import Handlebars from 'handlebars';
-import PopupFormElement from '../../../../../components/Form/Elements/PopupFormElement';
-import InputFormElement from '../../../../../components/Form/Elements/InputFormElement';
-import NextFormElement from '../../../../../components/Form/Elements/NextFormElement';
 import CustomPopupSimpleFormElement from '../../../../../components/Form/Custom/CustomPopupSimpleFormElement';
 import TableFormGraggable from '../../../../../components/Form/Draggable/TableFormDraggable';
 import { arrayMove } from '@dnd-kit/sortable';
 import { PositionEntity } from '../../../../../lib/common/entities/position.entity';
+import TabFormElement from '../../../../../components/Form/Elements/TabFormElement';
+import { StringService } from '../../../../../lib/common';
 
 export default function () {
   const router = useRouter();
@@ -74,11 +73,12 @@ export default function () {
 
       // prettier-ignore
       if (!attachment) return dispatch(AdminAttachmentStore.actions.setBuffer(null));
-
       dispatch(AdminAttachmentStore.actions.setAttachment(attachment as any));
-      await AttachmentEntity.self.load
-        .text(attachment.id)
-        .then((buf) => dispatch(AdminAttachmentStore.actions.setBuffer(buf)));
+
+      const text = await AttachmentEntity.self.load.raw(attachment.id);
+      dispatch(AdminAttachmentStore.actions.setBuffer(text));
+
+      await parse(attachment.type, text);
     });
   }, [router.query.path]);
 
@@ -87,6 +87,18 @@ export default function () {
       pathname: router.route,
       query: { ...router.query, path },
     });
+
+  const parse = async (type: string, text: string) => {
+    switch (type) {
+      case '.md': {
+        const html = await StringService.markdown(text);
+        return dispatch(AdminProjectStore.actions.setHtml(html));
+      }
+
+      case '.html':
+        return dispatch(AdminProjectStore.actions.setHtml(text));
+    }
+  };
 
   return (
     <>
@@ -219,59 +231,96 @@ export default function () {
           </div>
         }
       >
-        <AceEditor
-          mode={mode.getModeForPath(attachment.name).name}
-          className={attachment.buffer !== null ? 'block' : 'hidden'}
-          theme="tomorrow"
-          width="100%"
-          height="calc(100vh - 8.5rem)"
-          tabSize={2}
-          fontSize={16}
-          lineHeight={19}
-          keyboardHandler="vim"
-          enableLiveAutocompletion
-          enableBasicAutocompletion
-          showGutter
-          showPrintMargin
-          highlightActiveLine
-          value={attachment.buffer || ''}
-          onChange={(value) =>
-            dispatch(AdminAttachmentStore.actions.setBuffer(value))
+        <TabFormElement
+          className={`p-4 ${
+            attachment.buffer !== null ? 'visible' : 'invisible'
+          }`}
+          default="code"
+          disabled={project.html ? [] : ['preview']}
+          columns={{ preview: 'Preview', code: 'Code' }}
+          headerComponent={
+            <span className="flex ml-auto text-sm items-center text-gray-400">
+              {attachment.updated_at && moment(attachment.updated_at).toNow()}
+            </span>
           }
-          commands={[
-            {
-              name: 'write',
-              bindKey: null,
-              exec: () =>
-                ErrorService.envelop(async () => {
-                  const vars = AttachmentService.vars(projectRef.current.attachments); // prettier-ignore
-                  const template = Handlebars.compile(attachmentRef.current.buffer); // prettier-ignore
-                  const buffer = template(Object.assign(vars, PROJECT_HANDLEBAR_SHORTCUTS)); // prettier-ignore
+          dataComponent={{
+            preview: () => (
+              <RenderHtml
+                className="w-full h-full overflow-y-hidden py-5 pl-5 "
+                html={project.html}
+                setOptions={{
+                  height: 'calc(100vh - 14rem)',
+                  containerHeighOffset: 8,
+                  containerClassName: `${
+                    project.html ? 'block' : 'hidden'
+                  } relative border rounded-b`,
+                }}
+              />
+            ),
+            code: () => (
+              <AceEditor
+                mode={mode.getModeForPath(attachment.name).name}
+                className="border rounded-b"
+                theme="tomorrow"
+                width="100%"
+                height="calc(100vh - 14rem)"
+                tabSize={2}
+                fontSize={16}
+                lineHeight={19}
+                keyboardHandler="vim"
+                enableLiveAutocompletion
+                enableBasicAutocompletion
+                showGutter
+                showPrintMargin
+                highlightActiveLine
+                value={attachment.buffer || ''}
+                onChange={(value) =>
+                  dispatch(AdminAttachmentStore.actions.setBuffer(value))
+                }
+                commands={[
+                  {
+                    name: 'write',
+                    bindKey: null,
+                    exec: () =>
+                      ErrorService.envelop(async () => {
+                        const vars = AttachmentService.vars(projectRef.current.attachments); // prettier-ignore
+                        const template = Handlebars.compile(attachmentRef.current.buffer); // prettier-ignore
+                        const buffer = template(Object.assign(vars, PROJECT_HANDLEBAR_SHORTCUTS)); // prettier-ignore
 
-                  const blob = new Blob([buffer]);
-                  const file = new File([blob], attachmentRef.current.name);
+                        const blob = new Blob([buffer]);
+                        const file = new File(
+                          [blob],
+                          attachmentRef.current.name,
+                        );
 
-                  await AdminAttachmentEntity.self.save.build(
-                    new AdminAttachmentEntity({
-                      id: attachmentRef.current.id,
-                      file: file as any,
-                    }),
-                    { type: RequestTypeEnum.form },
-                  );
+                        await AdminAttachmentEntity.self.save.build(
+                          new AdminAttachmentEntity({
+                            id: attachmentRef.current.id,
+                            file: file as any,
+                          }),
+                          { type: RequestTypeEnum.form },
+                        );
 
-                  await AttachmentEntity.self.load
-                    .text(attachmentRef.current.id)
-                    .then((buf) =>
-                      dispatch(AdminAttachmentStore.actions.setBuffer(buf)),
-                    );
-                }),
-            },
-          ]}
-          setOptions={{
-            spellcheck: true,
-            showLineNumbers: true,
-            highlightGutterLine: true,
-            enableSnippets: false,
+                        await AttachmentEntity.self.load
+                          .raw(attachmentRef.current.id)
+                          .then((buf) =>
+                            dispatch(
+                              AdminAttachmentStore.actions.setBuffer(buf),
+                            ),
+                          );
+
+                        await parse(attachmentRef.current.type, buffer);
+                      }),
+                  },
+                ]}
+                setOptions={{
+                  spellcheck: true,
+                  showLineNumbers: true,
+                  highlightGutterLine: true,
+                  enableSnippets: false,
+                }}
+              />
+            ),
           }}
         />
         <TableFormGraggable

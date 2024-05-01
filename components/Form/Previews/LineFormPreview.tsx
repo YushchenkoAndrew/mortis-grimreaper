@@ -1,17 +1,13 @@
 import { memo, useEffect, useState } from 'react';
 
-export interface RunningLineProps {
+export interface LineFormPreviewProps {
+  className?: string;
   text: string;
   size?: number;
   onHover?: (flag: boolean) => void;
 }
 
-function pieSlice(str: string, offset: number, size: number) {
-  if (offset + size < str.length) return str.substr(offset, size);
-  return str.substr(offset) + str.substr(0, offset + size - str.length);
-}
-
-export default memo(function RunningLine(props: RunningLineProps) {
+export default memo(function LineFormPreview(props: LineFormPreviewProps) {
   const [stop, onCycleStop] = useState(0);
   const [offset, setOffset] = useState(0);
 
@@ -27,11 +23,17 @@ export default memo(function RunningLine(props: RunningLineProps) {
     return () => clearInterval(interval);
   });
 
+  function pieSlice(str: string, offset: number, size: number) {
+    if (offset + size < str.length) return str.substr(offset, size);
+    return str.substr(offset) + str.substr(0, offset + size - str.length);
+  }
+
   return (
-    <h3 className="text-white text-3Dventure text-3xl">
+    // <span className="text-white text-3Dventure text-3xl">
+    <span className={props.className}>
       {(props.size ?? 5) >= props.text.length
         ? props.text
         : pieSlice(text, offset, props.size ?? 5)}
-    </h3>
+    </span>
   );
 });

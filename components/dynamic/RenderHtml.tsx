@@ -7,7 +7,8 @@ export type RenderHtmlProps = React.DetailedHTMLProps<
 > & {
   html: string;
   headerComponent?: ReactNode;
-  setOptions: Partial<{
+  setOptions?: Partial<{
+    height: string;
     containerClassName: string;
     containerHeighOffset: number;
   }>;
@@ -21,9 +22,11 @@ export default function (props: RenderHtmlProps) {
     <div
       className={props.setOptions?.containerClassName}
       style={{
-        height: `calc(${height}px + ${
-          props.setOptions?.containerHeighOffset ?? 6
-        }rem)`,
+        height:
+          props.setOptions?.height ??
+          `calc(${height}px + ${
+            props.setOptions?.containerHeighOffset ?? 6
+          }rem)`,
       }}
     >
       {props.headerComponent}

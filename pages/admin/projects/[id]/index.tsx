@@ -1,4 +1,9 @@
-import { faFile, faPenToSquare } from '@fortawesome/free-regular-svg-icons';
+import {
+  faEye,
+  faEyeSlash,
+  faFile,
+  faPenToSquare,
+} from '@fortawesome/free-regular-svg-icons';
 import {
   faArrowUpRightFromSquare,
   faEllipsisVertical,
@@ -61,7 +66,7 @@ export default function () {
       if (!readme) return;
 
       const preview = await AttachmentEntity.self.load.markdown(readme.id);
-      dispatch(AdminProjectStore.actions.setREADME(preview));
+      dispatch(AdminProjectStore.actions.setHtml(preview));
     });
   }, []);
 
@@ -341,7 +346,7 @@ export default function () {
 
           <RenderHtml
             className="w-full h-full overflow-y-hidden p-5"
-            html={project.readme}
+            html={project.html}
             headerComponent={
               <div className="flex text-sm font-medium text-gray-800 bg-gray-100 px-4 py-2">
                 <FontAwesomeIcon
@@ -354,7 +359,7 @@ export default function () {
             setOptions={{
               containerHeighOffset: 8,
               containerClassName: `${
-                project.readme ? 'block' : 'hidden'
+                project.html ? 'block' : 'hidden'
               } relative border rounded-md`,
             }}
           />

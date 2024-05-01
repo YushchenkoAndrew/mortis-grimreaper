@@ -28,11 +28,12 @@ import { Dispatch, ReactNode } from 'react';
 type IdEntity = { id: string };
 
 export interface TableFormGraggableProps<T extends ObjectLiteral & IdEntity>
-  extends Omit<TableFormElementProps<T>, 'firstComponent'> {
+  extends Omit<TableFormElementProps<T>, 'firstComponent' | 'lastComponent'> {
   onDragStart?: Dispatch<DragStartEvent>;
   onDragCancel?: Dispatch<DragCancelEvent>;
   onDragEnd?: Dispatch<DragEndEvent>;
   firstComponent?: (props: { row: T; children: ReactNode }) => ReactNode;
+  lastComponent?: (props: { row: T; children: ReactNode }) => ReactNode;
 
   picked?: T;
 }
@@ -120,6 +121,7 @@ export default function TableFormGraggable<T extends ObjectLiteral & IdEntity>(
             children: <FirstComponent row={row} />,
           }) ?? <FirstComponent row={row} />
         }
+        lastComponent={(row) => props.lastComponent?.({ row, children: <></> })}
         dataComponent={props.dataComponent}
       />
 

@@ -1,3 +1,192 @@
+.thumbnail {
+  span.curtain-t {
+    @apply top-0 left-0 h-0 w-full;
+  }
+
+  span.curtain-b {
+    @apply bottom-0 left-0 h-0 w-full;
+  }
+
+  span.curtain-l {
+    @apply top-0 left-0 h-full w-0;
+  }
+
+  span.curtain-r {
+    @apply top-0 right-0 h-full w-0;
+  }
+
+  div.curtain-t {
+    @apply -top-full;
+  }
+
+  div.curtain-b {
+    @apply -bottom-full;
+  }
+
+  div.curtain-l {
+    @apply top-0 -left-full;
+  }
+
+  div.curtain-r {
+    @apply top-0 -right-full;
+  }
+
+  &:hover {
+    span.curtain-b,
+    span.curtain-t {
+      animation: curtain-animation-y 0.5s forwards;
+    }
+
+    span.curtain-l,
+    span.curtain-r {
+      animation: curtain-animation-x 0.5s forwards;
+    }
+
+    div.curtain-t {
+      animation: curtain-animation-text-t 0.5s forwards;
+    }
+
+    div.curtain-b,
+    div.curtain-r {
+      animation: curtain-animation-text-b 0.5s forwards;
+    }
+
+    div.curtain-l {
+      animation: curtain-animation-text-l 0.5s forwards;
+    }
+
+    div.curtain-r {
+      animation: curtain-animation-text-r 0.5s forwards;
+    }
+  }
+}
+
+@keyframes curtain-animation-y {
+  0% {
+    height: 0px;
+  }
+  60% {
+    height: 100%;
+  }
+  70% {
+    height: 95%;
+  }
+  80% {
+    height: 100%;
+  }
+  95% {
+    height: 97%;
+  }
+  to {
+    height: 100%;
+  }
+}
+
+@keyframes curtain-animation-x {
+  0% {
+    width: 0px;
+  }
+  60% {
+    width: 100%;
+  }
+  85% {
+    width: 95%;
+  }
+  90% {
+    width: 100%;
+  }
+  95% {
+    width: 98%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes curtain-animation-text-t {
+  0% {
+    @apply -top-full;
+  }
+  60% {
+    @apply -top-0;
+  }
+  85% {
+    top: -5%;
+  }
+  90% {
+    @apply -top-0;
+  }
+  95% {
+    top: -1%;
+  }
+  to {
+    @apply -top-0;
+  }
+}
+
+@keyframes curtain-animation-text-b {
+  0% {
+    @apply -bottom-full;
+  }
+  60% {
+    @apply -bottom-0;
+  }
+  85% {
+    bottom: -5%;
+  }
+  90% {
+    @apply -bottom-0;
+  }
+  95% {
+    bottom: -1%;
+  }
+  to {
+    @apply -bottom-0;
+  }
+}
+
+@keyframes curtain-animation-text-l {
+  0% {
+    @apply -left-full;
+  }
+  60% {
+    @apply -left-0;
+  }
+  85% {
+    left: -5%;
+  }
+  90% {
+    @apply -left-0;
+  }
+  95% {
+    left: -1%;
+  }
+  to {
+    @apply -left-0;
+  }
+}
+
+@keyframes curtain-animation-text-r {
+  0% {
+    @apply -right-full;
+  }
+  60% {
+    @apply -right-0;
+  }
+  85% {
+    right: -5%;
+  }
+  90% {
+    @apply -right-0;
+  }
+  95% {
+    right: -1%;
+  }
+  to {
+    @apply -right-0;
+  }
+}
+
 /* .explode-animation {
   animation: explode 0.9s forwards;
 }

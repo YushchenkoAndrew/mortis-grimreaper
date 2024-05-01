@@ -6,7 +6,7 @@ import { ProjectTypeEnum } from '../types/project-type.enum';
 
 type StoreT = Omit<AdminProjectEntity, 'readme'> & {
   avatar: string;
-  readme: string;
+  html: string;
   directory: string;
   trash: ObjectLiteral<AdminAttachmentEntity>;
   picked: AdminAttachmentEntity;
@@ -23,7 +23,7 @@ export const AdminProjectStore = createSlice({
 
     trash: null,
     picked: null,
-    readme: '',
+    html: '',
     directory: null,
   } as StoreT,
   reducers: {
@@ -37,7 +37,7 @@ export const AdminProjectStore = createSlice({
       state.avatar = null;
       state.trash = null;
       state.picked = null;
-      state.readme = '';
+      state.html = '';
       state.directory = null;
     },
     setType: (state, action: PayloadAction<ProjectTypeEnum>) => {
@@ -52,8 +52,17 @@ export const AdminProjectStore = createSlice({
     setFooter: (state, action: PayloadAction<string>) => {
       state.footer = action.payload || '';
     },
-    setREADME: (state, action: PayloadAction<string>) => {
-      state.readme = action.payload || '';
+    setHtml: (state, action: PayloadAction<string>) => {
+      state.html = action.payload || '';
+    },
+    replaceAttachment: (
+      state,
+      action: PayloadAction<AdminAttachmentEntity>,
+    ) => {
+      const index = state.attachments.findIndex((e) => e.id == action.payload.id); // prettier-ignore
+      if (index == -1) return;
+
+      state.attachments[index] = action.payload;
     },
     initDir: (state) => {
       state.directory = '';
@@ -107,7 +116,7 @@ export const AdminProjectStore = createSlice({
 
         state.trash = null;
         state.picked = null;
-        state.readme = '';
+        state.html = '';
         state.directory = null;
       },
     );

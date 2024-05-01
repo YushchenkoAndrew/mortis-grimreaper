@@ -3,5 +3,5 @@ import { AttachmentEntity } from '../../../lib/attachment/entities/attachment.en
 export interface ProjectContainer {
   className?: string;
   scripts: AttachmentEntity[];
-  preview: AttachmentEntity[];
+  preview: [string, string][];
 }

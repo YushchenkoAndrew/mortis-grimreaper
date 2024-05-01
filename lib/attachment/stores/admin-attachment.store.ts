@@ -42,9 +42,9 @@ export const AdminAttachmentStore = createSlice({
       state.name = action.payload.name;
       state.type = action.payload.type;
       state.path = action.payload.path;
+      state.preview = action.payload.preview;
 
-      console.log({ payload: action.payload, state });
-      // console.log(modelist.getModeForPath(state.name));
+      state.updated_at = action.payload.updated_at;
     },
   },
 });

@@ -1,5 +1,6 @@
 import DOMPurify from 'dompurify';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+// const { JSDOM } = require('jsdom');
 
 const SCRIPT_PREVIEW_ID = 'script-preview';
 
@@ -10,6 +11,14 @@ export interface ScriptFormPreviewProps {
 export default function ScriptFormPreview(props: ScriptFormPreviewProps) {
   const [selected, setSelected] = useState(0);
 
+  useEffect(() => {
+    const code = document.getElementById(SCRIPT_PREVIEW_ID);
+    if (!code || !props.scripts[selected]) return;
+
+    const [_, html] = props.scripts[selected];
+    code.innerHTML = DOMPurify.sanitize(html);
+  }, [selected]);
+
   return (
     <>
       <div className="flex w-full space-x-1 border-b border-gray-400 overflow-x-auto">
@@ -19,13 +28,7 @@ export default function ScriptFormPreview(props: ScriptFormPreviewProps) {
             className={`text-sm font-semibold px-3 py-1 hover:bg-gray-200 cursor-pointer ${
               index == selected ? 'bg-gray-200' : ''
             }`}
-            onClick={() => {
-              const code = document.getElementById(SCRIPT_PREVIEW_ID);
-              if (!code || !props.scripts[index]) return;
-
-              const [_, html] = props.scripts[index];
-              setSelected(index), (code.innerHTML = DOMPurify.sanitize(html));
-            }}
+            onClick={() => setSelected(index)}
           >
             {name}
           </span>
@@ -35,11 +38,7 @@ export default function ScriptFormPreview(props: ScriptFormPreviewProps) {
         className="h-[calc(100vh-6rem)] overflow-auto"
         suppressHydrationWarning
         dangerouslySetInnerHTML={{
-          __html: `<code id="${SCRIPT_PREVIEW_ID}">${
-            props.scripts[selected]
-              ? DOMPurify.sanitize(props.scripts[selected][1])
-              : ''
-          }</div>`,
+          __html: `<code id="${SCRIPT_PREVIEW_ID}"></div>`,
         }}
       ></pre>
     </>

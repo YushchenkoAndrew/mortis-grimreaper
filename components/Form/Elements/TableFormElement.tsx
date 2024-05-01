@@ -20,6 +20,7 @@ export interface TableFormElementProps<T extends ObjectLiteral & IdEntity> {
   ) => ReactNode;
   dataComponent: TableFormElementDataComponent<T>;
   firstComponent?: (obj: T) => ReactNode;
+  lastComponent?: (obj: T) => ReactNode;
 
   setOptions?: Partial<{ rowColor: string; dataPadding: string }>;
 }

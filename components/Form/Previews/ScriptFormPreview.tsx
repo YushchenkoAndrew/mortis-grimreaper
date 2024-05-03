@@ -20,13 +20,13 @@ export default function ScriptFormPreview(props: ScriptFormPreviewProps) {
   }, [selected]);
 
   return (
-    <>
+    <div className="pl-2 bg-white">
       <div className="flex w-full space-x-1 border-b border-gray-400 overflow-x-auto">
         {props.scripts.map(([name], index) => (
           <span
             key={index}
             className={`text-sm font-semibold px-3 py-1 hover:bg-gray-200 cursor-pointer ${
-              index == selected ? 'bg-gray-200' : 'bg-white'
+              index == selected ? 'bg-gray-200' : ''
             }`}
             onClick={() => setSelected(index)}
           >
@@ -35,12 +35,12 @@ export default function ScriptFormPreview(props: ScriptFormPreviewProps) {
         ))}
       </div>
       <pre
-        className="h-full lg:h-[calc(100vh-6rem)] overflow-auto bg-white"
+        className="h-full lg:h-[calc(100vh-6rem)] overflow-auto"
         suppressHydrationWarning
         dangerouslySetInnerHTML={{
           __html: `<code id="${SCRIPT_PREVIEW_ID}"></div>`,
         }}
       ></pre>
-    </>
+    </div>
   );
 }

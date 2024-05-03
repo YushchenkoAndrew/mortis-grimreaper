@@ -39,5 +39,5 @@ cypress.env.json
 
 # vercel
 .vercel
-.env.local
-.env.local
+.env.production
+package-lock.json

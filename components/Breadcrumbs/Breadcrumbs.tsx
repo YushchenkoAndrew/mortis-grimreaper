@@ -26,9 +26,8 @@ export default function Breadcrumbs(props: BreadcrumbsProps) {
       aria-label="Breadcrumb"
     >
       {props.href.map(({ path, name }, index) => (
-        <li className="inline-flex items-center">
+        <li key={index} className="inline-flex items-center">
           <Link
-            key={index}
             className="flex py-1 px-2 text-lg font-semibold tracking-tight text-gray-900 rounded-md hover:bg-gray-200"
             href={path}
           >

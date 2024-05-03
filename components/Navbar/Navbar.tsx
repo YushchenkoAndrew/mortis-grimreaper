@@ -15,7 +15,7 @@ export interface NavbarProps {
 }
 
 export default function Navbar({ Item, ...props }: NavbarProps) {
-  const pathname = props.pathname ?? usePathname();
+  const pathname = usePathname();
   return (
     <Disclosure as="nav" className="bg-gray-800">
       {({ open }) => (
@@ -30,7 +30,7 @@ export default function Navbar({ Item, ...props }: NavbarProps) {
                         key={index}
                         href={item.href}
                         name={item.name}
-                        active={pathname == item.href}
+                        active={(props.pathname ?? pathname) == item.href}
                       />
                     ))}
                   </div>
@@ -59,7 +59,7 @@ export default function Navbar({ Item, ...props }: NavbarProps) {
                   as={Item}
                   href={item.href}
                   name={item.name}
-                  active={pathname == item.href}
+                  active={(props.pathname ?? pathname) == item.href}
                   className="hover:bg-gray-700 hover:text-white rounded-md"
                 >
                   {item.name}

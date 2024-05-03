@@ -27,9 +27,9 @@ export default memo(function Emscripten(props: ProjectContainer) {
             tabIndex={-1}
           ></canvas>
 
-          <script src={`${Config.self.base.web}/js/lib/emscripten.js`} />
+          <script defer src={`${Config.self.base.web}/js/lib/emscripten.js`} />
           {props.scripts.map((src) => (
-            <script key={src.id} src={src._url()} />
+            <script defer key={src.id} src={src._url()} />
           ))}
         </div>
 

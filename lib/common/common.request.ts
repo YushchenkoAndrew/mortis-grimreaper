@@ -58,9 +58,7 @@ export class CommonRequest<
   }
 
   public get thunk() {
-    return createAsyncThunk(this.action, (...args: Args) =>
-      this.build(...args),
-    );
+    return createAsyncThunk(this.action, (...args: any) => this.build(...args));
   }
 
   public get build() {

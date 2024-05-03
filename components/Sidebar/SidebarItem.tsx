@@ -28,6 +28,7 @@ export default function SidebarItem<T extends IdEntity>({
       {list.map(([key, value], index) =>
         typeof value == 'object' && value instanceof IdEntity ? (
           <div
+            key={`${key}_${index}`}
             className="p-2 w-full rounded cursor-pointer hover:bg-gray-300 focus:outline-none"
             onClick={() => props.onClick?.(value)}
           >

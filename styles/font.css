@@ -1,44 +1,62 @@
 @font-face {
-  font-family: "FourBit";
-  src: url("/projects/fonts/4bitfont.ttf");
+  font-family: 'FourBit';
+  src: url('/projects/fonts/4bitfont.ttf');
 }
 
 @font-face {
-  font-family: "Abstract";
-  src: url("/projects/fonts/ABSTRACT.ttf");
+  font-family: 'Abstract';
+  src: url('/projects/fonts/ABSTRACT.ttf');
 }
 
 @font-face {
-  font-family: "3Dventure";
-  src: url("/projects/fonts/3Dventure.ttf");
+  font-family: '3Dventure';
+  src: url('/projects/fonts/3Dventure.ttf');
 }
 
 @font-face {
-  font-family: "BitAdvanced";
-  src: url("/projects/fonts/pixel-bit-advanced.ttf");
+  font-family: 'BitAdvanced';
+  src: url('/projects/fonts/pixel-bit-advanced.ttf');
 }
 
 @font-face {
-  font-family: "Roboto-Thin";
-  src: url("/projects/fonts/Roboto-Thin.ttf");
+  font-family: 'Roboto-Thin';
+  src: url('/projects/fonts/Roboto-Thin.ttf');
+}
+
+@font-face {
+  font-family: 'Barcode';
+  src: url('/projects/fonts/LibreBarcode128Text-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Jersey';
+  src: url('/projects/fonts/Jersey20Charted-Regular.ttf');
 }
 
 .text-FourBit {
-  font-family: "FourBit";
+  font-family: 'FourBit';
 }
 
 .text-Abstract {
-  font-family: "Abstract";
+  font-family: 'Abstract';
 }
 
 .text-3Dventure {
-  font-family: "3Dventure";
+  font-family: '3Dventure';
 }
 
 .text-BitAdvanced {
-  font-family: "BitAdvanced";
+  font-family: 'BitAdvanced';
 }
 
 .text-Roboto-Thin {
-  font-family: "Roboto-Thin";
+  font-family: 'Roboto-Thin';
+}
+
+.text-Barcode {
+  font-family: 'Barcode';
+}
+
+.text-Jersey {
+  font-family: 'Jersey';
 }

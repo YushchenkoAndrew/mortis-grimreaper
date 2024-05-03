@@ -1,20 +1,29 @@
-import { Image } from "react-bootstrap";
-import ContactMe from "../components/ContactMe";
-import ProjectLink from "../components/ProjectLink";
-import DefaultFooter from "../components/default/DefaultFooter";
-import DefaultHead from "../components/default/DefaultHead";
-import DefaultHeader from "../components/default/DefaultHeader";
-import DefaultNav from "../components/default/DefaultNav";
-import { basePath } from "../config";
-import DefaultHeadShape from "../components/default/ShapeDivider/DefaultHeadShape";
-import DefaultContactMeShape from "../components/default/ShapeDivider/DefaultContactMeShape";
-import { MediaView } from "../components/default/DefaultLinks";
-import styles from "./Home.module.css";
+import Header from '../components/Header/Header';
+import Container from '../components/Container/Container';
+import Navbar from '../components/Navbar/Navbar';
+import GlitchItem from '../components/Navbar/GlitchItem';
+import { NAVIGATION } from '../constants';
+import { Config } from '../config';
+import ComingSoon from '../components/Container/ComingSoon';
 
-export default function Home() {
+export default function () {
   return (
     <>
-      <DefaultHead>
+      <Header title="Mortis Dashboard"></Header>
+
+      <Container
+        Navbar={
+          <Navbar
+            Item={GlitchItem}
+            navigation={NAVIGATION.default}
+            avatar={Config.self.github}
+          />
+        }
+      >
+        <ComingSoon />
+      </Container>
+
+      {/* <DefaultHead>
         <title>Mortis Projects</title>
         <link
           rel="preload"
@@ -33,11 +42,11 @@ export default function Home() {
       <main role="main">
         <div
           className="section d-flex justify-content-center embed-responsive embed-responsive-21by9 bg-dark"
-          style={{ maxHeight: "1000px" }}
+          style={{ maxHeight: '1000px' }}
         >
           <video className="embed-responsive-item" autoPlay muted>
             <source
-              src={`${process.env.NEXT_PUBLIC_VOID_URL ?? ""}/home/Intro.mp4`}
+              src={`${process.env.NEXT_PUBLIC_VOID_URL ?? ''}/home/Intro.mp4`}
               type="video/mp4"
             />
           </video>
@@ -51,20 +60,13 @@ export default function Home() {
         <div className="row my-5 justify-content-center">
           <div
             className="col-8 col-sm-7 col-lg-6 col-xl-4 mb-4 mx-auto mr-lg-2 mr-xl-auto"
-            style={{ maxWidth: "750px" }}
+            style={{ maxWidth: '750px' }}
           >
-            <Image
-              className="card-img"
-              src={`${
-                process.env.NEXT_PUBLIC_VOID_URL ?? ""
-              }/home/projects.jpeg`}
-              alt="Temp"
-            />
           </div>
           <div className="col-10 col-lg-5 px-0 mr-lg-auto">
             <h4 className="font-weight-bold mb-3">So Hello there</h4>
 
-            <p className={`text-justify ${styles["text"]}`}>
+            <p className={`text-justify ${styles['text']}`}>
               I&apos;m Andrew Yushchenko and this is mine small portfolio, where
               I upload some of my work which I want to share with the rest of
               world. Currently you could find here visual implementation of
@@ -79,7 +81,7 @@ export default function Home() {
               specific field then others but at least I be able to do an
               interesting work by myself.
             </p>
-            <p className={`text-justify ${styles["text"]}`}>
+            <p className={`text-justify ${styles['text']}`}>
               Shortly speaking this site is actually is hosted on Raspberry Pi
               cluster which is running Kubernetes for orchestrating Docker
               containers, such as:
@@ -112,7 +114,7 @@ export default function Home() {
               </li>
             </ul>
 
-            <p className={`text-justify ${styles["text"]}`}>
+            <p className={`text-justify ${styles['text']}`}>
               If you re interested in any of my work you could find it on mine
               <a
                 className="text-primary ml-1"
@@ -149,8 +151,6 @@ export default function Home() {
       </div>
 
       <DefaultContactMeShape />
-      {/* FIXME: */}
-      {/* <ContactMe /> */}
       <DefaultFooter
         name="Menu"
         background
@@ -159,7 +159,7 @@ export default function Home() {
         <ul className="list-unstyled">
           <DefaultNav style="text-muted" />
         </ul>
-      </DefaultFooter>
+      </DefaultFooter> */}
     </>
   );
 }

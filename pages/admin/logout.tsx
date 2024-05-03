@@ -1,35 +1,17 @@
-import redis from "../../config/redis";
-import sessionConfig from "../../config/session";
-import { checkIfUserExist } from "../../lib/api/session";
-import { basePath } from "../../config";
-import { withIronSessionSsr } from "iron-session/next";
+import { signOut } from 'next-auth/react';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
+import { ErrorService } from '../../lib/common/error.service';
 
-export default function Logout() {
+export default function () {
+  const router = useRouter();
+
+  useEffect(() => {
+    ErrorService.envelop(async () => {
+      await signOut({ redirect: false });
+      router.push('/');
+    });
+  }, []);
+
   return <></>;
 }
-
-export const getServerSideProps = withIronSessionSsr(
-  async function getServerSideProps({ req }) {
-    if (req.session.user && (await checkIfUserExist(req.session.user))) {
-      redis.del(`SESSION:${req.session.user}`);
-      await req.session.destroy();
-
-      return {
-        redirect: {
-          basePath: false,
-          destination: basePath,
-          permanent: false,
-        },
-      };
-    }
-
-    return {
-      redirect: {
-        basePath: false,
-        destination: `${basePath}/admin/login`,
-        permanent: false,
-      },
-    };
-  },
-  sessionConfig
-);

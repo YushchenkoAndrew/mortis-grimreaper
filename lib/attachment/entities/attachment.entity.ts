@@ -22,6 +22,10 @@ export class AttachmentEntity extends IdEntity {
   @Request({ nullable: true })
   type: string = '';
 
+  _without_ext() {
+    return this.name.split('.')[0];
+  }
+
   _filepath() {
     return this.path + this.name;
   }

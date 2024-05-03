@@ -66,9 +66,9 @@ export default function Thumbnail({ Behavior, ...props }: ThumbnailProps) {
 
         {props.barcode && (
           <LineFormPreview
-            className="absolute left-0 bottom-0 px-2 w-full bg-black "
+            className="absolute left-0 bottom-0 px-2 w-full bg-black truncate"
             text={(props.name + ' ').replace(/ /g, '_')}
-            scale={3.2}
+            scale={5}
             setOptions={{
               fontFamily: 'text-Barcode',
               textColor: 'text-white group-hover:text-gray-500',

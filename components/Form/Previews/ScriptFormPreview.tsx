@@ -26,7 +26,7 @@ export default function ScriptFormPreview(props: ScriptFormPreviewProps) {
           <span
             key={index}
             className={`text-sm font-semibold px-3 py-1 hover:bg-gray-200 cursor-pointer ${
-              index == selected ? 'bg-gray-200' : ''
+              index == selected ? 'bg-gray-200' : 'bg-white'
             }`}
             onClick={() => setSelected(index)}
           >
@@ -35,7 +35,7 @@ export default function ScriptFormPreview(props: ScriptFormPreviewProps) {
         ))}
       </div>
       <pre
-        className="h-[calc(100vh-6rem)] overflow-auto"
+        className="h-full lg:h-[calc(100vh-6rem)] overflow-auto bg-white"
         suppressHydrationWarning
         dangerouslySetInnerHTML={{
           __html: `<code id="${SCRIPT_PREVIEW_ID}"></div>`,

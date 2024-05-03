@@ -19,8 +19,8 @@ export default memo(function Emscripten(props: ProjectContainer) {
 
   return (
     <>
-      <div className="flex h-full w-full overflow-hidden">
-        <div className="flex-1 w-1/2">
+      <div className="flex flex-col lg:flex-row h-full w-full overflow-x-hidden overflow-y-auto lg:overflow-y-hidden">
+        <div className="flex-1 lg:w-1/2">
           <canvas
             id="canvas"
             onContextMenu={(e) => e.preventDefault()}
@@ -33,7 +33,7 @@ export default memo(function Emscripten(props: ProjectContainer) {
           ))}
         </div>
 
-        <div className="flex-1 w-1/2">
+        <div className="flex-1 lg:w-1/2">
           <ScriptFormPreview scripts={scripts as any} />
         </div>
       </div>

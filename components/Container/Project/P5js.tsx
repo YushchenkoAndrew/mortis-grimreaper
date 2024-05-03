@@ -26,15 +26,15 @@ export default memo(function P5js(props: ProjectContainer) {
       <script src={`${Config.self.base.web}/js/lib/p5.min.js`} />
       <script src={`${Config.self.base.web}/js/lib/p5.sound.min.js`} />
 
-      <div className="flex h-full w-full overflow-hidden">
+      <div className="flex flex-col lg:flex-row h-full w-full overflow-x-hidden overflow-y-auto lg:overflow-y-hidden">
         <div
-          className="flex-1"
+          className="flex-1 lg:w-1/2"
           suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `<div id="p5js-container"></div>`,
           }}
         />
-        <div className="flex-1 w-1/2">
+        <div className="flex-1 lg:w-1/2">
           <ScriptFormPreview scripts={scripts as any} />
         </div>
       </div>

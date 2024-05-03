@@ -9,7 +9,7 @@ export default function () {
   useEffect(() => {
     ErrorService.envelop(async () => {
       await signOut({ redirect: false });
-      router.push('/projects');
+      router.push('/');
     });
   }, []);
 

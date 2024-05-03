@@ -76,11 +76,12 @@ export default function () {
       query: { ...router.query, path },
     });
 
-  const onFile = (files: File[]) =>
+  const onFile = (files: File[], by_name?: boolean) =>
     ErrorService.envelop(async () => {
       for (const file of files) {
+        const name = by_name ? file.name.split('.')[0] : file.name;
         const attachment = project.attachments.find(
-          (e) => e.name == file.name && e.path == '/',
+          (e) => (by_name ? e._without_ext() : e.name) == name && e.path == '/',
         );
 
         await AdminAttachmentEntity.self.save.build(
@@ -145,7 +146,7 @@ export default function () {
                 img={project.avatar}
                 onFile={(file) =>
                   ErrorService.envelop(async () => {
-                    onFile([await AttachmentService.thumbnail(file)]);
+                    onFile([await AttachmentService.thumbnail(file)], true);
                   })
                 }
               />
@@ -328,7 +329,7 @@ export default function () {
             dataComponent={{
               name: (attachment) => (
                 <span
-                  className={`flex whitespace-nowrap ${
+                  className={`group flex h-full whitespace-nowrap ${
                     project.trash?.[attachment.id]
                       ? 'line-through text-gray-500'
                       : 'text-gray-800'
@@ -339,6 +340,15 @@ export default function () {
                     icon={attachment.type ? faFile : faFolder}
                   />
                   {attachment.name}
+
+                  <TooltipFormPreview
+                    value={`${attachment.size / 1000} KB`}
+                    setOptions={{
+                      // margin: 'mt-4',
+                      rounded: 'rounded-md',
+                      color: 'bg-gray-600 text-white',
+                    }}
+                  />
                 </span>
               ),
               updated_at: (attachment) => moment(attachment.updated_at).toNow(),

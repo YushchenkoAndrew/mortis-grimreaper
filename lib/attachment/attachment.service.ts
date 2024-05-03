@@ -94,10 +94,10 @@ export class AttachmentService {
     const jpeg = await imageCompression(file, {
       maxSizeMB: 1,
       initialQuality: 0.5,
-      fileType: 'image/jpeg',
+      fileType: 'image/webp',
       useWebWorker: true,
     });
 
-    return new File([jpeg], 'thumbnail.jpeg');
+    return new File([jpeg], 'thumbnail.webp');
   }
 }

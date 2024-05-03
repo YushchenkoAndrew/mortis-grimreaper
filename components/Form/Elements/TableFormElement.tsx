@@ -62,7 +62,11 @@ export default function TableFormElement<T extends ObjectLiteral & IdEntity>(
     );
   };
   return (
-    <div className={`${props.className ?? ''} relative overflow-x-auto border`}>
+    <div
+      className={`${
+        props.className ?? ''
+      } relative overflow-x-auto overflow-y-hidden border`}
+    >
       <table className="w-full text-sm text-left text-gray-500">
         <thead
           className={`${

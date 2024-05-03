@@ -1,15 +1,16 @@
 import { createSlice } from '@reduxjs/toolkit';
 import moment from 'moment';
 import { NumberService } from '../../common';
+import { ObjectLiteral } from '../../common/types';
 import { ProjectPageEntity } from '../entities/project-page.entity';
 
 type StoreT = ProjectPageEntity & {
-  random: number;
+  barcode: ObjectLiteral;
 };
 
 export const ProjectsStore = createSlice({
   name: 'project',
-  initialState: { page: 0, result: [] } as StoreT,
+  initialState: { page: 0, barcode: {}, result: [] } as StoreT,
   reducers: {},
   extraReducers(builder) {
     builder.addCase(
@@ -23,8 +24,9 @@ export const ProjectsStore = createSlice({
 
         state.result.push(...res.result);
 
-        const seed = NumberService.seed(moment().startOf('day').unix() + '');
-        state.random = Math.floor(seed * state.total);
+        const seed = moment().startOf('hour').unix() + '';
+        const index = NumberService.random(res.result.length, 0, seed);
+        if (res.result[index]) state.barcode[res.result[index].id] = true;
       },
     );
   },

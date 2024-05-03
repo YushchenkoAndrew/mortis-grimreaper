@@ -1,18 +1,29 @@
-import ContactMe from '../components/ContactMe';
-import ProjectLink from '../components/ProjectLink';
-import DefaultFooter from '../components/default/DefaultFooter';
-import DefaultHead from '../components/Header/Header';
-import DefaultHeader from '../components/Navbar/Navbar';
-import DefaultNav from '../components/default/DefaultNav';
-import { basePath } from '../config';
-import DefaultHeadShape from '../components/default/ShapeDivider/DefaultHeadShape';
-import DefaultContactMeShape from '../components/default/ShapeDivider/DefaultContactMeShape';
-import { MediaView } from '../components/default/DefaultLinks';
+import Header from '../components/Header/Header';
+import Container from '../components/Container/Container';
+import Navbar from '../components/Navbar/Navbar';
+import GlitchItem from '../components/Navbar/GlitchItem';
+import { NAVIGATION } from '../constants';
+import { Config } from '../config';
+import ComingSoon from '../components/Container/ComingSoon';
 
 export default function () {
   return (
     <>
-      <DefaultHead>
+      <Header title="Mortis Dashboard"></Header>
+
+      <Container
+        Navbar={
+          <Navbar
+            Item={GlitchItem}
+            navigation={NAVIGATION.default}
+            avatar={Config.self.github}
+          />
+        }
+      >
+        <ComingSoon />
+      </Container>
+
+      {/* <DefaultHead>
         <title>Mortis Projects</title>
         <link
           rel="preload"
@@ -51,13 +62,6 @@ export default function () {
             className="col-8 col-sm-7 col-lg-6 col-xl-4 mb-4 mx-auto mr-lg-2 mr-xl-auto"
             style={{ maxWidth: '750px' }}
           >
-            {/* <Image
-              className="card-img"
-              src={`${
-                process.env.NEXT_PUBLIC_VOID_URL ?? ""
-              }/home/projects.jpeg`}
-              alt="Temp"
-            /> */}
           </div>
           <div className="col-10 col-lg-5 px-0 mr-lg-auto">
             <h4 className="font-weight-bold mb-3">So Hello there</h4>
@@ -147,8 +151,6 @@ export default function () {
       </div>
 
       <DefaultContactMeShape />
-      {/* FIXME: */}
-      {/* <ContactMe /> */}
       <DefaultFooter
         name="Menu"
         background
@@ -157,7 +159,7 @@ export default function () {
         <ul className="list-unstyled">
           <DefaultNav style="text-muted" />
         </ul>
-      </DefaultFooter>
+      </DefaultFooter> */}
     </>
   );
 }

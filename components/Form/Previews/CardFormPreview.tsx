@@ -63,7 +63,10 @@ export default forwardRef<HTMLDivElement, CardFormPreviewProps>(
                 href={props.href}
               >
                 {props.name}
-                <TooltipFormPreview value={props.name} />
+                <TooltipFormPreview
+                  value={props.name}
+                  setOptions={{ color: 'bg-gray-600 text-white' }}
+                />
               </Link>
             </>,
             'h-2 ',

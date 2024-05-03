@@ -16,6 +16,8 @@ import { VirtuosoGrid } from 'react-virtuoso';
 import { ErrorService } from '../../lib/common/error.service';
 import { ProjectPageEntity } from '../../lib/project/entities/project-page.entity';
 import { ProjectTypeEnum } from '../../lib/project/types/project-type.enum';
+import { NumberService } from '../../lib/common';
+import moment from 'moment';
 
 export default function () {
   const dispatch = useAppDispatch();
@@ -70,13 +72,13 @@ export default function () {
               <div className={className}>{children}</div>
             ),
           }}
-          itemContent={(index, project) => (
+          itemContent={(_, project) => (
             <Thumbnail
               key={project.id}
               img={project._avatar()}
               name={project.name}
               href={`${window.location.href}/${project.id}`}
-              barcode={projects.random == index}
+              barcode={projects.barcode[project.id]}
               target={project.type == ProjectTypeEnum.link && '_blank'}
               description={project.description}
               setOptions={{

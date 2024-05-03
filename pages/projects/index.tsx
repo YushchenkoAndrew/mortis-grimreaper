@@ -15,11 +15,9 @@ import {
 import { VirtuosoGrid } from 'react-virtuoso';
 import { ErrorService } from '../../lib/common/error.service';
 import { ProjectPageEntity } from '../../lib/project/entities/project-page.entity';
-import { useRouter } from 'next/router';
 import { ProjectTypeEnum } from '../../lib/project/types/project-type.enum';
 
 export default function () {
-  const router = useRouter();
   const dispatch = useAppDispatch();
   const projects = useAppSelector((state) => state.project);
 
@@ -72,14 +70,19 @@ export default function () {
               <div className={className}>{children}</div>
             ),
           }}
-          itemContent={(_, project) => (
+          itemContent={(index, project) => (
             <Thumbnail
               key={project.id}
               img={project._avatar()}
               name={project.name}
               href={`${window.location.href}/${project.id}`}
+              barcode={projects.random == index}
               target={project.type == ProjectTypeEnum.link && '_blank'}
               description={project.description}
+              setOptions={{
+                imgSize:
+                  'h-[calc(100vw-1rem)] sm:h-[calc(100vw/2-0.5rem)] md:h-[calc(100vw/3-0.35rem)] lg:h-[calc(100vw/4-0.25rem)] 2xl:h-[calc(100vw/5-0.25rem)] aspect-1',
+              }}
               curtain
             />
           )}

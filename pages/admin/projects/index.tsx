@@ -33,6 +33,7 @@ import { PositionEntity } from '../../../lib/common/entities/position.entity';
 import { ProjectStatusEnum } from '../../../lib/project/types/project-status.enum';
 import InputFormElement from '../../../components/Form/Elements/InputFormElement';
 import NoData from '../../../components/Container/NoData';
+import { useEffect } from 'react';
 
 export default function () {
   const router = useRouter();
@@ -40,6 +41,12 @@ export default function () {
   const projects = useAppSelector((state) => state.admin.projects);
   const className =
     'max-w-96 md:max-w-[calc(49.5rem)] lg:max-w-[calc(74rem)] 2xl:max-w-[calc(99rem)]';
+
+  useEffect(() => {
+    return () => {
+      dispatch(AdminProjectsStore.actions.init());
+    };
+  }, []);
 
   return (
     <>
@@ -255,6 +262,11 @@ export default function () {
               if (!projects.trash) return;
               dispatch(AdminProjectsStore.actions.pushTrash(project as any));
             },
+            // onFile: (project) => (file) => {
+            //   ErrorService.envelop(async () => {
+            //     await AttachmentService.thumbnail(file);
+            //   });
+            // },
             contextComponent: (project) => (
               <div className="flex text-sm items-center mt-1">
                 <div className="flex items-center">

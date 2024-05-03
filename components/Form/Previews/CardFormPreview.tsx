@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Url } from 'next/dist/shared/lib/router/router';
 import Link from 'next/link';
 import { CSSProperties, Dispatch, forwardRef, ReactNode } from 'react';
+import ImgFormElement from '../Elements/ImgFormElement';
 import TooltipFormPreview from './TooltipFormPreview';
 
 export interface CardFormPreviewProps {
@@ -16,6 +17,7 @@ export interface CardFormPreviewProps {
   headerComponent?: ReactNode;
   contextComponent?: ReactNode;
 
+  onFile?: Dispatch<File>;
   onClick?: Dispatch<void>;
   setOptions?: Partial<{ loading: boolean }>;
 
@@ -78,10 +80,10 @@ export default forwardRef<HTMLDivElement, CardFormPreviewProps>(
           </div>
 
           {loading(
-            <img
-              className="h-16 w-auto rounded ml-auto"
-              src={props.img}
-              alt="Project img"
+            <ImgFormElement
+              img={props.img}
+              onFile={props.onFile}
+              setOptions={{ imgSize: 'h-16 aspect-1', margin: 'ml-auto' }}
             />,
             'ml-auto h-16 w-16',
           )}

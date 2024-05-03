@@ -4,7 +4,8 @@ import { Dispatch, useRef } from 'react';
 
 export interface ImgFormElementProps {
   img: string;
-  onFile: Dispatch<File>;
+  onFile?: Dispatch<File>;
+  setOptions?: Partial<{ imgSize: string; margin: string }>;
 }
 
 export default function ImgFormElement(props: ImgFormElementProps) {
@@ -12,7 +13,9 @@ export default function ImgFormElement(props: ImgFormElementProps) {
 
   return (
     <div
-      className="block relative group h-14 w-14 mr-3 cursor-pointer"
+      className={`block relative group ${props.setOptions?.margin ?? 'mr-3'} ${
+        props.onFile ? 'cursor-pointer' : ''
+      } ${props.setOptions?.imgSize ?? 'h-14 w-14 '}`}
       onClick={() => imgRef.current.click()}
     >
       <input
@@ -27,7 +30,11 @@ export default function ImgFormElement(props: ImgFormElementProps) {
           return props.onFile(file);
         }}
       />
-      <span className="absolute block top-0 left-0 h-full w-full rounded group-hover:bg-gray-500">
+      <span
+        className={`absolute top-0 left-0 h-full w-full rounded group-hover:bg-gray-500 ${
+          props.onFile ? 'block' : 'hidden'
+        }`}
+      >
         <div className="hidden group-hover:flex w-full h-full justify-center items-center">
           <FontAwesomeIcon
             className="text-2xl text-gray-50 mix-blend-screen"

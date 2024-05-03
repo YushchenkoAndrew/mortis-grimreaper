@@ -1,39 +1,83 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 export interface LineFormPreviewProps {
   className?: string;
   text: string;
-  size?: number;
-  onHover?: (flag: boolean) => void;
+  scale?: number;
+  ms?: number;
+
+  stop?: boolean;
+  setOptions?: Partial<{
+    fontSize: string;
+    textColor: string;
+    fontFamily: string;
+  }>;
 }
 
 export default memo(function LineFormPreview(props: LineFormPreviewProps) {
-  const [stop, onCycleStop] = useState(0);
-  const [offset, setOffset] = useState(0);
+  const [length, setLength] = useState(0);
+  const [text, setText] = useState(props.text);
 
-  const text = props.text.replace(/ /g, '_') + '_';
+  const offsetRef = useRef(0);
+
+  const spanRef = useCallback((node: HTMLSpanElement) => {
+    if (!node) return;
+    const fontSize = window
+      .getComputedStyle(node, null)
+      .getPropertyValue('font-size');
+
+    const length = Math.floor(node.clientWidth / (parseInt(fontSize) || 1)); // prettier-ignore
+    setLength(Math.floor(length * (props.scale || 1)));
+  }, []);
+
+  // const length = useMemo(() => {
+  //   if (!spanRef.current) return 0;
+  //   const fontSize = window
+  //     .getComputedStyle(spanRef.current, null)
+  //     .getPropertyValue('font-size');
+
+  //   // const length = Math.floor(spanRef.current.clientWidth / (parseInt(fontSize) || 1));
+  //   // setText(props.text.slice(0, length));
+
+  //   // console.log({ text: props.text.slice(0, length), length });
+
+  //   console.log({ with: spanRef.current.clientWidth });
+
+  //   return 0;
+  // }, [spanRef.current?.clientWidth]);
+
+  // console.log(spanRef.current?.clientWidth);
+  // // const text = props.text.replace(/ /g, '_') + '_';
 
   useEffect(() => {
-    if ((props.size ?? 5) >= props.text.length) return;
+    if (props.stop || !length) return;
+    // if ((props.size ?? 5) >= props.text.length) return;
     const interval = setInterval(() => {
-      if (stop > 0) return onCycleStop(stop - 1);
-      onCycleStop((offset + 1) % text.length ? 0 : 3);
-      setOffset((offset + 1) % text.length);
-    }, 250);
-    return () => clearInterval(interval);
-  });
+      offsetRef.current = (offsetRef.current + 1) % props.text.length;
 
-  function pieSlice(str: string, offset: number, size: number) {
-    if (offset + size < str.length) return str.substr(offset, size);
-    return str.substr(offset) + str.substr(0, offset + size - str.length);
-  }
+      const chars: string[] = [];
+      for (let i = 0; i < length; i++) {
+        chars.push(props.text.charAt((i + offsetRef.current) % props.text.length)); // prettier-ignore
+      }
+
+      setText(chars.join(''));
+    }, props.ms ?? 250);
+    return () => clearInterval(interval);
+  }, [length, props.stop]);
+
+  // function pieSlice(str: string, offset: number, size: number) {
+  //   if (offset + size < str.length) return str.substr(offset, size);
+  //   return str.substr(offset) + str.substr(0, offset + size - str.length);
+  // }
 
   return (
-    // <span className="text-white text-3Dventure text-3xl">
-    <span className={props.className}>
-      {(props.size ?? 5) >= props.text.length
-        ? props.text
-        : pieSlice(text, offset, props.size ?? 5)}
+    <span
+      ref={spanRef}
+      className={`${props.setOptions?.textColor ?? 'text-white'} ${
+        props.setOptions?.fontFamily ?? 'text-3Dventure'
+      } ${props.setOptions?.fontSize ?? 'text-3xl'} ${props.className ?? ''}`}
+    >
+      {text}
     </span>
   );
 });

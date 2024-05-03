@@ -26,6 +26,7 @@
     "@types/dompurify": "^3.0.5",
     "@types/uuid": "^9.0.8",
     "ace-builds": "^1.32.9",
+    "browser-image-compression": "^2.0.2",
     "dompurify": "^3.0.11",
     "handlebars": "^4.7.8",
     "highlight.js": "^11.9.0",

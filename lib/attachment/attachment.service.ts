@@ -1,3 +1,4 @@
+import imageCompression from 'browser-image-compression';
 import { DeepEntity, ObjectLiteral, TreeT } from '../common/types';
 import { ProjectTypeEnum } from '../project/types/project-type.enum';
 import { AdminAttachmentEntity } from './entities/admin-attachment.entity';
@@ -87,5 +88,16 @@ export class AttachmentService {
       default:
         return [];
     }
+  }
+
+  static async thumbnail(file: File): Promise<File> {
+    const jpeg = await imageCompression(file, {
+      maxSizeMB: 1,
+      initialQuality: 0.5,
+      fileType: 'image/jpeg',
+      useWebWorker: true,
+    });
+
+    return new File([jpeg], 'thumbnail.jpeg');
   }
 }

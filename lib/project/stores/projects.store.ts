@@ -1,7 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
+import moment from 'moment';
+import { NumberService } from '../../common';
 import { ProjectPageEntity } from '../entities/project-page.entity';
 
-type StoreT = ProjectPageEntity & {};
+type StoreT = ProjectPageEntity & {
+  random: number;
+};
 
 export const ProjectsStore = createSlice({
   name: 'project',
@@ -18,6 +22,9 @@ export const ProjectsStore = createSlice({
         state.total = res.total;
 
         state.result.push(...res.result);
+
+        const seed = NumberService.seed(moment().startOf('day').unix() + '');
+        state.random = Math.floor(seed * state.total);
       },
     );
   },

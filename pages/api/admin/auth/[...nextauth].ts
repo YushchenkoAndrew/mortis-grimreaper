@@ -10,6 +10,7 @@ export const options: AuthOptions = {
   secret: Config.self.base.secret,
   pages: {
     signIn: `${Config.self.base.web}/admin/login`,
+    signOut: `${Config.self.base.web}/admin/logout`,
   },
 
   callbacks: {

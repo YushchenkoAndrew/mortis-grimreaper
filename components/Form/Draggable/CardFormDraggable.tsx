@@ -72,6 +72,7 @@ export default function CardFormGraggable<T extends ObjectLiteral & IdEntity>(
         headerComponent={<HeaderComponent data={data} />}
         contextComponent={props.cardComponent.contextComponent?.(data)}
         onClick={props.cardComponent.onClick?.(data)}
+        onFile={props.cardComponent.onFile?.(data)}
         setOptions={{ loading: isDragging }}
       />
     );

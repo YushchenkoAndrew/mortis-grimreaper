@@ -4,6 +4,9 @@ import type { UrlObject } from 'url';
 import { useMemo, useRef } from 'react';
 import styles from './Thumbnail.module.scss';
 import { NumberService } from '../../lib/common';
+import LineFormPreview from '../Form/Previews/LineFormPreview';
+import Image from 'next/image';
+import moment from 'moment';
 
 export interface ThumbnailProps {
   img: string;
@@ -14,7 +17,9 @@ export interface ThumbnailProps {
   target?: React.HTMLAttributeAnchorTarget;
   curtain?: true;
 
+  barcode?: boolean;
   Behavior?: React.ComponentType<BehaviorProps>;
+  setOptions?: Partial<{ imgSize: string }>;
 }
 
 export default function Thumbnail({ Behavior, ...props }: ThumbnailProps) {
@@ -28,7 +33,9 @@ export default function Thumbnail({ Behavior, ...props }: ThumbnailProps) {
   return (
     <div
       ref={divRef}
-      className={`group relative h-auto max-w-full sm:max-w-sm overflow-hidden ${styles['thumbnail']}`}
+      className={`group relative w-full max-w-full sm:max-w-sm overflow-hidden ${
+        styles['thumbnail']
+      } ${props.setOptions?.imgSize || 'aspect-1'}`}
     >
       <a
         className="block relative"
@@ -41,12 +48,12 @@ export default function Thumbnail({ Behavior, ...props }: ThumbnailProps) {
         <span className={`absolute bg-gray-700 ${styles[curtain]}`} />
 
         <img
-          className="relative block top-0 left-0 w-fit h-fit mix-blend-multiply"
+          className={`relative block top-0 left-0 mix-blend-multiply object-cover aspect-1 ${''} `}
           src={props.img}
           alt={`Thumbnail: ${props.name || ''}`}
         />
         <div
-          className={`absolute invisible group-hover:visible flex flex-col p-4 h-full w-full text-white ${styles[curtain]}`}
+          className={`absolute invisible group-hover:visible z-20 flex flex-col p-4 h-full w-full text-white ${styles[curtain]}`}
         >
           <span className="my-auto text-3xl font-medium text-center">
             {props.name}
@@ -56,6 +63,18 @@ export default function Thumbnail({ Behavior, ...props }: ThumbnailProps) {
             {props.description}
           </span>
         </div>
+
+        {props.barcode && (
+          <LineFormPreview
+            className="absolute left-0 bottom-0 px-2 w-full bg-black "
+            text={(props.name + ' ').replace(/ /g, '_')}
+            scale={3.2}
+            setOptions={{
+              fontFamily: 'text-Barcode',
+              textColor: 'text-white group-hover:text-gray-500',
+            }}
+          />
+        )}
       </a>
     </div>
   );

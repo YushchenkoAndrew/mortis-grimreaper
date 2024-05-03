@@ -1,6 +1,6 @@
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import Breadcrumbs from '../../../../../components/Breadcrumbs/Breadcrumbs';
 import Container from '../../../../../components/Container/Container';
 import { AceEditor, RenderHtml } from '../../../../../components/dynamic';
@@ -58,6 +58,13 @@ export default function () {
   const attachmentRef = useRef<AdminAttachmentStoreT>(null);
   projectRef.current = project as any;
   attachmentRef.current = attachment as any;
+
+  const filepath = useMemo(() => {
+    if (attachment.buffer !== null) return attachment.path;
+
+    if (!Array.isArray(router.query.path)) return '/';
+    return ['', ...router.query.path, ''].join('/');
+  }, [attachment, router]);
 
   useEffect(() => {
     ErrorService.envelop(async () => {
@@ -186,21 +193,14 @@ export default function () {
               onFile={(event) =>
                 ErrorService.envelop(async () => {
                   for (const file of Array.from(event.target.files)) {
-                    const path =
-                      attachment.buffer !== null
-                        ? attachment.path
-                        : Array.isArray(router.query.path)
-                        ? ['', ...router.query.path, ''].join('/')
-                        : '/';
-
                     const entity = project.attachments.find(
-                      (e) => e.name == file.name && e.path == path,
+                      (e) => e.name == file.name && e.path == filepath,
                     );
 
                     await AdminAttachmentEntity.self.save.build(
                       new AdminAttachmentEntity({
                         id: entity?.id,
-                        path: path,
+                        path: filepath,
                         file: file as any,
                         attachable_id: project.id,
                         attachable_type: AttachmentAttachableTypeEnum.projects,

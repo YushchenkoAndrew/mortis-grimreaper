@@ -143,10 +143,11 @@ export default function () {
             <div className="flex items-center my-4">
               <ImgFormElement
                 img={project.avatar}
-                onFile={(file) => {
-                  const ext = file.name.split('.').at(-1);
-                  return onFile([new File([file], `thumbnail.${ext}`)]);
-                }}
+                onFile={(file) =>
+                  ErrorService.envelop(async () => {
+                    onFile([await AttachmentService.thumbnail(file)]);
+                  })
+                }
               />
 
               <Link

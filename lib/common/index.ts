@@ -5,7 +5,7 @@ import { v4 as uuid } from 'uuid';
 
 export class NumberService {
   static random(max: number, min: number = 0) {
-    return Math.ceil(this.seed(uuid()) * (max - min)) + min;
+    return Math.floor(this.seed(uuid()) * (max - min)) + min;
   }
 
   static mantissa(n: number) {

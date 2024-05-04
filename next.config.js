@@ -3,6 +3,17 @@ module.exports = {
   swcMinify: true,
   basePath: process.env.BASE_PATH || '/projects',
 
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: process.env.BASE_PATH || '/projects',
+        basePath: false,
+        permanent: false,
+      },
+    ];
+  },
+
   async rewrites() {
     const proxy = (src, dst) => ({
       source: `/api/${src}`,

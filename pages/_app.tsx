@@ -2,13 +2,14 @@ import { AppProps } from 'next/app';
 import { Provider } from 'react-redux';
 import { useRef } from 'react';
 import { AppStore, store } from '../lib/common/store';
+import { ToastContainer } from 'react-toastify';
 import { config } from '@fortawesome/fontawesome-svg-core';
 import { SessionProvider } from 'next-auth/react';
+
 import 'react-toastify/dist/ReactToastify.css';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import '../styles/globals.scss';
 import { Config } from '../config';
-import { ToastContainer } from '../components/dynamic';
 
 config.autoAddCss = false;
 

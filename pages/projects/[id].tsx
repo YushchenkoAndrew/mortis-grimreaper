@@ -8,14 +8,12 @@ import Navbar from '../../components/Navbar/Navbar';
 import { ProjectEntity } from '../../lib/project/entities/project.entity';
 import { AttachmentService } from '../../lib/attachment/attachment.service';
 import { ProjectTypeEnum } from '../../lib/project/types/project-type.enum';
+import Emscripten from '../../components/Container/Project/Emscripten';
+import P5js from '../../components/Container/Project/P5js';
+import Markdown from '../../components/Container/Project/Markdown';
 import { AttachmentEntity } from '../../lib/attachment/entities/attachment.entity';
-import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
-
-const P5js = dynamic(import('../../components/Container/Project/P5js')); // prettier-ignore
-const Html = dynamic(import('../../components/Container/Project/Html')); // prettier-ignore
-const Markdown = dynamic(import('../../components/Container/Project/Markdown')); // prettier-ignore
-const Emscripten = dynamic(import('../../components/Container/Project/Emscripten')); // prettier-ignore
+import Html from '../../components/Container/Project/Html';
 
 interface PropsT {
   project: ProjectEntity;

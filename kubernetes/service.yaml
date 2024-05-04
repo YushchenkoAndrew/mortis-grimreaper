@@ -1,29 +1,28 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: web-service
+  name: mortis-grimreaper-service
   namespace: demo
 spec:
   selector:
-    app: webserver
+    app: mortis-grimreaper
   ports:
     - port: 8008
       targetPort: 8000
   type: LoadBalancer
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: front-redis-service
-  namespace: demo
-  labels:
-    app: front-redis
-    role: master
-spec:
-  selector:
-    app: front-redis
-    role: master
-  ports:
-    - port: 8379
-      targetPort: 6379
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: front-redis-service
+#   namespace: demo
+#   labels:
+#     app: front-redis
+#     role: master
+# spec:
+#   selector:
+#     app: front-redis
+#     role: master
+#   ports:
+#     - port: 8379
+#       targetPort: 6379

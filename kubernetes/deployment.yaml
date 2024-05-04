@@ -1,63 +1,51 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: web-deployment
+  name: mortis-grimreaper-deployment
   namespace: demo
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: webserver
+      app: mortis-grimreaper
   template:
     metadata:
       labels:
-        app: webserver
+        app: mortis-grimreaper
     spec:
       containers:
-        - name: webserver
-          image: grimreapermortis/mortis-grimreaper:0.0.3
+        - name: mortis-grimreaper
+          image: grimreapermortis/mortis-grimreaper:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8000
           envFrom:
             - secretRef:
-                name: web-secrete
-          env:
-            - name: BASE_PATH
-              value: /v2/projects
-            - name: REDIS_HOST
-              value: $(FRONT_REDIS_SERVICE_SERVICE_HOST)
-            - name: API_URL
-              value: http://$(API_SERVICE_SERVICE_HOST):$(API_SERVICE_SERVICE_PORT)/api
-            - name: BOT_HOST
-              value: http://$(BOT_SERVICE_SERVICE_HOST):$(BOT_SERVICE_SERVICE_PORT)/bot
-            - name: VOID_URL
-              value: https://mortis-grimreaper.ddns.net/files
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: front-redis-deployment
-  namespace: demo
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: front-redis
-      role: master
-  template:
-    metadata:
-      labels:
-        app: front-redis
-        role: master
-    spec:
-      containers:
-        - name: redis
-          image: redis:6-alpine
-          # resources:
-          #   requests:
-          #     cpu: 100m
-          #     memory: 100Mi
-          ports:
-            - containerPort: 6379
+                name: mortis-grimreaper-secrete
+# ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: front-redis-deployment
+#   namespace: demo
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: front-redis
+#       role: master
+#   template:
+#     metadata:
+#       labels:
+#         app: front-redis
+#         role: master
+#     spec:
+#       containers:
+#         - name: redis
+#           image: redis:6-alpine
+#           # resources:
+#           #   requests:
+#           #     cpu: 100m
+#           #     memory: 100Mi
+#           ports:
+#             - containerPort: 6379

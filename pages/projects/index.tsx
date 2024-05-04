@@ -16,8 +16,6 @@ import { VirtuosoGrid } from 'react-virtuoso';
 import { ErrorService } from '../../lib/common/error.service';
 import { ProjectPageEntity } from '../../lib/project/entities/project-page.entity';
 import { ProjectTypeEnum } from '../../lib/project/types/project-type.enum';
-import { NumberService } from '../../lib/common';
-import moment from 'moment';
 
 export default function () {
   const dispatch = useAppDispatch();

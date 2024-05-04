@@ -1,34 +1,42 @@
 .thumbnail {
   span.curtain-t {
-    @apply top-0 left-0 h-0 w-full;
+    height: 0px;
+    @apply top-0 left-0 w-full #{!important};
   }
 
   span.curtain-b {
-    @apply bottom-0 left-0 h-0 w-full;
+    height: 0px;
+    @apply bottom-0 left-0 w-full #{!important};
   }
 
   span.curtain-l {
-    @apply top-0 left-0 h-full w-0;
+    width: 0px;
+    @apply top-0 left-0 h-full #{!important};
   }
 
   span.curtain-r {
-    @apply top-0 right-0 h-full w-0;
+    width: 0px;
+    @apply top-0 right-0 h-full #{!important};
   }
 
   div.curtain-t {
+    top: -100%;
     @apply -top-full;
   }
 
   div.curtain-b {
+    bottom: -100%;
     @apply -bottom-full;
   }
 
   div.curtain-l {
-    @apply top-0 -left-full;
+    left: -100%;
+    @apply top-0 #{!important};
   }
 
   div.curtain-r {
-    @apply top-0 -right-full;
+    right: -100%;
+    @apply top-0 #{!important};
   }
 
   &:hover {
@@ -105,85 +113,85 @@
 
 @keyframes curtain-animation-text-t {
   0% {
-    @apply -top-full;
+    top: -100%;
   }
   60% {
-    @apply -top-0;
+    top: -0px;
   }
   85% {
     top: -5%;
   }
   90% {
-    @apply -top-0;
+    top: -0px;
   }
   95% {
     top: -1%;
   }
   to {
-    @apply -top-0;
+    top: -0px;
   }
 }
 
 @keyframes curtain-animation-text-b {
   0% {
-    @apply -bottom-full;
+    bottom: -100%;
   }
   60% {
-    @apply -bottom-0;
+    bottom: -0px;
   }
   85% {
     bottom: -5%;
   }
   90% {
-    @apply -bottom-0;
+    bottom: -0px;
   }
   95% {
     bottom: -1%;
   }
   to {
-    @apply -bottom-0;
+    bottom: -0px;
   }
 }
 
 @keyframes curtain-animation-text-l {
   0% {
-    @apply -left-full;
+    left: -100%;
   }
   60% {
-    @apply -left-0;
+    left: -0px;
   }
   85% {
     left: -5%;
   }
   90% {
-    @apply -left-0;
+    left: -0px;
   }
   95% {
     left: -1%;
   }
   to {
-    @apply -left-0;
+    left: -0px;
   }
 }
 
 @keyframes curtain-animation-text-r {
   0% {
-    @apply -right-full;
+    right: -100%;
   }
   60% {
-    @apply -right-0;
+    right: -0px;
   }
   85% {
     right: -5%;
   }
   90% {
-    @apply -right-0;
+    right: -0px;
   }
   95% {
     right: -1%;
   }
   to {
-    @apply -right-0;
+    right: -0px;
   }
 }
 

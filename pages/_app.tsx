@@ -2,15 +2,13 @@ import { AppProps } from 'next/app';
 import { Provider } from 'react-redux';
 import { useRef } from 'react';
 import { AppStore, store } from '../lib/common/store';
-import { ToastContainer } from 'react-toastify';
 import { config } from '@fortawesome/fontawesome-svg-core';
 import { SessionProvider } from 'next-auth/react';
-
 import 'react-toastify/dist/ReactToastify.css';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import '../styles/globals.scss';
 import { Config } from '../config';
-import Script from 'next/script';
+import { ToastContainer } from '../components/dynamic';
 
 config.autoAddCss = false;
 
@@ -30,27 +28,6 @@ export default function MyApp({
   // }, []);
   return (
     <>
-      {/* <Head>
-        <link
-          rel="preload"
-          href={`${Config.self.base}/fonts/4bitfont.ttf`}
-          as="font"
-          crossOrigin=""
-        />
-        <link
-          rel="preload"
-          href={`${Config.self.base}/fonts/3Dventure.ttf`}
-          as="font"
-          crossOrigin=""
-        />
-      </Head> */}
-      {/* <Script defer src={`${Config.self.base}/js/lib/md5.js`}></Script> */}
-      {/* <Script
-        defer
-        src={`${Config.self.base}/js/ip.js`}
-        id="ip-min-js"
-        data-path={Config.self.base}
-      ></Script> */}
       <SessionProvider
         basePath={`${Config.self.base.api}/admin/auth`}
         session={session}

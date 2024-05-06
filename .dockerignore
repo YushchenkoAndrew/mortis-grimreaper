@@ -1,6 +1,10 @@
 .git
 .results
+.dockerignore
+Dockerfile
 scripts
+package-lock.json
 *Dockerfile*
-node_modules
+node_modules/
 kuberentes/
+.next/

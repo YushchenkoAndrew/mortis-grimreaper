@@ -46,6 +46,7 @@ import { arrayMove } from '@dnd-kit/sortable';
 import { PositionEntity } from '../../../../../lib/common/entities/position.entity';
 import TabFormElement from '../../../../../components/Form/Elements/TabFormElement';
 import { StringService } from '../../../../../lib/common';
+import TooltipFormPreview from '../../../../../components/Form/Previews/TooltipFormPreview';
 
 export default function () {
   const router = useRouter();
@@ -232,9 +233,7 @@ export default function () {
         }
       >
         <TabFormElement
-          className={`p-4 ${
-            attachment.buffer !== null ? 'visible' : 'invisible'
-          }`}
+          className={`p-4 ${attachment.buffer !== null ? 'block' : 'hidden'}`}
           default="code"
           disabled={project.html ? [] : ['preview']}
           columns={{ preview: 'Preview', code: 'Code' }}
@@ -378,7 +377,7 @@ export default function () {
           dataComponent={{
             name: (attachment) => (
               <span
-                className={`flex whitespace-nowrap ${
+                className={`group flex whitespace-nowrap ${
                   project.trash?.[attachment.id]
                     ? 'line-through text-gray-500'
                     : 'text-gray-800'
@@ -389,6 +388,17 @@ export default function () {
                   icon={attachment.type ? faFile : faFolder}
                 />
                 {attachment.name}
+
+                {attachment.size && (
+                  <TooltipFormPreview
+                    value={`${attachment.size / 1000} KB`}
+                    setOptions={{
+                      margin: 'mt-4',
+                      rounded: 'rounded-md',
+                      color: 'bg-gray-600 text-white',
+                    }}
+                  />
+                )}
               </span>
             ),
             updated_at: (attachment) => moment(attachment.updated_at).toNow(),

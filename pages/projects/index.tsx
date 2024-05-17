@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, useRef } from 'react';
 import Thumbnail from '../../components/Thumbnail/Thumbnail';
 import Header from '../../components/Header/Header';
 import Navbar from '../../components/Navbar/Navbar';
@@ -20,6 +20,8 @@ import { ProjectTypeEnum } from '../../lib/project/types/project-type.enum';
 export default function () {
   const dispatch = useAppDispatch();
   const projects = useAppSelector((state) => state.project);
+
+  const lock = useRef(false);
 
   return (
     <>
@@ -46,13 +48,16 @@ export default function () {
           data={projects.result}
           atBottomStateChange={() =>
             ErrorService.envelop(async () => {
+              if (lock.current) return;
+              lock.current = true;
+
               if (projects.result.length >= projects.total) return;
               dispatch(
                 ProjectPageEntity.self.select.thunk({
                   page: projects.page + 1,
                 }),
               ).unwrap();
-            })
+            }).finally(() => (lock.current = false))
           }
           components={{
             List: forwardRef(({ children, className, style }, ref) => (

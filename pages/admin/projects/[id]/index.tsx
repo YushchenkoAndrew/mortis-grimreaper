@@ -8,6 +8,7 @@ import {
   faArrowUpRightFromSquare,
   faEllipsisVertical,
   faFolder,
+  faGear,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { GetServerSidePropsContext } from 'next';
@@ -94,9 +95,9 @@ export default function () {
           }),
           { type: RequestTypeEnum.form },
         );
-
-        await dispatch(AdminProjectEntity.self.load.thunk(router.query.id)).unwrap(); // prettier-ignore
       }
+
+      await dispatch(AdminProjectEntity.self.load.thunk(router.query.id)).unwrap(); // prettier-ignore
     });
 
   return (
@@ -139,241 +140,278 @@ export default function () {
           }}
         />
 
-        <div className="flex flex-col mx-auto max-w-3xl w-full">
-          <div className="flex flex-col">
-            <div className="flex items-center my-4">
-              <ImgFormElement
-                img={project.avatar}
-                onFile={(file) =>
-                  ErrorService.envelop(async () => {
-                    onFile([await AttachmentService.thumbnail(file)], true);
-                  })
-                }
+        <div className="flex flex-col max-w-6xl">
+          <div className="flex items-center my-4 pb-3 border-b border-gray-300">
+            <ImgFormElement
+              img={project.avatar}
+              onFile={(file) =>
+                ErrorService.envelop(async () => {
+                  onFile([await AttachmentService.thumbnail(file)], true);
+                })
+              }
+            />
+
+            <Link
+              className="group text-2xl font-semibold max-w-xl truncate hover:underline"
+              target="_blank"
+              href={{
+                pathname: '/projects/[id]',
+                query: { id: project.id },
+              }}
+            >
+              {project.name}
+
+              <TooltipFormPreview
+                value={project.name}
+                setOptions={{ margin: '-ml-2' }}
               />
+            </Link>
 
-              <Link
-                className="group text-2xl font-semibold max-w-xl truncate hover:underline"
-                target="_blank"
-                href={{
-                  pathname: '/projects/[id]',
-                  query: { id: project.id },
-                }}
-              >
-                {project.name}
+            <span className="text-xs font-normal leading-4 mx-2 px-1 rounded-xl border border-gray-400 text-gray-500 ">
+              {StringService.humanize(project.status)}
+            </span>
 
-                <TooltipFormPreview
-                  value={project.name}
-                  setOptions={{ margin: '-ml-2' }}
-                />
-              </Link>
+            <MenuFormElement
+              className="ml-auto"
+              name={<FontAwesomeIcon icon={faEllipsisVertical} />}
+              actions={PROJECT_ACTIONS}
+              setOptions={{
+                buttonPadding: 'py-2 px-3.5',
+                buttonColor:
+                  'bg-transparent border border-gray-400 hover:border-gray-500 hover:bg-gray-200',
+                buttonTextColor: 'text-gray-700 ',
+                noChevronDown: true,
+              }}
+              onChange={(action) =>
+                ErrorService.envelop(async () => {
+                  const status =
+                    project.status == ProjectStatusEnum.active
+                      ? ProjectStatusEnum.inactive
+                      : ProjectStatusEnum.active;
 
-              <span className="text-xs font-normal leading-4 mx-2 px-1 rounded-xl border border-gray-400 text-gray-500 ">
-                {StringService.humanize(project.status)}
-              </span>
-
-              <MenuFormElement
-                className="ml-auto"
-                name={<FontAwesomeIcon icon={faEllipsisVertical} />}
-                actions={PROJECT_ACTIONS}
-                setOptions={{
-                  buttonPadding: 'py-2 px-3.5',
-                  buttonColor:
-                    'bg-transparent border border-gray-400 hover:border-gray-500 hover:bg-gray-200',
-                  buttonTextColor: 'text-gray-700 ',
-                  noChevronDown: true,
-                }}
-                onChange={(action) =>
-                  ErrorService.envelop(async () => {
-                    const status =
-                      project.status == ProjectStatusEnum.active
-                        ? ProjectStatusEnum.inactive
-                        : ProjectStatusEnum.active;
-
-                    switch (action) {
-                      case 'status':
-                        return await dispatch(
-                          AdminProjectEntity.self.save.thunk(
-                            new AdminProjectEntity({ id: project.id, status }),
-                          ),
-                        ).unwrap();
-
-                      case 'delete':
-                        await AdminProjectEntity.self.delete.exec(project.id);
-                        return router.push({ pathname: `${router.route}/..` });
-                    }
-                  })
-                }
-              />
-            </div>
-
-            <div className="flex">
-              <div className="flex ml-1 items-center text-sm">
-                <div className="flex items-center text-gray-600">
-                  <FontAwesomeIcon
-                    className="text-gray-400 mr-1 pb-0.5"
-                    icon={faFile}
-                  />
-                  <span className="font-medium mr-1">
-                    {project.attachments.length}
-                  </span>
-                  Files
-                </div>
-                <div className="flex items-center ml-4 text-gray-600">
-                  <FontAwesomeIcon
-                    className="text-gray-400 mr-1 pb-0.5"
-                    icon={faArrowUpRightFromSquare}
-                  />
-                  <span className="font-medium mr-1">
-                    {project.links.length}
-                  </span>
-                  Links
-                </div>
-              </div>
-
-              <CustomMenuFormElement
-                className="ml-auto mb-3"
-                fileRef={fileRef}
-                next="Delete files..."
-                actions={PROJECT_FILE_ACTIONS}
-                isSubmitButton={!!project.trash}
-                onChange={(action) => {
                   switch (action) {
-                    case 'dir':
-                      return dispatch(AdminProjectStore.actions.initDir());
-
-                    case 'upload':
-                      return fileRef.current.click();
-
-                    case 'create':
-                      return router.push({
-                        pathname: `${router.route}/new`,
-                        query: { ...router.query },
-                      });
+                    case 'status':
+                      return await dispatch(
+                        AdminProjectEntity.self.save.thunk(
+                          new AdminProjectEntity({
+                            id: project.id,
+                            status,
+                          }),
+                        ),
+                      ).unwrap();
 
                     case 'delete':
-                      return dispatch(AdminProjectStore.actions.initTrash());
+                      await AdminProjectEntity.self.delete.exec(project.id);
+                      return router.push({
+                        pathname: `${router.route}/..`,
+                      });
                   }
-                }}
-                onFile={(event) => onFile(Array.from(event.target.files))}
-                onNext={() =>
-                  ErrorService.envelop(async () => {
-                    if (!project.trash) return;
+                })
+              }
+            />
+          </div>
 
-                    await Promise.all(
-                      Object.keys(project.trash).map((id) =>
-                        AdminAttachmentEntity.self.delete.exec(id),
+          <div className="flex">
+            <div className="flex flex-col justify-start max-w-4xl w-full">
+              <div className="flex">
+                <div className="flex ml-1 items-center text-sm">
+                  <div className="flex items-center text-gray-600">
+                    <FontAwesomeIcon
+                      className="text-gray-400 mr-1 pb-0.5"
+                      icon={faFile}
+                    />
+                    <span className="font-medium mr-1">
+                      {project.attachments.length}
+                    </span>
+                    Files
+                  </div>
+                  <div className="flex items-center ml-4 text-gray-600">
+                    <FontAwesomeIcon
+                      className="text-gray-400 mr-1 pb-0.5"
+                      icon={faArrowUpRightFromSquare}
+                    />
+                    <span className="font-medium mr-1">
+                      {project.links.length}
+                    </span>
+                    Links
+                  </div>
+                </div>
+
+                <CustomMenuFormElement
+                  className="ml-auto mb-3"
+                  fileRef={fileRef}
+                  next="Delete files..."
+                  actions={PROJECT_FILE_ACTIONS}
+                  isSubmitButton={!!project.trash}
+                  onChange={(action) => {
+                    switch (action) {
+                      case 'dir':
+                        return dispatch(AdminProjectStore.actions.initDir());
+
+                      case 'upload':
+                        return fileRef.current.click();
+
+                      case 'create':
+                        return router.push({
+                          pathname: `${router.route}/new`,
+                          query: { ...router.query },
+                        });
+
+                      case 'delete':
+                        return dispatch(AdminProjectStore.actions.initTrash());
+                    }
+                  }}
+                  onFile={(event) => onFile(Array.from(event.target.files))}
+                  onNext={() =>
+                    ErrorService.envelop(async () => {
+                      if (!project.trash) return;
+
+                      await Promise.all(
+                        Object.keys(project.trash).map((id) =>
+                          AdminAttachmentEntity.self.delete.exec(id),
+                        ),
+                      );
+
+                      await dispatch(AdminProjectEntity.self.load.thunk(router.query.id)).unwrap(); // prettier-ignore
+                      dispatch(AdminProjectStore.actions.clearTrash());
+                    })
+                  }
+                  onBack={() =>
+                    dispatch(AdminProjectStore.actions.clearTrash())
+                  }
+                />
+              </div>
+
+              <TableFormGraggable
+                className="mb-8 rounded-md"
+                columns={{ name: 'Name', updated_at: 'Last updated' }}
+                picked={project.picked}
+                data={AttachmentService.toList<AdminAttachmentEntity>(
+                  project.attachments,
+                )}
+                onDragStart={(e) =>
+                  dispatch(
+                    AdminProjectStore.actions.onPick(e.active.id as string),
+                  )
+                }
+                onDragEnd={({ active, over }) =>
+                  ErrorService.envelop(async () => {
+                    const position =
+                      project.attachments.find((e) => e.id == over?.id)
+                        ?.order ?? null;
+
+                    if (!over?.id || position === null) {
+                      return dispatch(AdminProjectStore.actions.onDrop());
+                    }
+
+                    dispatch(
+                      AdminProjectStore.actions.onReorder(
+                        arrayMove(
+                          project.attachments.concat() as any,
+                          project.attachments.findIndex(
+                            (e) => e.id == active.id,
+                          ),
+                          project.attachments.findIndex((e) => e.id == over.id),
+                        ),
                       ),
                     );
 
-                    await dispatch(AdminProjectEntity.self.load.thunk(router.query.id)).unwrap(); // prettier-ignore
-                    dispatch(AdminProjectStore.actions.clearTrash());
+                    await AdminAttachmentEntity.self.save.build(
+                      new PositionEntity({ position }),
+                      {
+                        method: 'PUT',
+                        route: `admin/attachments/${active.id}/order`,
+                      },
+                    );
+
+                    await dispatch(
+                      AdminProjectEntity.self.load.thunk(router.query.id),
+                    ).unwrap();
                   })
                 }
-                onBack={() => dispatch(AdminProjectStore.actions.clearTrash())}
+                onDragCancel={() =>
+                  dispatch(AdminProjectStore.actions.onDrop())
+                }
+                onClick={(attachment: AdminAttachmentEntity) =>
+                  project.trash
+                    ? dispatch(AdminProjectStore.actions.pushTrash(attachment))
+                    : redirect(AttachmentService.filepath(attachment))
+                }
+                firstComponent={(props) =>
+                  props.row.type ? (
+                    props.children
+                  ) : (
+                    <span className="pl-7 py-6" />
+                  )
+                }
+                dataComponent={{
+                  name: (attachment) => (
+                    <span
+                      className={`group flex h-full whitespace-nowrap ${
+                        project.trash?.[attachment.id]
+                          ? 'line-through text-gray-500'
+                          : 'text-gray-800'
+                      }`}
+                    >
+                      <FontAwesomeIcon
+                        className="text-gray-500 text-lg mr-2"
+                        icon={attachment.type ? faFile : faFolder}
+                      />
+                      {attachment.name}
+
+                      {attachment.size && (
+                        <TooltipFormPreview
+                          value={`${attachment.size / 1000} KB`}
+                          setOptions={{
+                            margin: 'mt-4',
+                            rounded: 'rounded-md',
+                            color: 'bg-gray-600 text-white',
+                          }}
+                        />
+                      )}
+                    </span>
+                  ),
+                  updated_at: (attachment) =>
+                    moment(attachment.updated_at).toNow(),
+                }}
+              />
+
+              <RenderHtml
+                className="w-full h-full overflow-y-hidden p-5"
+                html={project.html}
+                headerComponent={
+                  <div className="flex text-sm font-medium text-gray-800 bg-gray-100 px-4 py-2">
+                    <FontAwesomeIcon
+                      className="text-gray-500 text-lg mr-1.5"
+                      icon={faFile}
+                    />
+                    README
+                  </div>
+                }
+                setOptions={{
+                  containerHeighOffset: 8,
+                  containerClassName: `${
+                    project.html ? 'block' : 'hidden'
+                  } relative border rounded-md`,
+                }}
               />
             </div>
-          </div>
 
-          <TableFormGraggable
-            className="mb-8 rounded-md"
-            columns={{ name: 'Name', updated_at: 'Last updated' }}
-            picked={project.picked}
-            data={AttachmentService.toList<AdminAttachmentEntity>(
-              project.attachments,
-            )}
-            onDragStart={(e) =>
-              dispatch(AdminProjectStore.actions.onPick(e.active.id as string))
-            }
-            onDragEnd={({ active, over }) =>
-              ErrorService.envelop(async () => {
-                const position =
-                  project.attachments.find((e) => e.id == over?.id)?.order ??
-                  null;
-
-                if (!over?.id || position === null) {
-                  return dispatch(AdminProjectStore.actions.onDrop());
-                }
-
-                dispatch(
-                  AdminProjectStore.actions.onReorder(
-                    arrayMove(
-                      project.attachments.concat() as any,
-                      project.attachments.findIndex((e) => e.id == active.id),
-                      project.attachments.findIndex((e) => e.id == over.id),
-                    ),
-                  ),
-                );
-
-                await AdminAttachmentEntity.self.save.build(
-                  new PositionEntity({ position }),
-                  {
-                    method: 'PUT',
-                    route: `admin/attachments/${active.id}/order`,
-                  },
-                );
-
-                await dispatch(
-                  AdminProjectEntity.self.load.thunk(router.query.id),
-                ).unwrap();
-              })
-            }
-            onDragCancel={() => dispatch(AdminProjectStore.actions.onDrop())}
-            onClick={(attachment: AdminAttachmentEntity) =>
-              project.trash
-                ? dispatch(AdminProjectStore.actions.pushTrash(attachment))
-                : redirect(AttachmentService.filepath(attachment))
-            }
-            firstComponent={(props) =>
-              props.row.type ? props.children : <span className="pl-7 py-6" />
-            }
-            dataComponent={{
-              name: (attachment) => (
-                <span
-                  className={`group flex h-full whitespace-nowrap ${
-                    project.trash?.[attachment.id]
-                      ? 'line-through text-gray-500'
-                      : 'text-gray-800'
-                  }`}
-                >
-                  <FontAwesomeIcon
-                    className="text-gray-500 text-lg mr-2"
-                    icon={attachment.type ? faFile : faFolder}
-                  />
-                  {attachment.name}
-
-                  <TooltipFormPreview
-                    value={`${attachment.size / 1000} KB`}
-                    setOptions={{
-                      // margin: 'mt-4',
-                      rounded: 'rounded-md',
-                      color: 'bg-gray-600 text-white',
-                    }}
-                  />
-                </span>
-              ),
-              updated_at: (attachment) => moment(attachment.updated_at).toNow(),
-            }}
-          />
-
-          <RenderHtml
-            className="w-full h-full overflow-y-hidden p-5"
-            html={project.html}
-            headerComponent={
-              <div className="flex text-sm font-medium text-gray-800 bg-gray-100 px-4 py-2">
+            <div className="flex flex-col ml-5 max-w-60 w-full">
+              <div className="flex text-lg justify-between">
+                <span className="font-medium text-gray-800 mb-6">About</span>
                 <FontAwesomeIcon
-                  className="text-gray-500 text-lg mr-1.5"
-                  icon={faFile}
+                  className="pt-1 text-gray-600 focus:outline-none hover:text-indigo-600 cursor-pointer"
+                  icon={faGear}
                 />
-                README
               </div>
-            }
-            setOptions={{
-              containerHeighOffset: 8,
-              containerClassName: `${
-                project.html ? 'block' : 'hidden'
-              } relative border rounded-md`,
-            }}
-          />
+              <span className="text-gray-800 text-pretty">
+                {project.description}
+              </span>
+
+              <div></div>
+            </div>
+          </div>
         </div>
       </Container>
     </>

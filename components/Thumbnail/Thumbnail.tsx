@@ -37,7 +37,7 @@ export default function Thumbnail({ Behavior, ...props }: ThumbnailProps) {
         styles['thumbnail']
       } ${props.setOptions?.imgSize || 'aspect-1'}`}
     >
-      <a
+      <Link
         className="block relative"
         href={props.href}
         target={props.target || '_self'}
@@ -75,7 +75,7 @@ export default function Thumbnail({ Behavior, ...props }: ThumbnailProps) {
             }}
           />
         )}
-      </a>
+      </Link>
     </div>
   );
 }

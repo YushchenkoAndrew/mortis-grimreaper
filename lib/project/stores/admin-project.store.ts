@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { v4 as uuid } from 'uuid';
 import { AdminAttachmentEntity } from '../../attachment/entities/admin-attachment.entity';
 import { ObjectLiteral } from '../../common/types';
 import { AdminProjectEntity } from '../entities/admin-project.entity';
@@ -112,7 +113,7 @@ export const AdminProjectStore = createSlice({
         state.footer = res.footer;
 
         state.attachments = res.attachments;
-        state.avatar = res._avatar();
+        state.avatar = res._avatar(uuid());
 
         state.trash = null;
         state.picked = null;

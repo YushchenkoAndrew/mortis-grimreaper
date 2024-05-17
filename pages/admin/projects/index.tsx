@@ -33,9 +33,10 @@ import { PositionEntity } from '../../../lib/common/entities/position.entity';
 import { ProjectStatusEnum } from '../../../lib/project/types/project-status.enum';
 import InputFormElement from '../../../components/Form/Elements/InputFormElement';
 import NoData from '../../../components/Container/NoData';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export default function () {
+  const lock = useRef(false);
   const router = useRouter();
   const dispatch = useAppDispatch();
   const projects = useAppSelector((state) => state.admin.projects);
@@ -156,6 +157,9 @@ export default function () {
           }`}
           atBottomStateChange={() =>
             ErrorService.envelop(async () => {
+              if (lock.current) return;
+              lock.current = true;
+
               if (projects.result.length >= projects.total) return;
               dispatch(
                 AdminProjectPageEntity.self.select.thunk({
@@ -163,7 +167,7 @@ export default function () {
                   page: projects.page + 1,
                 }),
               ).unwrap();
-            })
+            }).finally(() => (lock.current = false))
           }
           graggable={!projects.query}
           data={projects.result}
@@ -234,7 +238,7 @@ export default function () {
             }),
             headerComponent: (project) => (
               <span
-                className={`text-xs font-normal leading-4 mx-2 px-1 rounded-xl border border-gray-400 text-gray-500 hover:bg-gray-200 hover:underline cursor-pointer ${
+                className={`text-xs font-normal leading-4 mx-2 px-1 rounded-xl border border-gray-400 text-gray-500 hover:bg-gray-200 cursor-pointer ${
                   project.status == ProjectStatusEnum.inactive
                     ? 'bg-gray-300'
                     : ''

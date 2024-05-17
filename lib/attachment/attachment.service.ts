@@ -91,13 +91,13 @@ export class AttachmentService {
   }
 
   static async thumbnail(file: File): Promise<File> {
-    const jpeg = await imageCompression(file, {
-      maxSizeMB: 1,
-      initialQuality: 0.5,
+    const img = await imageCompression(file, {
+      maxSizeMB: 0.04,
+      maxWidthOrHeight: 600,
       fileType: 'image/webp',
       useWebWorker: true,
     });
 
-    return new File([jpeg], 'thumbnail.webp');
+    return new File([img], 'thumbnail.webp');
   }
 }

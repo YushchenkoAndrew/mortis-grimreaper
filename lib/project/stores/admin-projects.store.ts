@@ -21,12 +21,11 @@ export const AdminProjectsStore = createSlice({
     picked: null,
   } as StoreT,
   reducers: {
-    init: (state) => {
-      state.page = 0;
-      state.result = [];
-      state.trash = null;
+    nextPage: (state) => {
+      state.page = state.page + 1;
     },
     setQuery: (state, action: PayloadAction<string>) => {
+      state.page = 1;
       state.query = action.payload || '';
     },
     replace: (state, action: PayloadAction<AdminProjectEntity>) => {

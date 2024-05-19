@@ -20,18 +20,6 @@ export const PROJECT_HANDLEBAR_SHORTCUTS = {
   // p5js: '.parent(document.getElementById(`p5js-container`))',
 };
 
-export const PROJECT_FILE_ACTIONS = {
-  dir: 'Create Directory',
-  create: 'Create File',
-  upload: 'Upload File',
-  delete: 'Delete File',
-};
-
-export const PROJECT_ACTIONS = {
-  status: 'Change project visibility',
-  delete: 'Delete this project',
-};
-
 export const PROJECTS_ACTIONS = {
   create: 'New Project',
   delete: 'Delete Projects',

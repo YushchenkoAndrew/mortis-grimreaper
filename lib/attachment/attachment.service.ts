@@ -1,8 +1,11 @@
 import imageCompression from 'browser-image-compression';
 import { DeepEntity, ObjectLiteral, TreeT } from '../common/types';
+import { RequestTypeEnum } from '../common/types/request-type.enum';
+import { ProjectEntity } from '../project/entities/project.entity';
 import { ProjectTypeEnum } from '../project/types/project-type.enum';
 import { AdminAttachmentEntity } from './entities/admin-attachment.entity';
 import { AttachmentEntity } from './entities/attachment.entity';
+import { AttachmentAttachableTypeEnum } from './types/attachment-attachable-type.enum';
 
 export class AttachmentService {
   static filepath<T extends AttachmentEntity>(entity: T): string[] {

@@ -31,7 +31,7 @@ export const AdminAttachmentStore = createSlice({
 
       const path = state.path.split('/');
       state.path = path.slice(0, -1).join('/');
-      state.name = path.at(-1) + ' ';
+      state.name = path.at(-1) + state.name;
     },
     setAttachableId: (state, action: PayloadAction<string>) => {
       state.attachable_id = action.payload || '';

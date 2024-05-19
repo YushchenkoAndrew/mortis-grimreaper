@@ -3,12 +3,12 @@ import { v4 as uuid } from 'uuid';
 import { AdminAttachmentEntity } from '../../attachment/entities/admin-attachment.entity';
 import { ObjectLiteral } from '../../common/types';
 import { AdminProjectEntity } from '../entities/admin-project.entity';
+import { ProjectStatusEnum } from '../types/project-status.enum';
 import { ProjectTypeEnum } from '../types/project-type.enum';
 
 type StoreT = Omit<AdminProjectEntity, 'readme'> & {
   avatar: string;
   html: string;
-  directory: string;
   trash: ObjectLiteral<AdminAttachmentEntity>;
   picked: AdminAttachmentEntity;
 };
@@ -19,33 +19,23 @@ export const AdminProjectStore = createSlice({
     name: '',
     status: '' as any,
 
+    tags: [],
     links: [],
     attachments: [],
 
     trash: null,
     picked: null,
     html: '',
-    directory: null,
   } as StoreT,
   reducers: {
-    init: (state) => {
-      state.name = '';
-      state.status = '' as any;
-
-      state.links = [];
-      state.attachments = [];
-
-      state.avatar = null;
-      state.trash = null;
-      state.picked = null;
-      state.html = '';
-      state.directory = null;
-    },
     setType: (state, action: PayloadAction<ProjectTypeEnum>) => {
       state.type = action.payload;
     },
     setName: (state, action: PayloadAction<string>) => {
       state.name = action.payload || '';
+    },
+    setStatus: (state, action: PayloadAction<ProjectStatusEnum>) => {
+      state.status = action.payload || null;
     },
     setDescription: (state, action: PayloadAction<string>) => {
       state.description = action.payload || '';
@@ -65,23 +55,23 @@ export const AdminProjectStore = createSlice({
 
       state.attachments[index] = action.payload;
     },
-    initDir: (state) => {
-      state.directory = '';
-    },
-    setDir: (state, action: PayloadAction<string>) => {
-      state.directory = action.payload || '';
-    },
-    clearDir: (state) => {
-      state.directory = null;
-    },
     initTrash: (state) => {
       state.trash = {};
     },
-    pushTrash: (state, action: PayloadAction<AdminAttachmentEntity>) => {
-      const id = action.payload.id;
+    pushTrash: (
+      state,
+      action: PayloadAction<AdminAttachmentEntity | AdminAttachmentEntity[]>,
+    ) => {
+      const attachments = Array.isArray(action.payload)
+        ? action.payload
+        : [action.payload];
 
-      if (state.trash[id]) delete state.trash[id];
-      else state.trash[id] = action.payload;
+      for (const attachment of attachments) {
+        const id = attachment.id;
+
+        if (state.trash[id]) delete state.trash[id];
+        else state.trash[id] = attachment;
+      }
     },
     clearTrash: (state) => {
       state.trash = null;
@@ -98,6 +88,26 @@ export const AdminProjectStore = createSlice({
     onDrop: (state) => {
       state.picked = null;
     },
+
+    init: (state, { payload }) => {
+      const res: AdminProjectEntity = payload as any;
+
+      state.id = res.id;
+      state.name = res.name;
+      state.type = res.type;
+      state.status = res.status;
+      state.footer = res.footer;
+      state.description = res.description;
+
+      state.tags = res.tags;
+      state.links = res.links;
+      state.attachments = res.attachments;
+      state.avatar = res._avatar(uuid());
+
+      state.trash = null;
+      state.picked = null;
+      state.html = '';
+    },
   },
   extraReducers(builder) {
     builder.addCase(
@@ -105,20 +115,18 @@ export const AdminProjectStore = createSlice({
       (state, { payload }) => {
         const res: AdminProjectEntity = payload as any;
 
-        state.id = res.id;
         state.name = res.name;
-        state.type = res.type;
         state.status = res.status;
-        state.description = res.description;
-        state.footer = res.footer;
 
+        state.footer = res.footer;
+        state.description = res.description;
+
+        state.tags = res.tags;
+        state.links = res.links;
         state.attachments = res.attachments;
         state.avatar = res._avatar(uuid());
 
         state.trash = null;
-        state.picked = null;
-        state.html = '';
-        state.directory = null;
       },
     );
   },

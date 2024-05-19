@@ -1,15 +1,10 @@
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
 import { useEffect, useRef } from 'react';
-import Container from '../../../../components/Container/Container';
 import { AceEditor } from '../../../../components/dynamic';
-import Header from '../../../../components/Header/Header';
-import Navbar from '../../../../components/Navbar/Navbar';
-import NavbarItem from '../../../../components/Navbar/NavbarItem';
 import FileSystem from '../../../../components/Sidebar/FileSystem';
 import Sidebar from '../../../../components/Sidebar/Sidebar';
 import { Config } from '../../../../config';
-import { NAVIGATION } from '../../../../constants';
 import { AdminProjectEntity } from '../../../../lib/project/entities/admin-project.entity';
 import { ErrorService } from '../../../../lib/common/error.service';
 import {
@@ -25,6 +20,8 @@ import InputFormElement from '../../../../components/Form/Elements/InputFormElem
 import { AttachmentAttachableTypeEnum } from '../../../../lib/attachment/types/attachment-attachable-type.enum';
 import { getServerSession } from 'next-auth';
 import { options } from '../../../api/admin/auth/[...nextauth]';
+import AdminLayout from '../../../../components/Container/Layout/AdminLayout';
+import CustomDirectoryInputFormElement from '../../../../components/Form/Custom/CustomDirectoryInputFormElement';
 
 export default function () {
   const router = useRouter();
@@ -80,92 +77,66 @@ export default function () {
     });
 
   return (
-    <>
-      <Header title="Admin project create"></Header>
-
-      <Container
-        className="w-full"
-        Navbar={
-          <Navbar
-            Item={NavbarItem}
-            navigation={NAVIGATION.admin}
-            avatar={Config.self.github}
-          />
-        }
-        Sidebar={
-          <Sidebar
-            Element={FileSystem}
-            data={[AttachmentService.toTree(project.attachments)]}
-            onClick={(data) =>
-              redirect(
-                Array.isArray(data) ? data : AttachmentService.filepath(data),
-              )
-            }
-          />
-        }
-        Breadcrumbs={
-          <div className="flex px-2 items-center">
-            <span className="text-1xl font-semibold">{project.name}</span>
-            <span className="text-1xl ml-2 mr-3 font-semibold">
-              {attachment.path}/
-            </span>
-
-            <InputFormElement
-              placeholder="Name your file ..."
-              value={attachment.name}
-              onChange={(e) =>
-                dispatch(AdminAttachmentStore.actions.setName(e))
-              }
-              onKeyDown={(e) =>
-                !attachment.name && e.key == 'Backspace'
-                  ? dispatch(AdminAttachmentStore.actions.popPath())
-                  : null
-              }
-              setOptions={{ inputPadding: 'py-1' }}
-              required
-            />
-
-            <div className="ml-auto relative inline-block text-left">
-              <button
-                className="inline-flex w-full px-3 py-2 justify-center items-center rounded bg-green-600 text-sm font-semibold text-gray-50 hover:bg-green-500 disabled:text-gray-300 disabled:hover:bg-green-600 focus:outline-none"
-                type="button"
-                disabled={!attachment.name}
-                onClick={() => save()}
-              >
-                Create new file
-              </button>
-            </div>
-          </div>
-        }
-      >
-        <AceEditor
-          mode={mode.getModeForPath(attachment.name).name}
-          theme="tomorrow"
-          width="100%"
-          height="calc(100vh - 8.5rem)"
-          tabSize={2}
-          fontSize={16}
-          lineHeight={19}
-          keyboardHandler="vim"
-          enableLiveAutocompletion
-          enableBasicAutocompletion
-          showGutter
-          showPrintMargin
-          highlightActiveLine
-          value={attachment.buffer || ''}
-          onChange={(value) =>
-            dispatch(AdminAttachmentStore.actions.setBuffer(value))
+    <AdminLayout
+      className="w-full"
+      title="Admin project new file"
+      Sidebar={
+        <Sidebar
+          Element={FileSystem}
+          data={[AttachmentService.toTree(project.attachments)]}
+          onClick={(data) =>
+            redirect(
+              Array.isArray(data) ? data : AttachmentService.filepath(data),
+            )
           }
-          commands={[{ name: 'write', bindKey: null, exec: save }]}
-          setOptions={{
-            spellcheck: true,
-            showLineNumbers: true,
-            highlightGutterLine: true,
-            enableSnippets: false,
-          }}
         />
-      </Container>
-    </>
+      }
+    >
+      <div className="flex px-2 my-4 items-center">
+        <CustomDirectoryInputFormElement
+          prefix={project.name}
+          onSubmit={() => save()}
+        />
+
+        <div className="ml-auto relative inline-block text-left">
+          <button
+            className="inline-flex w-full px-3 py-2 justify-center items-center rounded bg-green-600 text-sm font-semibold text-gray-50 hover:bg-green-500 disabled:text-gray-300 disabled:hover:bg-green-600 focus:outline-none"
+            type="button"
+            disabled={!attachment.name}
+            onClick={() => save()}
+          >
+            Create new file
+          </button>
+        </div>
+      </div>
+
+      <AceEditor
+        mode={mode.getModeForPath(attachment.name).name}
+        theme="tomorrow"
+        width="100%"
+        height="calc(100vh - 8.5rem)"
+        tabSize={2}
+        fontSize={16}
+        lineHeight={19}
+        keyboardHandler="vim"
+        enableLiveAutocompletion
+        enableBasicAutocompletion
+        showGutter
+        showPrintMargin
+        highlightActiveLine
+        value={attachment.buffer || ''}
+        onChange={(value) =>
+          dispatch(AdminAttachmentStore.actions.setBuffer(value))
+        }
+        commands={[{ name: 'write', bindKey: null, exec: save }]}
+        setOptions={{
+          spellcheck: true,
+          showLineNumbers: true,
+          highlightGutterLine: true,
+          enableSnippets: false,
+        }}
+      />
+    </AdminLayout>
   );
 }
 

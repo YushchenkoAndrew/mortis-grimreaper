@@ -30,7 +30,7 @@ export class CommonEntity {
    * This method will build response-dto/request-dto
    * @see {@link Column}
    */
-  build<T>(entity: T, type: ColumnKey = ColumnKey.type): this {
+  build<T>(entity: T, type: ColumnKey = ColumnKey.type): T {
     if (!entity) return null;
     // const keys = this.getGlobal<Set<string>>(ColumnKey.keys) || new Set();
 
@@ -51,14 +51,14 @@ export class CommonEntity {
       }
     }
 
-    return this;
+    return this as any;
   }
 
   /**
    * This method will build response-dto/request-dto
    * @see {@link Column}
    */
-  buildAll<T>(entities: T[], type: ColumnKey = ColumnKey.type): this[] {
+  buildAll<T>(entities: T[], type: ColumnKey = ColumnKey.type): T[] {
     return entities?.length
       ? entities.map((item) => this.newInstance(this.defined()).build(item, type)) // prettier-ignore
       : [];

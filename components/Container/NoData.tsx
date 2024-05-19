@@ -5,12 +5,20 @@ export interface NoDataProps {
   className?: string;
   title?: string;
   description?: string;
+
+  setOptions?: Partial<{
+    border: string;
+  }>;
 }
 
 export default function NoData(props: NoDataProps) {
   return (
     <div className={`mx-auto ${props.className || ''}`}>
-      <div className="flex items-center text-center border rounded-lg h-full">
+      <div
+        className={`flex items-center text-center h-full ${
+          props.setOptions?.border ?? 'border rounded-lg'
+        }`}
+      >
         <div className="flex flex-col w-full max-w-sm px-4 mx-auto">
           <div className="p-3 mx-auto text-blue-500 bg-blue-100 rounded-full">
             <FontAwesomeIcon

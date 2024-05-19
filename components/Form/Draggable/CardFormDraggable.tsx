@@ -19,7 +19,7 @@ import { DispatchComponent, ObjectLiteral } from '../../../lib/common/types';
 import { CSS } from '@dnd-kit/utilities';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGripVertical } from '@fortawesome/free-solid-svg-icons';
-import { Dispatch, forwardRef, useEffect, useRef } from 'react';
+import { Dispatch, forwardRef, memo, useEffect, useMemo, useRef } from 'react';
 import { VirtuosoGrid, VirtuosoGridHandle } from 'react-virtuoso';
 import CardFormPreview, {
   CardFormPreviewProps,
@@ -47,55 +47,65 @@ export interface CardFormGraggableProps<T extends ObjectLiteral & IdEntity> {
   >;
 }
 
-export default function CardFormGraggable<T extends ObjectLiteral & IdEntity>(
-  props: CardFormGraggableProps<T>,
-) {
+export default memo(function CardFormGraggable<
+  T extends ObjectLiteral & IdEntity,
+>(props: CardFormGraggableProps<T>) {
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
     useSensor(TouchSensor, {}),
   );
 
-  const CardComponent = ({ data }: { data: T }) => {
-    const { transform, transition, setNodeRef, isDragging } = useSortable({
-      id: data.id,
-    });
+  const CardComponent = useMemo(
+    () =>
+      ({ data }: { data: T }) => {
+        const { transform, transition, setNodeRef, isDragging } = useSortable({
+          id: data.id,
+        });
 
-    return (
-      <CardFormPreview
-        ref={setNodeRef}
-        style={{ transition, transform: CSS.Transform.toString(transform) }}
-        className={props.cardComponent.className?.(data)}
-        name={props.cardComponent.name(data)}
-        href={props.cardComponent.href(data)}
-        img={props.cardComponent.img(data)}
-        description={props.cardComponent.description?.(data)}
-        headerComponent={<HeaderComponent data={data} />}
-        contextComponent={props.cardComponent.contextComponent?.(data)}
-        onClick={props.cardComponent.onClick?.(data)}
-        onFile={props.cardComponent.onFile?.(data)}
-        setOptions={{ loading: isDragging }}
-      />
-    );
-  };
+        return (
+          <CardFormPreview
+            ref={setNodeRef}
+            style={{ transition, transform: CSS.Transform.toString(transform) }}
+            className={props.cardComponent.className?.(data)}
+            name={props.cardComponent.name(data)}
+            href={props.cardComponent.href(data)}
+            img={props.cardComponent.img(data)}
+            description={props.cardComponent.description?.(data)}
+            headerComponent={<HeaderComponent data={data} />}
+            contextComponent={props.cardComponent.contextComponent?.(data)}
+            onClick={props.cardComponent.onClick?.(data)}
+            onFile={props.cardComponent.onFile?.(data)}
+            setOptions={{ loading: isDragging }}
+          />
+        );
+      },
+    [props.cardComponent],
+  );
 
-  const HeaderComponent = ({ data }: { data: T }) => {
-    const { attributes, listeners, isDragging } = useSortable({ id: data.id });
+  const HeaderComponent = useMemo(
+    () =>
+      ({ data }: { data: T }) => {
+        const { attributes, listeners, isDragging } = useSortable({
+          id: data.id,
+        });
 
-    return (
-      <>
-        {props.cardComponent.headerComponent?.(data)}
+        return (
+          <>
+            {props.cardComponent.headerComponent?.(data)}
 
-        <FontAwesomeIcon
-          {...attributes}
-          {...listeners}
-          icon={faGripVertical}
-          className={`text-gray-400 text-lg ml-auto focus:outline-none ${
-            props.graggable === false ? 'invisible' : ''
-          } ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-        />
-      </>
-    );
-  };
+            <FontAwesomeIcon
+              {...attributes}
+              {...listeners}
+              icon={faGripVertical}
+              className={`text-gray-400 text-lg ml-auto focus:outline-none ${
+                props.graggable === false ? 'invisible' : ''
+              } ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+            />
+          </>
+        );
+      },
+    [props.graggable],
+  );
 
   return (
     <DndContext
@@ -132,7 +142,9 @@ export default function CardFormGraggable<T extends ObjectLiteral & IdEntity>(
         className={props.className}
         style={{ height: null }}
         // endReached={() => props.endReached?.()}
-        atBottomStateChange={() => props.atBottomStateChange?.()}
+        atBottomStateChange={(flag) =>
+          flag ? props.atBottomStateChange?.() : null
+        }
         components={{
           List: forwardRef(({ children, className, style }, ref) => (
             <div
@@ -187,4 +199,4 @@ export default function CardFormGraggable<T extends ObjectLiteral & IdEntity>(
       </DragOverlay>
     </DndContext>
   );
-}
+});

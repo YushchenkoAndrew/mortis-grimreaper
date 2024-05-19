@@ -46,6 +46,9 @@ export class ProjectEntity extends IdEntity {
   @Column((e) => new LinkEntity().buildAll(e.links ?? {}))
   links: LinkEntity[] = [];
 
+  @Column((e) => new IdEntity().buildAll(e.tags ?? {}))
+  tags: IdEntity[] = [];
+
   _avatar(prefix?: string) {
     if (this.thumbnail?.file) return this.thumbnail._url() + `?r=${prefix}`;
     return createAvatar(identicon, { seed: this.id }).toDataUriSync();

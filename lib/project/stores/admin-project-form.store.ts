@@ -20,6 +20,27 @@ export const AdminProjectFormStore = createSlice({
     processing: false,
   } as StoreT,
   reducers: {
+    init: (state, action: PayloadAction<AdminProjectEntity>) => {
+      const res: AdminProjectEntity = action.payload as any;
+
+      state.id = res.id;
+      state.name = res.name;
+      state.type = res.type;
+      state.status = res.status;
+      state.footer = res.footer;
+      state.description = res.description;
+
+      state.tags = res.tags;
+      state.links = res.links;
+      state.attachments = res.attachments;
+
+      // state.trash = null;
+      // state.picked = null;
+      // state.html = '';
+    },
+    reset: (state) => {
+      state.id = null;
+    },
     setType: (state, action: PayloadAction<ProjectTypeEnum>) => {
       state.type = action.payload;
       state.link = '';
@@ -41,13 +62,13 @@ export const AdminProjectFormStore = createSlice({
       state.readme = !state.readme;
     },
   },
-  extraReducers(builder) {
-    builder.addCase(
-      AdminProjectEntity.self.save.thunk.fulfilled,
-      (_, { payload }) => {
-        const res: ProjectEntity = payload as any;
-        window.location.href = `./${res.id}`;
-      },
-    );
-  },
+  // extraReducers(builder) {
+  //   builder.addCase(
+  //     AdminProjectEntity.self.save.thunk.fulfilled,
+  //     (_, { payload }) => {
+  //       const res: ProjectEntity = payload as any;
+  //       window.location.href = `./${res.id}`;
+  //     },
+  //   );
+  // },
 });

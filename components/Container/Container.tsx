@@ -1,11 +1,11 @@
-import Sidebar from '../Sidebar/Sidebar';
+import { ReactNode } from 'react';
 
 export interface ContainerProps {
-  Navbar?: React.ReactNode;
-  Sidebar?: React.ReactNode;
-  Breadcrumbs?: React.ReactNode;
+  Navbar?: ReactNode;
+  Sidebar?: ReactNode;
+  Breadcrumbs?: ReactNode;
 
-  children?: React.ReactNode;
+  children?: ReactNode;
   className?: string;
 }
 
@@ -19,7 +19,7 @@ export default function Container(props: ContainerProps) {
         <main className="w-full">
           <div
             className={
-              props.className ??
+              props.className ||
               'mx-auto max-w-4xl px-4 py-6 sm:px-6 md:max-w-4xl lg:max-w-7xl lg:px-8'
             }
           >

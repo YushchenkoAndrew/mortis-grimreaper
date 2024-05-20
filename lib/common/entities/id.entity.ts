@@ -11,7 +11,7 @@ export class IdEntity extends CommonEntity {
   @Request(() => undefined, { nullable: true })
   id: string = null;
 
-  @Request()
+  @Column()
   @Request({ nullable: true })
   name: string = '';
 }

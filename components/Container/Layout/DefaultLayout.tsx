@@ -25,11 +25,11 @@ export default function DefaultLayout(props: DefaultLayoutProps) {
           <Navbar
             Item={GlitchItem}
             navigation={[
-              { name: 'home', href: '/' },
+              { name: 'about_me', href: '/' },
+              { name: 'working_on', href: '/board' },
               { name: 'art', href: '/art' },
-              { name: 'board', href: '/board' },
-              { name: 'projects', href: '/projects' },
-              { name: 'contacts', href: '/contacts' },
+              { name: 'programming', href: '/projects' },
+              { name: 'contact_me', href: '/contacts' },
             ]}
             avatar={Config.self.github}
           />

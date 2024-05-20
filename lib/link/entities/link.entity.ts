@@ -1,8 +1,8 @@
-import { Column } from '../../common/decorators/column';
+import { Column, Request } from '../../common/decorators/column';
 import { Entity } from '../../common/decorators/request-entity';
 import { IdEntity } from '../../common/entities/id.entity';
 
-@Entity({ route: 'link' })
+@Entity({ route: 'links' })
 export class LinkEntity extends IdEntity {
   constructor(init?: Partial<LinkEntity>) {
     super();
@@ -10,5 +10,6 @@ export class LinkEntity extends IdEntity {
   }
 
   @Column()
+  @Request()
   link: string = '';
 }

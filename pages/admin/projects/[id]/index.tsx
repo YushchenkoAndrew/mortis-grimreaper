@@ -21,8 +21,6 @@ import { AttachmentService } from '../../../../lib/attachment/attachment.service
 import Link from 'next/link';
 import { getServerSession } from 'next-auth';
 import { options } from '../../../api/admin/auth/[...nextauth]';
-import { StringService } from '../../../../lib/common';
-import { ProjectStatusEnum } from '../../../../lib/project/types/project-status.enum';
 import { RenderHtml } from '../../../../components/dynamic';
 import ImgFormElement from '../../../../components/Form/Elements/ImgFormElement';
 import TooltipFormPreview from '../../../../components/Form/Previews/TooltipFormPreview';
@@ -37,6 +35,8 @@ import NextFormElement from '../../../../components/Form/Elements/NextFormElemen
 import { AdminProjectFormStore } from '../../../../lib/project/stores/admin-project-form.store';
 import CustomYesNoPopupElement from '../../../../components/Form/Custom/CustomYesNoPopupElement';
 import CustomProjectStatusPreview from '../../../../components/Form/Custom/CustomProjectStatusPreview';
+import { AdminLinkEntity } from '../../../../lib/link/entities/admin-link.entity';
+import { AdminTagEntity } from '../../../../lib/tag/entities/admin-tag.entity';
 
 interface PropsT {
   project: AdminProjectEntity;
@@ -62,6 +62,33 @@ export default function (props: PropsT) {
       dispatch(AdminProjectStore.actions.setHtml(preview));
     });
   }, []);
+
+  const save = () => {
+    ErrorService.envelop(async () => {
+      await dispatch(AdminProjectEntity.self.save.thunk(form)).unwrap(); // prettier-ignore
+
+      for (const tag of form.del_tags) {
+        await AdminTagEntity.self.delete.exec(tag.id); // prettier-ignore
+      }
+
+      for (const tag of form.tags) {
+        if (tag.id) continue;
+        await AdminTagEntity.self.save.build(tag); // prettier-ignore
+      }
+
+      for (const link of form.del_links) {
+        await AdminLinkEntity.self.delete.exec(link.id); // prettier-ignore
+      }
+
+      for (const link of form.new_links) {
+        if (!link.name) continue;
+        await AdminLinkEntity.self.save.build(link); // prettier-ignore
+      }
+
+      await dispatch(AdminProjectEntity.self.load.thunk(project.id)); // prettier-ignore
+      dispatch(AdminProjectFormStore.actions.reset());
+    });
+  };
 
   return (
     <AdminLayout title={project.name} className="">
@@ -114,7 +141,6 @@ export default function (props: PropsT) {
 
           <MenuFormElement
             className="ml-auto"
-            // name={}
             name={
               <>
                 <span className="mr-2">Options</span>
@@ -212,18 +238,17 @@ export default function (props: PropsT) {
               Update project details
             </div>
 
-            <ProjectFormPage className="flex flex-col mx-4 mb-3" />
+            <ProjectFormPage
+              className="flex flex-col mx-5 mb-3"
+              onSubmit={() => save()}
+            />
 
             <div className="flex w-full">
               <NextFormElement
                 className="ml-auto mr-4 my-3"
                 next="Save changes"
                 back="Cancel"
-                onNext={() =>
-                  ErrorService.envelop(async () => {
-                    dispatch(AdminProjectEntity.self.save.thunk(form)).unwrap();
-                  })
-                }
+                onNext={() => save()}
                 onBack={() => dispatch(AdminProjectFormStore.actions.reset())}
                 setOptions={{
                   buttonPadding: 'py-1.5 px-4',
@@ -257,12 +282,15 @@ export default function (props: PropsT) {
             <div
               className={
                 project.tags?.length
-                  ? 'flex flex-wrap mb-4 space-x-1'
+                  ? 'flex flex-wrap mb-4 space-x-1 space-y-2'
                   : 'hidden'
               }
             >
               {project.tags.map((e) => (
-                <span className="px-3 py-1 rounded-full bg-indigo-100 text-xs text-indigo-600">
+                <span
+                  key={e.id}
+                  className="px-3 py-1 first:ml-1 rounded-full bg-indigo-100 text-xs text-indigo-600"
+                >
                   {e.name}
                 </span>
               ))}

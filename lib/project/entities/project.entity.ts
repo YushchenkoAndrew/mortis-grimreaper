@@ -8,6 +8,7 @@ import { ProjectTypeEnum } from '../types/project-type.enum';
 import { createAvatar } from '@dicebear/core';
 import { identicon } from '@dicebear/collection';
 import { LinkEntity } from '../../link/entities/link.entity';
+import { TagEntity } from '../../tag/entities/tag.entity';
 
 @Entity({ route: 'projects' })
 export class ProjectEntity extends IdEntity {
@@ -46,8 +47,8 @@ export class ProjectEntity extends IdEntity {
   @Column((e) => new LinkEntity().buildAll(e.links ?? {}))
   links: LinkEntity[] = [];
 
-  @Column((e) => new IdEntity().buildAll(e.tags ?? {}))
-  tags: IdEntity[] = [];
+  @Column((e) => new TagEntity().buildAll(e.tags ?? {}))
+  tags: TagEntity[] = [];
 
   _avatar(prefix?: string) {
     if (this.thumbnail?.file) return this.thumbnail._url() + `?r=${prefix}`;

@@ -2,6 +2,7 @@ import { faFile } from '@fortawesome/free-regular-svg-icons';
 import {
   faArrowUpRightFromSquare,
   faEllipsisVertical,
+  faHashtag,
   faMagnifyingGlass,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -30,6 +31,7 @@ import NoData from '../../../components/Container/NoData';
 import { useEffect, useRef } from 'react';
 import AdminLayout from '../../../components/Container/Layout/AdminLayout';
 import CustomProjectStatusPreview from '../../../components/Form/Custom/CustomProjectStatusPreview';
+import TooltipFormPreview from '../../../components/Form/Previews/TooltipFormPreview';
 
 export default function () {
   const router = useRouter();
@@ -122,10 +124,6 @@ export default function () {
             }}
             onChange={(action) => {
               switch (action) {
-                case 'create':
-                  // prettier-ignore
-                  return router.push({ pathname: `${router.route}/create` });
-
                 case 'delete':
                   return dispatch(AdminProjectsStore.actions.initTrash());
               }
@@ -256,6 +254,21 @@ export default function () {
                   icon={faArrowUpRightFromSquare}
                 />
                 {project.links.length}
+              </div>
+              <div className="group flex items-center ml-3 text-gray-600 cursor-pointer">
+                <FontAwesomeIcon
+                  className="text-gray-400 mr-1 pb-0.5"
+                  icon={faHashtag}
+                />
+                {project.tags.length}
+                <TooltipFormPreview
+                  value={project.tags.map((e) => e.name).join()}
+                  setOptions={{
+                    color: 'bg-gray-600 text-white',
+                    rounded: 'rounded-lg',
+                    margin: 'mt-14',
+                  }}
+                />
               </div>
             </div>
           ),

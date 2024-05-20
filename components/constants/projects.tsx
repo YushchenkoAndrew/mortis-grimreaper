@@ -21,7 +21,7 @@ export const PROJECT_HANDLEBAR_SHORTCUTS = {
 };
 
 export const PROJECTS_ACTIONS = {
-  create: 'New Project',
+  // create: 'New Project',
   delete: 'Delete Projects',
 };
 

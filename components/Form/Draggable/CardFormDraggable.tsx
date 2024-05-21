@@ -115,28 +115,6 @@ export default memo(function CardFormGraggable<
       onDragCancel={(event) => props.onDragCancel?.(event)}
       collisionDetection={closestCenter}
     >
-      {/* <TableFormElement
-        className={props.className}
-        columns={props.columns}
-        data={props.data}
-        setOptions={{ dataPadding: 'pr-6' }}
-        bodyComponent={(children, data) => (
-          <SortableContext items={data} strategy={verticalListSortingStrategy}>
-            {children}
-          </SortableContext>
-        )}
-        rowComponent={(props, row) => (
-          <RowComponent key={row.id} {...props} row={row} />
-        )}
-        firstComponent={(row) =>
-          props.firstComponent?.({
-            row,
-            children: <FirstComponent row={row} />,
-          }) ?? <FirstComponent row={row} />
-        }
-        dataComponent={props.dataComponent}
-      /> */}
-
       <VirtuosoGrid
         data={props.data}
         className={props.className}

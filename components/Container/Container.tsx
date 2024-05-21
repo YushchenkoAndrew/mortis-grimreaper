@@ -5,13 +5,18 @@ export interface ContainerProps {
   Sidebar?: ReactNode;
   Breadcrumbs?: ReactNode;
 
+  background?: string;
   children?: ReactNode;
   className?: string;
 }
 
 export default function Container(props: ContainerProps) {
   return (
-    <div className="flex flex-col min-h-screen overflow-hidden">
+    <div
+      className={`flex flex-col min-h-screen overflow-hidden ${
+        props.background ?? ''
+      }`}
+    >
       {props.Navbar}
 
       <div className="flex">

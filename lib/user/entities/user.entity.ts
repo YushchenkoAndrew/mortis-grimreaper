@@ -10,6 +10,6 @@ export class UserEntity extends IdEntity {
     this.assign(init, this);
   }
 
-  @Column((e) => new OrganizationEntity().build(e.organization ?? {}))
+  @Column((e) => new OrganizationEntity().build(e.organization ?? null))
   organization: OrganizationEntity = null;
 }

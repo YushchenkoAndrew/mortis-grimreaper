@@ -15,7 +15,6 @@ import {
 } from '../../../components/constants/projects';
 import MenuFormElement from '../../../components/Form/Elements/MenuFormElement';
 import NextFormElement from '../../../components/Form/Elements/NextFormElement';
-import { StringService } from '../../../lib/common';
 import { ErrorService } from '../../../lib/common/error.service';
 import { useAppDispatch, useAppSelector } from '../../../lib/common/store';
 import { AdminProjectPageEntity } from '../../../lib/project/entities/admin-project-page.entity';
@@ -25,17 +24,20 @@ import { options } from '../../api/admin/auth/[...nextauth]';
 import CardFormGraggable from '../../../components/Form/Draggable/CardFormDraggable';
 import { arrayMove } from '@dnd-kit/sortable';
 import { PositionEntity } from '../../../lib/common/entities/position.entity';
-import { ProjectStatusEnum } from '../../../lib/project/types/project-status.enum';
 import InputFormElement from '../../../components/Form/Elements/InputFormElement';
 import NoData from '../../../components/Container/NoData';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import AdminLayout from '../../../components/Container/Layout/AdminLayout';
 import CustomProjectStatusPreview from '../../../components/Form/Custom/CustomProjectStatusPreview';
 import TooltipFormPreview from '../../../components/Form/Previews/TooltipFormPreview';
+import PopupFormElement from '../../../components/Form/Elements/PopupFormElement';
+import ProjectFormCreatePage from '../../../components/Form/Page/ProjectFormCreatePage';
+import { AdminProjectFormStore } from '../../../lib/project/stores/admin-project-form.store';
 
 export default function () {
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const form = useAppSelector((state) => state.admin.project.form);
   const projects = useAppSelector((state) => state.admin.projects);
   const className =
     'max-w-96 md:max-w-[calc(49.5rem)] lg:max-w-[calc(74rem)] 2xl:max-w-[calc(99rem)]';
@@ -86,11 +88,37 @@ export default function () {
           />
         </div>
         <div className="flex ml-auto mr-2">
+          <PopupFormElement
+            open={!!form.id}
+            onClose={() => dispatch(AdminProjectFormStore.actions.reset())}
+            setOptions={{ panelSize: 'sm:w-full sm:max-w-4xl' }}
+          >
+            <div className="flex text-sm font-medium text-gray-800 bg-gray-100 px-4 py-3 border-b border-gray-300">
+              Create project details
+            </div>
+
+            <ProjectFormCreatePage
+              className="flex flex-col mx-5 mb-3"
+              onSubmit={() =>
+                ErrorService.envelop(async () => {
+                  const copy = { ...form, id: null };
+                  const project = await dispatch(AdminProjectEntity.self.save.thunk(copy)).unwrap(); // prettier-ignore
+                  dispatch(AdminProjectFormStore.actions.reset());
+
+                  router.push({
+                    pathname: `${router.route}/[id]`,
+                    query: { id: project.id },
+                  });
+                })
+              }
+            />
+          </PopupFormElement>
+
           <NextFormElement
             className={`${projects.trash ? 'hidden' : ''} mr-3`}
             setOptions={{ buttonPadding: 'py-1.5 px-3' }}
             next="New Project"
-            onNext={() => router.push({ pathname: `${router.route}/create` })}
+            onNext={() => dispatch(AdminProjectFormStore.actions.setId('null'))}
           />
 
           <NextFormElement
@@ -171,7 +199,7 @@ export default function () {
             dispatch(
               AdminProjectsStore.actions.onReorder(
                 arrayMove(
-                  projects.result.concat() as any,
+                  projects.result.map((e) => new AdminProjectEntity(e as any)),
                   projects.result.findIndex((e) => e.id == active.id),
                   projects.result.findIndex((e) => e.id == over.id),
                 ),

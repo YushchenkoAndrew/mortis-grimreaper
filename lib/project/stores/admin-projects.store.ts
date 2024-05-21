@@ -21,9 +21,6 @@ export const AdminProjectsStore = createSlice({
     picked: null,
   } as StoreT,
   reducers: {
-    nextPage: (state) => {
-      state.page = state.page + 1;
-    },
     setQuery: (state, action: PayloadAction<string>) => {
       state.page = 1;
       state.query = action.payload || '';

@@ -11,6 +11,7 @@ import { AdminProjectStore } from '../project/stores/admin-project.store';
 import { AdminAttachmentStore } from '../attachment/stores/admin-attachment.store';
 import { ProjectsStore } from '../project/stores/projects.store';
 import { AdminProjectsStore } from '../project/stores/admin-projects.store';
+import { AdminDashboardStore } from '../dashboard/stores/admin-dashboard.store';
 
 export const store = () => {
   return configureStore({
@@ -23,6 +24,9 @@ export const store = () => {
         project: combineReducers({
           index: AdminProjectStore.reducer,
           form: AdminProjectFormStore.reducer,
+        }),
+        dashboard: combineReducers({
+          index: AdminDashboardStore.reducer,
         }),
       }),
     },

@@ -9,6 +9,7 @@ import Container from '../Container';
 export interface AdminLayoutProps {
   title: string;
 
+  background?: string;
   className?: string;
   children?: ReactNode;
   Sidebar?: ReactNode;
@@ -23,12 +24,14 @@ export default function AdminLayout(props: AdminLayoutProps) {
         className={
           props.className ?? 'overflow-y-hidden w-full h-[calc(100vh-4rem)]'
         }
+        background={props.background}
         Sidebar={props.Sidebar}
         Navbar={
           <Navbar
             Item={NavbarItem}
             navigation={[
               { name: 'Home', href: '/admin' },
+              { name: 'Dashboard', href: '/admin/dashboard' },
               { name: 'Projects', href: '/admin/projects' },
               { name: 'Logout', href: '/admin/logout' },
             ]}

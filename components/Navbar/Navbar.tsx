@@ -17,7 +17,7 @@ export interface NavbarProps {
 export default function Navbar({ Item, ...props }: NavbarProps) {
   const pathname = usePathname();
   return (
-    <Disclosure as="nav" className="bg-gray-800">
+    <Disclosure as="nav" className="bg-gray-900">
       {({ open }) => (
         <>
           <div className="px-4 sm:px-6 lg:px-8">
@@ -36,12 +36,12 @@ export default function Navbar({ Item, ...props }: NavbarProps) {
                   </div>
                 </div>
               </div>
-              <div className="hidden md:flex relative max-w-xs items-center rounded-full bg-gray-800 text-sm outline-none ring-1 ring-gray-600 ring-offset-2 ring-offset-gray-800">
+              <div className="hidden md:flex relative max-w-xs items-center rounded-full bg-gray-900 text-sm outline-none ring-1 ring-gray-600 ring-offset-2 ring-offset-gray-800">
                 {props.avatar && <Avatar {...props.avatar} />}
               </div>
               <div className="-mr-2 flex md:hidden">
                 {/* Mobile menu button */}
-                <Disclosure.Button className="relative inline-flex items-center justify-center rounded-md bg-gray-700 p-2 text-gray-400 ring-1 ring-gray-600">
+                <Disclosure.Button className="relative inline-flex items-center justify-center rounded-md bg-gray-800 p-2 text-gray-400 ring-1 ring-gray-700">
                   <FontAwesomeIcon
                     icon={faEllipsis}
                     className="block h-6 w-6"

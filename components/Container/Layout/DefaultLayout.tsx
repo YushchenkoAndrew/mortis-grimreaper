@@ -15,7 +15,7 @@ export interface DefaultLayoutProps {
 export default function DefaultLayout(props: DefaultLayoutProps) {
   return (
     <>
-      <Header title="Mortis Projects" fonts={[PUBLIC_FONT_4BITFONT]}></Header>
+      <Header title={props.title} fonts={[PUBLIC_FONT_4BITFONT]}></Header>
 
       <Container
         className={
@@ -26,7 +26,7 @@ export default function DefaultLayout(props: DefaultLayoutProps) {
             Item={GlitchItem}
             navigation={[
               { name: 'about_me', href: '/' },
-              { name: 'working_on', href: '/board' },
+              { name: 'working_on', href: '/dashboard' },
               { name: 'art', href: '/art' },
               { name: 'programming', href: '/projects' },
               { name: 'contact_me', href: '/contacts' },

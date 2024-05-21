@@ -5,6 +5,7 @@ import { AdminTagEntity } from '../../tag/entities/admin-tag.entity';
 import { TagEntity } from '../../tag/entities/tag.entity';
 import { TagTaggableTypeEnum } from '../../tag/types/tag-taggable-type.enum';
 import { AdminProjectEntity } from '../entities/admin-project.entity';
+import { ProjectStatusEnum } from '../types/project-status.enum';
 import { ProjectTypeEnum } from '../types/project-type.enum';
 
 type StoreT = AdminProjectEntity & {
@@ -58,6 +59,14 @@ export const AdminProjectFormStore = createSlice({
     },
     reset: (state) => {
       state.id = null;
+      state.name = '';
+      state.status = ProjectStatusEnum.active;
+      state.type = ProjectTypeEnum.p5js;
+      state.footer = '';
+      state.description = '';
+    },
+    setId: (state, action: PayloadAction<string>) => {
+      state.id = action.payload || null;
     },
     setType: (state, action: PayloadAction<ProjectTypeEnum>) => {
       state.type = action.payload;

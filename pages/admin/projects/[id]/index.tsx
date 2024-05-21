@@ -30,8 +30,7 @@ import TopicFormPreview from '../../../../components/Form/Previews/TopicFormPrev
 import AdminLayout from '../../../../components/Container/Layout/AdminLayout';
 import CustomProjectMenuElement from '../../../../components/Form/Custom/CustomProjectMenuElement';
 import { ProjectService } from '../../../../lib/project/project.service';
-import ProjectFormPage from '../../../../components/Form/Page/ProjectFormPage';
-import NextFormElement from '../../../../components/Form/Elements/NextFormElement';
+import ProjectFormUpdatePage from '../../../../components/Form/Page/ProjectFormUpdatePage';
 import { AdminProjectFormStore } from '../../../../lib/project/stores/admin-project-form.store';
 import CustomYesNoPopupElement from '../../../../components/Form/Custom/CustomYesNoPopupElement';
 import CustomProjectStatusPreview from '../../../../components/Form/Custom/CustomProjectStatusPreview';
@@ -62,33 +61,6 @@ export default function (props: PropsT) {
       dispatch(AdminProjectStore.actions.setHtml(preview));
     });
   }, []);
-
-  const save = () => {
-    ErrorService.envelop(async () => {
-      await dispatch(AdminProjectEntity.self.save.thunk(form)).unwrap(); // prettier-ignore
-
-      for (const tag of form.del_tags) {
-        await AdminTagEntity.self.delete.exec(tag.id); // prettier-ignore
-      }
-
-      for (const tag of form.tags) {
-        if (tag.id) continue;
-        await AdminTagEntity.self.save.build(tag); // prettier-ignore
-      }
-
-      for (const link of form.del_links) {
-        await AdminLinkEntity.self.delete.exec(link.id); // prettier-ignore
-      }
-
-      for (const link of form.new_links) {
-        if (!link.name) continue;
-        await AdminLinkEntity.self.save.build(link); // prettier-ignore
-      }
-
-      await dispatch(AdminProjectEntity.self.load.thunk(project.id)); // prettier-ignore
-      dispatch(AdminProjectFormStore.actions.reset());
-    });
-  };
 
   return (
     <AdminLayout title={project.name} className="">
@@ -238,24 +210,35 @@ export default function (props: PropsT) {
               Update project details
             </div>
 
-            <ProjectFormPage
+            <ProjectFormUpdatePage
               className="flex flex-col mx-5 mb-3"
-              onSubmit={() => save()}
-            />
+              onSubmit={() =>
+                ErrorService.envelop(async () => {
+                  await dispatch(AdminProjectEntity.self.save.thunk(form)).unwrap(); // prettier-ignore
 
-            <div className="flex w-full">
-              <NextFormElement
-                className="ml-auto mr-4 my-3"
-                next="Save changes"
-                back="Cancel"
-                onNext={() => save()}
-                onBack={() => dispatch(AdminProjectFormStore.actions.reset())}
-                setOptions={{
-                  buttonPadding: 'py-1.5 px-4',
-                  nextButtonColor: 'text-white bg-green-600 hover:bg-green-700',
-                }}
-              />
-            </div>
+                  for (const tag of form.del_tags) {
+                    await AdminTagEntity.self.delete.exec(tag.id); // prettier-ignore
+                  }
+
+                  for (const tag of form.tags) {
+                    if (tag.id) continue;
+                    await AdminTagEntity.self.save.build(tag); // prettier-ignore
+                  }
+
+                  for (const link of form.del_links) {
+                    await AdminLinkEntity.self.delete.exec(link.id); // prettier-ignore
+                  }
+
+                  for (const link of form.new_links) {
+                    if (!link.name) continue;
+                    await AdminLinkEntity.self.save.build(link); // prettier-ignore
+                  }
+
+                  await dispatch(AdminProjectEntity.self.load.thunk(project.id)); // prettier-ignore
+                  dispatch(AdminProjectFormStore.actions.reset());
+                })
+              }
+            />
           </PopupFormElement>
 
           <div className="flex flex-col ml-5 max-w-60 w-full">

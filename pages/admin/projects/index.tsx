@@ -1,18 +1,12 @@
-import { faFile } from '@fortawesome/free-regular-svg-icons';
 import {
-  faArrowUpRightFromSquare,
   faEllipsisVertical,
-  faHashtag,
   faMagnifyingGlass,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { GetServerSidePropsContext } from 'next';
 import { getServerSession } from 'next-auth';
 import { useRouter } from 'next/router';
-import {
-  ProjectCircle,
-  PROJECTS_ACTIONS,
-} from '../../../components/constants/projects';
+import { PROJECTS_ACTIONS } from '../../../components/constants/projects';
 import MenuFormElement from '../../../components/Form/Elements/MenuFormElement';
 import NextFormElement from '../../../components/Form/Elements/NextFormElement';
 import { ErrorService } from '../../../lib/common/error.service';
@@ -21,29 +15,28 @@ import { AdminProjectPageEntity } from '../../../lib/project/entities/admin-proj
 import { AdminProjectEntity } from '../../../lib/project/entities/admin-project.entity';
 import { AdminProjectsStore } from '../../../lib/project/stores/admin-projects.store';
 import { options } from '../../api/admin/auth/[...nextauth]';
-import CardFormGraggable from '../../../components/Form/Draggable/CardFormDraggable';
-import { arrayMove } from '@dnd-kit/sortable';
-import { PositionEntity } from '../../../lib/common/entities/position.entity';
 import InputFormElement from '../../../components/Form/Elements/InputFormElement';
 import NoData from '../../../components/Container/NoData';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import AdminLayout from '../../../components/Container/Layout/AdminLayout';
-import CustomProjectStatusPreview from '../../../components/Form/Custom/CustomProjectStatusPreview';
-import TooltipFormPreview from '../../../components/Form/Previews/TooltipFormPreview';
 import PopupFormElement from '../../../components/Form/Elements/PopupFormElement';
 import ProjectFormCreatePage from '../../../components/Form/Page/ProjectFormCreatePage';
 import { AdminProjectFormStore } from '../../../lib/project/stores/admin-project-form.store';
+import ProjectCardSortable from '../../../components/Form/Sortable/ProjectCardSortable';
+import CustomProjectDraggable from '../../../components/Form/Custom/Draggable/CustomProjectDraggable';
 
 export default function () {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const form = useAppSelector((state) => state.admin.project.form);
-  const projects = useAppSelector((state) => state.admin.projects);
+  const [query, setQuery] = useState('');
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  const trash = useAppSelector((state) => state.admin.projects.trash);
+  const new_project = useAppSelector((state) => state.admin.project.form.id);
+  const total = useAppSelector((state) => state.admin.projects.total);
+
   const className =
     'max-w-96 md:max-w-[calc(49.5rem)] lg:max-w-[calc(74rem)] 2xl:max-w-[calc(99rem)]';
-
-  const lock = useRef(false);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const autofocus = () => inputRef.current.focus();
@@ -55,13 +48,13 @@ export default function () {
   useEffect(() => {
     const delay = setTimeout(() => {
       ErrorService.envelop(async () => {
-        const page = await AdminProjectPageEntity.self.select.build({ page: 1, query: projects.query }); // prettier-ignore
-        dispatch(AdminProjectsStore.actions.search(page as any));
-      }).finally(() => (lock.current = false));
-    }, 500);
+        const page = await AdminProjectPageEntity.self.select.build({ page: 1, query }); // prettier-ignore
+        dispatch(AdminProjectsStore.actions.search([query, page]));
+      });
+    }, 300);
 
     return () => clearTimeout(delay);
-  }, [projects.query]);
+  }, [query]);
 
   return (
     <AdminLayout title="Admin Projects">
@@ -70,9 +63,9 @@ export default function () {
           <InputFormElement
             ref={inputRef}
             className="w-full"
-            value={projects.query}
+            value={query}
             placeholder="Search..."
-            onChange={(v) => dispatch(AdminProjectsStore.actions.setQuery(v))}
+            onChange={(v) => setQuery(v)}
             setOptions={{
               inputFocus:
                 'bg-gray-100 focus:bg-white focus:ring-inset ring-gray-400',
@@ -89,7 +82,7 @@ export default function () {
         </div>
         <div className="flex ml-auto mr-2">
           <PopupFormElement
-            open={!!form.id}
+            open={!!new_project}
             onClose={() => dispatch(AdminProjectFormStore.actions.reset())}
             setOptions={{ panelSize: 'sm:w-full sm:max-w-4xl' }}
           >
@@ -97,38 +90,24 @@ export default function () {
               Create project details
             </div>
 
-            <ProjectFormCreatePage
-              className="flex flex-col mx-5 mb-3"
-              onSubmit={() =>
-                ErrorService.envelop(async () => {
-                  const copy = { ...form, id: null };
-                  const project = await dispatch(AdminProjectEntity.self.save.thunk(copy)).unwrap(); // prettier-ignore
-                  dispatch(AdminProjectFormStore.actions.reset());
-
-                  router.push({
-                    pathname: `${router.route}/[id]`,
-                    query: { id: project.id },
-                  });
-                })
-              }
-            />
+            <ProjectFormCreatePage className="flex flex-col mx-5 mb-3" />
           </PopupFormElement>
 
           <NextFormElement
-            className={`${projects.trash ? 'hidden' : ''} mr-3`}
+            className={`${trash ? 'hidden' : ''} mr-3`}
             setOptions={{ buttonPadding: 'py-1.5 px-3' }}
             next="New Project"
             onNext={() => dispatch(AdminProjectFormStore.actions.setId('null'))}
           />
 
           <NextFormElement
-            className={`${projects.trash ? '' : 'hidden'} mr-2`}
+            className={`${trash ? '' : 'hidden'} mr-2`}
             setOptions={{ buttonPadding: 'py-1.5 px-3' }}
             next="Delete projects..."
             onNext={() =>
               ErrorService.envelop(async () => {
-                if (!projects.trash) return;
-                for (const id in projects.trash) {
+                if (!trash) return;
+                for (const id in trash) {
                   await AdminProjectEntity.self.delete.exec(id);
                 }
 
@@ -139,7 +118,7 @@ export default function () {
           />
 
           <MenuFormElement
-            disabled={!!projects.trash}
+            disabled={!!trash}
             name={<FontAwesomeIcon icon={faEllipsisVertical} />}
             className="mr-3"
             actions={PROJECTS_ACTIONS}
@@ -162,146 +141,12 @@ export default function () {
 
       <NoData
         className={`h-[calc(100vh-9rem)] ${className} ${
-          projects.result?.length ? 'hidden' : 'block'
+          total ? 'hidden' : 'block'
         }`}
         title="No projects found"
       />
-      <CardFormGraggable
-        className={`overflow-x-hidden w-auto h-[calc(100vh-8rem)] ${
-          projects.result?.length ? 'block' : 'hidden'
-        }`}
-        atBottomStateChange={() =>
-          ErrorService.envelop(async () => {
-            if (projects.result.length >= projects.total) return;
-            dispatch(
-              AdminProjectPageEntity.self.select.thunk({
-                query: projects.query || null,
-                page: projects.page + 1,
-              }),
-            ).unwrap();
-          })
-        }
-        graggable={!projects.query}
-        data={projects.result}
-        picked={projects.picked}
-        onDragStart={(e) =>
-          dispatch(AdminProjectsStore.actions.onPick(e.active.id as string))
-        }
-        onDragEnd={({ active, over }) =>
-          ErrorService.envelop(async () => {
-            const position =
-              projects.result.find((e) => e.id == over?.id)?.order ?? null;
 
-            if (!over?.id || position === null) {
-              return dispatch(AdminProjectsStore.actions.onDrop());
-            }
-
-            dispatch(
-              AdminProjectsStore.actions.onReorder(
-                arrayMove(
-                  projects.result.map((e) => new AdminProjectEntity(e as any)),
-                  projects.result.findIndex((e) => e.id == active.id),
-                  projects.result.findIndex((e) => e.id == over.id),
-                ),
-              ),
-            );
-
-            await AdminProjectEntity.self.save.build(
-              new PositionEntity({ position }),
-              {
-                method: 'PUT',
-                route: `admin/projects/${active.id}/order`,
-              },
-            );
-
-            const saved = await Promise.all<any>(
-              Array(projects.page)
-                .fill(0)
-                .map((_, index) =>
-                  AdminProjectPageEntity.self.select.build({
-                    query: projects.query || null,
-                    page: index + 1,
-                  }),
-                ),
-            );
-
-            dispatch(AdminProjectsStore.actions.onReorderSaved(saved));
-          })
-        }
-        onDragCancel={() => dispatch(AdminProjectsStore.actions.onDrop())}
-        setOptions={{
-          listClassName:
-            'mx-auto grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 max-w-96 md:max-w-[calc(49.5rem)] lg:max-w-[calc(74rem)] 2xl:max-w-[calc(99rem)]',
-          itemClassName: 'pr-3 pb-3',
-        }}
-        cardComponent={{
-          className: (project) => {
-            if (!projects.trash) return '';
-            return projects.trash[project.id]
-              ? 'cursor-pointer line-through'
-              : 'cursor-pointer';
-          },
-          name: (project) => project.name,
-          description: (project) => project.description,
-          img: (project) => project._avatar(),
-          href: (project) => ({
-            pathname: `${router.route}/[id]`,
-            query: { id: project.id },
-          }),
-          headerComponent: (project) => (
-            <CustomProjectStatusPreview
-              project={project as any}
-              onChange={(e) => dispatch(AdminProjectsStore.actions.replace(e))}
-            />
-          ),
-          onClick: (project) => () => {
-            if (!projects.trash) return;
-            dispatch(AdminProjectsStore.actions.pushTrash(project as any));
-          },
-          // onFile: (project) => (file) => {
-          //   ErrorService.envelop(async () => {
-          //     await AttachmentService.thumbnail(file);
-          //   });
-          // },
-          contextComponent: (project) => (
-            <div className="flex text-sm items-center mt-1">
-              <div className="flex items-center">
-                <ProjectCircle type={project.type} />
-                {project.type}
-              </div>
-              <div className="flex items-center ml-3 text-gray-600">
-                <FontAwesomeIcon
-                  className="text-gray-400 mr-1 pb-0.5"
-                  icon={faFile}
-                />
-                {project.attachments.length}
-              </div>
-              <div className="flex items-center ml-3 text-gray-600">
-                <FontAwesomeIcon
-                  className="text-gray-400 mr-1 pb-0.5"
-                  icon={faArrowUpRightFromSquare}
-                />
-                {project.links.length}
-              </div>
-              <div className="group flex items-center ml-3 text-gray-600 cursor-pointer">
-                <FontAwesomeIcon
-                  className="text-gray-400 mr-1 pb-0.5"
-                  icon={faHashtag}
-                />
-                {project.tags.length}
-                <TooltipFormPreview
-                  value={project.tags.map((e) => e.name).join()}
-                  setOptions={{
-                    color: 'bg-gray-600 text-white',
-                    rounded: 'rounded-lg',
-                    margin: 'mt-14',
-                  }}
-                />
-              </div>
-            </div>
-          ),
-        }}
-      />
+      <CustomProjectDraggable CardComponent={ProjectCardSortable} />
     </AdminLayout>
   );
 }

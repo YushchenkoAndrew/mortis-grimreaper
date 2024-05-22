@@ -1,7 +1,10 @@
-import { useRouter } from 'next/router';
-import { Dispatch, KeyboardEvent } from 'react';
+import { KeyboardEvent, useCallback } from 'react';
+import { ErrorService } from '../../../lib/common/error.service';
 import { useAppDispatch, useAppSelector } from '../../../lib/common/store';
+import { AdminLinkEntity } from '../../../lib/link/entities/admin-link.entity';
+import { AdminProjectEntity } from '../../../lib/project/entities/admin-project.entity';
 import { AdminProjectFormStore } from '../../../lib/project/stores/admin-project-form.store';
+import { AdminTagEntity } from '../../../lib/tag/entities/admin-tag.entity';
 import InputFormElement from '../Elements/InputFormElement';
 import InputListFormElement from '../Elements/InputListFormElement';
 import KeyValueFormElement from '../Elements/KeyValueFormElement';
@@ -10,7 +13,6 @@ import TextareaFormElement from '../Elements/TextareaFormElement';
 
 export interface ProjectFormPageUpdateProps {
   className?: string;
-  onSubmit?: Dispatch<void>;
 }
 
 export default function ProjectFormUpdatePage(
@@ -19,8 +21,34 @@ export default function ProjectFormUpdatePage(
   const dispatch = useAppDispatch();
   const form = useAppSelector((state) => state.admin.project.form);
 
-  const onKeyDown = (e: KeyboardEvent<any>) =>
-    e.key == 'Enter' && props.onSubmit?.();
+  const onSubmit = useCallback(() => {
+    ErrorService.envelop(async () => {
+      await dispatch(AdminProjectEntity.self.save.thunk(form)).unwrap(); // prettier-ignore
+
+      for (const tag of form.del_tags) {
+        await AdminTagEntity.self.delete.exec(tag.id); // prettier-ignore
+      }
+
+      for (const tag of form.tags) {
+        if (tag.id) continue;
+        await AdminTagEntity.self.save.build(tag); // prettier-ignore
+      }
+
+      for (const link of form.del_links) {
+        await AdminLinkEntity.self.delete.exec(link.id); // prettier-ignore
+      }
+
+      for (const link of form.new_links) {
+        if (!link.name) continue;
+        await AdminLinkEntity.self.save.build(link); // prettier-ignore
+      }
+
+      await dispatch(AdminProjectEntity.self.load.thunk(form.id)); // prettier-ignore
+      dispatch(AdminProjectFormStore.actions.reset());
+    });
+  }, [form]);
+
+  const onKeyDown = (e: KeyboardEvent<any>) => e.key == 'Enter' && onSubmit();
 
   return (
     <>
@@ -115,7 +143,7 @@ export default function ProjectFormUpdatePage(
           className="ml-auto mr-4 my-3"
           next="Save changes"
           back="Cancel"
-          onNext={() => props.onSubmit?.()}
+          onNext={() => onSubmit()}
           onBack={() => dispatch(AdminProjectFormStore.actions.reset())}
           setOptions={{
             buttonPadding: 'py-1.5 px-4',

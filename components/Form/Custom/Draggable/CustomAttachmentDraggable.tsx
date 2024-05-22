@@ -1,29 +1,29 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFile } from '@fortawesome/free-regular-svg-icons';
 import { faFolder } from '@fortawesome/free-solid-svg-icons';
-import { AttachmentService } from '../../../lib/attachment/attachment.service';
-import { AdminAttachmentEntity } from '../../../lib/attachment/entities/admin-attachment.entity';
-import { PositionEntity } from '../../../lib/common/entities/position.entity';
-import { ErrorService } from '../../../lib/common/error.service';
-import { AdminProjectEntity } from '../../../lib/project/entities/admin-project.entity';
-import { AdminProjectStore } from '../../../lib/project/stores/admin-project.store';
-import TableFormGraggable from '../Draggable/TableFormDraggable';
-import TooltipFormPreview from '../Previews/TooltipFormPreview';
+import { AttachmentService } from '../../../../lib/attachment/attachment.service';
+import { AdminAttachmentEntity } from '../../../../lib/attachment/entities/admin-attachment.entity';
+import { PositionEntity } from '../../../../lib/common/entities/position.entity';
+import { ErrorService } from '../../../../lib/common/error.service';
+import { AdminProjectEntity } from '../../../../lib/project/entities/admin-project.entity';
+import { AdminProjectStore } from '../../../../lib/project/stores/admin-project.store';
+import TableFormGraggable from '../../Draggable/TableFormDraggable';
+import TooltipFormPreview from '../../Previews/TooltipFormPreview';
 import moment from 'moment';
 import { useRouter } from 'next/router';
-import { useAppDispatch, useAppSelector } from '../../../lib/common/store';
+import { useAppDispatch, useAppSelector } from '../../../../lib/common/store';
 import { arrayMove } from '@dnd-kit/sortable';
 import { useMemo } from 'react';
-import NoData from '../../Container/NoData';
+import NoData from '../../../Container/NoData';
 
-export interface CustomAttachmentGraggableProps {
+export interface CustomAttachmentDraggableProps {
   pathname: string;
   className?: string;
   hidden?: boolean;
 }
 
-export default function CustomAttachmentGraggable(
-  props: CustomAttachmentGraggableProps,
+export default function CustomAttachmentDraggable(
+  props: CustomAttachmentDraggableProps,
 ) {
   const router = useRouter();
   const dispatch = useAppDispatch();

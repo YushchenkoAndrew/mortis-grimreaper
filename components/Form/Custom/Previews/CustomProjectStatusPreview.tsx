@@ -1,8 +1,8 @@
 import { Dispatch } from 'react';
-import { StringService } from '../../../lib/common';
-import { ErrorService } from '../../../lib/common/error.service';
-import { AdminProjectEntity } from '../../../lib/project/entities/admin-project.entity';
-import { ProjectStatusEnum } from '../../../lib/project/types/project-status.enum';
+import { StringService } from '../../../../lib/common';
+import { ErrorService } from '../../../../lib/common/error.service';
+import { AdminProjectEntity } from '../../../../lib/project/entities/admin-project.entity';
+import { ProjectStatusEnum } from '../../../../lib/project/types/project-status.enum';
 
 export interface CustomProjectStatusPreviewProps {
   project: AdminProjectEntity;

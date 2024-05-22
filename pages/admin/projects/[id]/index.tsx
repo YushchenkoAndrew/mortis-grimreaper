@@ -25,17 +25,15 @@ import { RenderHtml } from '../../../../components/dynamic';
 import ImgFormElement from '../../../../components/Form/Elements/ImgFormElement';
 import TooltipFormPreview from '../../../../components/Form/Previews/TooltipFormPreview';
 import PopupFormElement from '../../../../components/Form/Elements/PopupFormElement';
-import CustomAttachmentGraggable from '../../../../components/Form/Custom/CustomAttachmentGraggable';
+import CustomAttachmentDraggable from '../../../../components/Form/Custom/Draggable/CustomAttachmentDraggable';
 import TopicFormPreview from '../../../../components/Form/Previews/TopicFormPreview';
 import AdminLayout from '../../../../components/Container/Layout/AdminLayout';
-import CustomProjectMenuElement from '../../../../components/Form/Custom/CustomProjectMenuElement';
+import CustomProjectMenuElement from '../../../../components/Form/Custom/Elements/CustomProjectMenuElement';
 import { ProjectService } from '../../../../lib/project/project.service';
 import ProjectFormUpdatePage from '../../../../components/Form/Page/ProjectFormUpdatePage';
 import { AdminProjectFormStore } from '../../../../lib/project/stores/admin-project-form.store';
-import CustomYesNoPopupElement from '../../../../components/Form/Custom/CustomYesNoPopupElement';
-import CustomProjectStatusPreview from '../../../../components/Form/Custom/CustomProjectStatusPreview';
-import { AdminLinkEntity } from '../../../../lib/link/entities/admin-link.entity';
-import { AdminTagEntity } from '../../../../lib/tag/entities/admin-tag.entity';
+import CustomYesNoPopupElement from '../../../../components/Form/Custom/Elements/CustomYesNoPopupElement';
+import CustomProjectStatusPreview from '../../../../components/Form/Custom/Previews/CustomProjectStatusPreview';
 
 interface PropsT {
   project: AdminProjectEntity;
@@ -44,8 +42,8 @@ interface PropsT {
 export default function (props: PropsT) {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const form = useAppSelector((state) => state.admin.project.form);
   const project = useAppSelector((state) => state.admin.project.index);
+  const project_update = useAppSelector((state) => state.admin.project.form.id);
 
   const [deletePanel, openDeletePanel] = useState(false);
 
@@ -174,7 +172,7 @@ export default function (props: PropsT) {
               />
             </div>
 
-            <CustomAttachmentGraggable
+            <CustomAttachmentDraggable
               pathname={`${router.route}/tree/[...path]`}
             />
 
@@ -200,7 +198,7 @@ export default function (props: PropsT) {
           </div>
 
           <PopupFormElement
-            open={!!form.id}
+            open={!!project_update}
             onClose={() => dispatch(AdminProjectFormStore.actions.reset())}
             setOptions={{
               panelSize: 'sm:w-full sm:max-w-3xl',
@@ -210,35 +208,7 @@ export default function (props: PropsT) {
               Update project details
             </div>
 
-            <ProjectFormUpdatePage
-              className="flex flex-col mx-5 mb-3"
-              onSubmit={() =>
-                ErrorService.envelop(async () => {
-                  await dispatch(AdminProjectEntity.self.save.thunk(form)).unwrap(); // prettier-ignore
-
-                  for (const tag of form.del_tags) {
-                    await AdminTagEntity.self.delete.exec(tag.id); // prettier-ignore
-                  }
-
-                  for (const tag of form.tags) {
-                    if (tag.id) continue;
-                    await AdminTagEntity.self.save.build(tag); // prettier-ignore
-                  }
-
-                  for (const link of form.del_links) {
-                    await AdminLinkEntity.self.delete.exec(link.id); // prettier-ignore
-                  }
-
-                  for (const link of form.new_links) {
-                    if (!link.name) continue;
-                    await AdminLinkEntity.self.save.build(link); // prettier-ignore
-                  }
-
-                  await dispatch(AdminProjectEntity.self.load.thunk(project.id)); // prettier-ignore
-                  dispatch(AdminProjectFormStore.actions.reset());
-                })
-              }
-            />
+            <ProjectFormUpdatePage className="flex flex-col mx-5 mb-3" />
           </PopupFormElement>
 
           <div className="flex flex-col ml-5 max-w-60 w-full">

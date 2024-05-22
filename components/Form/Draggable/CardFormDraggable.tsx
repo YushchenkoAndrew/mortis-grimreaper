@@ -10,20 +10,10 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import {
-  rectSortingStrategy,
-  SortableContext,
-  useSortable,
-} from '@dnd-kit/sortable';
-import { DispatchComponent, ObjectLiteral } from '../../../lib/common/types';
-import { CSS } from '@dnd-kit/utilities';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGripVertical } from '@fortawesome/free-solid-svg-icons';
-import { Dispatch, forwardRef, memo, useEffect, useMemo, useRef } from 'react';
+import { rectSortingStrategy, SortableContext } from '@dnd-kit/sortable';
+import { ObjectLiteral } from '../../../lib/common/types';
+import { ComponentType, Dispatch, forwardRef, memo } from 'react';
 import { VirtuosoGrid, VirtuosoGridHandle } from 'react-virtuoso';
-import CardFormPreview, {
-  CardFormPreviewProps,
-} from '../Previews/CardFormPreview';
 
 type IdEntity = { id: string };
 
@@ -34,77 +24,22 @@ export interface CardFormGraggableProps<T extends ObjectLiteral & IdEntity> {
   onDragCancel?: Dispatch<DragCancelEvent>;
   onDragEnd?: Dispatch<DragEndEvent>;
 
-  picked?: T;
-  graggable?: boolean;
+  picked?: string;
+  // graggable?: boolean;
 
   data: T[];
   atBottomStateChange?: Dispatch<void>;
 
   setOptions?: Partial<{ listClassName: string; itemClassName: string }>;
-  cardComponent: DispatchComponent<
-    Omit<CardFormPreviewProps, 'style' | 'ref'>,
-    T
-  >;
+  CardComponent: ComponentType<{ id: string }>;
 }
 
 export default memo(function CardFormGraggable<
   T extends ObjectLiteral & IdEntity,
->(props: CardFormGraggableProps<T>) {
+>({ CardComponent, ...props }: CardFormGraggableProps<T>) {
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
     useSensor(TouchSensor, {}),
-  );
-
-  const CardComponent = useMemo(
-    () =>
-      ({ data }: { data: T }) => {
-        const { transform, transition, setNodeRef, isDragging } = useSortable({
-          id: data.id,
-        });
-
-        return (
-          <CardFormPreview
-            ref={setNodeRef}
-            style={{ transition, transform: CSS.Transform.toString(transform) }}
-            className={props.cardComponent.className?.(data)}
-            name={props.cardComponent.name(data)}
-            href={props.cardComponent.href(data)}
-            img={props.cardComponent.img(data)}
-            description={props.cardComponent.description?.(data)}
-            headerComponent={<HeaderComponent data={data} />}
-            contextComponent={props.cardComponent.contextComponent?.(data)}
-            onClick={props.cardComponent.onClick?.(data)}
-            onFile={props.cardComponent.onFile?.(data)}
-            setOptions={{ loading: isDragging }}
-          />
-        );
-      },
-    [props.cardComponent],
-  );
-
-  const HeaderComponent = useMemo(
-    () =>
-      ({ data }: { data: T }) => {
-        const { attributes, listeners, isDragging } = useSortable({
-          id: data.id,
-        });
-
-        return (
-          <>
-            {props.cardComponent.headerComponent?.(data)}
-
-            <FontAwesomeIcon
-              {...attributes}
-              {...listeners}
-              icon={faGripVertical}
-              className={`text-gray-400 text-lg ml-auto focus:outline-none ${
-                props.graggable === false ? 'invisible' : ''
-              } ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-            />
-          </>
-        );
-      },
-    [props.graggable],
   );
 
   return (
@@ -124,9 +59,10 @@ export default memo(function CardFormGraggable<
           flag ? props.atBottomStateChange?.() : null
         }
         components={{
-          List: forwardRef(({ children, className, style }, ref) => (
+          List: forwardRef(({ children, className, style, ...rest }, ref) => (
             <div
               ref={ref}
+              {...rest}
               className={`grid ${className || ''} ${
                 props.setOptions?.listClassName || ''
               }`}
@@ -134,9 +70,8 @@ export default memo(function CardFormGraggable<
             >
               <SortableContext
                 items={
-                  (children as any)?.map?.(
-                    (e) => e.props?.children?.props?.data,
-                  ) || []
+                  (children as any)?.map?.((e) => e.props?.children?.props) ||
+                  []
                 }
                 strategy={rectSortingStrategy}
               >
@@ -144,8 +79,10 @@ export default memo(function CardFormGraggable<
               </SortableContext>
             </div>
           )),
-          Item: ({ className, children }: any): any => (
+          Item: ({ className, children, ...rest }: any): any => (
             <div
+              {...rest}
+              key={children?.props?.id}
               className={`${className || ''} ${
                 props.setOptions?.itemClassName || ''
               }`}
@@ -154,26 +91,12 @@ export default memo(function CardFormGraggable<
             </div>
           ),
         }}
-        itemContent={(_, data) => <CardComponent data={data} />}
+        itemContent={(_, data) => <CardComponent id={data.id} />}
         // components={{ Footer }}
       />
 
       <DragOverlay>
-        {props.picked ? (
-          <CardFormPreview
-            href=""
-            className={props.cardComponent.className?.(props.picked)}
-            name={props.cardComponent.name(props.picked)}
-            img={props.cardComponent.img(props.picked)}
-            description={props.cardComponent.description?.(props.picked)}
-            headerComponent={<HeaderComponent data={props.picked} />}
-            contextComponent={props.cardComponent.contextComponent?.(
-              props.picked,
-            )}
-          />
-        ) : (
-          <></>
-        )}
+        {props.picked ? <CardComponent id={props.picked} /> : <></>}
       </DragOverlay>
     </DndContext>
   );

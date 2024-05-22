@@ -1,15 +1,13 @@
 import { AdminAttachmentEntity } from '../attachment/entities/admin-attachment.entity';
+import { AttachmentEntity } from '../attachment/entities/attachment.entity';
 import { AttachmentAttachableTypeEnum } from '../attachment/types/attachment-attachable-type.enum';
+import { DeepEntity } from '../common/types';
 import { RequestTypeEnum } from '../common/types/request-type.enum';
-import { ProjectEntity } from './entities/project.entity';
 
 export class ProjectService {
-  static async saveAttachments(
-    project: ProjectEntity,
-    filepath: string,
-    files: File[],
-    by_name?: boolean,
-  ) {
+  static async saveAttachments<
+    T extends { id: string; attachments: DeepEntity<AttachmentEntity[]> },
+  >(project: T, filepath: string, files: File[], by_name?: boolean) {
     for (const file of files) {
       const name = by_name ? file.name.split('.')[0] : file.name;
       const attachment = project.attachments.find(

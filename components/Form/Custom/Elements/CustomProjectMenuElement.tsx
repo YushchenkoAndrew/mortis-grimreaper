@@ -3,16 +3,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
 import { useRouter } from 'next/router';
 import { useMemo, useRef, useState } from 'react';
-import { AdminAttachmentEntity } from '../../../lib/attachment/entities/admin-attachment.entity';
-import { ErrorService } from '../../../lib/common/error.service';
-import { useAppDispatch, useAppSelector } from '../../../lib/common/store';
-import { AdminProjectEntity } from '../../../lib/project/entities/admin-project.entity';
-import { ProjectService } from '../../../lib/project/project.service';
-import { AdminProjectStore } from '../../../lib/project/stores/admin-project.store';
-import MenuFormElement from '../Elements/MenuFormElement';
-import NextFormElement from '../Elements/NextFormElement';
-import PopupFormElement from '../Elements/PopupFormElement';
-import TableFormElement from '../Elements/TableFormElement';
+import { AdminAttachmentEntity } from '../../../../lib/attachment/entities/admin-attachment.entity';
+import { ErrorService } from '../../../../lib/common/error.service';
+import { useAppDispatch, useAppSelector } from '../../../../lib/common/store';
+import { AdminProjectEntity } from '../../../../lib/project/entities/admin-project.entity';
+import { ProjectService } from '../../../../lib/project/project.service';
+import { AdminProjectStore } from '../../../../lib/project/stores/admin-project.store';
+import MenuFormElement from '../../Elements/MenuFormElement';
+import NextFormElement from '../../Elements/NextFormElement';
+import PopupFormElement from '../../Elements/PopupFormElement';
+import TableFormElement from '../../Elements/TableFormElement';
 import CustomDirectoryInputFormElement from './CustomDirectoryInputFormElement';
 
 export interface CustomProjectMenuElementProps {
@@ -24,7 +24,11 @@ export default function CustomProjectMenuElement(
 ) {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const project = useAppSelector((state) => state.admin.project.index);
+
+  const id = useAppSelector((state) => state.admin.project.index.id);
+  const trash = useAppSelector((state) => state.admin.project.index.trash);
+  const attachments = useAppSelector((state) => state.admin.project.index.attachments); // prettier-ignore
+
   const attachment = useAppSelector((state) => state.admin.attachment);
 
   const [createPanel, openCreatePanel] = useState(false);
@@ -97,7 +101,7 @@ export default function CustomProjectMenuElement(
           noHeader
           className="mb-6 "
           columns={{ name: 'Name', updated_at: 'Last updated' }}
-          data={Object.values(project.trash || {}).filter((e) => e.type)}
+          data={Object.values(trash || {}).filter((e) => e.type)}
           dataComponent={{
             name: (attachment) => (
               <span className="flex h-full whitespace-nowrap text-gray-800">
@@ -121,9 +125,9 @@ export default function CustomProjectMenuElement(
             back="Cancel"
             onNext={() =>
               ErrorService.envelop(async () => {
-                if (!project.trash) return;
+                if (!trash) return;
 
-                for (const id in project.trash) {
+                for (const id in trash) {
                   if (!id) continue;
                   await AdminAttachmentEntity.self.delete.exec(id);
                 }
@@ -153,18 +157,18 @@ export default function CustomProjectMenuElement(
           onChange={(event) => {
             ErrorService.envelop(async () => {
               const files = Array.from(event.target.files);
-              await ProjectService.saveAttachments(project as any, filepath, files); // prettier-ignore
+              await ProjectService.saveAttachments({ id, attachments }, filepath, files); // prettier-ignore
               await dispatch(AdminProjectEntity.self.load.thunk(router.query.id)).unwrap(); // prettier-ignore
             });
           }}
         />
 
-        {!!project.trash ? (
+        {!!trash ? (
           <NextFormElement
             next="Delete files..."
             back="Cancel"
             onNext={() => {
-              if (Object.keys(project.trash).length) openDeletePanel(true);
+              if (Object.keys(trash).length) openDeletePanel(true);
               else dispatch(AdminProjectStore.actions.clearTrash());
             }}
             onBack={() => dispatch(AdminProjectStore.actions.clearTrash())}

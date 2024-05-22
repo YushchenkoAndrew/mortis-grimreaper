@@ -1,8 +1,8 @@
 import { Dispatch, useEffect, useRef, useState } from 'react';
 import { v4 as uuid } from 'uuid';
-import { AdminAttachmentStore } from '../../../lib/attachment/stores/admin-attachment.store';
-import { useAppDispatch, useAppSelector } from '../../../lib/common/store';
-import InputFormElement from '../Elements/InputFormElement';
+import { AdminAttachmentStore } from '../../../../lib/attachment/stores/admin-attachment.store';
+import { useAppDispatch, useAppSelector } from '../../../../lib/common/store';
+import InputFormElement from '../../Elements/InputFormElement';
 
 export interface CustomDirectoryInputFormElementProps {
   prefix?: string;
@@ -14,7 +14,9 @@ export default function CustomDirectoryInputFormElement(
 ) {
   const inputRef = useRef<HTMLInputElement>(null);
   const dispatch = useAppDispatch();
-  const attachment = useAppSelector((state) => state.admin.attachment);
+
+  const path = useAppSelector((state) => state.admin.attachment.path);
+  const name = useAppSelector((state) => state.admin.attachment.name);
 
   const [updated, setCursor] = useState('');
   const position = useRef<number>(null);
@@ -36,14 +38,12 @@ export default function CustomDirectoryInputFormElement(
       >
         {props.prefix}
       </span>
-      <span className="text-1xl ml-2 mr-3 font-semibold">
-        {attachment.path}/
-      </span>
+      <span className="text-1xl ml-2 mr-3 font-semibold">{path}/</span>
 
       <InputFormElement
         ref={inputRef}
         placeholder="Name your file ..."
-        value={attachment.name}
+        value={name}
         onChange={(e) => {
           if (position.current !== null) return setCursor(uuid());
           return dispatch(AdminAttachmentStore.actions.setName(e));
@@ -52,7 +52,7 @@ export default function CustomDirectoryInputFormElement(
           switch (e.key) {
             case 'Backspace':
               if (inputRef.current.selectionStart) return;
-              position.current = attachment.path.split('/').at(-1).length;
+              position.current = path.split('/').at(-1).length;
               return dispatch(AdminAttachmentStore.actions.popPath());
 
             case 'Enter':

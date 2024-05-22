@@ -21,7 +21,7 @@ import { AttachmentAttachableTypeEnum } from '../../../../lib/attachment/types/a
 import { getServerSession } from 'next-auth';
 import { options } from '../../../api/admin/auth/[...nextauth]';
 import AdminLayout from '../../../../components/Container/Layout/AdminLayout';
-import CustomDirectoryInputFormElement from '../../../../components/Form/Custom/CustomDirectoryInputFormElement';
+import CustomDirectoryInputFormElement from '../../../../components/Form/Custom/Elements/CustomDirectoryInputFormElement';
 
 export default function () {
   const router = useRouter();

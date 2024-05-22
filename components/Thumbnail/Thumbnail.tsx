@@ -1,12 +1,9 @@
 import Link from 'next/link';
 import { BehaviorProps } from './Behavior';
-import type { UrlObject } from 'url';
 import { useMemo, useRef } from 'react';
 import styles from './Thumbnail.module.scss';
 import { NumberService } from '../../lib/common';
 import LineFormPreview from '../Form/Previews/LineFormPreview';
-import Image from 'next/image';
-import moment from 'moment';
 
 export interface ThumbnailProps {
   img: string;

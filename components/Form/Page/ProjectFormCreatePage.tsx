@@ -1,6 +1,8 @@
 import { useRouter } from 'next/router';
-import { Dispatch } from 'react';
+import { Dispatch, useCallback } from 'react';
+import { ErrorService } from '../../../lib/common/error.service';
 import { useAppDispatch, useAppSelector } from '../../../lib/common/store';
+import { AdminProjectEntity } from '../../../lib/project/entities/admin-project.entity';
 import { AdminProjectFormStore } from '../../../lib/project/stores/admin-project-form.store';
 import { ProjectTypeEnum } from '../../../lib/project/types/project-type.enum';
 import { PROJECT_TYPES_OPTIONS } from '../../constants/projects';
@@ -12,7 +14,6 @@ import TextareaFormElement from '../Elements/TextareaFormElement';
 
 export interface ProjectFormPageCreateProps {
   className?: string;
-  onSubmit?: Dispatch<void>;
 }
 
 export default function ProjectFormCreatePage(
@@ -21,6 +22,19 @@ export default function ProjectFormCreatePage(
   const router = useRouter();
   const dispatch = useAppDispatch();
   const form = useAppSelector((state) => state.admin.project.form);
+
+  const onSubmit = useCallback(() => {
+    ErrorService.envelop(async () => {
+      const copy = { ...form, id: null };
+      const project = await dispatch(AdminProjectEntity.self.save.thunk(copy)).unwrap(); // prettier-ignore
+      dispatch(AdminProjectFormStore.actions.reset());
+
+      router.push({
+        pathname: `${router.route}/[id]`,
+        query: { id: project.id },
+      });
+    });
+  }, [form]);
 
   return (
     // <div className="flex flex-col mx-auto max-w-3xl w-full">
@@ -112,7 +126,7 @@ export default function ProjectFormCreatePage(
           className="ml-auto mr-4"
           next="Create project"
           back="Cancel"
-          onNext={() => props.onSubmit?.()}
+          onNext={() => onSubmit()}
           onBack={() => dispatch(AdminProjectFormStore.actions.reset())}
           setOptions={{
             buttonPadding: 'py-1.5 px-4',

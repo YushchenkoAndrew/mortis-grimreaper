@@ -26,9 +26,10 @@ export default function () {
           })
         }
         components={{
-          List: forwardRef(({ children, className, style }, ref) => (
+          List: forwardRef(({ children, className, style, ...props }, ref) => (
             <div
               ref={ref}
+              {...props}
               className={`grid mx-auto grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 max-w-full 2xl:max-w-[calc(120rem)] ${
                 className || ''
               }`}
@@ -37,8 +38,10 @@ export default function () {
               {children}
             </div>
           )),
-          Item: ({ className, children }: any): any => (
-            <div className={className}>{children}</div>
+          Item: ({ className, children, ...props }: any): any => (
+            <div {...props} className={className}>
+              {children}
+            </div>
           ),
         }}
         itemContent={(_, project) => (

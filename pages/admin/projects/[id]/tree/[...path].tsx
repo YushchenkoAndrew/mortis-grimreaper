@@ -29,9 +29,9 @@ import { options } from '../../../../api/admin/auth/[...nextauth]';
 import Handlebars from 'handlebars';
 import TabFormElement from '../../../../../components/Form/Elements/TabFormElement';
 import { StringService } from '../../../../../lib/common';
-import CustomAttachmentGraggable from '../../../../../components/Form/Custom/CustomAttachmentGraggable';
+import CustomAttachmentDraggable from '../../../../../components/Form/Custom/Draggable/CustomAttachmentDraggable';
 import AdminLayout from '../../../../../components/Container/Layout/AdminLayout';
-import CustomProjectMenuElement from '../../../../../components/Form/Custom/CustomProjectMenuElement';
+import CustomProjectMenuElement from '../../../../../components/Form/Custom/Elements/CustomProjectMenuElement';
 
 interface PropsT {
   project: AdminProjectEntity;
@@ -213,7 +213,7 @@ export default function (props: PropsT) {
         }}
       />
 
-      <CustomAttachmentGraggable
+      <CustomAttachmentDraggable
         hidden={attachment.buffer !== null}
         className="mx-4"
         pathname={router.route}

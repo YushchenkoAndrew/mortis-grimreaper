@@ -1,6 +1,6 @@
 import { Dispatch } from 'react';
-import NextFormElement from '../Elements/NextFormElement';
-import PopupFormElement from '../Elements/PopupFormElement';
+import NextFormElement from '../../Elements/NextFormElement';
+import PopupFormElement from '../../Elements/PopupFormElement';
 
 export interface CustomYesNoPopupElementProps {
   title: string;

@@ -1,13 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ObjectLiteral } from '../../common/types';
+import { DeepEntity, ObjectLiteral } from '../../common/types';
 import { AdminProjectPageEntity } from '../entities/admin-project-page.entity';
 import { AdminProjectEntity } from '../entities/admin-project.entity';
 
 type StoreT = AdminProjectPageEntity & {
   query: string;
 
+  picked: string;
   trash: ObjectLiteral<AdminProjectEntity>;
-  picked: AdminProjectEntity;
 };
 
 export const AdminProjectsStore = createSlice({
@@ -31,17 +31,25 @@ export const AdminProjectsStore = createSlice({
 
       state.result[index] = action.payload;
     },
-    search: (state, action: PayloadAction<AdminProjectPageEntity>) => {
-      state.result = action.payload.result;
+    search: (
+      state,
+      action: PayloadAction<[string, AdminProjectPageEntity]>,
+    ) => {
+      const [query, res] = action.payload;
+      state.query = query;
+      state.result = res.result;
 
-      state.page = action.payload.page;
-      state.per_page = action.payload.per_page;
-      state.total = action.payload.total;
+      state.page = res.page;
+      state.total = res.total;
+      state.per_page = res.per_page;
     },
     initTrash: (state) => {
       state.trash = {};
     },
-    pushTrash: (state, action: PayloadAction<AdminProjectEntity>) => {
+    pushTrash: (
+      state,
+      action: PayloadAction<DeepEntity<AdminProjectEntity>>,
+    ) => {
       const id = action.payload.id;
 
       if (state.trash[id]) delete state.trash[id];
@@ -52,8 +60,7 @@ export const AdminProjectsStore = createSlice({
     },
 
     onPick: (state, action: PayloadAction<string>) => {
-      const id = action.payload;
-      state.picked = state.result.find((e) => e.id == id) || null;
+      state.picked = action.payload;
     },
     onReorder: (state, action: PayloadAction<AdminProjectEntity[]>) => {
       state.result = action.payload.map((e, index) => ((e.order = index), e));

@@ -2,7 +2,15 @@ import { faBookmark } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Url } from 'next/dist/shared/lib/router/router';
 import Link from 'next/link';
-import { CSSProperties, Dispatch, forwardRef, memo, ReactNode } from 'react';
+import {
+  CSSProperties,
+  Dispatch,
+  forwardRef,
+  memo,
+  ReactNode,
+  useEffect,
+  useRef,
+} from 'react';
 import ImgFormElement from '../Elements/ImgFormElement';
 import TooltipFormPreview from './TooltipFormPreview';
 

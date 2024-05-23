@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAppDispatch, useAppSelector } from '../../../lib/common/store';
 import { useSortable } from '@dnd-kit/sortable';
-import { memo, useMemo } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import CardFormPreview from '../Previews/CardFormPreview';
 import { CSS } from '@dnd-kit/utilities';
 import { useRouter } from 'next/router';
@@ -15,6 +15,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import TooltipFormPreview from '../Previews/TooltipFormPreview';
 import CustomProjectStatusPreview from '../Custom/Previews/CustomProjectStatusPreview';
+import { ErrorService } from '../../../lib/common/error.service';
+import { IdEntity } from '../../../lib/common/entities/id.entity';
 
 export interface ProjectCardSortableProps {
   id: string;
@@ -49,6 +51,7 @@ export default memo(function ProjectCardSortable(
         query: { id: project.id },
       }}
       img={project._avatar()}
+      // img={thumbnail}
       description={project.description}
       setOptions={{ loading: isDragging }}
       headerComponent={

@@ -5,6 +5,7 @@ export type RequestOptionsType = Partial<{
   session: boolean;
   type: RequestTypeEnum;
   headers: HeadersInit;
+  cache: RequestCache;
   route: string;
   method: string;
   pathname: string;

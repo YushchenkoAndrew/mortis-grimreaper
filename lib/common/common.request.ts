@@ -52,7 +52,7 @@ export class CommonRequest<
           }
         }
 
-        return { headers };
+        return { headers, cache: options.cache };
       },
     );
   }
@@ -72,11 +72,13 @@ export class CommonRequest<
       });
   }
 
+  public get blob() {
+    return (...args: Args) => this.exec(...args).then((res) => res.blob());
+  }
+
   public get file() {
     return (filename: string, ...args: Args) =>
-      this.exec(...args)
-        .then((res) => res.blob())
-        .then((blob) => new File([blob], filename));
+      this.blob(...args).then((blob) => new File([blob], filename));
   }
 
   public get tmp() {

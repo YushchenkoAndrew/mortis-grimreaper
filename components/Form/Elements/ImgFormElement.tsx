@@ -1,6 +1,7 @@
 import { faPenToSquare } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Dispatch, useState } from 'react';
+import { useImage } from '../../../hooks/useImage';
 import DragDrop from '../../Container/DragDrop';
 import PopupFormElement from './PopupFormElement';
 
@@ -12,6 +13,9 @@ export interface ImgFormElementProps {
 
 export default function ImgFormElement(props: ImgFormElementProps) {
   const [open, setOpen] = useState(false);
+
+  useImage(props.img);
+
   return (
     <>
       <div

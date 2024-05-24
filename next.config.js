@@ -2,9 +2,7 @@ module.exports = {
   reactStrictMode: false,
   swcMinify: true,
   basePath: process.env.BASE_PATH || '/projects',
-  images: {
-    minimumCacheTTL: 60,
-  },
+  images: { minimumCacheTTL: 60 },
 
   async rewrites() {
     const proxy = (src, dst, options) => ({

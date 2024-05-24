@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { BehaviorProps } from './Behavior';
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import styles from './Thumbnail.module.scss';
 import { NumberService } from '../../lib/common';
 import LineFormPreview from '../Form/Previews/LineFormPreview';
+import { useImage } from '../../hooks/useImage';
 
 export interface ThumbnailProps {
   img: string;
@@ -26,6 +27,8 @@ export default function Thumbnail({ Behavior, ...props }: ThumbnailProps) {
     const index = Math.ceil(NumberService.mantissa(NumberService.seed(seed) * 1000000)); // prettier-ignore
     return ['curtain-t', 'curtain-b', 'curtain-r', 'curtain-l'][index % 4];
   }, [props.name]);
+
+  useImage(props.img);
 
   return (
     <div

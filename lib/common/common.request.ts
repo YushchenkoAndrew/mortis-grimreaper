@@ -20,9 +20,11 @@ export class CommonRequest<
   ) {}
 
   public get exec() {
-    return this.fetch(
-      Config.self.base.api,
-      async (options?: RequestOptionsType) => {
+    const ctl = new AbortController();
+    const abort = setTimeout(() => ctl.abort(), Config.self.base.timeout);
+
+    return (...args: Args) =>
+      this.fetch(Config.self.base.api, async (options?: RequestOptionsType) => {
         const headers: ObjectLiteral = { ...options?.headers };
 
         if (!options?.type || options.type == RequestTypeEnum.json) {
@@ -52,9 +54,8 @@ export class CommonRequest<
           }
         }
 
-        return { headers, cache: options.cache };
-      },
-    );
+        return { headers, cache: options.cache, signal: ctl.signal };
+      })(...args).then((res) => (clearTimeout(abort), res));
   }
 
   public get thunk() {

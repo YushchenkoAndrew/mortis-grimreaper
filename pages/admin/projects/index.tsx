@@ -6,7 +6,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { GetServerSidePropsContext } from 'next';
 import { getServerSession } from 'next-auth';
 import { useRouter } from 'next/router';
-import { PROJECTS_ACTIONS } from '../../../components/constants/projects';
 import MenuFormElement from '../../../components/Form/Elements/MenuFormElement';
 import NextFormElement from '../../../components/Form/Elements/NextFormElement';
 import { ErrorService } from '../../../lib/common/error.service';
@@ -20,7 +19,7 @@ import NoData from '../../../components/Container/NoData';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import AdminLayout from '../../../components/Container/Layout/AdminLayout';
 import PopupFormElement from '../../../components/Form/Elements/PopupFormElement';
-import ProjectFormCreatePage from '../../../components/Form/Page/ProjectFormCreatePage';
+import ProjectFormCreatePage from '../../../components/Form/Page/Project/ProjectFormCreatePage';
 import { AdminProjectFormStore } from '../../../lib/project/stores/admin-project-form.store';
 import ProjectCardSortable from '../../../components/Form/Sortable/ProjectCardSortable';
 import CustomProjectDraggable from '../../../components/Form/Custom/Draggable/CustomProjectDraggable';
@@ -46,14 +45,15 @@ export default function () {
   }, []);
 
   useEffect(() => {
+    let ignore = false;
     const delay = setTimeout(() => {
       ErrorService.envelop(async () => {
         const page = await AdminProjectPageEntity.self.select.build({ page: 1, query }); // prettier-ignore
-        dispatch(AdminProjectsStore.actions.search([query, page]));
+        if (!ignore) dispatch(AdminProjectsStore.actions.search([query, page]));
       });
-    }, 300);
+    }, 100);
 
-    return () => clearTimeout(delay);
+    return () => ((ignore = true), clearTimeout(delay));
   }, [query]);
 
   return (
@@ -121,7 +121,10 @@ export default function () {
             disabled={!!trash}
             name={<FontAwesomeIcon icon={faEllipsisVertical} />}
             className="mr-3"
-            actions={PROJECTS_ACTIONS}
+            actions={{
+              // create: 'New Project',
+              delete: 'Delete Projects',
+            }}
             setOptions={{
               buttonPadding: 'py-2 px-3.5',
               buttonColor:

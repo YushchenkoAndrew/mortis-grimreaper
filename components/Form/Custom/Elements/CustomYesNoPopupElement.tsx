@@ -32,7 +32,7 @@ export default function CustomYesNoPopupElement(
           onBack={props.onClose}
           setOptions={{
             buttonPadding: 'py-1.5 px-4',
-            nextButtonColor: 'text-white bg-green-600 hover:bg-green-700',
+            nextButtonColor: 'text-white bg-red-600 hover:bg-red-700',
           }}
         />
       </div>

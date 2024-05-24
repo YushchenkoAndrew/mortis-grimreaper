@@ -30,7 +30,7 @@ import TopicFormPreview from '../../../../components/Form/Previews/TopicFormPrev
 import AdminLayout from '../../../../components/Container/Layout/AdminLayout';
 import CustomProjectMenuElement from '../../../../components/Form/Custom/Elements/CustomProjectMenuElement';
 import { ProjectService } from '../../../../lib/project/project.service';
-import ProjectFormUpdatePage from '../../../../components/Form/Page/ProjectFormUpdatePage';
+import ProjectFormUpdatePage from '../../../../components/Form/Page/Project/ProjectFormUpdatePage';
 import { AdminProjectFormStore } from '../../../../lib/project/stores/admin-project-form.store';
 import CustomYesNoPopupElement from '../../../../components/Form/Custom/Elements/CustomYesNoPopupElement';
 import CustomProjectStatusPreview from '../../../../components/Form/Custom/Previews/CustomProjectStatusPreview';

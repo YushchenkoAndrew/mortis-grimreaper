@@ -20,11 +20,6 @@ export const PROJECT_HANDLEBAR_SHORTCUTS = {
   // p5js: '.parent(document.getElementById(`p5js-container`))',
 };
 
-export const PROJECTS_ACTIONS = {
-  // create: 'New Project',
-  delete: 'Delete Projects',
-};
-
 export const PROJECT_TYPES_OPTIONS = {
   [ProjectTypeEnum.p5js]: (
     <>

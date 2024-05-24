@@ -2,16 +2,19 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { faGripVertical } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { ObjectLiteral } from '../../../lib/common/types';
 import StageFormPreview, {
   StageFormPreviewProps,
 } from '../Previews/StageFormPreview';
 
-export interface StageFormSortableProps
-  extends Omit<StageFormPreviewProps, 'headerComponent'> {
+export interface StageFormSortableProps<T extends ObjectLiteral>
+  extends Omit<StageFormPreviewProps<T>, 'headerComponent'> {
   id: string;
 }
 
-export default function StageFormSortable(props: StageFormSortableProps) {
+export default function StageFormSortable<T extends ObjectLiteral>(
+  props: StageFormSortableProps<T>,
+) {
   const { attributes, listeners, transform, transition, setNodeRef, isDragging } = useSortable({ id: props.id }); // prettier-ignore
 
   return (
@@ -31,18 +34,6 @@ export default function StageFormSortable(props: StageFormSortableProps) {
             }`}
           />
         }
-
-        // ref={setNodeRef}
-        // className={props.cardComponent.className?.(data)}
-        // name={props.cardComponent.name(data)}
-        // href={props.cardComponent.href(data)}
-        // img={props.cardComponent.img(data)}
-        // description={props.cardComponent.description?.(data)}
-        // headerComponent={<HeaderComponent data={data} />}
-        // contextComponent={props.cardComponent.contextComponent?.(data)}
-        // onClick={props.cardComponent.onClick?.(data)}
-        // onFile={props.cardComponent.onFile?.(data)}
-        // setOptions={{ loading: isDragging }}
       />
     </div>
   );

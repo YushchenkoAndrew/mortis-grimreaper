@@ -40,17 +40,6 @@ export const AdminDashboardStore = createSlice({
     //   state.per_page = action.payload.per_page;
     //   state.total = action.payload.total;
     // },
-    // initTrash: (state) => {
-    //   state.trash = {};
-    // },
-    // pushTrash: (state, action: PayloadAction<AdminProjectEntity>) => {
-    //   const id = action.payload.id;
-    //   if (state.trash[id]) delete state.trash[id];
-    //   else state.trash[id] = action.payload;
-    // },
-    // clearTrash: (state) => {
-    //   state.trash = null;
-    // },
     onReorder: (state, action: PayloadAction<AdminStageEntity[]>) => {
       state.stages = action.payload.map((e, index) => ((e.order = index), e));
     },

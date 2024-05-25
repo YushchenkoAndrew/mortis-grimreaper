@@ -12,9 +12,10 @@ export interface StageFormPreviewProps<T extends ObjectLiteral> {
   onSubmit?: Dispatch<void>;
   onTaskCreate?: Dispatch<void>;
   onClick?: Dispatch<void>;
+  onChange?: Dispatch<string>;
 
   actions: MenuFormElementProps<T>['actions'];
-  onChange: MenuFormElementProps<T>['onChange'];
+  onAction: MenuFormElementProps<T>['onChange'];
 
   className?: string;
   headerComponent?: ReactNode;
@@ -31,7 +32,7 @@ export interface StageFormPreviewProps<T extends ObjectLiteral> {
 export default function StageFormPreview<T extends ObjectLiteral>(
   props: StageFormPreviewProps<T>,
 ) {
-  const [name, setName] = useState(props.name);
+  // const [name, setName] = useState(props.name);
   return (
     <div
       className={`flex flex-col p-2 w-64 justify-center rounded-md ${
@@ -44,8 +45,9 @@ export default function StageFormPreview<T extends ObjectLiteral>(
         <InputFormElement
           className={`w-full ${props.setOptions?.inputClassName ?? ''}`}
           placeholder="Enter stage name"
-          value={name.toUpperCase()}
-          onChange={setName}
+          value={props.name.toUpperCase()}
+          // onChange={setName}
+          onChange={props.onChange}
           onBlur={props.onSubmit}
           onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
           setOptions={{
@@ -69,7 +71,7 @@ export default function StageFormPreview<T extends ObjectLiteral>(
             buttonTextColor: 'text-gray-300 disabled:text-gray-400',
             noChevronDown: true,
           }}
-          onChange={props.onChange}
+          onChange={props.onAction}
         />
       </div>
       {props.children}

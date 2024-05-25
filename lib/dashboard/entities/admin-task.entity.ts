@@ -6,7 +6,7 @@ import { AdminTagEntity } from '../../tag/entities/admin-tag.entity';
 import { TaskStatusEnum } from '../types/task-status.enum';
 import { TaskEntity } from './task.entity';
 
-@Entity({ route: 'admin/stages/:id/tasks', session: true })
+@Entity({ route: 'admin/stages/{{stage_id}}/tasks', session: true })
 export class AdminTaskEntity extends TaskEntity {
   constructor(init?: Partial<AdminTaskEntity>) {
     super();
@@ -28,4 +28,7 @@ export class AdminTaskEntity extends TaskEntity {
 
   @Column((e) => new AdminTagEntity().buildAll(e.tags ?? {}))
   tags: AdminTagEntity[] = [];
+
+  @Request(() => undefined, { nullable: true })
+  stage_id: string = null;
 }

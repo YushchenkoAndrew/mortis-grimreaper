@@ -20,6 +20,7 @@ import AdminLayout from '../../../components/Container/Layout/AdminLayout';
 import CustomPopupEnclosureElement from '../../../components/Form/Custom/Elements/CustomPopupEnclosureElement';
 import CustomYesNoPopupElement from '../../../components/Form/Custom/Elements/CustomYesNoPopupElement';
 import StageFormCreatePage from '../../../components/Form/Page/Stage/StageFormCreatePage';
+import TaskFormCreatePage from '../../../components/Form/Page/Task/TaskFormCreatePage';
 import StageFormPreview from '../../../components/Form/Previews/StageFormPreview';
 import StageFormSortable from '../../../components/Form/Sortable/StageFormSortable';
 import { Config } from '../../../config';
@@ -39,8 +40,8 @@ interface PropsT {
 
 export default function (props: PropsT) {
   const dispatch = useAppDispatch();
-  const dashboard = useAppSelector((state) => state.admin.dashboard.index);
-  const [stage, onStage] = useState<AdminStageEntity>(null);
+  const trash = useAppSelector((state) => state.admin.dashboard.index.trash);
+  const stages = useAppSelector((state) => state.admin.dashboard.index.stages);
 
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
@@ -65,14 +66,21 @@ export default function (props: PropsT) {
         <StageFormCreatePage />
       </CustomPopupEnclosureElement>
 
+      <CustomPopupEnclosureElement
+        title="Create new task"
+        state="admin.dashboard.task.form.id"
+        onClose={() => dispatch(AdminTaskFormStore.actions.reset())}
+      >
+        <TaskFormCreatePage />
+      </CustomPopupEnclosureElement>
+
       <CustomYesNoPopupElement
         title="Are you sure, you want to delete this stage ?"
-        open={!!stage}
-        onClose={() => onStage(null)}
+        open={!!trash.length}
+        onClose={() => dispatch(AdminDashboardStore.actions.clearTrash())}
         onNext={() => {
           ErrorService.envelop(async () => {
-            onStage(null);
-            await AdminStageEntity.self.delete.exec(stage.id);
+            await AdminStageEntity.self.delete.exec(trash[0].id);
             await dispatch(AdminDashboardCollection.self.select.thunk({})); // prettier-ignore
           });
         }}
@@ -82,15 +90,15 @@ export default function (props: PropsT) {
         sensors={sensors}
         onDragEnd={({ active, over }) =>
           ErrorService.envelop(async () => {
-            const position = dashboard.stages.find((e) => e.id == over?.id)?.order ?? null; // prettier-ignore
+            const position = stages.find((e) => e.id == over?.id)?.order ?? null; // prettier-ignore
             if (!over?.id || position === null) return;
 
             dispatch(
               AdminDashboardStore.actions.onReorder(
                 arrayMove(
-                  dashboard.stages.map((e) => new AdminStageEntity(e as any)),
-                  dashboard.stages.findIndex((e) => e.id == active.id),
-                  dashboard.stages.findIndex((e) => e.id == over.id),
+                  stages.map((e) => new AdminStageEntity(e as any)),
+                  stages.findIndex((e) => e.id == active.id),
+                  stages.findIndex((e) => e.id == over.id),
                 ),
               ),
             );
@@ -106,32 +114,12 @@ export default function (props: PropsT) {
         collisionDetection={closestCenter}
       >
         <SortableContext
-          items={dashboard.stages.map((e) => e.id)}
+          items={stages.map((e) => e.id)}
           strategy={horizontalListSortingStrategy}
         >
           <div className="flex w-full px-6 py-4 h-full space-x-4">
-            {dashboard.stages.map((stage) => (
-              <StageFormSortable
-                key={stage.id}
-                id={stage.id}
-                name={stage.name}
-                actions={{ delete: 'Delete Stage' }}
-                onSubmit={() =>
-                  ErrorService.envelop(async () => {
-                    await dispatch(AdminStageEntity.self.save.thunk(stage));
-                    await dispatch(AdminDashboardCollection.self.select.thunk({})); // prettier-ignore
-                  })
-                }
-                onTaskCreate={() =>
-                  dispatch(AdminTaskFormStore.actions.setId([stage.id, 'null']))
-                }
-                onChange={(action) => {
-                  switch (action) {
-                    case 'delete':
-                      return onStage(stage as any);
-                  }
-                }}
-              />
+            {stages.map((stage) => (
+              <StageFormSortable key={stage.id} id={stage.id} />
             ))}
             <div>
               <StageFormPreview
@@ -151,7 +139,7 @@ export default function (props: PropsT) {
                     <span>Add new stage</span>
                   </div>
                 }
-                onChange={() => null}
+                onAction={() => null}
                 onClick={() =>
                   dispatch(AdminStageFormStore.actions.setId('null'))
                 }
@@ -172,7 +160,7 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
     await AdminDashboardCollection.self.select
       .build({}, { hostname: Config.self.base.grape, ctx })
       .then((res) => JSON.parse(JSON.stringify(res)))
-      .catch((err) => console.log(err));
+      .catch(() => null);
 
   return { props: { ...ctx.params, dashboard } };
 }

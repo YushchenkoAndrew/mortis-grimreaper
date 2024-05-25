@@ -19,7 +19,7 @@ export type Unwrap<
 > = N extends 20
   ? never
   : Key extends string
-  ? T[Key] extends ObjectLiteral
+  ? T[Key] extends Exclude<ObjectLiteral, Symbol>
     ? `${Key}.${Unwrap<T[Key], Increment<N>>}`
     : `${Key}`
   : never;

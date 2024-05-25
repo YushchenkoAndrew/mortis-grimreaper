@@ -32,7 +32,7 @@ export default function StageFormCreatePage(props: StageFormPageCreateProps) {
       <div className="mt-8 mx-5 space-y-7">
         <InputFormElement
           name="Stage Name"
-          placeholder="Project Name"
+          placeholder="Stage Name"
           value={form.name}
           onChange={(e) => dispatch(AdminStageFormStore.actions.setName(e))}
           onKeyDown={onKeyDown}
@@ -40,7 +40,7 @@ export default function StageFormCreatePage(props: StageFormPageCreateProps) {
         />
       </div>
 
-      <div className="flex w-full my-6">
+      <div className="flex w-full my-4">
         <NextFormElement
           className="ml-auto mr-4"
           next="Create Stage"

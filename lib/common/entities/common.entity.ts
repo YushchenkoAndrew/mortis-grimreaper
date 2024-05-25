@@ -11,6 +11,7 @@ import { CommonRequest } from '../common.request';
 import { ArrayService, StringService } from '..';
 import { RequestOptionsType } from '../types/request-options.type';
 import { RequestTypeEnum } from '../types/request-type.enum';
+import Handlebars from 'handlebars';
 
 @Entity()
 export class CommonEntity {
@@ -125,7 +126,9 @@ export class CommonEntity {
       (base: string, init) =>
         async (query: ObjectLiteral, options?: RequestOptionsType) =>
           fetch(
-            `${this.url(base, props, options)}?${StringService.toQuery(query)}`,
+            `${this.url(base, props, options, query)}?${StringService.toQuery(
+              query,
+            )}`,
             await init({ ...options, session: props.session }),
           ),
     );
@@ -173,14 +176,17 @@ export class CommonEntity {
           const id = (entity as any).id || (this as any).id || '';
           const config = await init({ ...options, session: props.session });
 
-          return fetch(this.url(base, props, options) + (id ? `/${id}` : ''), {
-            ...config,
-            method: options?.method || (id ? 'PUT' : 'POST'),
-            body:
-              options?.type == RequestTypeEnum.form
-                ? form
-                : JSON.stringify(body),
-          });
+          return fetch(
+            this.url(base, props, options, entity) + (id ? `/${id}` : ''),
+            {
+              ...config,
+              method: options?.method || (id ? 'PUT' : 'POST'),
+              body:
+                options?.type == RequestTypeEnum.form
+                  ? form
+                  : JSON.stringify(body),
+            },
+          );
         },
     );
   }
@@ -234,9 +240,12 @@ export class CommonEntity {
     base: string,
     props: RequestProps,
     options?: RequestOptionsType,
+    entity?: ObjectLiteral,
   ): string {
-    if (options?.pathname) return options.pathname;
+    const compile = (template: string) => Handlebars.compile(template)(entity);
+
+    if (options?.pathname) return compile(options.pathname);
     const hostname = options?.hostname || base;
-    return `${hostname}/${options?.route || props.route}`;
+    return compile(`${hostname}/${options?.route || props.route}`);
   }
 }

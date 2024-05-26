@@ -1,7 +1,5 @@
-import { useSortable } from '@dnd-kit/sortable';
+import { SortableContext, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { faGripVertical } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ErrorService } from '../../../lib/common/error.service';
 import { useAppDispatch, useAppSelector } from '../../../lib/common/store';
 import { AdminDashboardCollection } from '../../../lib/dashboard/collections/admin-dashboard.collection';
@@ -10,6 +8,7 @@ import { AdminTaskEntity } from '../../../lib/dashboard/entities/admin-task.enti
 import { AdminDashboardStore } from '../../../lib/dashboard/stores/admin-dashboard.store';
 import { AdminTaskFormStore } from '../../../lib/dashboard/stores/admin-task-form.store';
 import StageFormPreview from '../Previews/StageFormPreview';
+import TaskFormSortable from './TaskFormSortable';
 export interface StageFormSortableProps {
   id: string;
 }
@@ -25,6 +24,9 @@ export default function StageFormSortable(props: StageFormSortableProps) {
       style={{ transition, transform: CSS.Transform.toString(transform) }}
     >
       <StageFormPreview
+        listeners={listeners}
+        attributes={attributes}
+        blur={isDragging}
         name={stage.name}
         onChange={(value) =>
           dispatch(AdminDashboardStore.actions.setStageName([stage.id, value]))
@@ -50,17 +52,13 @@ export default function StageFormSortable(props: StageFormSortableProps) {
               return dispatch(AdminDashboardStore.actions.pushTrash(stage));
           }
         }}
-        headerComponent={
-          <FontAwesomeIcon
-            {...attributes}
-            {...listeners}
-            icon={faGripVertical}
-            className={`text-gray-400 px-2 text-lg ml-auto focus:outline-none ${
-              isDragging ? 'cursor-grabbing' : 'cursor-grab'
-            }`}
-          />
-        }
-      />
+      >
+        <SortableContext items={stage.tasks}>
+          {stage.tasks.map((task) => (
+            <TaskFormSortable id={task.id} stage_id={stage.id} />
+          ))}
+        </SortableContext>
+      </StageFormPreview>
     </div>
   );
 }

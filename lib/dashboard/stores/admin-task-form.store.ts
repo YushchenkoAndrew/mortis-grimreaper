@@ -24,10 +24,7 @@ export const AdminTaskFormStore = createSlice({
     stage_id: '',
 
     tag: '',
-    del_tags: [],
-
     new_links: [],
-    del_links: [],
     // dashboard: {},
     // stages: [],
     // trash: null,
@@ -46,9 +43,6 @@ export const AdminTaskFormStore = createSlice({
       state.attachments = res.attachments;
 
       state.tag = '';
-      state.del_tags = [];
-
-      state.del_links = [];
       state.new_links = res.links.concat({ name: '', link: '' } as any);
     },
     reset: (state) => {
@@ -86,7 +80,6 @@ export const AdminTaskFormStore = createSlice({
       if (!tag) return;
 
       state.tags.splice(action.payload, 1);
-      if (tag.id) state.del_tags.push(tag);
     },
     setLinks: (state, action: PayloadAction<[string, string, number]>) => {
       const [key, value, index] = action.payload;
@@ -116,7 +109,6 @@ export const AdminTaskFormStore = createSlice({
       if (!link) return;
 
       state.new_links.splice(action.payload, 1);
-      if (link.id) state.del_links.push(link);
     },
   },
   // extraReducers(builder) {

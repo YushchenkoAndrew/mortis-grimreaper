@@ -13,11 +13,11 @@ export default function DisclosureFormElement(
   props: DisclosureFormElementProps,
 ) {
   return (
-    <div className="flex flex-col py-2 px-4 w-full rounded border border-gray-300">
+    <div className="flex flex-col py-2 px-4 w-full rounded border border-gray-300 dark:border-gray-500">
       <Disclosure>
         {({ open }) => (
           <>
-            <Disclosure.Button className="group flex flex-col  leading-6  text-gray-800 items-start">
+            <Disclosure.Button className="group flex flex-col leading-6 text-gray-800 dark:text-gray-300 items-start cursor-pointer">
               <div className="flex w-full text-sm font-medium">
                 <FontAwesomeIcon
                   className={`mr-2 pt-1 transition-all transform ${
@@ -30,7 +30,7 @@ export default function DisclosureFormElement(
               <label
                 className={`${
                   props.description ? 'block' : 'hidden'
-                } text-sm ml-4 text-gray-500`}
+                } text-sm ml-4 text-gray-500 dark:text-gray-400`}
               >
                 {props.description}
               </label>

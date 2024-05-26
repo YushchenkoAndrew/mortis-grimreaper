@@ -17,6 +17,7 @@ export interface InputFormElementProps
   placeholder?: string;
   disabled?: boolean;
 
+  onFocus?: Dispatch<void>;
   onBlur?: Dispatch<void>;
   onChange: (value: string, e: ChangeEvent<HTMLInputElement>) => void;
   onKeyDown?: Dispatch<KeyboardEvent<HTMLInputElement>>;
@@ -44,11 +45,11 @@ export default forwardRef<HTMLInputElement, InputFormElementProps>(
       <BlockFormElement {...props} ref={props.blockRef} error={error}>
         <input
           ref={ref}
-          className={`block w-full rounded border-0 ${
+          className={`block w-full rounded border-0 bg-transparent ${
             props.setOptions?.inputPadding ?? 'py-3.5'
           } ${
             props.setOptions?.inputFontColor ??
-            'text-gray-800 placeholder:text-gray-400'
+            'text-gray-800 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-600'
           }shadow-sm ring-1 ring-inset focus:ring-inset ${
             props.setOptions?.inputFocus ??
             (error ? 'focus:ring-red-600' : 'focus:ring-blue-600')
@@ -56,8 +57,10 @@ export default forwardRef<HTMLInputElement, InputFormElementProps>(
             props.setOptions?.inputRing ??
             (error
               ? 'ring-red-600 hover:ring-red-600'
-              : 'ring-gray-700 hover:ring-blue-600')
+              : 'ring-gray-700 dark:ring-gray-600 hover:ring-blue-600')
           }`}
+          {...props.listeners}
+          {...props.attributes}
           disabled={props.disabled}
           autoFocus={props.autoFocus}
           autoComplete={props.autoComplete}
@@ -68,6 +71,7 @@ export default forwardRef<HTMLInputElement, InputFormElementProps>(
             props.onChange(e.target.value, e),
             props.required && onError(!e.target.value)
           )}
+          onFocus={(e) => props.onFocus?.()}
           onBlur={(e) => (
             props.required && onError(!e.target.value), props.onBlur?.()
           )}

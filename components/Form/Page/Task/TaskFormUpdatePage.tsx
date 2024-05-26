@@ -1,3 +1,7 @@
+import { faAddressCard, faFile } from '@fortawesome/free-regular-svg-icons';
+import { faBarsStaggered } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import moment from 'moment';
 import { KeyboardEvent, useCallback } from 'react';
 import { ErrorService } from '../../../../lib/common/error.service';
 import { useAppDispatch, useAppSelector } from '../../../../lib/common/store';
@@ -11,13 +15,14 @@ import InputFormElement from '../../Elements/InputFormElement';
 import InputListFormElement from '../../Elements/InputListFormElement';
 import KeyValueFormElement from '../../Elements/KeyValueFormElement';
 import NextFormElement from '../../Elements/NextFormElement';
+import TableFormElement from '../../Elements/TableFormElement';
 import TextareaFormElement from '../../Elements/TextareaFormElement';
 
-export interface TaskFormPageCreateProps {
+export interface TaskFormPageUpdateProps {
   className?: string;
 }
 
-export default function TaskFormCreatePage(props: TaskFormPageCreateProps) {
+export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
   const dispatch = useAppDispatch();
   const form = useAppSelector((state) => state.admin.dashboard.task.form);
 
@@ -49,18 +54,99 @@ export default function TaskFormCreatePage(props: TaskFormPageCreateProps) {
   const onKeyDown = (e: KeyboardEvent<any>) => e.key == 'Enter' && onSubmit();
 
   return (
-    <>
-      <div className="flex flex-col mt-8 mx-5 space-y-7">
-        <InputFormElement
-          name="Task Name"
-          placeholder="Task Name"
-          value={form.name}
-          onChange={(e) => dispatch(AdminTaskFormStore.actions.setName(e))}
-          onKeyDown={onKeyDown}
-          required
+    <div className="flex mt-2 mx-5 my-6">
+      <div className="flex flex-col w-full space-y-4">
+        <div className="flex w-full items-center">
+          <FontAwesomeIcon
+            className="text-xl mr-2 text-gray-300"
+            icon={faAddressCard}
+          />
+          <InputFormElement
+            className="w-full"
+            placeholder="Task Name"
+            value={form.name}
+            autoFocus={false}
+            onChange={(e) => dispatch(AdminTaskFormStore.actions.setName(e))}
+            onKeyDown={onKeyDown}
+            setOptions={{
+              inputPadding: 'py-1.5',
+              inputFont: 'text-xl font-bold cursor-pointer focus:cursor-text',
+              inputFontColor: 'text-gray-300 placeholder:text-gray-400 ',
+              inputRing:
+                'ring-0 focus:ring-2 ring-gray-800 focus:ring-gray-600',
+              inputFocus: 'focus:ring-gray-800',
+            }}
+          />
+        </div>
+        {/* <div className="flex w-full items-center text-xl text-gray-300 font-bold ">
+          <FontAwesomeIcon className="mr-2" icon={faAddressCard} />
+          <span>Description</span>
+        </div> */}
+        <TextareaFormElement
+          name={
+            <div className="flex text-lg items-center mr-2 font-bold">
+              <FontAwesomeIcon className="mr-2" icon={faBarsStaggered} />
+              <span>Description</span>
+            </div>
+          }
+          rows={4}
+          placeholder="This input provides a brief and clear synopsis of this task"
+          noSuggestion
+          value={form.description}
+          onChange={(e) =>
+            dispatch(AdminTaskFormStore.actions.setDescription(e))
+          }
+          setOptions={{
+            inputRing: 'ring-0 focus:ring-2 ring-gray-800 focus:ring-gray-600',
+            inputFocus: 'focus:ring-gray-800',
+          }}
         />
 
-        <TextareaFormElement
+        <TableFormElement
+          // TODO: Use draggable instead !!!!!!!!!
+          noHeader
+          className="mb-6 "
+          columns={{ name: 'Name', updated_at: 'Last updated' }}
+          data={new Array(5).fill({
+            id: 'random',
+            name: 'test',
+            updated_at: new Date().toISOString(),
+          })}
+          dataComponent={{
+            name: (attachment) => (
+              <span className="flex h-full whitespace-nowrap text-gray-800">
+                <FontAwesomeIcon
+                  className="text-gray-500 text-lg mr-2"
+                  icon={faFile}
+                />
+                {attachment.name}
+                {/* {attachment._filepath()} */}
+              </span>
+            ),
+            updated_at: (attachment) => moment(attachment.updated_at).toNow(),
+          }}
+          firstComponent={() => <span className="pl-7 py-6" />}
+          setOptions={{ rowColor: 'bg-white', dataPadding: 'pr-6' }}
+        />
+
+        {/* <InputFormElement
+            className="w-full"
+            placeholder="Task Name"
+            value={form.name}
+            autoFocus={false}
+            onChange={(e) => dispatch(AdminTaskFormStore.actions.setName(e))}
+            onKeyDown={onKeyDown}
+            setOptions={{
+              inputPadding: 'py-1.5',
+              inputFont: 'text-xl font-bold cursor-pointer focus:cursor-text',
+              inputFontColor: 'text-gray-300 placeholder:text-gray-400 ',
+              inputRing:
+                'ring-0 focus:ring-2 ring-gray-800 focus:ring-gray-600',
+              inputFocus: 'focus:ring-gray-800',
+            }}
+          /> */}
+
+        {/* <TextareaFormElement
           name="Description"
           description="This input provides a brief and clear synopsis of this task"
           placeholder="Provide task synopsis"
@@ -68,7 +154,7 @@ export default function TaskFormCreatePage(props: TaskFormPageCreateProps) {
           onChange={(e) =>
             dispatch(AdminTaskFormStore.actions.setDescription(e))
           }
-        />
+        /> */}
         {/* <DisclosureFormElement
           name="Attachments"
           description="Provide attachments to offer in-depth external resources"
@@ -141,7 +227,7 @@ export default function TaskFormCreatePage(props: TaskFormPageCreateProps) {
         </DisclosureFormElement>
       </div>
 
-      <div className="flex w-full my-4">
+      {/* <div className="flex w-full my-4">
         <NextFormElement
           className="ml-auto mr-4"
           next="Create Task"
@@ -153,7 +239,10 @@ export default function TaskFormCreatePage(props: TaskFormPageCreateProps) {
             nextButtonColor: 'text-white bg-green-600 hover:bg-green-700',
           }}
         />
+      </div> */}
+      <div className="w-72">
+        <span className="text-gray-300">some stuff goes here</span>
       </div>
-    </>
+    </div>
   );
 }

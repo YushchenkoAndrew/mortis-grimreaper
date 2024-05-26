@@ -21,6 +21,7 @@ import CustomPopupEnclosureElement from '../../../components/Form/Custom/Element
 import CustomYesNoPopupElement from '../../../components/Form/Custom/Elements/CustomYesNoPopupElement';
 import StageFormCreatePage from '../../../components/Form/Page/Stage/StageFormCreatePage';
 import TaskFormCreatePage from '../../../components/Form/Page/Task/TaskFormCreatePage';
+import TaskFormUpdatePage from '../../../components/Form/Page/Task/TaskFormUpdatePage';
 import StageFormPreview from '../../../components/Form/Previews/StageFormPreview';
 import StageFormSortable from '../../../components/Form/Sortable/StageFormSortable';
 import { Config } from '../../../config';
@@ -44,8 +45,8 @@ export default function (props: PropsT) {
   const stages = useAppSelector((state) => state.admin.dashboard.index.stages);
 
   const sensors = useSensors(
-    useSensor(MouseSensor, {}),
-    useSensor(TouchSensor, {}),
+    useSensor(MouseSensor, { activationConstraint: { distance: 2 } }),
+    useSensor(TouchSensor, { activationConstraint: { distance: 2 } }),
   );
 
   useEffect(() => {
@@ -69,9 +70,19 @@ export default function (props: PropsT) {
       <CustomPopupEnclosureElement
         title="Create new task"
         state="admin.dashboard.task.form.id"
+        condition={(id) => id === 'null'}
         onClose={() => dispatch(AdminTaskFormStore.actions.reset())}
       >
         <TaskFormCreatePage />
+      </CustomPopupEnclosureElement>
+
+      <CustomPopupEnclosureElement
+        className="dark"
+        state="admin.dashboard.task.form.id"
+        condition={(id) => id && id !== 'null'}
+        onClose={() => dispatch(AdminTaskFormStore.actions.reset())}
+      >
+        <TaskFormUpdatePage />
       </CustomPopupEnclosureElement>
 
       <CustomYesNoPopupElement
@@ -111,7 +122,7 @@ export default function (props: PropsT) {
             await dispatch(AdminDashboardCollection.self.select.thunk({})); // prettier-ignore
           })
         }
-        collisionDetection={closestCenter}
+        // collisionDetection={closestCenter}
       >
         <SortableContext
           items={stages.map((e) => e.id)}

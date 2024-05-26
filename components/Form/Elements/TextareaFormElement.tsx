@@ -23,6 +23,7 @@ export interface TextareaFormElementProps
     divClassName: string;
     headComponent: ReactNode;
     inputPadding: string;
+    inputRing: string;
     inputFocus: string;
   }>;
 }
@@ -35,14 +36,18 @@ export default forwardRef<HTMLTextAreaElement, TextareaFormElementProps>(
         <textarea
           ref={ref}
           rows={props.rows ?? 2}
-          className={`block w-full rounded border-0 ${
+          className={`block w-full rounded border-0 bg-transparent ${
             props.setOptions?.inputPadding ?? 'py-3.5'
-          } text-gray-800 shadow-sm ring-1 ring-inset placeholder:text-gray-400 focus:ring-inset ${
+          } text-gray-800 dark:text-gray-300 shadow-sm ring-1 ring-inset placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-inset ${
             props.setOptions?.inputFocus ?? ''
           } sm:text-sm sm:leading-6 ${
-            error
-              ? 'ring-red-600 hover:ring-red-600 focus:ring-red-600'
-              : 'ring-gray-700 hover:ring-blue-600 focus:ring-blue-600'
+            props.setOptions?.inputFocus ??
+            (error ? 'focus:ring-red-600' : 'focus:ring-blue-600')
+          } ${
+            props.setOptions?.inputRing ??
+            (error
+              ? 'ring-red-600 hover:ring-red-600'
+              : 'ring-gray-700 dark:ring-gray-600 hover:ring-blue-600')
           }`}
           autoComplete={props.autoComplete}
           placeholder={props.placeholder}

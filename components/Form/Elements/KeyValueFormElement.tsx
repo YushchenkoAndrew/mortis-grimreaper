@@ -6,10 +6,11 @@ import {
   Dispatch,
   HTMLInputAutoCompleteAttribute,
   KeyboardEvent,
+  ReactNode,
 } from 'react';
 import BlockFormElement, { BlockFormElementProps } from './BlockFormElement';
 
-export interface KeyValueFormElement
+export interface KeyValueFormElementProps
   extends Omit<BlockFormElementProps, 'children' | 'error' | 'setOptions'> {
   values: [string, string][];
   onSubmit: (event: 'add' | 'delete', index: number) => void;
@@ -17,6 +18,7 @@ export interface KeyValueFormElement
   onKeyDown?: Dispatch<KeyboardEvent<HTMLInputElement>>;
 
   placeholder?: [string, string];
+  contextComponent?: ReactNode;
 
   autoFocus?: boolean;
   autoComplete?: HTMLInputAutoCompleteAttribute;
@@ -30,7 +32,7 @@ export interface KeyValueFormElement
   }>;
 }
 
-export default function KeyValueFormElement(props: KeyValueFormElement) {
+export default function KeyValueFormElement(props: KeyValueFormElementProps) {
   // const [error, onError] = useState(false);
   return (
     <BlockFormElement
@@ -110,6 +112,7 @@ export default function KeyValueFormElement(props: KeyValueFormElement) {
           </div>
         );
       })}
+      {props.contextComponent}
     </BlockFormElement>
   );
 }

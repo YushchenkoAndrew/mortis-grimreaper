@@ -97,7 +97,7 @@ export default function StageFormPreview<T extends ObjectLiteral>(
             inputFont: 'text-sm font-bold cursor-pointer',
             inputFontColor: 'text-gray-300 placeholder:text-gray-400 ',
             inputRing: 'ring-0 ring-gray-900',
-            inputFocus: 'focus:ring-gray-900 caret-transparent',
+            inputFocus: 'caret-transparent',
             ...styles,
           }}
         />

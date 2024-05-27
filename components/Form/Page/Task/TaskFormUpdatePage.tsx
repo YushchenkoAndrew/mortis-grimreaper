@@ -1,5 +1,9 @@
 import { faAddressCard, faFile } from '@fortawesome/free-regular-svg-icons';
-import { faBarsStaggered } from '@fortawesome/free-solid-svg-icons';
+import {
+  faArrowUpRightFromSquare,
+  faBarsStaggered,
+  faPaperclip,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
 import { KeyboardEvent, useCallback } from 'react';
@@ -10,13 +14,17 @@ import { AdminTaskEntity } from '../../../../lib/dashboard/entities/admin-task.e
 import { AdminTaskFormStore } from '../../../../lib/dashboard/stores/admin-task-form.store';
 import { AdminLinkEntity } from '../../../../lib/link/entities/admin-link.entity';
 import { AdminTagEntity } from '../../../../lib/tag/entities/admin-tag.entity';
+import NoData from '../../../Container/NoData';
+import TableFormGraggable from '../../Draggable/TableFormDraggable';
 import DisclosureFormElement from '../../Elements/DisclosureFormElement';
 import InputFormElement from '../../Elements/InputFormElement';
+import InputLinkFormElement from '../../Elements/InputLinkFormElement';
 import InputListFormElement from '../../Elements/InputListFormElement';
 import KeyValueFormElement from '../../Elements/KeyValueFormElement';
 import NextFormElement from '../../Elements/NextFormElement';
 import TableFormElement from '../../Elements/TableFormElement';
 import TextareaFormElement from '../../Elements/TextareaFormElement';
+import TooltipFormPreview from '../../Previews/TooltipFormPreview';
 
 export interface TaskFormPageUpdateProps {
   className?: string;
@@ -72,16 +80,11 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
               inputPadding: 'py-1.5',
               inputFont: 'text-xl font-bold cursor-pointer focus:cursor-text',
               inputFontColor: 'text-gray-300 placeholder:text-gray-400 ',
-              inputRing:
-                'ring-0 focus:ring-2 ring-gray-800 focus:ring-gray-600',
-              inputFocus: 'focus:ring-gray-800',
+              inputRing: 'ring-0 focus:ring-2 ring-gray-800',
+              inputFocus: 'focus:ring-blue-700',
             }}
           />
         </div>
-        {/* <div className="flex w-full items-center text-xl text-gray-300 font-bold ">
-          <FontAwesomeIcon className="mr-2" icon={faAddressCard} />
-          <span>Description</span>
-        </div> */}
         <TextareaFormElement
           name={
             <div className="flex text-lg items-center mr-2 font-bold">
@@ -97,37 +100,150 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
             dispatch(AdminTaskFormStore.actions.setDescription(e))
           }
           setOptions={{
-            inputRing: 'ring-0 focus:ring-2 ring-gray-800 focus:ring-gray-600',
-            inputFocus: 'focus:ring-gray-800',
+            inputRing: 'ring-0 focus:ring-2 ring-gray-800',
+            inputFocus: 'focus:ring-blue-700',
           }}
         />
 
-        <TableFormElement
-          // TODO: Use draggable instead !!!!!!!!!
-          noHeader
-          className="mb-6 "
-          columns={{ name: 'Name', updated_at: 'Last updated' }}
-          data={new Array(5).fill({
-            id: 'random',
-            name: 'test',
-            updated_at: new Date().toISOString(),
-          })}
-          dataComponent={{
-            name: (attachment) => (
-              <span className="flex h-full whitespace-nowrap text-gray-800">
+        <div className={`flex flex-col mb-8 ${''}`}>
+          {/* <div className="flex text-lg items-center mr-2 mb-2 font-bold text-gray-300">
+            <FontAwesomeIcon className="mr-2" icon={faArrowUpRightFromSquare} />
+            <span>Links</span>
+          </div> */}
+
+          <InputLinkFormElement
+            name={
+              <div className="flex text-lg items-center mr-2 mb-2 font-bold text-gray-300">
                 <FontAwesomeIcon
-                  className="text-gray-500 text-lg mr-2"
-                  icon={faFile}
+                  className="mr-2"
+                  icon={faArrowUpRightFromSquare}
                 />
-                {attachment.name}
-                {/* {attachment._filepath()} */}
-              </span>
-            ),
-            updated_at: (attachment) => moment(attachment.updated_at).toNow(),
-          }}
-          firstComponent={() => <span className="pl-7 py-6" />}
-          setOptions={{ rowColor: 'bg-white', dataPadding: 'pr-6' }}
-        />
+                <span>Links</span>
+              </div>
+            }
+            placeholder={[
+              'Displayed link name',
+              'http://localhost:8000/projects',
+            ]}
+            values={form.new_links.map((e) => [e.name, e.link])}
+            onChange={(key, value, index) =>
+              dispatch(AdminTaskFormStore.actions.setLinks([key, value, index]))
+            }
+            onSubmit={(e, index) =>
+              dispatch(
+                e == 'add'
+                  ? AdminTaskFormStore.actions.addLink()
+                  : AdminTaskFormStore.actions.delLink(index),
+              )
+            }
+            onKeyDown={(e) =>
+              e.key == 'Enter' && dispatch(AdminTaskFormStore.actions.addLink())
+            }
+          />
+        </div>
+
+        <div
+          className={`flex-col mb-8 ${
+            form.attachments?.length ? 'flex' : 'hidden'
+          }`}
+        >
+          <div className="flex text-lg items-center mr-2 mb-2 font-bold text-gray-300">
+            <FontAwesomeIcon className="mr-2" icon={faPaperclip} />
+            <span>Attachments</span>
+          </div>
+
+          <TableFormGraggable
+            // TODO: Use draggable instead !!!!!!!!!
+            className="rounded-md "
+            columns={{ name: 'Name', updated_at: 'Last updated' }}
+            picked={null}
+            data={form.attachments}
+            onDragStart={
+              (e) => null
+              // dispatch(AdminProjectStore.actions.onPick(e.active.id as string))
+            }
+            onDragEnd={
+              ({ active, over }) => null
+              // ErrorService.envelop(async () => {
+              //   const position = attachments.find((e) => e.id == over?.id)?.order ?? 1; // prettier-ignore
+
+              //   if (!over?.id || position === null) {
+              //     return dispatch(AdminProjectStore.actions.onDrop());
+              //   }
+
+              //   dispatch(
+              //     AdminProjectStore.actions.onReorder(
+              //       arrayMove(
+              //         attachments.concat() as any,
+              //         attachments.findIndex((e) => e.id == active.id),
+              //         attachments.findIndex((e) => e.id == over.id),
+              //       ),
+              //     ),
+              //   );
+
+              //   await AdminAttachmentEntity.self.save.build(
+              //     new PositionEntity({ position }),
+              //     {
+              //       method: 'PUT',
+              //       route: `admin/attachments/${active.id}/order`,
+              //     },
+              //   );
+
+              //   await dispatch(
+              //     AdminProjectEntity.self.load.thunk(router.query.id),
+              //   ).unwrap();
+              // })
+            }
+            onDragCancel={
+              () => null
+              // dispatch(AdminProjectStore.actions.onDrop())
+            }
+            onClick={
+              null
+              //   (attachment: AdminAttachmentEntity) => {
+              //   if (!trash) return redirect(AttachmentService.filepath(attachment)); // prettier-ignore
+              //   if (attachment.type) return dispatch(AdminProjectStore.actions.pushTrash(attachment)); // prettier-ignore
+
+              //   const files = attachments.filter((e) => e.path.startsWith(`/${attachment.name}/`)); // prettier-ignore
+              //   dispatch(AdminProjectStore.actions.pushTrash(files.concat(attachment) as any)); // prettier-ignore
+              // }
+            }
+            firstComponent={(props) =>
+              props.row.type ? props.children : <span className="pl-7 py-6" />
+            }
+            dataComponent={{
+              name: (attachment) => (
+                <span
+                  className={`group flex h-full whitespace-nowrap ${
+                    // trash?.[attachment.id]
+                    //   ? 'line-through text-gray-500' :
+                    'text-gray-800'
+                  }`}
+                >
+                  <FontAwesomeIcon
+                    className="text-gray-500 text-lg mr-2"
+                    icon={faFile}
+                  />
+                  {attachment.name}
+
+                  {attachment.size ? (
+                    <TooltipFormPreview
+                      value={`${attachment.size / 1000} KB`}
+                      setOptions={{
+                        margin: 'mt-4',
+                        rounded: 'rounded-md',
+                        color: 'bg-gray-600 text-white',
+                      }}
+                    />
+                  ) : (
+                    <></>
+                  )}
+                </span>
+              ),
+              updated_at: (attachment) => moment(attachment.updated_at).toNow(),
+            }}
+          />
+        </div>
 
         {/* <InputFormElement
             className="w-full"

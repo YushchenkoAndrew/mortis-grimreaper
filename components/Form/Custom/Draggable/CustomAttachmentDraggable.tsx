@@ -27,14 +27,16 @@ export default function CustomAttachmentDraggable(
 ) {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const project = useAppSelector((state) => state.admin.project.index);
+  const trash = useAppSelector((state) => state.admin.project.index.trash);
+  const picked = useAppSelector((state) => state.admin.project.index.picked);
+  const attachments = useAppSelector((state) => state.admin.project.index.attachments); // prettier-ignore
 
-  const attachments = useMemo(() => {
+  const data = useMemo(() => {
     return AttachmentService.toList<AdminAttachmentEntity>(
-      project.attachments,
+      attachments,
       Array.isArray(router.query.path) ? router.query.path : [],
     );
-  }, [project.attachments, router.query.path]);
+  }, [attachments, router.query.path]);
 
   const redirect = (path: string[]) =>
     router.push({ pathname: props.pathname, query: { ...router.query, path } });
@@ -48,15 +50,14 @@ export default function CustomAttachmentDraggable(
       <TableFormGraggable
         className="rounded-md "
         columns={{ name: 'Name', updated_at: 'Last updated' }}
-        picked={project.picked}
-        data={attachments}
+        picked={picked}
+        data={data}
         onDragStart={(e) =>
           dispatch(AdminProjectStore.actions.onPick(e.active.id as string))
         }
         onDragEnd={({ active, over }) =>
           ErrorService.envelop(async () => {
-            const position =
-              project.attachments.find((e) => e.id == over?.id)?.order ?? 1;
+            const position = attachments.find((e) => e.id == over?.id)?.order ?? 1; // prettier-ignore
 
             if (!over?.id || position === null) {
               return dispatch(AdminProjectStore.actions.onDrop());
@@ -65,9 +66,9 @@ export default function CustomAttachmentDraggable(
             dispatch(
               AdminProjectStore.actions.onReorder(
                 arrayMove(
-                  project.attachments.concat() as any,
-                  project.attachments.findIndex((e) => e.id == active.id),
-                  project.attachments.findIndex((e) => e.id == over.id),
+                  attachments.concat() as any,
+                  attachments.findIndex((e) => e.id == active.id),
+                  attachments.findIndex((e) => e.id == over.id),
                 ),
               ),
             );
@@ -87,10 +88,10 @@ export default function CustomAttachmentDraggable(
         }
         onDragCancel={() => dispatch(AdminProjectStore.actions.onDrop())}
         onClick={(attachment: AdminAttachmentEntity) => {
-          if (!project.trash) return redirect(AttachmentService.filepath(attachment)); // prettier-ignore
+          if (!trash) return redirect(AttachmentService.filepath(attachment)); // prettier-ignore
           if (attachment.type) return dispatch(AdminProjectStore.actions.pushTrash(attachment)); // prettier-ignore
 
-          const files = project.attachments.filter((e) => e.path.startsWith(`/${attachment.name}/`)); // prettier-ignore
+          const files = attachments.filter((e) => e.path.startsWith(`/${attachment.name}/`)); // prettier-ignore
           dispatch(AdminProjectStore.actions.pushTrash(files.concat(attachment) as any)); // prettier-ignore
         }}
         firstComponent={(props) =>
@@ -100,7 +101,7 @@ export default function CustomAttachmentDraggable(
           name: (attachment) => (
             <span
               className={`group flex h-full whitespace-nowrap ${
-                project.trash?.[attachment.id]
+                trash?.[attachment.id]
                   ? 'line-through text-gray-500'
                   : 'text-gray-800'
               }`}
@@ -130,7 +131,7 @@ export default function CustomAttachmentDraggable(
       />
 
       <NoData
-        className={attachments.length ? 'hidden' : 'block w-full mt-16'}
+        className={data.length ? 'hidden' : 'block w-full mt-16'}
         setOptions={{ border: '' }}
       />
     </div>

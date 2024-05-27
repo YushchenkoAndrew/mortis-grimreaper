@@ -68,7 +68,7 @@ export default function TableFormGraggable<T extends ObjectLiteral & IdEntity>(
           children
         ) : (
           <td
-            className="py-4 bg-blue-50"
+            className="py-4 bg-blue-50 dark:bg-gray-700"
             colSpan={Object.keys(props.columns).length}
           >
             &nbsp;
@@ -86,7 +86,7 @@ export default function TableFormGraggable<T extends ObjectLiteral & IdEntity>(
         {...attributes}
         {...listeners}
         icon={faGripVertical}
-        className={`text-gray-400 text-lg pl-3 pr-2 py-4 ${
+        className={`text-gray-400 dark:text-gray-600 text-lg pl-3 pr-2 py-4 ${
           props.isDragging ? 'cursor-grabbing' : 'cursor-grab'
         }`}
       />
@@ -137,7 +137,10 @@ export default function TableFormGraggable<T extends ObjectLiteral & IdEntity>(
               children: <FirstComponent row={row} isDragging />,
             }) ?? <FirstComponent row={row} isDragging />
           }
-          setOptions={{ rowColor: 'bg-white', dataPadding: 'pr-6' }}
+          setOptions={{
+            rowColor: 'bg-white dark:bg-gray-800',
+            dataPadding: 'pr-6',
+          }}
         />
       </DragOverlay>
     </DndContext>

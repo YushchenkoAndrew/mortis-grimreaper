@@ -2,6 +2,7 @@ import { marked } from 'marked';
 import { Config } from '../../config';
 import { ObjectLiteral } from './types';
 import { v4 as uuid } from 'uuid';
+import { URL } from 'url';
 
 export class NumberService {
   static random(max: number, min: number = 0, seed: string = '') {
@@ -62,6 +63,16 @@ export class StringService {
 
   static toSection(name: string): string {
     return name.replace(/ /g, '_').replace(/\//g, '').toLowerCase();
+  }
+
+  static isUrlValid(url: string): boolean {
+    if (!url) return false;
+    try {
+      new URL(url);
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   static route(str: string) {

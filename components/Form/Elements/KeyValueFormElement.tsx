@@ -96,9 +96,9 @@ export default function KeyValueFormElement(props: KeyValueFormElementProps) {
               />
             </div>
 
-            <div className={index ? '' : 'mt-5'}>
+            <div className={index ? '' : 'mt-4 pt-0.5 flex items-center'}>
               <FontAwesomeIcon
-                className={`py-3.5 px-3.5 rounded cursor-pointer ${
+                className={`py-4 px-4 rounded cursor-pointer ${
                   isFinal
                     ? 'text-gray-400 border border-white hover:border-red-600 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900'
                     : 'border border-indigo-600 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900'

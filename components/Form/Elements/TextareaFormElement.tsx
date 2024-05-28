@@ -13,6 +13,8 @@ export interface TextareaFormElementProps
   extends Omit<BlockFormElementProps, 'children' | 'error'> {
   value: string;
   placeholder?: string;
+
+  onBlur?: Dispatch<void>;
   onChange: Dispatch<string>;
   onKeyDown?: Dispatch<KeyboardEvent<HTMLTextAreaElement>>;
 
@@ -56,7 +58,9 @@ export default forwardRef<HTMLTextAreaElement, TextareaFormElementProps>(
             props.onChange(e.target.value),
             props.required && onError(!e.target.value)
           )}
-          onBlur={(e) => props.required && onError(!e.target.value)}
+          onBlur={(e) => (
+            props.required && onError(!e.target.value), props.onBlur?.()
+          )}
           onKeyDown={(e) => props.onKeyDown?.(e)}
         />
       </BlockFormElement>

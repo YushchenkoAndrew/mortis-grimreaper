@@ -29,11 +29,11 @@ import CustomAttachmentDraggable from '../../../../components/Form/Custom/Dragga
 import TopicFormPreview from '../../../../components/Form/Previews/TopicFormPreview';
 import AdminLayout from '../../../../components/Container/Layout/AdminLayout';
 import CustomProjectMenuElement from '../../../../components/Form/Custom/Elements/CustomProjectMenuElement';
-import { ProjectService } from '../../../../lib/project/project.service';
 import ProjectFormUpdatePage from '../../../../components/Form/Page/Project/ProjectFormUpdatePage';
 import { AdminProjectFormStore } from '../../../../lib/project/stores/admin-project-form.store';
 import CustomYesNoPopupElement from '../../../../components/Form/Custom/Elements/CustomYesNoPopupElement';
 import CustomProjectStatusPreview from '../../../../components/Form/Custom/Previews/CustomProjectStatusPreview';
+import { AttachmentAttachableTypeEnum } from '../../../../lib/attachment/types/attachment-attachable-type.enum';
 
 interface PropsT {
   project: AdminProjectEntity;
@@ -69,7 +69,8 @@ export default function (props: PropsT) {
             onFile={(file) =>
               ErrorService.envelop(async () => {
                 const thumbnail = await AttachmentService.thumbnail(file);
-                await ProjectService.saveAttachments(project as any, '/', [thumbnail], true); // prettier-ignore
+                const type = AttachmentAttachableTypeEnum.projects;
+                await AttachmentService.saveAttachments(project as any, type, '/', [thumbnail], true); // prettier-ignore
                 await dispatch(AdminProjectEntity.self.load.thunk(router.query.id)).unwrap(); // prettier-ignore
               })
             }

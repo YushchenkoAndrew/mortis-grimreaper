@@ -43,8 +43,9 @@ export default function TableFormElement<T extends ObjectLiteral & IdEntity>(
     ));
 
   const tr = () => {
-    const className = `border-b cursor-pointer ${
-      props.setOptions?.rowColor || 'hover:bg-blue-50 dark:bg-gray-700'
+    const className = `border-b dark:border-gray-700 cursor-pointer ${
+      props.setOptions?.rowColor ||
+      'bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-gray-700'
     }`;
 
     return props.data.map((row) =>
@@ -65,7 +66,7 @@ export default function TableFormElement<T extends ObjectLiteral & IdEntity>(
     <div
       className={`${
         props.className ?? ''
-      } relative overflow-x-auto overflow-y-hidden border dark:border-gray-600`}
+      } relative overflow-x-auto overflow-y-hidden border dark:border-gray-700`}
     >
       <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
         <thead

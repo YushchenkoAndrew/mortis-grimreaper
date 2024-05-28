@@ -24,7 +24,7 @@ export default memo(function CustomPopupEnclosureElement(
       className={props.className}
       open={props.condition?.(open) ?? !!open}
       onClose={props.onClose}
-      setOptions={{ panelSize: 'sm:w-full sm:max-w-4xl' }}
+      setOptions={{ panelSize: 'sm:w-full sm:max-w-5xl' }}
     >
       <div
         className={`text-sm font-medium text-gray-800 bg-gray-100 px-4 py-3 border-b border-gray-300 ${

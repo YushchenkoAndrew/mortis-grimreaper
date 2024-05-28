@@ -28,9 +28,7 @@ export default async function handler(
     .catch(() => '<html></html>');
 
   const tree = load(html);
-  const icon =
-    tree('[rel="shortcut icon"]').attr('href') ||
-    tree('[rel="apple-touch-icon"]').attr('href');
+  const icon = tree('[rel*=icon]').attr('href');
 
   ServerService.self.cache.set(`icon[${url}]`, icon, 3600 * 24 * 7);
   if (icon) return res.redirect(icon);

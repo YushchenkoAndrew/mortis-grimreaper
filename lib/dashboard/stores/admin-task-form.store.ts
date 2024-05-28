@@ -43,12 +43,15 @@ export const AdminTaskFormStore = createSlice({
       state.attachments = res.attachments;
 
       state.tag = '';
-      state.new_links = res.links.concat({ name: '', link: '' } as any);
+      state.new_links = res.links.concat(null);
     },
     reset: (state) => {
       state.id = null;
       state.name = '';
       state.status = TaskStatusEnum.active;
+
+      state.tags = [];
+      state.links = [];
     },
     setId: (state, action: PayloadAction<[string, string]>) => {
       [state.stage_id, state.id] = action.payload || [];
@@ -93,8 +96,21 @@ export const AdminTaskFormStore = createSlice({
         linkable_type: LinkLinkableTypeEnum.tasks,
       });
     },
+    newLink: (state) => {
+      const index = state.new_links.length - 1;
+      if (index >= 0) return void (state.new_links[index] = new AdminLinkEntity({ name: '', link: '' })); // prettier-ignore
+
+      state.new_links.push(
+        new AdminLinkEntity({
+          name: '',
+          link: '',
+          linkable_id: state.id,
+          linkable_type: LinkLinkableTypeEnum.tasks,
+        }),
+      );
+    },
     addLink: (state) => {
-      if (!state.new_links.at(-1).link) return;
+      if (!state.new_links.at(-1)?.link) return;
 
       const index = state.new_links.length - 1;
       state.new_links[index] = new AdminLinkEntity({

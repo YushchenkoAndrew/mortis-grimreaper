@@ -63,11 +63,11 @@ export default function MenuFormElement<T extends ObjectLiteral>(
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Menu.Items className="absolute z-10 right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-gray-50 shadow-lg ring-1 ring-black/5 focus:outline-none">
+        <Menu.Items className="absolute z-10 right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 dark:divide-gray-700 rounded-md bg-gray-50 dark:bg-gray-700 shadow-lg ring-1 ring-black/5 focus:outline-none">
           <div className="p-1">
             {Object.entries(props.actions).map(([key, value], index) => {
               const className =
-                'w-full p-2 text-left items-center rounded-md text-sm hover:bg-blue-100';
+                'w-full p-2 text-left items-center rounded-md text-sm hover:bg-blue-100 dark:hover:bg-gray-600';
               return (
                 <Menu.Item key={index}>
                   {props.itemComponent?.[key] ? (

@@ -3,11 +3,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
 import { useRouter } from 'next/router';
 import { useMemo, useRef, useState } from 'react';
+import { AttachmentService } from '../../../../lib/attachment/attachment.service';
 import { AdminAttachmentEntity } from '../../../../lib/attachment/entities/admin-attachment.entity';
+import { AttachmentAttachableTypeEnum } from '../../../../lib/attachment/types/attachment-attachable-type.enum';
 import { ErrorService } from '../../../../lib/common/error.service';
 import { useAppDispatch, useAppSelector } from '../../../../lib/common/store';
 import { AdminProjectEntity } from '../../../../lib/project/entities/admin-project.entity';
-import { ProjectService } from '../../../../lib/project/project.service';
 import { AdminProjectStore } from '../../../../lib/project/stores/admin-project.store';
 import MenuFormElement from '../../Elements/MenuFormElement';
 import NextFormElement from '../../Elements/NextFormElement';
@@ -157,7 +158,8 @@ export default function CustomProjectMenuElement(
           onChange={(event) => {
             ErrorService.envelop(async () => {
               const files = Array.from(event.target.files);
-              await ProjectService.saveAttachments({ id, attachments }, filepath, files); // prettier-ignore
+              const type = AttachmentAttachableTypeEnum.projects;
+              await AttachmentService.saveAttachments({ id, attachments }, type, filepath, files); // prettier-ignore
               await dispatch(AdminProjectEntity.self.load.thunk(router.query.id)).unwrap(); // prettier-ignore
             });
           }}

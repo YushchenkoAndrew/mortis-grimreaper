@@ -28,6 +28,7 @@ import { Config } from '../../../config';
 import { PositionEntity } from '../../../lib/common/entities/position.entity';
 import { ErrorService } from '../../../lib/common/error.service';
 import { useAppDispatch, useAppSelector } from '../../../lib/common/store';
+import { OrderableTypeEnum } from '../../../lib/common/types/orderable-type.enum';
 import { AdminDashboardCollection } from '../../../lib/dashboard/collections/admin-dashboard.collection';
 import { AdminStageEntity } from '../../../lib/dashboard/entities/admin-stage.entity';
 import { AdminDashboardStore } from '../../../lib/dashboard/stores/admin-dashboard.store';
@@ -50,8 +51,8 @@ export default function (props: PropsT) {
   );
 
   useEffect(() => {
-    const dashboard = new AdminDashboardCollection(props.dashboard);
-    dispatch(AdminDashboardStore.actions.init(dashboard));
+    const dashboard = AdminDashboardCollection.self.build(props.dashboard?.stages); // prettier-ignore
+    dispatch(AdminDashboardStore.actions.init(dashboard as any));
   }, []);
 
   return (
@@ -114,11 +115,9 @@ export default function (props: PropsT) {
               ),
             );
 
-            await AdminStageEntity.self.save.build(
-              new PositionEntity({ position }),
-              { method: 'PUT', route: `admin/stages/${active.id}/order` },
-            );
+            const body = new PositionEntity({ position, id: active.id, orderable: OrderableTypeEnum.stages }); // prettier-ignore
 
+            await PositionEntity.self.save.build(body);
             await dispatch(AdminDashboardCollection.self.select.thunk({})); // prettier-ignore
           })
         }

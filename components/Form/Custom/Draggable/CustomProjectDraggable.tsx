@@ -10,6 +10,7 @@ import CardFormDraggable, {
 import { AdminProjectPageEntity } from '../../../../lib/project/entities/admin-project-page.entity';
 import { AdminProjectsStore } from '../../../../lib/project/stores/admin-projects.store';
 import { ProjectEntity } from '../../../../lib/project/entities/project.entity';
+import { OrderableTypeEnum } from '../../../../lib/common/types/orderable-type.enum';
 
 export interface CustomProjectDraggableProps
   extends Pick<CardFormGraggableProps<ProjectEntity>, 'CardComponent'> {}
@@ -66,14 +67,9 @@ export default memo(function CustomProjectDraggable(
             ),
           );
 
-          await AdminProjectEntity.self.save.build(
-            new PositionEntity({ position }),
-            {
-              method: 'PUT',
-              route: `admin/projects/${active.id}/order`,
-            },
-          );
+          const body = new PositionEntity({ position, id: active.id, orderable: OrderableTypeEnum.attachments }); // prettier-ignore
 
+          await PositionEntity.self.save.build(body);
           const saved = await Promise.all<any>(
             Array(page)
               .fill(0)

@@ -24,6 +24,7 @@ import TableFormElement, {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGripVertical } from '@fortawesome/free-solid-svg-icons';
 import { Dispatch, ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 
 type IdEntity = { id: string };
 
@@ -36,6 +37,11 @@ export interface TableFormGraggableProps<T extends ObjectLiteral & IdEntity>
   lastComponent?: (props: { row: T; children: ReactNode }) => ReactNode;
 
   picked?: T;
+  setOptions?: Partial<{
+    rowColor: string;
+    dataPadding: string;
+    overlayClassName: string;
+  }>;
 }
 
 type RowComponentT<T> = {
@@ -64,15 +70,15 @@ export default function TableFormGraggable<T extends ObjectLiteral & IdEntity>(
         style={{ transition, transform: CSS.Transform.toString(transform) }}
         onClick={() => props.onClick?.(row)}
       >
-        {!isDragging ? (
-          children
-        ) : (
+        {isDragging && props.onDragStart ? (
           <td
             className="py-4 bg-blue-50 dark:bg-gray-700"
             colSpan={Object.keys(props.columns).length}
           >
             &nbsp;
           </td>
+        ) : (
+          children
         )}
       </tr>
     );
@@ -125,24 +131,27 @@ export default function TableFormGraggable<T extends ObjectLiteral & IdEntity>(
         dataComponent={props.dataComponent}
       />
 
-      <DragOverlay>
-        <TableFormElement
-          noHeader
-          columns={props.columns}
-          data={[].concat(props.picked || [])}
-          dataComponent={props.dataComponent}
-          firstComponent={(row) =>
-            props.firstComponent?.({
-              row,
-              children: <FirstComponent row={row} isDragging />,
-            }) ?? <FirstComponent row={row} isDragging />
-          }
-          setOptions={{
-            rowColor: 'bg-white dark:bg-gray-800',
-            dataPadding: 'pr-6',
-          }}
-        />
-      </DragOverlay>
+      {createPortal(
+        <DragOverlay className={props.setOptions?.overlayClassName}>
+          <TableFormElement
+            noHeader
+            columns={props.columns}
+            data={[].concat(props.picked || [])}
+            dataComponent={props.dataComponent}
+            firstComponent={(row) =>
+              props.firstComponent?.({
+                row,
+                children: <FirstComponent row={row} isDragging />,
+              }) ?? <FirstComponent row={row} isDragging />
+            }
+            setOptions={{
+              rowColor: 'bg-white dark:bg-gray-800',
+              dataPadding: 'pr-6',
+            }}
+          />
+        </DragOverlay>,
+        document.body,
+      )}
     </DndContext>
   );
 }

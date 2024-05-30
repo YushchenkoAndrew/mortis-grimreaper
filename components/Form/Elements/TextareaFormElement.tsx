@@ -13,6 +13,7 @@ export interface TextareaFormElementProps
   extends Omit<BlockFormElementProps, 'children' | 'error'> {
   value: string;
   placeholder?: string;
+  disabled?: boolean;
 
   onBlur?: Dispatch<void>;
   onChange: Dispatch<string>;
@@ -51,6 +52,7 @@ export default forwardRef<HTMLTextAreaElement, TextareaFormElementProps>(
               ? 'ring-red-600 hover:ring-red-600'
               : 'ring-gray-700 dark:ring-gray-600 hover:ring-blue-600')
           }`}
+          disabled={props.disabled}
           autoComplete={props.autoComplete}
           placeholder={props.placeholder}
           value={props.value}

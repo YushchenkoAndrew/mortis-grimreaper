@@ -34,6 +34,7 @@ import { AdminProjectFormStore } from '../../../../lib/project/stores/admin-proj
 import CustomYesNoPopupElement from '../../../../components/Form/Custom/Elements/CustomYesNoPopupElement';
 import CustomProjectStatusPreview from '../../../../components/Form/Custom/Previews/CustomProjectStatusPreview';
 import { AttachmentAttachableTypeEnum } from '../../../../lib/attachment/types/attachment-attachable-type.enum';
+import TagFormPreview from '../../../../components/Form/Previews/TagFormPreview';
 
 interface PropsT {
   project: AdminProjectEntity;
@@ -241,12 +242,7 @@ export default function (props: PropsT) {
               }
             >
               {project.tags.map((e) => (
-                <span
-                  key={e.id}
-                  className="px-3 py-1 first:ml-1 rounded-full bg-indigo-100 text-xs text-indigo-600"
-                >
-                  {e.name}
-                </span>
+                <TagFormPreview key={e.id} name={e.name} />
               ))}
             </div>
 

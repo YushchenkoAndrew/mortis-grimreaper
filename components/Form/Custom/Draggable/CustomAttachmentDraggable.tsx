@@ -15,6 +15,7 @@ import { useAppDispatch, useAppSelector } from '../../../../lib/common/store';
 import { arrayMove } from '@dnd-kit/sortable';
 import { useMemo } from 'react';
 import NoData from '../../../Container/NoData';
+import { OrderableTypeEnum } from '../../../../lib/common/types/orderable-type.enum';
 
 export interface CustomAttachmentDraggableProps {
   pathname: string;
@@ -73,17 +74,10 @@ export default function CustomAttachmentDraggable(
               ),
             );
 
-            await AdminAttachmentEntity.self.save.build(
-              new PositionEntity({ position }),
-              {
-                method: 'PUT',
-                route: `admin/attachments/${active.id}/order`,
-              },
-            );
+            const body = new PositionEntity({ position, id: active.id, orderable: OrderableTypeEnum.attachments }); // prettier-ignore
 
-            await dispatch(
-              AdminProjectEntity.self.load.thunk(router.query.id),
-            ).unwrap();
+            await PositionEntity.self.save.build(body);
+            await dispatch(AdminProjectEntity.self.load.thunk(router.query.id)).unwrap(); // prettier-ignore
           })
         }
         onDragCancel={() => dispatch(AdminProjectStore.actions.onDrop())}

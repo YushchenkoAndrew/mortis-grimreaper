@@ -32,6 +32,7 @@ module.exports = {
       proxy('admin/stages/:stage_id/order'),
       proxy('admin/stages/:stage_id/tasks'),
       proxy('admin/stages/:stage_id/tasks/:id'),
+      proxy('admin/stages/:stage_id/tasks/:id/order'),
       // proxy('admin/login', 'login'),
     ];
   },

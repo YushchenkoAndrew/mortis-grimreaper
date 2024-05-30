@@ -1,29 +1,30 @@
+import { arrayMove } from '@dnd-kit/sortable';
 import { faAddressCard, faFile } from '@fortawesome/free-regular-svg-icons';
 import { faEllipsisVertical, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
-import { KeyboardEvent, useCallback, useRef } from 'react';
+import { KeyboardEvent, ReactNode, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { AttachmentService } from '../../../../lib/attachment/attachment.service';
 import { AttachmentAttachableTypeEnum } from '../../../../lib/attachment/types/attachment-attachable-type.enum';
+import { PositionEntity } from '../../../../lib/common/entities/position.entity';
 import { ErrorService } from '../../../../lib/common/error.service';
 import { useAppDispatch, useAppSelector } from '../../../../lib/common/store';
+import { ObjectLiteral } from '../../../../lib/common/types';
+import { OrderableTypeEnum } from '../../../../lib/common/types/orderable-type.enum';
 import { AdminDashboardCollection } from '../../../../lib/dashboard/collections/admin-dashboard.collection';
 import { AdminTaskEntity } from '../../../../lib/dashboard/entities/admin-task.entity';
-import { AdminDashboardStore } from '../../../../lib/dashboard/stores/admin-dashboard.store';
+import { TaskPositionEntity } from '../../../../lib/dashboard/entities/task-position.entity';
 import { AdminTaskFormStore } from '../../../../lib/dashboard/stores/admin-task-form.store';
 import { AdminLinkEntity } from '../../../../lib/link/entities/admin-link.entity';
-import { AdminTagEntity } from '../../../../lib/tag/entities/admin-tag.entity';
-import NoData from '../../../Container/NoData';
+import LinkFormGraggable from '../../Draggable/LinkFormDraggable';
 import TableFormGraggable from '../../Draggable/TableFormDraggable';
-import DisclosureFormElement from '../../Elements/DisclosureFormElement';
 import InputFormElement from '../../Elements/InputFormElement';
-import InputLinkFormElement from '../../Elements/InputLinkFormElement';
 import InputListFormElement from '../../Elements/InputListFormElement';
-import KeyValueFormElement from '../../Elements/KeyValueFormElement';
 import MenuFormElement from '../../Elements/MenuFormElement';
-import NextFormElement from '../../Elements/NextFormElement';
-import TableFormElement from '../../Elements/TableFormElement';
 import TextareaFormElement from '../../Elements/TextareaFormElement';
+import NoneFormPreview from '../../Previews/NoneFormPreview';
+import TagFormPreview from '../../Previews/TagFormPreview';
 import TooltipFormPreview from '../../Previews/TooltipFormPreview';
 
 export interface TaskFormPageUpdateProps {
@@ -33,14 +34,19 @@ export interface TaskFormPageUpdateProps {
 export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
   const dispatch = useAppDispatch();
   const form = useAppSelector((state) => state.admin.dashboard.task.form);
+  const stages = useAppSelector((state) => state.admin.dashboard.index._stages); // prettier-ignore
+
+  const actions: ObjectLiteral = useMemo(() => {
+    return stages.reduce((acc, curr) => ((acc[curr.id] = curr.name), acc), {});
+  }, [stages]);
 
   const fileRef = useRef<HTMLInputElement>(null);
   const formIdRef = useRef<string>(null);
   formIdRef.current = form.id;
 
-  const reload = async () => {
+  const reload = async (stage_id?: string) => {
     const dashboard: AdminDashboardCollection = await dispatch(AdminDashboardCollection.self.select.thunk({})).unwrap(); // prettier-ignore
-    const stage = dashboard.stages.find((e) => e.id == form.stage_id);
+    const stage = dashboard.stages.find((e) => e.id == (stage_id ?? form.stage_id)); // prettier-ignore
     const task = stage.tasks.find((e) => e.id == form.id);
 
     if (!formIdRef.current) return;
@@ -65,7 +71,8 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
 
   const onLinkSubmit = (action: 'add' | 'delete', index: number) =>
     ErrorService.envelop(async () => {
-      const entity = form.new_links[index];
+      const entity = form.links[index];
+      console.log({ links: form.links, index, action });
       if (!entity) return;
 
       const body = new AdminLinkEntity({ ...entity, name: entity.name || entity.link }); // prettier-ignore
@@ -79,6 +86,7 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
     <div className="flex mt-2 mx-5 my-6">
       <div className="flex flex-col w-full space-y-4">
         <div className="flex w-full items-center">
+          <input className="w-0 p-0 m-0 border-0 outline-0" type="color" />
           <FontAwesomeIcon
             className="text-xl mr-2 text-gray-300"
             icon={faAddressCard}
@@ -122,35 +130,55 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
           }}
         />
 
-        <div className="flex flex-col mb-8">
-          <InputLinkFormElement
-            name={
-              <div className="flex w-full mr-2 mb-2 text-sm justify-between items-center text-gray-300">
-                <span className="font-semibold">Attached links</span>
-                <FontAwesomeIcon
-                  className="text-sm p-1 hover:bg-gray-700 cursor-pointer"
-                  icon={faPlus}
-                  onClick={() => dispatch(AdminTaskFormStore.actions.newLink())}
-                />
-              </div>
-            }
-            noSuggestion
-            placeholder={[
-              'Displayed link name',
-              'http://localhost:8000/projects',
-            ]}
-            values={form.new_links.map((e) => e && [e.name, e.link])}
-            onChange={(key, value, index) =>
-              dispatch(AdminTaskFormStore.actions.setLinks([key, value, index]))
-            }
-            onSubmit={(e, index) =>
-              onLinkSubmit(e, e == 'add' ? form.new_links.length - 1 : index)
-            }
-            onKeyDown={(e) =>
-              e.key == 'Enter' && onLinkSubmit('add', form.new_links.length - 1)
-            }
-          />
-        </div>
+        {/* <div className="flex flex-col mb-8"> */}
+        <LinkFormGraggable
+          name={
+            <div className="flex w-full mr-2 mb-2 text-sm justify-between items-center text-gray-300">
+              <span className="font-semibold">Attached links</span>
+              <FontAwesomeIcon
+                className="text-sm p-1 hover:bg-gray-700 cursor-pointer"
+                icon={faPlus}
+                onClick={() => dispatch(AdminTaskFormStore.actions.newLink())}
+              />
+            </div>
+          }
+          noSuggestion
+          placeholder={[
+            'Displayed link name',
+            'http://localhost:8000/projects',
+          ]}
+          values={form.links}
+          onChange={(key, value, index) =>
+            dispatch(AdminTaskFormStore.actions.setLinks([key, value, index]))
+          }
+          onDelete={(index) => onLinkSubmit('delete', index)}
+          onSubmit={(e) => onLinkSubmit('add', form.links.length - 1)}
+          onKeyDown={(e) =>
+            e.key == 'Enter' && onLinkSubmit('add', form.links.length - 1)
+          }
+          onDragEnd={({ active, over }) =>
+            ErrorService.envelop(async () => {
+              const position = form.links.find((e) => e.id == over?.id)?.order ?? 1; // prettier-ignore
+              if (!over?.id || position === null) return;
+
+              dispatch(
+                AdminTaskFormStore.actions.onLinkReorder(
+                  arrayMove(
+                    form.links.concat() as any,
+                    form.links.findIndex((e) => e.id == active.id),
+                    form.links.findIndex((e) => e.id == over.id),
+                  ),
+                ),
+              );
+
+              const body = new PositionEntity({ position, id: active.id, orderable: OrderableTypeEnum.links }); // prettier-ignore
+
+              await PositionEntity.self.save.build(body);
+              await reload();
+            })
+          }
+        />
+        {/* </div> */}
 
         <div className="flex flex-col mb-8">
           <div className="flex w-full mr-2 mb-2 text-sm justify-between items-center text-gray-300">
@@ -189,8 +217,7 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
                     return fileRef.current.click();
 
                   case 'delete':
-                  // TODO:
-                  // return dispatch(AdminProjectStore.actions.initTrash());
+                  // return dispatch(AdminTaskFormStore.actions.initTrash());
                 }
               }}
               setOptions={{
@@ -203,52 +230,48 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
           </div>
 
           <TableFormGraggable
-            // TODO: Use draggable instead !!!!!!!!!
             className={`rounded-md ${
               form.attachments?.length ? 'block' : 'hidden'
             }`}
             columns={{ name: 'Name', updated_at: 'Last updated' }}
-            picked={null}
+            picked={form.picked}
             data={form.attachments}
-            onDragStart={
-              (e) => null
-              // dispatch(AdminProjectStore.actions.onPick(e.active.id as string))
+            setOptions={{ overlayClassName: 'dark' }}
+            onDragStart={(e) =>
+              dispatch(
+                AdminTaskFormStore.actions.onAttachmentPick(
+                  e.active.id as string,
+                ),
+              )
             }
-            onDragEnd={
-              ({ active, over }) => null
-              // ErrorService.envelop(async () => {
-              //   const position = attachments.find((e) => e.id == over?.id)?.order ?? 1; // prettier-ignore
+            onDragEnd={({ active, over }) =>
+              ErrorService.envelop(async () => {
+                const position = form.attachments.find((e) => e.id == over?.id)?.order ?? 1; // prettier-ignore
 
-              //   if (!over?.id || position === null) {
-              //     return dispatch(AdminProjectStore.actions.onDrop());
-              //   }
+                if (!over?.id || position === null) {
+                  return dispatch(
+                    AdminTaskFormStore.actions.onAttachmentDrop(),
+                  );
+                }
 
-              //   dispatch(
-              //     AdminProjectStore.actions.onReorder(
-              //       arrayMove(
-              //         attachments.concat() as any,
-              //         attachments.findIndex((e) => e.id == active.id),
-              //         attachments.findIndex((e) => e.id == over.id),
-              //       ),
-              //     ),
-              //   );
+                dispatch(
+                  AdminTaskFormStore.actions.onAttachmentReorder(
+                    arrayMove(
+                      form.attachments.concat() as any,
+                      form.attachments.findIndex((e) => e.id == active.id),
+                      form.attachments.findIndex((e) => e.id == over.id),
+                    ),
+                  ),
+                );
 
-              //   await AdminAttachmentEntity.self.save.build(
-              //     new PositionEntity({ position }),
-              //     {
-              //       method: 'PUT',
-              //       route: `admin/attachments/${active.id}/order`,
-              //     },
-              //   );
+                const body = new PositionEntity({ position, id: active.id, orderable: OrderableTypeEnum.attachments }); // prettier-ignore
 
-              //   await dispatch(
-              //     AdminProjectEntity.self.load.thunk(router.query.id),
-              //   ).unwrap();
-              // })
+                await PositionEntity.self.save.build(body);
+                await reload();
+              })
             }
-            onDragCancel={
-              () => null
-              // dispatch(AdminProjectStore.actions.onDrop())
+            onDragCancel={() =>
+              dispatch(AdminTaskFormStore.actions.onAttachmentDrop())
             }
             onClick={
               null
@@ -277,6 +300,7 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
                     icon={faFile}
                   />
                   {attachment.name}
+                  <div id={attachment.id}></div>
 
                   {attachment.size ? (
                     <TooltipFormPreview
@@ -296,77 +320,6 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
             }}
           />
         </div>
-
-        {/* <InputFormElement
-            className="w-full"
-            placeholder="Task Name"
-            value={form.name}
-            autoFocus={false}
-            onChange={(e) => dispatch(AdminTaskFormStore.actions.setName(e))}
-            onKeyDown={onKeyDown}
-            setOptions={{
-              inputPadding: 'py-1.5',
-              inputFont: 'text-xl font-bold cursor-pointer focus:cursor-text',
-              inputFontColor: 'text-gray-300 placeholder:text-gray-400 ',
-              inputRing:
-                'ring-0 focus:ring-2 ring-gray-800 focus:ring-gray-600',
-              inputFocus: 'focus:ring-gray-800',
-            }}
-          /> */}
-
-        {/* <TextareaFormElement
-          name="Description"
-          description="This input provides a brief and clear synopsis of this task"
-          placeholder="Provide task synopsis"
-          value={form.description}
-          onChange={(e) =>
-            dispatch(AdminTaskFormStore.actions.setDescription(e))
-          }
-        /> */}
-        {/* <DisclosureFormElement
-          name="Attachments"
-          description="Provide attachments to offer in-depth external resources"
-        >
-          <InputListFormElement
-            placeholder="Provide alternate names: test"
-            value={form.tag}
-            values={form.tags.map((e) => e.name)}
-            onChange={(e) => dispatch(AdminTaskFormStore.actions.setTag(e))}
-            onSubmit={(e, index) =>
-              dispatch(
-                e == 'add'
-                  ? AdminTaskFormStore.actions.addTag()
-                  : AdminTaskFormStore.actions.delTag(index),
-              )
-            }
-            onKeyDown={(e) =>
-              e.key == 'Enter' && dispatch(AdminTaskFormStore.actions.addTag())
-            }
-          />
-        </DisclosureFormElement> */}
-
-        <DisclosureFormElement
-          name="Tags"
-          description="This input will provide alternate names for the tag"
-          // TODO: Only display tags list, and on add add another popup/dropdown ???
-        >
-          <InputListFormElement
-            placeholder="Provide alternate names: test"
-            value={form.tag}
-            values={form.tags.map((e) => e.name)}
-            onChange={(e) => dispatch(AdminTaskFormStore.actions.setTag(e))}
-            onSubmit={(e, index) =>
-              dispatch(
-                e == 'add'
-                  ? AdminTaskFormStore.actions.addTag()
-                  : AdminTaskFormStore.actions.delTag(index),
-              )
-            }
-            onKeyDown={(e) =>
-              e.key == 'Enter' && dispatch(AdminTaskFormStore.actions.addTag())
-            }
-          />
-        </DisclosureFormElement>
       </div>
 
       {/* <div className="flex w-full my-4">
@@ -383,9 +336,73 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
         />
       </div> */}
 
-      <div className="w-72">
-        <span className="text-gray-300">some stuff goes here</span>
-        <InputListFormElement
+      <div className="flex flex-col w-full max-w-72 py-4 ml-4 space-y-4">
+        <div className="flex mb-5">
+          <MenuFormElement
+            name={actions[form.stage_id]}
+            actions={actions}
+            onChange={(dst_stage_id: string) =>
+              ErrorService.envelop(async () => {
+                const body = new TaskPositionEntity({
+                  position: 1,
+                  id: form.id,
+                  stage_id: dst_stage_id,
+                  src_stage_id: form.stage_id,
+                  orderable: OrderableTypeEnum.tasks,
+                });
+
+                await TaskPositionEntity.self.save.build(body);
+                await reload(dst_stage_id);
+              })
+            }
+            setOptions={{
+              buttonPadding: 'py-1.5 px-3',
+              buttonColor:
+                'border border-gray-600 bg-transparent hover:bg-gray-700',
+              buttonTextColor: 'text-gray-300',
+            }}
+          />
+        </div>
+
+        <DetailView
+          name="Owner"
+          value={
+            <>
+              <img
+                src={form.owner?._avatar()}
+                className={`mr-2 h-5 w-5 ${form.owner ? '' : 'hidden'}`}
+                alt=""
+              />
+              <span className="text-sm">{form.owner?.name}</span>
+              <NoneFormPreview hidden={!!form.owner} />
+            </>
+          }
+        />
+
+        <DetailView
+          name="Tags"
+          value={
+            <div className="flex w-full  justify-between">
+              <div className="flex flex-wrap space-x-1 space-y-2">
+                {form.tags.map((e) => (
+                  <TagFormPreview key={e.id} name={e.name} />
+                ))}
+                <NoneFormPreview hidden={!!form.tags?.length} />
+              </div>
+              <FontAwesomeIcon
+                className="mt-0.5 p-0.5 hover:bg-gray-700 cursor-pointer"
+                icon={faPlus}
+              />
+            </div>
+          }
+        />
+
+        <DetailView
+          name="Checklist"
+          value={<span className={`text-sm`}>Create checklist</span>}
+        />
+
+        {/* <InputListFormElement
           placeholder="Provide alternate names: test"
           value={form.tag}
           values={form.tags.map((e) => e.name)}
@@ -400,8 +417,17 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
           onKeyDown={(e) =>
             e.key == 'Enter' && dispatch(AdminTaskFormStore.actions.addTag())
           }
-        />
+        /> */}
       </div>
+    </div>
+  );
+}
+
+function DetailView(props: { name: ReactNode; value: ReactNode }) {
+  return (
+    <div className="flex w-full items-center text-gray-300">
+      <span className="w-full max-w-36 text-xs font-bold">{props.name}</span>
+      <div className="flex w-full items-center">{props.value}</div>
     </div>
   );
 }

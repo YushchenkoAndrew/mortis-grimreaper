@@ -50,7 +50,7 @@ export default forwardRef<HTMLInputElement, InputFormElementProps>(
           } ${
             props.setOptions?.inputFontColor ??
             'text-gray-800 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-600'
-          } shadow-sm ring-inset focus:ring-inset ${
+          } shadow-sm focus:ring-inset ${
             props.setOptions?.inputFocus ??
             (error ? 'focus:ring-red-600' : 'focus:ring-blue-600')
           } ${props.setOptions?.inputFont ?? 'sm:text-sm sm:leading-6'} ${
@@ -62,8 +62,8 @@ export default forwardRef<HTMLInputElement, InputFormElementProps>(
           {...props.listeners}
           {...props.attributes}
           disabled={props.disabled}
-          autoFocus={props.autoFocus}
-          autoComplete={props.autoComplete}
+          // autoFocus={props.autoFocus}
+          // autoComplete={props.autoComplete}
           placeholder={props.placeholder}
           type={props.type ?? 'text'}
           value={props.value}

@@ -1,13 +1,14 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { v4 } from 'uuid';
+import { IdEntity } from '../../common/entities/id.entity';
 import { DeepEntity, ObjectLiteral } from '../../common/types';
 import { AdminDashboardCollection } from '../collections/admin-dashboard.collection';
 import { AdminStageEntity } from '../entities/admin-stage.entity';
 import { StageEntity } from '../entities/stage.entity';
 
-type StoreT = Omit<AdminDashboardCollection, 'stages'> & {
+type StoreT = AdminDashboardCollection & {
   trash: AdminStageEntity[];
-  stages: AdminStageEntity[];
+  _stages: IdEntity[];
 };
 
 export const AdminDashboardStore = createSlice({
@@ -16,6 +17,8 @@ export const AdminDashboardStore = createSlice({
     // dashboard: {},
     trash: [],
     stages: [],
+    _stages: [],
+
     // trash: null,
   } as StoreT,
   reducers: {
@@ -24,6 +27,7 @@ export const AdminDashboardStore = createSlice({
 
       state.trash = [];
       state.stages = res.stages;
+      state._stages = res.stages.map((e) => new IdEntity(e));
     },
     // reload: (state, action: PayloadAction<AdminDashboardCollection>) => {
     //   const res: AdminDashboardCollection = action.payload as any;
@@ -75,6 +79,7 @@ export const AdminDashboardStore = createSlice({
 
         state.trash = [];
         state.stages = res.stages;
+        state._stages = res.stages.map((e) => new IdEntity(e));
       },
     );
   },

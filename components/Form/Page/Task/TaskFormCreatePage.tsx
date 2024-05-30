@@ -1,3 +1,5 @@
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { KeyboardEvent, useCallback } from 'react';
 import { ErrorService } from '../../../../lib/common/error.service';
 import { useAppDispatch, useAppSelector } from '../../../../lib/common/store';
@@ -6,6 +8,7 @@ import { AdminTaskEntity } from '../../../../lib/dashboard/entities/admin-task.e
 import { AdminTaskFormStore } from '../../../../lib/dashboard/stores/admin-task-form.store';
 import { AdminLinkEntity } from '../../../../lib/link/entities/admin-link.entity';
 import { AdminTagEntity } from '../../../../lib/tag/entities/admin-tag.entity';
+import LinkFormGraggable from '../../Draggable/LinkFormDraggable';
 import DisclosureFormElement from '../../Elements/DisclosureFormElement';
 import InputFormElement from '../../Elements/InputFormElement';
 import InputListFormElement from '../../Elements/InputListFormElement';
@@ -36,7 +39,7 @@ export default function TaskFormCreatePage(props: TaskFormPageCreateProps) {
         await AdminTagEntity.self.save.build(tag); // prettier-ignore
       }
 
-      for (const link of form.new_links) {
+      for (const link of form.links) {
         if (!link.name) continue;
         await AdminLinkEntity.self.save.build(link); // prettier-ignore
       }
@@ -95,7 +98,7 @@ export default function TaskFormCreatePage(props: TaskFormPageCreateProps) {
           name="Links"
           description="Provide links to offer in-depth external resources"
         >
-          <KeyValueFormElement
+          {/* <KeyValueFormElement
             // name="Links"
             placeholder={[
               'Displayed link name',
@@ -112,6 +115,25 @@ export default function TaskFormCreatePage(props: TaskFormPageCreateProps) {
                   : AdminTaskFormStore.actions.delLink(index),
               )
             }
+            onKeyDown={(e) =>
+              e.key == 'Enter' && dispatch(AdminTaskFormStore.actions.addLink())
+            }
+          /> */}
+
+          <LinkFormGraggable
+            noSuggestion
+            placeholder={[
+              'Displayed link name',
+              'http://localhost:8000/projects',
+            ]}
+            values={form.links}
+            onChange={(key, value, index) =>
+              dispatch(AdminTaskFormStore.actions.setLinks([key, value, index]))
+            }
+            onDelete={(index) =>
+              dispatch(AdminTaskFormStore.actions.delLink(index))
+            }
+            onSubmit={(e) => dispatch(AdminTaskFormStore.actions.addLink())}
             onKeyDown={(e) =>
               e.key == 'Enter' && dispatch(AdminTaskFormStore.actions.addLink())
             }

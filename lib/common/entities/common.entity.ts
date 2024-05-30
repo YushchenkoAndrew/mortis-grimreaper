@@ -175,18 +175,16 @@ export class CommonEntity {
 
           const id = (entity as any).id || (this as any).id || '';
           const config = await init({ ...options, session: props.session });
+          const attach = props.modify !== false && id ? `/${id}` : '';
 
-          return fetch(
-            this.url(base, props, options, entity) + (id ? `/${id}` : ''),
-            {
-              ...config,
-              method: options?.method || (id ? 'PUT' : 'POST'),
-              body:
-                options?.type == RequestTypeEnum.form
-                  ? form
-                  : JSON.stringify(body),
-            },
-          );
+          return fetch(this.url(base, props, options, entity) + attach, {
+            ...config,
+            method: options?.method || (id ? 'PUT' : 'POST'),
+            body:
+              options?.type == RequestTypeEnum.form
+                ? form
+                : JSON.stringify(body),
+          });
         },
     );
   }

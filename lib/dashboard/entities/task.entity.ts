@@ -18,7 +18,7 @@ export class TaskEntity extends IdEntity {
   description: string = '';
 
   @Column((e) => new UserEntity().build(e.owner ?? []))
-  owner: UserEntity;
+  owner: UserEntity = null;
 
   @Column((e) => new AttachmentEntity().buildAll(e.attachments ?? []))
   attachments: AttachmentEntity[] = [];

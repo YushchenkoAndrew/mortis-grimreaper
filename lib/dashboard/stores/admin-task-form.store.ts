@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { AdminAttachmentEntity } from '../../attachment/entities/admin-attachment.entity';
 import { AdminLinkEntity } from '../../link/entities/admin-link.entity';
 import { LinkLinkableTypeEnum } from '../../link/types/link-linkable-type.enum';
 import { AdminTagEntity } from '../../tag/entities/admin-tag.entity';
@@ -12,10 +13,7 @@ type StoreT = AdminTaskEntity & {
   // dashboard: ObjectLiteral<AdminStageEntity>;
 
   tag: string;
-  del_tags: AdminTagEntity[];
-
-  new_links: AdminLinkEntity[];
-  del_links: AdminLinkEntity[];
+  picked: AdminAttachmentEntity;
 };
 
 export const AdminTaskFormStore = createSlice({
@@ -24,7 +22,7 @@ export const AdminTaskFormStore = createSlice({
     stage_id: '',
 
     tag: '',
-    new_links: [],
+    picked: null,
     // dashboard: {},
     // stages: [],
     // trash: null,
@@ -34,16 +32,20 @@ export const AdminTaskFormStore = createSlice({
       const [stage_id, res]: [string, AdminTaskEntity] = action.payload as any;
       state.stage_id = stage_id;
 
+      console.log(res.owner);
+
       state.id = res.id;
       state.name = res.name || '';
       state.status = res.status || TaskStatusEnum.active;
 
       state.tags = res.tags;
-      state.links = res.links;
+      state.owner = res.owner;
       state.attachments = res.attachments;
 
       state.tag = '';
-      state.new_links = res.links.concat(null);
+      state.links = res.links.concat(
+        res.id == 'null' ? new AdminLinkEntity({ name: '', link: '' }) : null,
+      );
     },
     reset: (state) => {
       state.id = null;
@@ -57,7 +59,7 @@ export const AdminTaskFormStore = createSlice({
       [state.stage_id, state.id] = action.payload || [];
     },
     setName: (state, action: PayloadAction<string>) => {
-      state.name = action.payload || '';
+      state.name = (action.payload || '').toUpperCase();
     },
     setDescription: (state, action: PayloadAction<string>) => {
       state.description = action.payload || '';
@@ -86,10 +88,10 @@ export const AdminTaskFormStore = createSlice({
     },
     setLinks: (state, action: PayloadAction<[string, string, number]>) => {
       const [key, value, index] = action.payload;
-      if (!state.new_links[index]) return;
+      if (!state.links[index]) return;
 
-      state.new_links[index] = new AdminLinkEntity({
-        ...(state.new_links[index] as any),
+      state.links[index] = new AdminLinkEntity({
+        ...(state.links[index] as any),
         name: key,
         link: value,
         linkable_id: state.id,
@@ -97,10 +99,10 @@ export const AdminTaskFormStore = createSlice({
       });
     },
     newLink: (state) => {
-      const index = state.new_links.length - 1;
-      if (index >= 0) return void (state.new_links[index] = new AdminLinkEntity({ name: '', link: '' })); // prettier-ignore
+      const index = state.links.length - 1;
+      if (index >= 0) return void (state.links[index] = new AdminLinkEntity({ name: '', link: '' })); // prettier-ignore
 
-      state.new_links.push(
+      state.links.push(
         new AdminLinkEntity({
           name: '',
           link: '',
@@ -110,21 +112,37 @@ export const AdminTaskFormStore = createSlice({
       );
     },
     addLink: (state) => {
-      if (!state.new_links.at(-1)?.link) return;
+      if (!state.links.at(-1)?.link) return;
 
-      const index = state.new_links.length - 1;
-      state.new_links[index] = new AdminLinkEntity({
-        ...state.new_links[index],
-        name: state.new_links[index].name || state.new_links[index].link,
+      const index = state.links.length - 1;
+      state.links[index] = new AdminLinkEntity({
+        ...state.links[index],
+        name: state.links[index].name || state.links[index].link,
       } as any);
 
-      state.new_links.push({ name: '', link: '' } as any);
+      state.links.push({ name: '', link: '' } as any);
     },
     delLink: (state, action: PayloadAction<number>) => {
-      const link = state.new_links[action.payload];
+      const link = state.links[action.payload];
       if (!link) return;
 
-      state.new_links.splice(action.payload, 1);
+      state.links.splice(action.payload, 1);
+    },
+    onLinkReorder: (state, action: PayloadAction<AdminLinkEntity[]>) => {
+      state.links = action.payload;
+    },
+    onAttachmentPick: (state, action: PayloadAction<string>) => {
+      const id = action.payload;
+      state.picked = state.attachments.find((e) => e.id == id) || null;
+    },
+    onAttachmentReorder: (
+      state,
+      action: PayloadAction<AdminAttachmentEntity[]>,
+    ) => {
+      state.attachments = action.payload;
+    },
+    onAttachmentDrop: (state) => {
+      state.picked = null;
     },
   },
   // extraReducers(builder) {

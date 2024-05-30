@@ -10,6 +10,6 @@ export class AdminDashboardCollection extends CommonEntity {
     this.assign(init, this);
   }
 
-  @Column((e) => new AdminStageEntity().buildAll(e))
+  @Column((e) => (console.log({ e }), new AdminStageEntity().buildAll(e)))
   stages: AdminStageEntity[] = [];
 }

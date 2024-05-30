@@ -55,7 +55,7 @@ export default function StageFormSortable(props: StageFormSortableProps) {
       >
         <SortableContext items={stage.tasks}>
           {stage.tasks.map((task) => (
-            <TaskFormSortable id={task.id} stage_id={stage.id} />
+            <TaskFormSortable key={task.id} id={task.id} stage_id={stage.id} />
           ))}
         </SortableContext>
       </StageFormPreview>

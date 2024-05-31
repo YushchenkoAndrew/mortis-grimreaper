@@ -36,6 +36,7 @@ export const AdminTaskFormStore = createSlice({
 
       state.id = res.id;
       state.name = res.name || '';
+      state.description = res.description || '';
       state.status = res.status || TaskStatusEnum.active;
 
       state.tags = res.tags;
@@ -50,6 +51,7 @@ export const AdminTaskFormStore = createSlice({
     reset: (state) => {
       state.id = null;
       state.name = '';
+      state.description = '';
       state.status = TaskStatusEnum.active;
 
       state.tags = [];
@@ -59,7 +61,7 @@ export const AdminTaskFormStore = createSlice({
       [state.stage_id, state.id] = action.payload || [];
     },
     setName: (state, action: PayloadAction<string>) => {
-      state.name = (action.payload || '').toUpperCase();
+      state.name = action.payload || '';
     },
     setDescription: (state, action: PayloadAction<string>) => {
       state.description = action.payload || '';

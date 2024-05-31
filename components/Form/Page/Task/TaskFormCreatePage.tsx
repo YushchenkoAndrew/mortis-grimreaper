@@ -36,12 +36,14 @@ export default function TaskFormCreatePage(props: TaskFormPageCreateProps) {
 
       for (const tag of form.tags) {
         if (tag.id) continue;
-        await AdminTagEntity.self.save.build(tag); // prettier-ignore
+        const body = new AdminTagEntity({ ...tag, taggable_id: res.id });
+        await AdminTagEntity.self.save.build(body); // prettier-ignore
       }
 
       for (const link of form.links) {
         if (!link.name) continue;
-        await AdminLinkEntity.self.save.build(link); // prettier-ignore
+        const body = new AdminLinkEntity({ ...link, linkable_id: res.id });
+        await AdminLinkEntity.self.save.build(body); // prettier-ignore
       }
 
       dispatch(AdminTaskFormStore.actions.reset());

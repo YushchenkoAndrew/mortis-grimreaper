@@ -23,7 +23,7 @@ import TableFormElement, {
 } from '../Elements/TableFormElement';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGripVertical } from '@fortawesome/free-solid-svg-icons';
-import { Dispatch, ReactNode } from 'react';
+import { Dispatch, ReactNode, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
 type IdEntity = { id: string };
@@ -57,6 +57,11 @@ export default function TableFormGraggable<T extends ObjectLiteral & IdEntity>(
     useSensor(MouseSensor, {}),
     useSensor(TouchSensor, {}),
   );
+
+  const elementRef = useRef<Element>(null);
+  useEffect(() => {
+    elementRef.current = document.body;
+  }, []);
 
   const RowComponent = ({ className, children, row }: RowComponentT<T>) => {
     const { transform, transition, setNodeRef, isDragging } = useSortable({
@@ -131,27 +136,28 @@ export default function TableFormGraggable<T extends ObjectLiteral & IdEntity>(
         dataComponent={props.dataComponent}
       />
 
-      {createPortal(
-        <DragOverlay className={props.setOptions?.overlayClassName}>
-          <TableFormElement
-            noHeader
-            columns={props.columns}
-            data={[].concat(props.picked || [])}
-            dataComponent={props.dataComponent}
-            firstComponent={(row) =>
-              props.firstComponent?.({
-                row,
-                children: <FirstComponent row={row} isDragging />,
-              }) ?? <FirstComponent row={row} isDragging />
-            }
-            setOptions={{
-              rowColor: 'bg-white dark:bg-gray-800',
-              dataPadding: 'pr-6',
-            }}
-          />
-        </DragOverlay>,
-        document.body,
-      )}
+      {elementRef.current &&
+        createPortal(
+          <DragOverlay className={props.setOptions?.overlayClassName}>
+            <TableFormElement
+              noHeader
+              columns={props.columns}
+              data={[].concat(props.picked || [])}
+              dataComponent={props.dataComponent}
+              firstComponent={(row) =>
+                props.firstComponent?.({
+                  row,
+                  children: <FirstComponent row={row} isDragging />,
+                }) ?? <FirstComponent row={row} isDragging />
+              }
+              setOptions={{
+                rowColor: 'bg-white dark:bg-gray-800',
+                dataPadding: 'pr-6',
+              }}
+            />
+          </DragOverlay>,
+          elementRef.current,
+        )}
     </DndContext>
   );
 }

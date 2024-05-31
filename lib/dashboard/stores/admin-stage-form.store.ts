@@ -32,7 +32,7 @@ export const AdminStageFormStore = createSlice({
       state.id = action.payload || null;
     },
     setName: (state, action: PayloadAction<string>) => {
-      state.name = action.payload || '';
+      state.name = (action.payload || '').toUpperCase();
     },
   },
   // extraReducers(builder) {

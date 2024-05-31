@@ -1,8 +1,0 @@
-{
-  "baseUrl": "http://127.0.0.1:8000/projects",
-  "chromeWebSecurity": false,
-  "env": {
-    "BASE_PATH": "/projects"
-  },
-  "projectId": "tbykxu"
-}

@@ -4,9 +4,12 @@
   "private": true,
   "scripts": {
     "start:dev": "next dev -p 8000",
+    "start:test": "NODE_ENV=test next dev -p 8000",
     "build": "next build",
+    "build:test": "NODE_ENV=test next build",
     "start": "next start -p 8000",
-    "cypress": "cypress open",
+    "cypress:open": "cypress open",
+    "cypress:headless": "cypress run --e2e",
     "lint": "next lint"
   },
   "dependencies": {
@@ -54,7 +57,7 @@
     "@types/react": "18.2.71",
     "@types/react-dom": "18.2.22",
     "autoprefixer": "^10.4.19",
-    "cypress": "^13.7.1",
+    "cypress": "^13.10.0",
     "eslint": "8.57.0",
     "eslint-config-next": "^13.5.6",
     "postcss": "^8.4.38",

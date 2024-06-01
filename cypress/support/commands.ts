@@ -19,7 +19,7 @@ Cypress.Commands.add('login', (location?: string) => {
   cy.contains('label', 'Username').parent().find('input').type(Cypress.env('username')); // prettier-ignore
   cy.contains('label', 'Password').parent().find('input').type(Cypress.env('password')); // prettier-ignore
 
-  cy.contains('button', 'Sign in').click();
+  cy.wait(500).contains('button', 'Sign in').click();
 
   cy.wait(1000).location().should('not.match', /.*\/admin\/login$/); // prettier-ignore
   if (location) cy.wait(1000).visit(location);

@@ -32,6 +32,7 @@ import { StringService } from '../../../../../lib/common';
 import CustomAttachmentDraggable from '../../../../../components/Form/Custom/Draggable/CustomAttachmentDraggable';
 import AdminLayout from '../../../../../components/Container/Layout/AdminLayout';
 import CustomProjectMenuElement from '../../../../../components/Form/Custom/Elements/CustomProjectMenuElement';
+import { MarkdownEntity } from '../../../../../lib/common/entities/markdown.entity';
 
 interface PropsT {
   project: AdminProjectEntity;
@@ -77,7 +78,7 @@ export default function (props: PropsT) {
   const parse = async (type: string, text: string) => {
     switch (type) {
       case '.md': {
-        const html = await StringService.markdown(text);
+        const html = await MarkdownEntity.self.save.text({ text });
         return dispatch(AdminProjectStore.actions.setHtml(html));
       }
 

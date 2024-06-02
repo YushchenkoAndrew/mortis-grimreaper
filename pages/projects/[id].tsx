@@ -9,6 +9,7 @@ import Emscripten from '../../components/Container/Project/Emscripten';
 import Markdown from '../../components/Container/Project/Markdown';
 import Html from '../../components/Container/Project/Html';
 import DefaultLayout from '../../components/Container/Layout/DefaultLayout';
+import { marked } from 'marked';
 
 interface PropsT {
   project: ProjectEntity;
@@ -64,6 +65,7 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
       ),
     );
 
+    const first = preview?.[0]?.[1];
     const scripts = AttachmentService.filter(
       ProjectTypeEnum.p5js,
       project.attachments,
@@ -71,10 +73,13 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 
     const filename = `html/${project.type}-template.html.hbs`;
     const template = (existsSync(filename) && readFileSync(filename, 'utf-8')) || ''; // prettier-ignore
+    const markdown = project.type == ProjectTypeEnum.markdown && first && (await marked.parse(first)); // prettier-ignore
+
     const html = Handlebars.compile(template)({
       scripts,
       title: project.name,
       web: Config.self.base.web,
+      markdown: markdown || '',
     });
 
     return { props: { ...ctx.params, html, project, preview } };

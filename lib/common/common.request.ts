@@ -5,6 +5,7 @@ import { CommonEntity } from './entities/common.entity';
 import { RequestOptionsType } from './types/request-options.type';
 import { RequestTypeEnum } from './types/request-type.enum';
 import { StringService } from '.';
+import { MarkdownEntity } from './entities/markdown.entity';
 
 export class CommonRequest<
   T extends (...args: any) => Promise<Response>,
@@ -92,10 +93,5 @@ export class CommonRequest<
 
   public get text() {
     return (...args: Args) => this.exec(...args).then((res) => res.text());
-  }
-
-  public get markdown() {
-    return (...args: Args) =>
-      this.raw(...args).then((text) => StringService.markdown(text));
   }
 }

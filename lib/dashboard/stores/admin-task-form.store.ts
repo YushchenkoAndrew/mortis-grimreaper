@@ -32,8 +32,6 @@ export const AdminTaskFormStore = createSlice({
       const [stage_id, res]: [string, AdminTaskEntity] = action.payload as any;
       state.stage_id = stage_id;
 
-      console.log(res.owner);
-
       state.id = res.id;
       state.name = res.name || '';
       state.description = res.description || '';
@@ -50,12 +48,12 @@ export const AdminTaskFormStore = createSlice({
     },
     reset: (state) => {
       state.id = null;
-      state.name = '';
-      state.description = '';
-      state.status = TaskStatusEnum.active;
+      // state.name = '';
+      // state.description = '';
+      // state.status = TaskStatusEnum.active;
 
-      state.tags = [];
-      state.links = [];
+      // state.tags = [];
+      // state.links = [];
     },
     setId: (state, action: PayloadAction<[string, string]>) => {
       [state.stage_id, state.id] = action.payload || [];

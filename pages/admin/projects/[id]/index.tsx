@@ -35,6 +35,7 @@ import CustomYesNoPopupElement from '../../../../components/Form/Custom/Elements
 import CustomProjectStatusPreview from '../../../../components/Form/Custom/Previews/CustomProjectStatusPreview';
 import { AttachmentAttachableTypeEnum } from '../../../../lib/attachment/types/attachment-attachable-type.enum';
 import TagFormPreview from '../../../../components/Form/Previews/TagFormPreview';
+import { MarkdownEntity } from '../../../../lib/common/entities/markdown.entity';
 
 interface PropsT {
   project: AdminProjectEntity;
@@ -56,7 +57,8 @@ export default function (props: PropsT) {
       const readme = AttachmentService.readme(props.project.attachments);
       if (!readme) return;
 
-      const preview = await AttachmentEntity.self.load.markdown(readme.id);
+      const text = await AttachmentEntity.self.load.text(readme.id);
+      const preview = await MarkdownEntity.self.save.text({ text });
       dispatch(AdminProjectStore.actions.setHtml(preview));
     });
   }, []);

@@ -197,13 +197,18 @@ export class CommonEntity {
       this.newInstance(),
       `${''}${props.route}/action/delete`,
       (base: string, init) =>
-        async (id: string | string[], options?: RequestOptionsType) => {
+        async (
+          params: string | string[] | (ObjectLiteral & { id: string }),
+          options?: RequestOptionsType,
+        ) => {
           const config = await init({ ...options, session: props.session });
+          const id = typeof params == 'string' ? params : Array.isArray(params) ? params[0] : params.id; // prettier-ignore
+          const entity = typeof params == 'object' && !Array.isArray(params) ? params : null; // prettier-ignore
 
-          return fetch(
-            `${this.url(base, props, options)}/${ArrayService.first(id)}`,
-            { ...config, method: 'DELETE' },
-          );
+          return fetch(`${this.url(base, props, options, entity)}/${id}`, {
+            ...config,
+            method: 'DELETE',
+          });
         },
     );
   }

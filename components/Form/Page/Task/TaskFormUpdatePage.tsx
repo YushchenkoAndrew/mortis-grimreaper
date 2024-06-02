@@ -3,7 +3,7 @@ import { faAddressCard, faFile } from '@fortawesome/free-regular-svg-icons';
 import { faEllipsisVertical, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
-import { KeyboardEvent, ReactNode, useMemo, useRef } from 'react';
+import { KeyboardEvent, ReactNode, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AttachmentService } from '../../../../lib/attachment/attachment.service';
 import { AttachmentAttachableTypeEnum } from '../../../../lib/attachment/types/attachment-attachable-type.enum';
@@ -17,10 +17,10 @@ import { AdminTaskEntity } from '../../../../lib/dashboard/entities/admin-task.e
 import { TaskPositionEntity } from '../../../../lib/dashboard/entities/task-position.entity';
 import { AdminTaskFormStore } from '../../../../lib/dashboard/stores/admin-task-form.store';
 import { AdminLinkEntity } from '../../../../lib/link/entities/admin-link.entity';
+import CustomYesNoPopupElement from '../../Custom/Elements/CustomYesNoPopupElement';
 import LinkFormGraggable from '../../Draggable/LinkFormDraggable';
 import TableFormGraggable from '../../Draggable/TableFormDraggable';
 import InputFormElement from '../../Elements/InputFormElement';
-import InputListFormElement from '../../Elements/InputListFormElement';
 import MenuFormElement from '../../Elements/MenuFormElement';
 import TextareaFormElement from '../../Elements/TextareaFormElement';
 import NoneFormPreview from '../../Previews/NoneFormPreview';
@@ -35,6 +35,8 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
   const dispatch = useAppDispatch();
   const form = useAppSelector((state) => state.admin.dashboard.task.form);
   const stages = useAppSelector((state) => state.admin.dashboard.index._stages); // prettier-ignore
+
+  const [deletePanel, openDeletePanel] = useState(false);
 
   const actions: ObjectLiteral = useMemo(() => {
     return stages.reduce((acc, curr) => ((acc[curr.id] = curr.name), acc), {});
@@ -337,7 +339,7 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
       </div> */}
 
       <div className="flex flex-col w-full max-w-72 py-4 ml-4 space-y-4">
-        <div className="flex mb-5">
+        <div className="flex mb-5 items-center justify-between">
           <MenuFormElement
             name={actions[form.stage_id]}
             actions={actions}
@@ -361,6 +363,50 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
                 'border border-gray-600 bg-transparent hover:bg-gray-700',
               buttonTextColor: 'text-gray-300',
             }}
+          />
+
+          <CustomYesNoPopupElement
+            className="dark"
+            title="Are you sure, you want to delete this task ?"
+            open={deletePanel}
+            onClose={() => openDeletePanel(false)}
+            onNext={() => {
+              ErrorService.envelop(async () => {
+                await AdminTaskEntity.self.delete.exec(form);
+
+                dispatch(AdminTaskFormStore.actions.reset());
+                await reload();
+              });
+            }}
+          />
+
+          <MenuFormElement
+            // className="mr-2"
+            name={
+              <FontAwesomeIcon
+                className="text-sm py-2 px-3 cursor-pointer"
+                icon={faEllipsisVertical}
+              />
+            }
+            actions={{
+              // status: `Make task ${}`,
+              delete: 'Delete this task',
+            }}
+            onChange={(action) => {
+              switch (action) {
+                // case 'upload':
+                //   return fileRef.current.click();
+
+                case 'delete':
+                  return openDeletePanel(true);
+              }
+            }}
+            setOptions={{
+              buttonPadding: ' ',
+              noChevronDown: true,
+              buttonColor: 'hover:bg-gray-700',
+            }}
+            // itemComponent={props.itemComponent}
           />
         </div>
 

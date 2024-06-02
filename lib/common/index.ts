@@ -1,4 +1,3 @@
-import { marked } from 'marked';
 import { Config } from '../../config';
 import { ObjectLiteral } from './types';
 import { v4 as uuid } from 'uuid';
@@ -95,14 +94,12 @@ export class StringService {
     return `${Config.self.base.web}/${path.join('/')}`;
   }
 
-  static async markdown(src: string): Promise<string> {
-    const markdown = await marked.parse(src);
-    return `
-    <div>
-      <style scoped>@import url("${Config.self.base.web}/styles/markdown.css");</style>
-      ${markdown}
-    </div>`;
-  }
+  // static async markdown(src: string): Promise<string> {
+  //   const markdown = await marked.parse(src);
+  //   const filename = `html/markdown-template.html.hbs`;
+  //   const template = (existsSync(filename) && readFileSync(filename, 'utf-8')) || ''; // prettier-ignore
+  //   return Handlebars.compile(template)({ title: 'Markdown', markdown });
+  // }
 }
 
 export class ArrayService {

@@ -1,0 +1,70 @@
+name: ci-test
+
+on:
+  push:
+    branches: [master, dev]
+
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      void:
+        image: grimreapermortis/void:dev
+        ports:
+          - 8003:8003
+
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: root
+          POSTGRES_DB: api_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 7432:5432
+
+      redis:
+        image: redis
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+      grape:
+        image: grimreapermortis/grape:dev
+        ports:
+          - 31337:31337
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 20.11.0
+          # cache: npm
+
+      - name: Install packages
+        run: npm install
+
+      - name: Build server in test env
+        run: npm run build:test
+
+      - name: Start server in background
+        run: npm run start:test &
+
+      - name: Wait a bit till server would be ready
+        run: sleep 5
+
+      - name: Run tests
+        run: npm run cypress:headless

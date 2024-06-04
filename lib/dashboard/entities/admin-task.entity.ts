@@ -1,6 +1,7 @@
 import { AdminAttachmentEntity } from '../../attachment/entities/admin-attachment.entity';
 import { Column, Request } from '../../common/decorators/column';
 import { Entity } from '../../common/decorators/request-entity';
+import { AdminContextEntity } from '../../context/entities/admin-context.entity';
 import { AdminLinkEntity } from '../../link/entities/admin-link.entity';
 import { AdminTagEntity } from '../../tag/entities/admin-tag.entity';
 import { TaskStatusEnum } from '../types/task-status.enum';
@@ -28,6 +29,9 @@ export class AdminTaskEntity extends TaskEntity {
 
   @Column((e) => new AdminTagEntity().buildAll(e.tags ?? {}))
   tags: AdminTagEntity[] = [];
+
+  @Column((e) => new AdminContextEntity().buildAll(e.contexts ?? {}))
+  contexts: AdminContextEntity[] = [];
 
   @Request(() => undefined, { nullable: true })
   stage_id: string = null;

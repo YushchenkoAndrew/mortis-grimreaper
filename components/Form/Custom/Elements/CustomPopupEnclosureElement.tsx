@@ -27,7 +27,7 @@ export default memo(function CustomPopupEnclosureElement(
       setOptions={{ panelSize: 'sm:w-full sm:max-w-5xl' }}
     >
       <div
-        className={`text-sm font-medium text-gray-800 bg-gray-100 px-4 py-3 border-b border-gray-300 ${
+        className={`text-sm font-medium text-gray-800 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 px-4 py-3 border-b border-gray-300 dark:border-gray-600 ${
           props.title ? 'flex' : 'hidden'
         }`}
       >

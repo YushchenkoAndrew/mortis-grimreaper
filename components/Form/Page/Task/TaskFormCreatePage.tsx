@@ -148,7 +148,7 @@ export default function TaskFormCreatePage(props: TaskFormPageCreateProps) {
         >
           <InputListFormElement
             placeholder="Provide alternate names: test"
-            value={form.tag}
+            value={form.tag?.name || ''}
             values={form.tags.map((e) => e.name)}
             onChange={(e) => dispatch(AdminTaskFormStore.actions.setTag(e))}
             onSubmit={(e, index) =>

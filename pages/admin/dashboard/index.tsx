@@ -19,12 +19,14 @@ import { useEffect, useState } from 'react';
 import AdminLayout from '../../../components/Container/Layout/AdminLayout';
 import CustomPopupEnclosureElement from '../../../components/Form/Custom/Elements/CustomPopupEnclosureElement';
 import CustomYesNoPopupElement from '../../../components/Form/Custom/Elements/CustomYesNoPopupElement';
+import AttachmentFormPage from '../../../components/Form/Page/Attachment/AttachmentFormPage';
 import StageFormCreatePage from '../../../components/Form/Page/Stage/StageFormCreatePage';
 import TaskFormCreatePage from '../../../components/Form/Page/Task/TaskFormCreatePage';
 import TaskFormUpdatePage from '../../../components/Form/Page/Task/TaskFormUpdatePage';
 import StageFormPreview from '../../../components/Form/Previews/StageFormPreview';
 import StageFormSortable from '../../../components/Form/Sortable/StageFormSortable';
 import { Config } from '../../../config';
+import { AdminAttachmentStore } from '../../../lib/attachment/stores/admin-attachment.store';
 import { PositionEntity } from '../../../lib/common/entities/position.entity';
 import { ErrorService } from '../../../lib/common/error.service';
 import { useAppDispatch, useAppSelector } from '../../../lib/common/store';
@@ -61,6 +63,7 @@ export default function (props: PropsT) {
       background="bg-[url('/projects/img/dashboard-background.png')]"
     >
       <CustomPopupEnclosureElement
+        className="dark"
         title="Create new stage"
         state="admin.dashboard.stage.form.id"
         onClose={() => dispatch(AdminStageFormStore.actions.reset())}
@@ -69,6 +72,7 @@ export default function (props: PropsT) {
       </CustomPopupEnclosureElement>
 
       <CustomPopupEnclosureElement
+        className="dark"
         title="Create new task"
         state="admin.dashboard.task.form.id"
         condition={(id) => id === 'null'}
@@ -84,6 +88,18 @@ export default function (props: PropsT) {
         onClose={() => dispatch(AdminTaskFormStore.actions.reset())}
       >
         <TaskFormUpdatePage />
+      </CustomPopupEnclosureElement>
+
+      <CustomPopupEnclosureElement
+        className="dark"
+        state="admin.attachment.id"
+        onClose={() => dispatch(AdminAttachmentStore.actions.reset())}
+      >
+        <AttachmentFormPage
+          reload={() =>
+            dispatch(AdminDashboardCollection.self.select.thunk({})).unwrap()
+          }
+        />
       </CustomPopupEnclosureElement>
 
       <CustomYesNoPopupElement

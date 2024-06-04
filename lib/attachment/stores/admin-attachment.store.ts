@@ -14,6 +14,18 @@ export const AdminAttachmentStore = createSlice({
     buffer: null,
   } as AdminAttachmentStoreT,
   reducers: {
+    init: (state, action: PayloadAction<AdminAttachmentEntity>) => {
+      state.id = action.payload.id;
+      state.name = action.payload.name;
+      state.type = action.payload.type;
+      state.path = action.payload.path;
+      state.preview = action.payload.preview;
+
+      state.updated_at = action.payload.updated_at;
+    },
+    reset: (state) => {
+      state.id = null;
+    },
     setBuffer: (state, action: PayloadAction<string>) => {
       state.buffer = action.payload;
     },
@@ -35,16 +47,6 @@ export const AdminAttachmentStore = createSlice({
     },
     setAttachableId: (state, action: PayloadAction<string>) => {
       state.attachable_id = action.payload || '';
-    },
-
-    setAttachment: (state, action: PayloadAction<AdminAttachmentEntity>) => {
-      state.id = action.payload.id;
-      state.name = action.payload.name;
-      state.type = action.payload.type;
-      state.path = action.payload.path;
-      state.preview = action.payload.preview;
-
-      state.updated_at = action.payload.updated_at;
     },
   },
 });

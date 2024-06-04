@@ -27,6 +27,13 @@ module.exports = {
       proxy('admin/attachments/:id'),
       proxy('admin/attachments/:id/order'),
 
+      proxy('admin/contexts'),
+      proxy('admin/contexts/:context_id'),
+      proxy('admin/contexts/:context_id/order'),
+      proxy('admin/contexts/:context_id/fields'),
+      proxy('admin/contexts/:context_id/fields/:id'),
+      proxy('admin/contexts/:context_id/fields/:id/order'),
+
       proxy('admin/stages'),
       proxy('admin/stages/:stage_id'),
       proxy('admin/stages/:stage_id/order'),

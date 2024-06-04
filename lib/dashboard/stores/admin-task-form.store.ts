@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AdminAttachmentEntity } from '../../attachment/entities/admin-attachment.entity';
+import { ObjectLiteral } from '../../common/types';
 import { AdminLinkEntity } from '../../link/entities/admin-link.entity';
 import { LinkLinkableTypeEnum } from '../../link/types/link-linkable-type.enum';
 import { AdminTagEntity } from '../../tag/entities/admin-tag.entity';
@@ -9,10 +10,9 @@ import { TaskStatusEnum } from '../types/task-status.enum';
 
 type StoreT = AdminTaskEntity & {
   stage_id: string;
-  // trash: ObjectLiteral<AdminProjectEntity>;
   // dashboard: ObjectLiteral<AdminStageEntity>;
 
-  tag: string;
+  tag: AdminTagEntity;
   picked: AdminAttachmentEntity;
 };
 
@@ -21,7 +21,7 @@ export const AdminTaskFormStore = createSlice({
   initialState: {
     stage_id: '',
 
-    tag: '',
+    tag: null,
     picked: null,
     // dashboard: {},
     // stages: [],
@@ -40,8 +40,9 @@ export const AdminTaskFormStore = createSlice({
       state.tags = res.tags;
       state.owner = res.owner;
       state.attachments = res.attachments;
+      state.contexts = res.contexts;
 
-      state.tag = '';
+      state.tag = null;
       state.links = res.links.concat(
         res.id == 'null' ? new AdminLinkEntity({ name: '', link: '' }) : null,
       );
@@ -65,20 +66,17 @@ export const AdminTaskFormStore = createSlice({
       state.description = action.payload || '';
     },
     setTag: (state, action: PayloadAction<string>) => {
-      state.tag = action.payload || '';
+      state.tag = new AdminTagEntity({
+        name: action.payload || '',
+        taggable_id: state.id,
+        taggable_type: TagTaggableTypeEnum.tasks,
+      });
     },
     addTag: (state) => {
-      if (!state.tag) return;
+      if (!state.tag?.name) return;
 
-      state.tags.push(
-        new AdminTagEntity({
-          name: state.tag,
-          taggable_id: state.id,
-          taggable_type: TagTaggableTypeEnum.tasks,
-        }),
-      );
-
-      state.tag = '';
+      state.tags.push(state.tag);
+      state.tag = null;
     },
     delTag: (state, action: PayloadAction<number>) => {
       const tag = state.tags[action.payload];

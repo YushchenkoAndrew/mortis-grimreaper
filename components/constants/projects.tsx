@@ -16,10 +16,6 @@ export const PROJECT_FORM_STEPS = {
   [ProjectStepEnum.review]: 'Review',
 };
 
-export const PROJECT_HANDLEBAR_SHORTCUTS = {
-  // p5js: '.parent(document.getElementById(`p5js-container`))',
-};
-
 export const PROJECT_TYPES_OPTIONS = {
   [ProjectTypeEnum.p5js]: (
     <>

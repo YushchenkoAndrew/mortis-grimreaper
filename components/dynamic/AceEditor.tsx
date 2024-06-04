@@ -2,6 +2,7 @@ import AceEditor from 'react-ace';
 import { IAceEditorProps } from 'react-ace/lib/ace';
 
 import 'ace-builds/src-noconflict/theme-tomorrow';
+import 'ace-builds/src-noconflict/theme-tomorrow_night';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import { Vim } from 'ace-builds/src-noconflict/keybinding-vim';
 import 'ace-builds/src-noconflict/ext-spellcheck';

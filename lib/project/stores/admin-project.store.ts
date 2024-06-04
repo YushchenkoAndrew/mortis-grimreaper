@@ -28,6 +28,25 @@ export const AdminProjectStore = createSlice({
     html: '',
   } as StoreT,
   reducers: {
+    init: (state, { payload }) => {
+      const res: AdminProjectEntity = payload as any;
+
+      state.id = res.id;
+      state.name = res.name;
+      state.type = res.type;
+      state.status = res.status;
+      state.footer = res.footer;
+      state.description = res.description;
+
+      state.tags = res.tags;
+      state.links = res.links;
+      state.attachments = res.attachments;
+      state.avatar = res._avatar(uuid());
+
+      state.trash = null;
+      state.picked = null;
+      state.html = '';
+    },
     setType: (state, action: PayloadAction<ProjectTypeEnum>) => {
       state.type = action.payload;
     },
@@ -82,31 +101,11 @@ export const AdminProjectStore = createSlice({
     },
     onReorder: (state, action: PayloadAction<AdminAttachmentEntity[]>) => {
       state.attachments = action.payload.map(
-        (e, index) => ((e.order = index), e),
+        (e, index) => ((e.order = index + 1), e),
       );
     },
     onDrop: (state) => {
       state.picked = null;
-    },
-
-    init: (state, { payload }) => {
-      const res: AdminProjectEntity = payload as any;
-
-      state.id = res.id;
-      state.name = res.name;
-      state.type = res.type;
-      state.status = res.status;
-      state.footer = res.footer;
-      state.description = res.description;
-
-      state.tags = res.tags;
-      state.links = res.links;
-      state.attachments = res.attachments;
-      state.avatar = res._avatar(uuid());
-
-      state.trash = null;
-      state.picked = null;
-      state.html = '';
     },
   },
   extraReducers(builder) {

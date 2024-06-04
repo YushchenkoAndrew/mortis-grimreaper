@@ -1,26 +1,38 @@
 import { arrayMove } from '@dnd-kit/sortable';
-import { faAddressCard, faFile } from '@fortawesome/free-regular-svg-icons';
+import {
+  faAddressCard,
+  faFile,
+  faPenToSquare,
+  faSquareCheck,
+} from '@fortawesome/free-regular-svg-icons';
 import { faEllipsisVertical, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
 import { KeyboardEvent, ReactNode, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AttachmentService } from '../../../../lib/attachment/attachment.service';
+import { AdminAttachmentEntity } from '../../../../lib/attachment/entities/admin-attachment.entity';
+import { AdminAttachmentStore } from '../../../../lib/attachment/stores/admin-attachment.store';
 import { AttachmentAttachableTypeEnum } from '../../../../lib/attachment/types/attachment-attachable-type.enum';
 import { PositionEntity } from '../../../../lib/common/entities/position.entity';
 import { ErrorService } from '../../../../lib/common/error.service';
 import { useAppDispatch, useAppSelector } from '../../../../lib/common/store';
 import { ObjectLiteral } from '../../../../lib/common/types';
 import { OrderableTypeEnum } from '../../../../lib/common/types/orderable-type.enum';
+import { AdminContextEntity } from '../../../../lib/context/entities/admin-context.entity';
+import { ContextContextableTypeEnum } from '../../../../lib/context/types/context-contextable-type.enum';
 import { AdminDashboardCollection } from '../../../../lib/dashboard/collections/admin-dashboard.collection';
 import { AdminTaskEntity } from '../../../../lib/dashboard/entities/admin-task.entity';
 import { TaskPositionEntity } from '../../../../lib/dashboard/entities/task-position.entity';
 import { AdminTaskFormStore } from '../../../../lib/dashboard/stores/admin-task-form.store';
 import { AdminLinkEntity } from '../../../../lib/link/entities/admin-link.entity';
+import { AdminTagEntity } from '../../../../lib/tag/entities/admin-tag.entity';
 import CustomYesNoPopupElement from '../../Custom/Elements/CustomYesNoPopupElement';
 import LinkFormGraggable from '../../Draggable/LinkFormDraggable';
 import TableFormGraggable from '../../Draggable/TableFormDraggable';
+import DropdownFormElement from '../../Elements/DropdownFormElement';
 import InputFormElement from '../../Elements/InputFormElement';
+import InputListFormElement from '../../Elements/InputListFormElement';
 import MenuFormElement from '../../Elements/MenuFormElement';
 import TextareaFormElement from '../../Elements/TextareaFormElement';
 import NoneFormPreview from '../../Previews/NoneFormPreview';
@@ -74,12 +86,21 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
   const onLinkSubmit = (action: 'add' | 'delete', index: number) =>
     ErrorService.envelop(async () => {
       const entity = form.links[index];
-      console.log({ links: form.links, index, action });
       if (!entity) return;
 
       const body = new AdminLinkEntity({ ...entity, name: entity.name || entity.link }); // prettier-ignore
       if (action == 'delete') await AdminLinkEntity.self.delete.exec(entity.id);
       else await AdminLinkEntity.self.save.build(body);
+
+      await reload();
+    });
+
+  const onTagSubmit = (action: 'add' | 'delete', index: number) =>
+    ErrorService.envelop(async () => {
+      const entity = form.tags[index];
+
+      if (action == 'add') await AdminTagEntity.self.save.build(form.tag);
+      else if (entity) await AdminTagEntity.self.delete.exec(entity.id);
 
       await reload();
     });
@@ -211,15 +232,15 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
               }
               actions={{
                 upload: 'Upload File',
-                delete: 'Delete File',
+                // delete: 'Delete File',
               }}
               onChange={(action) => {
                 switch (action) {
                   case 'upload':
                     return fileRef.current.click();
 
-                  case 'delete':
-                  // return dispatch(AdminTaskFormStore.actions.initTrash());
+                  // case 'delete':
+                  //   return dispatch(AdminTaskFormStore.actions.initTrash());
                 }
               }}
               setOptions={{
@@ -275,15 +296,8 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
             onDragCancel={() =>
               dispatch(AdminTaskFormStore.actions.onAttachmentDrop())
             }
-            onClick={
-              null
-              //   (attachment: AdminAttachmentEntity) => {
-              //   if (!trash) return redirect(AttachmentService.filepath(attachment)); // prettier-ignore
-              //   if (attachment.type) return dispatch(AdminProjectStore.actions.pushTrash(attachment)); // prettier-ignore
-
-              //   const files = attachments.filter((e) => e.path.startsWith(`/${attachment.name}/`)); // prettier-ignore
-              //   dispatch(AdminProjectStore.actions.pushTrash(files.concat(attachment) as any)); // prettier-ignore
-              // }
+            onClick={(attachment: AdminAttachmentEntity) =>
+              dispatch(AdminAttachmentStore.actions.init(attachment))
             }
             firstComponent={(props) =>
               props.row.type ? props.children : <span className="pl-7 py-6" />
@@ -291,11 +305,7 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
             dataComponent={{
               name: (attachment) => (
                 <span
-                  className={`group flex h-full whitespace-nowrap ${
-                    // trash?.[attachment.id]
-                    //   ? 'line-through text-gray-500' :
-                    'text-gray-300'
-                  }`}
+                  className={`group flex h-full whitespace-nowrap text-gray-300`}
                 >
                   <FontAwesomeIcon
                     className="text-gray-400 text-lg mr-2"
@@ -322,21 +332,44 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
             }}
           />
         </div>
-      </div>
 
-      {/* <div className="flex w-full my-4">
-        <NextFormElement
-          className="ml-auto mr-4"
-          next="Create Task"
-          back="Cancel"
-          onNext={() => onSubmit()}
-          onBack={() => dispatch(AdminTaskFormStore.actions.reset())}
-          setOptions={{
-            buttonPadding: 'py-1.5 px-4',
-            nextButtonColor: 'text-white bg-green-600 hover:bg-green-700',
-          }}
-        />
-      </div> */}
+        <div
+          className={`flex-col mb-8 ${
+            form.contexts?.length ? 'flex' : 'hidden'
+          }`}
+        >
+          <div className="flex w-full mr-2 mb-2 text-sm justify-between items-center text-gray-300">
+            <span className="font-semibold">Checklist</span>
+            <MenuFormElement
+              className="mr-2"
+              name={
+                <FontAwesomeIcon
+                  className="text-sm py-1 px-2.5 cursor-pointer"
+                  icon={faEllipsisVertical}
+                />
+              }
+              actions={{
+                // upload: 'Upload File',
+                delete: 'Delete checklist',
+              }}
+              onChange={(action) => {
+                switch (action) {
+                  case 'delete':
+                  // TODO: ???????
+                  // return dispatch(AdminTaskFormStore.actions.initTrash());
+                }
+              }}
+              setOptions={{
+                buttonPadding: ' ',
+                noChevronDown: true,
+                buttonColor: 'hover:bg-gray-700',
+              }}
+              // itemComponent={props.itemComponent}
+            />
+          </div>
+          // TODO:
+        </div>
+      </div>
 
       <div className="flex flex-col w-full max-w-72 py-4 ml-4 space-y-4">
         <div className="flex mb-5 items-center justify-between">
@@ -429,15 +462,36 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
           name="Tags"
           value={
             <div className="flex w-full  justify-between">
-              <div className="flex flex-wrap space-x-1 space-y-2">
+              <div className="flex flex-wrap space-x-1">
+                <span className="hidden" />
                 {form.tags.map((e) => (
                   <TagFormPreview key={e.id} name={e.name} />
                 ))}
                 <NoneFormPreview hidden={!!form.tags?.length} />
               </div>
-              <FontAwesomeIcon
-                className="mt-0.5 p-0.5 hover:bg-gray-700 cursor-pointer"
-                icon={faPlus}
+
+              <DropdownFormElement
+                name={<FontAwesomeIcon icon={faPenToSquare} />}
+                contextComponent={
+                  <InputListFormElement
+                    name="Tags"
+                    placeholder="Provide alternate names: test"
+                    value={form.tag?.name || ''}
+                    values={form.tags.map((e) => e.name)}
+                    onChange={(e) =>
+                      dispatch(AdminTaskFormStore.actions.setTag(e))
+                    }
+                    onSubmit={(e, index) => onTagSubmit(e, index)}
+                    onKeyDown={(e) => e.key == 'Enter' && onTagSubmit('add', 0)}
+                  />
+                }
+                setOptions={{
+                  noChevronDown: true,
+                  buttonPadding: 'p-1',
+                  buttonColor: 'bg-gray-800 hover:bg-gray-700',
+                  panelWidth: 'w-72',
+                  panelPadding: 'py-2 px-3',
+                }}
               />
             </div>
           }
@@ -445,25 +499,37 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
 
         <DetailView
           name="Checklist"
-          value={<span className={`text-sm`}>Create checklist</span>}
-        />
+          value={
+            form.contexts?.length ? (
+              <div className="flex text-sm items-center w-full">
+                <FontAwesomeIcon icon={faSquareCheck} />
+                <span className="ml-2 font-semibold">
+                  {form.contexts[0].outOf().join('/')}
+                </span>
+              </div>
+            ) : (
+              <div className="flex w-full items-center justify-between">
+                <NoneFormPreview />
+                <FontAwesomeIcon
+                  className="p-1 rounded bg-gray-800 hover:bg-gray-700 cursor-pointer"
+                  icon={faPlus}
+                  onClick={() =>
+                    ErrorService.envelop(async () => {
+                      const body = new AdminContextEntity({
+                        name: 'Checklist',
+                        contextable_id: form.id,
+                        contextable_type: ContextContextableTypeEnum.tasks,
+                      });
 
-        {/* <InputListFormElement
-          placeholder="Provide alternate names: test"
-          value={form.tag}
-          values={form.tags.map((e) => e.name)}
-          onChange={(e) => dispatch(AdminTaskFormStore.actions.setTag(e))}
-          onSubmit={(e, index) =>
-            dispatch(
-              e == 'add'
-                ? AdminTaskFormStore.actions.addTag()
-                : AdminTaskFormStore.actions.delTag(index),
+                      await AdminContextEntity.self.save.build(body);
+                      await reload();
+                    })
+                  }
+                />
+              </div>
             )
           }
-          onKeyDown={(e) =>
-            e.key == 'Enter' && dispatch(AdminTaskFormStore.actions.addTag())
-          }
-        /> */}
+        />
       </div>
     </div>
   );

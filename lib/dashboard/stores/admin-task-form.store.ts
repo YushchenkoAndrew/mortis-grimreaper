@@ -1,6 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AdminAttachmentEntity } from '../../attachment/entities/admin-attachment.entity';
 import { ObjectLiteral } from '../../common/types';
+import { AdminContextFieldEntity } from '../../context/entities/admin-context-field.entity';
+import { ContextFieldValueEnum } from '../../context/types/context-field-value.enum';
 import { AdminLinkEntity } from '../../link/entities/admin-link.entity';
 import { LinkLinkableTypeEnum } from '../../link/types/link-linkable-type.enum';
 import { AdminTagEntity } from '../../tag/entities/admin-tag.entity';
@@ -98,16 +100,15 @@ export const AdminTaskFormStore = createSlice({
     },
     newLink: (state) => {
       const index = state.links.length - 1;
-      if (index >= 0) return void (state.links[index] = new AdminLinkEntity({ name: '', link: '' })); // prettier-ignore
+      const instance = new AdminLinkEntity({
+        name: '',
+        link: '',
+        linkable_id: state.id,
+        linkable_type: LinkLinkableTypeEnum.tasks,
+      });
 
-      state.links.push(
-        new AdminLinkEntity({
-          name: '',
-          link: '',
-          linkable_id: state.id,
-          linkable_type: LinkLinkableTypeEnum.tasks,
-        }),
-      );
+      if (index >= 0) return void (state.links[index] = instance); // prettier-ignore
+      state.links.push(instance);
     },
     addLink: (state) => {
       if (!state.links.at(-1)?.link) return;
@@ -128,6 +129,35 @@ export const AdminTaskFormStore = createSlice({
     },
     onLinkReorder: (state, action: PayloadAction<AdminLinkEntity[]>) => {
       state.links = action.payload;
+    },
+    setField: (state, action: PayloadAction<[string, number]>) => {
+      const [key, index] = action.payload;
+      if (!state.contexts?.[0]?.fields[index]) return;
+
+      state.contexts[0].fields[index] = new AdminContextFieldEntity({
+        ...(state.contexts[0].fields[index] as any),
+        name: key,
+      });
+    },
+    newField: (state) => {
+      if (!state.contexts?.[0]?.fields) return;
+
+      const index = state.contexts[0].fields.length - 1;
+      const instance = new AdminContextFieldEntity({
+        name: '',
+        value: 'false',
+        options: { type: ContextFieldValueEnum.boolean },
+      });
+
+      if (index >= 0) return void (state.contexts[0].fields[index] = instance); // prettier-ignore
+      state.contexts[0].fields.push(instance);
+    },
+    onFieldReorder: (
+      state,
+      action: PayloadAction<AdminContextFieldEntity[]>,
+    ) => {
+      if (!state.contexts?.[0]?.fields) return;
+      state.contexts[0].fields = action.payload;
     },
     onAttachmentPick: (state, action: PayloadAction<string>) => {
       const id = action.payload;

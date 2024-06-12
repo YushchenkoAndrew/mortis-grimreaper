@@ -1,6 +1,7 @@
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { KeyboardEvent, useCallback } from 'react';
+import { Config } from '../../../../config';
 import { ErrorService } from '../../../../lib/common/error.service';
 import { useAppDispatch, useAppSelector } from '../../../../lib/common/store';
 import { AdminDashboardCollection } from '../../../../lib/dashboard/collections/admin-dashboard.collection';
@@ -8,7 +9,7 @@ import { AdminTaskEntity } from '../../../../lib/dashboard/entities/admin-task.e
 import { AdminTaskFormStore } from '../../../../lib/dashboard/stores/admin-task-form.store';
 import { AdminLinkEntity } from '../../../../lib/link/entities/admin-link.entity';
 import { AdminTagEntity } from '../../../../lib/tag/entities/admin-tag.entity';
-import LinkFormGraggable from '../../Draggable/LinkFormDraggable';
+import ListFormGraggable from '../../Draggable/ListFormDraggable';
 import DisclosureFormElement from '../../Elements/DisclosureFormElement';
 import InputFormElement from '../../Elements/InputFormElement';
 import InputListFormElement from '../../Elements/InputListFormElement';
@@ -122,16 +123,25 @@ export default function TaskFormCreatePage(props: TaskFormPageCreateProps) {
             }
           /> */}
 
-          <LinkFormGraggable
+          <ListFormGraggable
             noSuggestion
             placeholder={[
               'Displayed link name',
               'http://localhost:8000/projects',
             ]}
+            iconComponent={({ link }) => (
+              <img
+                className="h-5 w-5 mr-2"
+                src={`${Config.self.base.api}/icon?url=${encodeURIComponent(
+                  link,
+                )}`}
+              />
+            )}
             values={form.links}
             onChange={(key, value, index) =>
               dispatch(AdminTaskFormStore.actions.setLinks([key, value, index]))
             }
+            onClick={(e) => window.open(e.link, '_blank')}
             onDelete={(index) =>
               dispatch(AdminTaskFormStore.actions.delLink(index))
             }

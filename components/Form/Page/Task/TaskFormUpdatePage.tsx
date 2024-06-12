@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
 import { KeyboardEvent, ReactNode, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { Config } from '../../../../config';
 import { AttachmentService } from '../../../../lib/attachment/attachment.service';
 import { AdminAttachmentEntity } from '../../../../lib/attachment/entities/admin-attachment.entity';
 import { AdminAttachmentStore } from '../../../../lib/attachment/stores/admin-attachment.store';
@@ -28,7 +29,7 @@ import { AdminTaskFormStore } from '../../../../lib/dashboard/stores/admin-task-
 import { AdminLinkEntity } from '../../../../lib/link/entities/admin-link.entity';
 import { AdminTagEntity } from '../../../../lib/tag/entities/admin-tag.entity';
 import CustomYesNoPopupElement from '../../Custom/Elements/CustomYesNoPopupElement';
-import LinkFormGraggable from '../../Draggable/LinkFormDraggable';
+import ListFormGraggable from '../../Draggable/ListFormDraggable';
 import TableFormGraggable from '../../Draggable/TableFormDraggable';
 import DropdownFormElement from '../../Elements/DropdownFormElement';
 import InputFormElement from '../../Elements/InputFormElement';
@@ -105,6 +106,13 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
       await reload();
     });
 
+  const onFieldSubmit = (action: 'add' | 'delete', index: number) =>
+    ErrorService.envelop(async () => {
+      // TODO:
+
+      await reload();
+    });
+
   return (
     <div className="flex mt-2 mx-5 my-6">
       <div className="flex flex-col w-full space-y-4">
@@ -154,9 +162,9 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
         />
 
         {/* <div className="flex flex-col mb-8"> */}
-        <LinkFormGraggable
+        <ListFormGraggable
           name={
-            <div className="flex w-full mr-2 mb-2 text-sm justify-between items-center text-gray-300">
+            <div className="flex w-full mb-2 text-sm justify-between items-center text-gray-300">
               <span className="font-semibold">Attached links</span>
               <FontAwesomeIcon
                 className="text-sm p-1 hover:bg-gray-700 cursor-pointer"
@@ -165,6 +173,14 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
               />
             </div>
           }
+          iconComponent={({ link }) => (
+            <img
+              className="h-5 w-5 mr-2"
+              src={`${Config.self.base.api}/icon?url=${encodeURIComponent(
+                link,
+              )}`}
+            />
+          )}
           noSuggestion
           placeholder={[
             'Displayed link name',
@@ -174,6 +190,7 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
           onChange={(key, value, index) =>
             dispatch(AdminTaskFormStore.actions.setLinks([key, value, index]))
           }
+          onClick={(e) => window.open(e.link, '_blank')}
           onDelete={(index) => onLinkSubmit('delete', index)}
           onSubmit={(e) => onLinkSubmit('add', form.links.length - 1)}
           onKeyDown={(e) =>
@@ -223,7 +240,7 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
 
             <span className="font-semibold">Attached files</span>
             <MenuFormElement
-              className="mr-2"
+              // className="-mr-1"
               name={
                 <FontAwesomeIcon
                   className="text-sm py-1 px-2.5 cursor-pointer"
@@ -333,41 +350,90 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
           />
         </div>
 
-        <div
+        {/* <div
           className={`flex-col mb-8 ${
             form.contexts?.length ? 'flex' : 'hidden'
           }`}
         >
-          <div className="flex w-full mr-2 mb-2 text-sm justify-between items-center text-gray-300">
-            <span className="font-semibold">Checklist</span>
-            <MenuFormElement
-              className="mr-2"
-              name={
-                <FontAwesomeIcon
-                  className="text-sm py-1 px-2.5 cursor-pointer"
-                  icon={faEllipsisVertical}
-                />
-              }
-              actions={{
-                // upload: 'Upload File',
-                delete: 'Delete checklist',
-              }}
-              onChange={(action) => {
-                switch (action) {
-                  case 'delete':
-                  // TODO: ???????
-                  // return dispatch(AdminTaskFormStore.actions.initTrash());
+        </div> */}
+
+        <ListFormGraggable
+          className={form.contexts?.length ? 'block' : 'hidden'}
+          name={
+            <div className="flex w-full mb-2 text-sm justify-between items-center text-gray-300">
+              <span className="font-semibold">Checklist</span>
+              <MenuFormElement
+                name={
+                  <FontAwesomeIcon
+                    className="text-sm py-1 px-2.5 cursor-pointer"
+                    icon={faEllipsisVertical}
+                  />
                 }
-              }}
-              setOptions={{
-                buttonPadding: ' ',
-                noChevronDown: true,
-                buttonColor: 'hover:bg-gray-700',
-              }}
-              // itemComponent={props.itemComponent}
-            />
-          </div>
-        </div>
+                actions={{
+                  // upload: 'Upload File',
+                  new: 'Add new item',
+                  delete: 'Delete checklist',
+                }}
+                onChange={(action) => {
+                  switch (action) {
+                    case 'new':
+                      return dispatch(AdminTaskFormStore.actions.newField());
+
+                    case 'delete':
+                    // TODO: ???????
+                    // return dispatch(AdminTaskFormStore.actions.initTrash());
+                  }
+                }}
+                setOptions={{
+                  buttonPadding: ' ',
+                  noChevronDown: true,
+                  buttonColor: 'hover:bg-gray-700',
+                }}
+                // itemComponent={props.itemComponent}
+              />
+            </div>
+          }
+          noSuggestion
+          placeholder={[
+            'Displayed link name',
+            'http://localhost:8000/projects',
+          ]}
+          values={form.contexts?.[0]?.fields || []}
+          onChange={(key, _, index) =>
+            dispatch(AdminTaskFormStore.actions.setField([key, index]))
+          }
+          onDelete={(index) => onFieldSubmit('delete', index)}
+          onSubmit={(e) =>
+            onFieldSubmit('add', form.contexts?.[0]?.fields.length - 1)
+          }
+          onKeyDown={(e) =>
+            e.key == 'Enter' &&
+            onFieldSubmit('add', form.contexts?.[0]?.fields.length - 1)
+          }
+          onDragEnd={({ active, over }) =>
+            ErrorService.envelop(async () => {
+              if (!form.contexts?.[0]?.fields) return;
+
+              const position = form.contexts[0].fields.find((e) => e.id == over?.id)?.order ?? 1; // prettier-ignore
+              if (!over?.id || position === null) return;
+
+              dispatch(
+                AdminTaskFormStore.actions.onFieldReorder(
+                  arrayMove(
+                    form.contexts[0].fields.concat() as any,
+                    form.contexts[0].fields.findIndex((e) => e.id == active.id),
+                    form.contexts[0].fields.findIndex((e) => e.id == over.id),
+                  ),
+                ),
+              );
+
+              // const body = new PositionEntity({ position, id: active.id, orderable: OrderableTypeEnum.links }); // prettier-ignore
+
+              // await PositionEntity.self.save.build(body);
+              await reload();
+            })
+          }
+        />
       </div>
 
       <div className="flex flex-col w-full max-w-72 py-4 ml-4 space-y-4">

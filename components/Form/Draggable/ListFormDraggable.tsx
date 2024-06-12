@@ -19,15 +19,14 @@ import { ObjectLiteral } from '../../../lib/common/types';
 import { CSS } from '@dnd-kit/utilities';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGripVertical, faXmark } from '@fortawesome/free-solid-svg-icons';
-import { Dispatch, useMemo } from 'react';
+import { Dispatch, ReactNode, useMemo } from 'react';
 import KeyValueFormElement, {
   KeyValueFormElementProps,
 } from '../Elements/KeyValueFormElement';
-import { Config } from '../../../config';
 
-type EntityT = { id: string; name: string; link: string };
+type EntityT = { id: string; name: string };
 
-export interface LinkFormGraggableProps<T extends ObjectLiteral & EntityT>
+export interface ListFormGraggableProps<T extends ObjectLiteral & EntityT>
   extends Omit<KeyValueFormElementProps, 'contextComponent' | 'values'> {
   onDragStart?: Dispatch<DragStartEvent>;
   onDragCancel?: Dispatch<DragCancelEvent>;
@@ -35,10 +34,13 @@ export interface LinkFormGraggableProps<T extends ObjectLiteral & EntityT>
 
   values: T[];
   onDelete: Dispatch<number>;
+  onClick?: Dispatch<T>;
+
+  iconComponent?: (obj: T) => ReactNode;
 }
 
-export default function LinkFormGraggable<T extends ObjectLiteral & EntityT>(
-  props: LinkFormGraggableProps<T>,
+export default function ListFormGraggable<T extends ObjectLiteral & EntityT>(
+  props: ListFormGraggableProps<T>,
 ) {
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 2 } }),
@@ -73,6 +75,8 @@ export default function LinkFormGraggable<T extends ObjectLiteral & EntityT>(
                 <Preview
                   key={link.id}
                   data={link}
+                  onClick={props.onClick}
+                  prefix={props.iconComponent?.(link)}
                   onDelete={() => props.onDelete(index)}
                 />
               ))}
@@ -84,7 +88,12 @@ export default function LinkFormGraggable<T extends ObjectLiteral & EntityT>(
   );
 }
 
-function Preview(props: { data: EntityT; onDelete: Dispatch<void> }) {
+function Preview(props: {
+  data: EntityT;
+  prefix?: ReactNode;
+  onClick?: Dispatch<EntityT>;
+  onDelete: Dispatch<void>;
+}) {
   const { attributes, listeners, transform, transition, setNodeRef, isDragging } = useSortable({ id: props.data.id }); // prettier-ignore
 
   return (
@@ -94,7 +103,7 @@ function Preview(props: { data: EntityT; onDelete: Dispatch<void> }) {
       style={{ transition, transform: CSS.Transform.toString(transform) }}
       onClick={(e) => {
         if (e.currentTarget != e.target) return;
-        window.open(props.data.link, '_blank');
+        props.onClick?.(props.data);
       }}
     >
       <div className="flex items-center">
@@ -106,12 +115,7 @@ function Preview(props: { data: EntityT; onDelete: Dispatch<void> }) {
             isDragging ? 'cursor-grabbing' : 'cursor-grab'
           }`}
         />
-        <img
-          className="h-5 w-5 mr-2"
-          src={`${Config.self.base.api}/icon?url=${encodeURIComponent(
-            props.data.link,
-          )}`}
-        />
+        {props.prefix}
         <span className="text-gray-800 dark:text-gray-300 text-sm group-hover:underline">
           {props.data.name}
         </span>

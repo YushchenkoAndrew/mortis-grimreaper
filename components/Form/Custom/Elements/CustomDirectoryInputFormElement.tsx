@@ -7,6 +7,7 @@ import InputFormElement from '../../Elements/InputFormElement';
 export interface CustomDirectoryInputFormElementProps {
   prefix?: string;
   onSubmit?: Dispatch<void>;
+  errors?: string[];
 }
 
 export default function CustomDirectoryInputFormElement(
@@ -44,6 +45,7 @@ export default function CustomDirectoryInputFormElement(
         ref={inputRef}
         placeholder="Name your file ..."
         value={name}
+        errors={props.errors}
         onChange={(e) => {
           if (position.current !== null) return setCursor(uuid());
           return dispatch(AdminAttachmentStore.actions.setName(e));

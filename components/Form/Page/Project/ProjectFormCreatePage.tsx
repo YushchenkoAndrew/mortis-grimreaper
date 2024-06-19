@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import { Dispatch, useCallback } from 'react';
+import { useValidate } from '../../../../hooks/useValidate';
 import { ErrorService } from '../../../../lib/common/error.service';
 import { useAppDispatch, useAppSelector } from '../../../../lib/common/store';
 import { AdminProjectEntity } from '../../../../lib/project/entities/admin-project.entity';
@@ -22,18 +23,22 @@ export default function ProjectFormCreatePage(
   const router = useRouter();
   const dispatch = useAppDispatch();
   const form = useAppSelector((state) => state.admin.project.form);
+  const errors = useValidate(AdminProjectEntity, form);
 
   const onSubmit = useCallback(() => {
-    ErrorService.envelop(async () => {
-      const copy = { ...form, id: null };
-      const project = await dispatch(AdminProjectEntity.self.save.thunk(copy)).unwrap(); // prettier-ignore
-      dispatch(AdminProjectFormStore.actions.reset());
+    ErrorService.envelop(
+      async () => {
+        const copy = { ...form, id: null };
+        const project = await dispatch(AdminProjectEntity.self.save.thunk(copy)).unwrap(); // prettier-ignore
+        dispatch(AdminProjectFormStore.actions.reset());
 
-      router.push({
-        pathname: `${router.route}/[id]`,
-        query: { id: project.id },
-      });
-    });
+        router.push({
+          pathname: `${router.route}/[id]`,
+          query: { id: project.id },
+        });
+      },
+      { in_progress: true },
+    );
   }, [form]);
 
   return (
@@ -82,6 +87,7 @@ export default function ProjectFormCreatePage(
           placeholder="Project Name"
           value={form.name}
           onChange={(e) => dispatch(AdminProjectFormStore.actions.setName(e))}
+          errors={errors?.name}
           required
         />
 
@@ -90,6 +96,7 @@ export default function ProjectFormCreatePage(
           description="This input provides a brief and clear synopsis of our project"
           placeholder="Provide project synopsis"
           value={form.description}
+          errors={errors?.description}
           onChange={(e) =>
             dispatch(AdminProjectFormStore.actions.setDescription(e))
           }
@@ -100,6 +107,7 @@ export default function ProjectFormCreatePage(
           description="This input with offer in-depth project description"
           placeholder="Provide in-depth project summary"
           value={form.footer}
+          errors={errors?.footer}
           onChange={(e) => dispatch(AdminProjectFormStore.actions.setFooter(e))}
         />
 
@@ -109,6 +117,7 @@ export default function ProjectFormCreatePage(
           description="This redirection link will provide seamless access to the desired destination"
           placeholder="Provide in-depth project summary"
           value={form.link}
+          errors={errors?.link}
           required
           onChange={(e) => dispatch(AdminProjectFormStore.actions.setLink(e))}
         />

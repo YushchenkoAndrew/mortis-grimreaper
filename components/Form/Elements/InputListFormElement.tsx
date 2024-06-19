@@ -22,6 +22,7 @@ export interface InputListFormElement
   values: string[];
   placeholder?: string;
 
+  errors?: string[];
   onChange: (value: string, e: ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (event: 'add' | 'delete', index: number) => void;
   onKeyDown?: Dispatch<KeyboardEvent<HTMLInputElement>>;
@@ -39,9 +40,8 @@ export interface InputListFormElement
 
 export default forwardRef<HTMLInputElement, InputListFormElement>(
   function InputListFormElement(props: InputListFormElement, ref) {
-    const [error, onError] = useState(false);
     return (
-      <BlockFormElement {...props} error={error}>
+      <BlockFormElement {...props} error={props.errors?.[0]}>
         <div className="flex flex-col">
           <div className="flex space-x-2 items-center">
             <input
@@ -51,7 +51,7 @@ export default forwardRef<HTMLInputElement, InputListFormElement>(
               } text-gray-800 dark:text-gray-300 shadow-sm ring-1 ring-inset placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-inset ${
                 props.setOptions?.inputFocus ?? ''
               } sm:text-sm sm:leading-6 ${
-                error
+                props.errors
                   ? 'ring-red-600 hover:ring-red-600 focus:ring-red-600'
                   : 'ring-gray-700 dark:ring-gray-600 hover:ring-blue-600 focus:ring-blue-600'
               }`}
@@ -60,11 +60,8 @@ export default forwardRef<HTMLInputElement, InputListFormElement>(
               placeholder={props.placeholder}
               type={props.type ?? 'text'}
               value={props.value}
-              onChange={(e) => (
-                props.onChange(e.target.value, e),
-                props.required && onError(!e.target.value)
-              )}
-              onBlur={(e) => props.required && onError(!e.target.value)}
+              onChange={(e) => props.onChange(e.target.value, e)}
+              // onBlur={(e) => props.required && onError(!e.target.value)}
               onKeyDown={(e) => props.onKeyDown?.(e)}
             />
 

@@ -1,4 +1,5 @@
 import { KeyboardEvent, useCallback } from 'react';
+import { useValidate } from '../../../../hooks/useValidate';
 import { ErrorService } from '../../../../lib/common/error.service';
 import { useAppDispatch, useAppSelector } from '../../../../lib/common/store';
 import { AdminLinkEntity } from '../../../../lib/link/entities/admin-link.entity';
@@ -20,32 +21,36 @@ export default function ProjectFormUpdatePage(
 ) {
   const dispatch = useAppDispatch();
   const form = useAppSelector((state) => state.admin.project.form);
+  const errors = useValidate(AdminProjectEntity, form);
 
   const onSubmit = useCallback(() => {
-    ErrorService.envelop(async () => {
-      await dispatch(AdminProjectEntity.self.save.thunk(form)).unwrap(); // prettier-ignore
+    ErrorService.envelop(
+      async () => {
+        await dispatch(AdminProjectEntity.self.save.thunk(form)).unwrap(); // prettier-ignore
 
-      for (const tag of form.del_tags) {
-        await AdminTagEntity.self.delete.exec(tag.id); // prettier-ignore
-      }
+        for (const tag of form.del_tags) {
+          await AdminTagEntity.self.delete.exec(tag.id); // prettier-ignore
+        }
 
-      for (const tag of form.tags) {
-        if (tag.id) continue;
-        await AdminTagEntity.self.save.build(tag); // prettier-ignore
-      }
+        for (const tag of form.tags) {
+          if (tag.id) continue;
+          await AdminTagEntity.self.save.build(tag); // prettier-ignore
+        }
 
-      for (const link of form.del_links) {
-        await AdminLinkEntity.self.delete.exec(link.id); // prettier-ignore
-      }
+        for (const link of form.del_links) {
+          await AdminLinkEntity.self.delete.exec(link.id); // prettier-ignore
+        }
 
-      for (const link of form.new_links) {
-        if (!link.name) continue;
-        await AdminLinkEntity.self.save.build(link); // prettier-ignore
-      }
+        for (const link of form.new_links) {
+          if (!link.name) continue;
+          await AdminLinkEntity.self.save.build(link); // prettier-ignore
+        }
 
-      await dispatch(AdminProjectEntity.self.load.thunk(form.id)); // prettier-ignore
-      dispatch(AdminProjectFormStore.actions.reset());
-    });
+        await dispatch(AdminProjectEntity.self.load.thunk(form.id)); // prettier-ignore
+        dispatch(AdminProjectFormStore.actions.reset());
+      },
+      { in_progress: true },
+    );
   }, [form]);
 
   const onKeyDown = (e: KeyboardEvent<any>) => e.key == 'Enter' && onSubmit();
@@ -57,6 +62,7 @@ export default function ProjectFormUpdatePage(
           name="Project Name"
           placeholder="Project Name"
           value={form.name}
+          errors={errors.name}
           onChange={(e) => dispatch(AdminProjectFormStore.actions.setName(e))}
           onKeyDown={onKeyDown}
         />
@@ -66,6 +72,7 @@ export default function ProjectFormUpdatePage(
           description="This input provides a brief and clear synopsis of our project"
           placeholder="Provide project synopsis"
           value={form.description}
+          errors={errors.description}
           onChange={(e) =>
             dispatch(AdminProjectFormStore.actions.setDescription(e))
           }
@@ -77,6 +84,7 @@ export default function ProjectFormUpdatePage(
           description="This input with offer in-depth project description"
           placeholder="Provide in-depth project summary"
           value={form.footer}
+          errors={errors.footer}
           onChange={(e) => dispatch(AdminProjectFormStore.actions.setFooter(e))}
           onKeyDown={onKeyDown}
         />

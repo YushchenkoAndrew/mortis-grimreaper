@@ -17,6 +17,7 @@ export interface InputFormElementProps
   placeholder?: string;
   disabled?: boolean;
 
+  errors?: string[];
   onFocus?: Dispatch<void>;
   onBlur?: Dispatch<void>;
   onChange: (value: string, e: ChangeEvent<HTMLInputElement>) => void;
@@ -40,9 +41,12 @@ export interface InputFormElementProps
 
 export default forwardRef<HTMLInputElement, InputFormElementProps>(
   function InputFormElement(props: InputFormElementProps, ref) {
-    const [error, onError] = useState(false);
     return (
-      <BlockFormElement {...props} ref={props.blockRef} error={error}>
+      <BlockFormElement
+        {...props}
+        ref={props.blockRef}
+        error={props.errors?.[0]}
+      >
         <input
           ref={ref}
           className={`block w-full rounded border-0 bg-transparent ${
@@ -52,10 +56,10 @@ export default forwardRef<HTMLInputElement, InputFormElementProps>(
             'text-gray-800 dark:text-gray-300 placeholder:text-gray-400 dark:placeholder:text-gray-600'
           } shadow-sm focus:ring-inset ${
             props.setOptions?.inputFocus ??
-            (error ? 'focus:ring-red-600' : 'focus:ring-blue-600')
+            (props.errors ? 'focus:ring-red-600' : 'focus:ring-blue-600')
           } ${props.setOptions?.inputFont ?? 'sm:text-sm sm:leading-6'} ${
             props.setOptions?.inputRing ??
-            (error
+            (props.errors
               ? 'ring-1 ring-red-600 hover:ring-red-600'
               : 'ring-1 ring-gray-700 dark:ring-gray-600 hover:ring-blue-600')
           }`}
@@ -67,14 +71,9 @@ export default forwardRef<HTMLInputElement, InputFormElementProps>(
           placeholder={props.placeholder}
           type={props.type ?? 'text'}
           value={props.value}
-          onChange={(e) => (
-            props.onChange(e.target.value, e),
-            props.required && onError(!e.target.value)
-          )}
+          onChange={(e) => props.onChange(e.target.value, e)}
           onFocus={(e) => props.onFocus?.()}
-          onBlur={(e) => (
-            props.required && onError(!e.target.value), props.onBlur?.()
-          )}
+          onBlur={(e) => props.onBlur?.()}
           onKeyDown={(e) => props.onKeyDown?.(e)}
         />
       </BlockFormElement>

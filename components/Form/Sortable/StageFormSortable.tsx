@@ -1,4 +1,8 @@
-import { SortableContext, useSortable } from '@dnd-kit/sortable';
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { ErrorService } from '../../../lib/common/error.service';
 import { useAppDispatch, useAppSelector } from '../../../lib/common/store';
@@ -53,7 +57,10 @@ export default function StageFormSortable(props: StageFormSortableProps) {
           }
         }}
       >
-        <SortableContext items={stage.tasks}>
+        <SortableContext
+          items={stage.tasks}
+          strategy={verticalListSortingStrategy}
+        >
           {stage.tasks.map((task) => (
             <TaskFormSortable key={task.id} id={task.id} stage_id={stage.id} />
           ))}

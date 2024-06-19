@@ -1,4 +1,4 @@
-import { Column } from '../../common/decorators/column';
+import { Column, Request } from '../../common/decorators/column';
 import { Entity } from '../../common/decorators/request-entity';
 import { IdEntity } from '../../common/entities/id.entity';
 import type { ContextFieldOptionType } from '../types/context-field-option.type';
@@ -12,9 +12,11 @@ export class ContextFieldEntity extends IdEntity {
   }
 
   @Column()
+  @Request()
   value: string = null;
 
-  @Column((e) => e.options && JSON.parse(e.options))
+  @Column()
+  @Request({ nullable: true })
   options: ContextFieldOptionType = null;
 
   evaluate(): boolean | number | null {
@@ -28,6 +30,22 @@ export class ContextFieldEntity extends IdEntity {
       case ContextFieldValueEnum.number:
         if (isNaN(Number(this.value))) return null;
         return Number(this.value);
+    }
+
+    return null;
+  }
+
+  invert(): string {
+    if (!this.options) return null;
+    switch (this.options?.type) {
+      case ContextFieldValueEnum.boolean:
+        if (this.value === 'true') return 'false';
+        if (this.value === 'false') return 'true';
+        return null;
+
+      // case ContextFieldValueEnum.number:
+      // if (isNaN(Number(this.value))) return null;
+      // return Number(this.value);
     }
 
     return null;

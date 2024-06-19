@@ -47,7 +47,7 @@ export default function EditorFormElement(props: EditorFormElementProps) {
       const preview = await parse(attachment.type, text);
       if (preview) props.onPreview(preview);
     });
-  }, []);
+  }, [attachment.id]);
 
   const parse = useCallback(
     async (type: string, text: string) => {
@@ -89,29 +89,35 @@ export default function EditorFormElement(props: EditorFormElementProps) {
           name: 'write',
           bindKey: null,
           exec: () =>
-            ErrorService.envelop(async () => {
-              const template = Handlebars.compile(attachmentRef.current.buffer)(varRef.current); // prettier-ignore
+            ErrorService.envelop(
+              async () => {
+                const template = Handlebars.compile(attachmentRef.current.buffer)(varRef.current); // prettier-ignore
 
-              const blob = new Blob([template]);
-              const file = new File([blob], attachmentRef.current.name);
+                const blob = new Blob([template]);
+                const file = new File([blob], attachmentRef.current.name);
 
-              await AdminAttachmentEntity.self.save.build(
-                new AdminAttachmentEntity({
-                  id: attachmentRef.current.id,
-                  file: file as any,
-                }),
-                { type: RequestTypeEnum.form },
-              );
-
-              await AttachmentEntity.self.load
-                .raw(attachmentRef.current.id)
-                .then((buf) =>
-                  dispatch(AdminAttachmentStore.actions.setBuffer(buf)),
+                await AdminAttachmentEntity.self.save.build(
+                  new AdminAttachmentEntity({
+                    id: attachmentRef.current.id,
+                    file: file as any,
+                  }),
+                  { type: RequestTypeEnum.form },
                 );
 
-              const preview = await parse(attachmentRef.current.type, template);
-              if (preview) previewRef.current?.(preview);
-            }),
+                await AttachmentEntity.self.load
+                  .raw(attachmentRef.current.id)
+                  .then((buf) =>
+                    dispatch(AdminAttachmentStore.actions.setBuffer(buf)),
+                  );
+
+                const preview = await parse(
+                  attachmentRef.current.type,
+                  template,
+                );
+                if (preview) previewRef.current?.(preview);
+              },
+              { in_progress: true },
+            ),
         },
       ]}
       setOptions={{

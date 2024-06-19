@@ -7,7 +7,7 @@ import { CSSProperties, forwardRef, ReactNode, useState } from 'react';
 export interface BlockFormElementProps {
   name?: ReactNode;
   description?: string;
-  error?: boolean;
+  error?: string;
 
   className?: string;
   required?: boolean;
@@ -63,7 +63,7 @@ export default forwardRef<HTMLDivElement, BlockFormElementProps>(
           <div className={props.error ? 'block' : 'hidden'}>
             <span className="mt-1 text-sm text-red-600 dark:text-red-500 font-medium">
               <FontAwesomeIcon className="pr-2" icon={faCircleExclamation} />
-              Cannot be blank
+              {props.error}
             </span>
           </div>
         </div>

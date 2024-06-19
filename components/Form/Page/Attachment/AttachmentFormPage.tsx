@@ -46,12 +46,15 @@ export default function AttachmentFormPage(props: AttachmentFormPageProps) {
         open={deletePanel}
         onClose={() => openDeletePanel(false)}
         onNext={() => {
-          ErrorService.envelop(async () => {
-            await AdminAttachmentEntity.self.delete.exec(attachment.id);
-            dispatch(AdminAttachmentStore.actions.reset());
+          ErrorService.envelop(
+            async () => {
+              await AdminAttachmentEntity.self.delete.exec(attachment.id);
+              dispatch(AdminAttachmentStore.actions.reset());
 
-            await props.reload?.();
-          });
+              await props.reload?.();
+            },
+            { in_progress: true },
+          );
         }}
       />
 

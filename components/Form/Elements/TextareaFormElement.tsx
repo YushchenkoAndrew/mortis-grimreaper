@@ -15,6 +15,7 @@ export interface TextareaFormElementProps
   placeholder?: string;
   disabled?: boolean;
 
+  errors?: string[];
   onBlur?: Dispatch<void>;
   onChange: Dispatch<string>;
   onKeyDown?: Dispatch<KeyboardEvent<HTMLTextAreaElement>>;
@@ -33,9 +34,8 @@ export interface TextareaFormElementProps
 
 export default forwardRef<HTMLTextAreaElement, TextareaFormElementProps>(
   function TextareaFormElement(props: TextareaFormElementProps, ref) {
-    const [error, onError] = useState(false);
     return (
-      <BlockFormElement {...props} error={error}>
+      <BlockFormElement {...props} error={props.errors?.[0]}>
         <textarea
           ref={ref}
           rows={props.rows ?? 2}
@@ -45,10 +45,10 @@ export default forwardRef<HTMLTextAreaElement, TextareaFormElementProps>(
             props.setOptions?.inputFocus ?? ''
           } sm:text-sm sm:leading-6 ${
             props.setOptions?.inputFocus ??
-            (error ? 'focus:ring-red-600' : 'focus:ring-blue-600')
+            (props.errors ? 'focus:ring-red-600' : 'focus:ring-blue-600')
           } ${
             props.setOptions?.inputRing ??
-            (error
+            (props.errors
               ? 'ring-red-600 hover:ring-red-600'
               : 'ring-gray-700 dark:ring-gray-600 hover:ring-blue-600')
           }`}
@@ -56,13 +56,8 @@ export default forwardRef<HTMLTextAreaElement, TextareaFormElementProps>(
           autoComplete={props.autoComplete}
           placeholder={props.placeholder}
           value={props.value}
-          onChange={(e) => (
-            props.onChange(e.target.value),
-            props.required && onError(!e.target.value)
-          )}
-          onBlur={(e) => (
-            props.required && onError(!e.target.value), props.onBlur?.()
-          )}
+          onChange={(e) => props.onChange(e.target.value)}
+          onBlur={(e) => props.onBlur?.()}
           onKeyDown={(e) => props.onKeyDown?.(e)}
         />
       </BlockFormElement>

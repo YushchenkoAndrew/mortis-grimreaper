@@ -3,14 +3,20 @@ import {
   faAddressCard,
   faFile,
   faPenToSquare,
+  faSquare,
   faSquareCheck,
 } from '@fortawesome/free-regular-svg-icons';
-import { faEllipsisVertical, faPlus } from '@fortawesome/free-solid-svg-icons';
+import {
+  faEllipsisVertical,
+  faPlus,
+  faSquareCheck as faSquareCheckSolid,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
 import { KeyboardEvent, ReactNode, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Config } from '../../../../config';
+import { useValidate } from '../../../../hooks/useValidate';
 import { AttachmentService } from '../../../../lib/attachment/attachment.service';
 import { AdminAttachmentEntity } from '../../../../lib/attachment/entities/admin-attachment.entity';
 import { AdminAttachmentStore } from '../../../../lib/attachment/stores/admin-attachment.store';
@@ -20,7 +26,9 @@ import { ErrorService } from '../../../../lib/common/error.service';
 import { useAppDispatch, useAppSelector } from '../../../../lib/common/store';
 import { ObjectLiteral } from '../../../../lib/common/types';
 import { OrderableTypeEnum } from '../../../../lib/common/types/orderable-type.enum';
+import { AdminContextFieldEntity } from '../../../../lib/context/entities/admin-context-field.entity';
 import { AdminContextEntity } from '../../../../lib/context/entities/admin-context.entity';
+import { ContextFieldPositionEntity } from '../../../../lib/context/entities/context-field-position.entity';
 import { ContextContextableTypeEnum } from '../../../../lib/context/types/context-contextable-type.enum';
 import { AdminDashboardCollection } from '../../../../lib/dashboard/collections/admin-dashboard.collection';
 import { AdminTaskEntity } from '../../../../lib/dashboard/entities/admin-task.entity';
@@ -48,6 +56,7 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
   const dispatch = useAppDispatch();
   const form = useAppSelector((state) => state.admin.dashboard.task.form);
   const stages = useAppSelector((state) => state.admin.dashboard.index._stages); // prettier-ignore
+  const errors = useValidate(AdminTaskEntity, form);
 
   const [deletePanel, openDeletePanel] = useState(false);
 
@@ -69,49 +78,69 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
   };
 
   const onNameSubmit = () =>
-    ErrorService.envelop(async () => {
-      const body = new AdminTaskEntity({ name: form.name, id: form.id, stage_id: form.stage_id }); // prettier-ignore
-      await dispatch(AdminTaskEntity.self.save.thunk(body)).unwrap(); // prettier-ignore
+    ErrorService.envelop(
+      async () => {
+        const body = new AdminTaskEntity({ name: form.name, id: form.id, stage_id: form.stage_id }); // prettier-ignore
+        await dispatch(AdminTaskEntity.self.save.thunk(body)).unwrap(); // prettier-ignore
 
-      await reload();
-    });
+        await reload();
+      },
+      { in_progress: true },
+    );
 
   const onDescSubmit = () =>
-    ErrorService.envelop(async () => {
-      const body = new AdminTaskEntity({ description: form.description, id: form.id, stage_id: form.stage_id }); // prettier-ignore
-      await dispatch(AdminTaskEntity.self.save.thunk(body)).unwrap(); // prettier-ignore
+    ErrorService.envelop(
+      async () => {
+        const body = new AdminTaskEntity({ description: form.description, id: form.id, stage_id: form.stage_id }); // prettier-ignore
+        await dispatch(AdminTaskEntity.self.save.thunk(body)).unwrap(); // prettier-ignore
 
-      await reload();
-    });
+        await reload();
+      },
+      { in_progress: true },
+    );
 
   const onLinkSubmit = (action: 'add' | 'delete', index: number) =>
-    ErrorService.envelop(async () => {
-      const entity = form.links[index];
-      if (!entity) return;
+    ErrorService.envelop(
+      async () => {
+        const entity = form.links[index];
+        if (!entity) return;
 
-      const body = new AdminLinkEntity({ ...entity, name: entity.name || entity.link }); // prettier-ignore
-      if (action == 'delete') await AdminLinkEntity.self.delete.exec(entity.id);
-      else await AdminLinkEntity.self.save.build(body);
+        const body = new AdminLinkEntity({ ...entity, name: entity.name || entity.link }); // prettier-ignore
+        if (action == 'delete')
+          await AdminLinkEntity.self.delete.exec(entity.id);
+        else await AdminLinkEntity.self.save.build(body);
 
-      await reload();
-    });
+        await reload();
+      },
+      { in_progress: true },
+    );
 
   const onTagSubmit = (action: 'add' | 'delete', index: number) =>
-    ErrorService.envelop(async () => {
-      const entity = form.tags[index];
+    ErrorService.envelop(
+      async () => {
+        const entity = form.tags[index];
 
-      if (action == 'add') await AdminTagEntity.self.save.build(form.tag);
-      else if (entity) await AdminTagEntity.self.delete.exec(entity.id);
+        if (action == 'add') await AdminTagEntity.self.save.build(form.tag);
+        else if (entity) await AdminTagEntity.self.delete.exec(entity.id);
 
-      await reload();
-    });
+        await reload();
+      },
+      { in_progress: true },
+    );
 
   const onFieldSubmit = (action: 'add' | 'delete', index: number) =>
-    ErrorService.envelop(async () => {
-      // TODO:
+    ErrorService.envelop(
+      async () => {
+        const entity = form.fields[index];
 
-      await reload();
-    });
+        // prettier-ignore
+        if (action == 'add') await AdminContextFieldEntity.self.save.build(entity);
+      else if (entity) await AdminContextFieldEntity.self.delete.exec(entity);
+
+        await reload();
+      },
+      { in_progress: true },
+    );
 
   return (
     <div className="flex mt-2 mx-5 my-6">
@@ -126,7 +155,7 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
             className="w-full"
             placeholder="Task Name"
             value={form.name}
-            autoFocus={false}
+            errors={errors?.name}
             onChange={(e) => dispatch(AdminTaskFormStore.actions.setName(e))}
             onBlur={() => onNameSubmit()}
             onKeyDown={(e: KeyboardEvent<any>) =>
@@ -151,6 +180,7 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
           placeholder="This input provides a brief and clear synopsis of this task"
           noSuggestion
           value={form.description}
+          errors={errors?.description}
           onBlur={() => onDescSubmit()}
           onChange={(e) =>
             dispatch(AdminTaskFormStore.actions.setDescription(e))
@@ -182,6 +212,7 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
             />
           )}
           noSuggestion
+          preview={['name', 'link']}
           placeholder={[
             'Displayed link name',
             'http://localhost:8000/projects',
@@ -228,13 +259,16 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
               multiple
               className="hidden"
               onChange={(event) => {
-                ErrorService.envelop(async () => {
-                  const files = Array.from(event.target.files);
-                  const type = AttachmentAttachableTypeEnum.tasks;
-                  await AttachmentService.saveAttachments(form, type, '/', files); // prettier-ignore
+                ErrorService.envelop(
+                  async () => {
+                    const files = Array.from(event.target.files);
+                    const type = AttachmentAttachableTypeEnum.tasks;
+                    await AttachmentService.saveAttachments(form, type, '/', files); // prettier-ignore
 
-                  await reload();
-                });
+                    await reload();
+                  },
+                  { in_progress: true },
+                );
               }}
             />
 
@@ -393,43 +427,57 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
               />
             </div>
           }
+          iconComponent={(e) => (
+            <FontAwesomeIcon
+              className="h-5 w-5 mr-1.5 text-gray-300"
+              icon={e.evaluate() ? faSquareCheckSolid : faSquare}
+              onClick={() =>
+                ErrorService.envelop(async () => {
+                  const entity = new AdminContextFieldEntity({ ...e, value: e.invert() }); //  prettier-ignore
+                  dispatch(AdminTaskFormStore.actions.invertField(e.id));
+
+                  await AdminContextFieldEntity.self.save.build(entity);
+                  await reload();
+                })
+              }
+            />
+          )}
+          hidden={[false, true]}
+          preview={['name', 'value']}
           noSuggestion
           placeholder={[
             'Displayed link name',
             'http://localhost:8000/projects',
           ]}
-          values={form.contexts?.[0]?.fields || []}
+          values={form.fields || []}
           onChange={(key, _, index) =>
             dispatch(AdminTaskFormStore.actions.setField([key, index]))
           }
           onDelete={(index) => onFieldSubmit('delete', index)}
-          onSubmit={(e) =>
-            onFieldSubmit('add', form.contexts?.[0]?.fields.length - 1)
-          }
+          onSubmit={(e) => onFieldSubmit('add', form.fields.length - 1)}
           onKeyDown={(e) =>
-            e.key == 'Enter' &&
-            onFieldSubmit('add', form.contexts?.[0]?.fields.length - 1)
+            e.key == 'Enter' && onFieldSubmit('add', form.fields.length - 1)
           }
           onDragEnd={({ active, over }) =>
             ErrorService.envelop(async () => {
-              if (!form.contexts?.[0]?.fields) return;
+              if (!form.contexts?.[0]) return;
 
-              const position = form.contexts[0].fields.find((e) => e.id == over?.id)?.order ?? 1; // prettier-ignore
+              const position = form.fields.find((e) => e.id == over?.id)?.order ?? 1; // prettier-ignore
               if (!over?.id || position === null) return;
 
               dispatch(
                 AdminTaskFormStore.actions.onFieldReorder(
                   arrayMove(
-                    form.contexts[0].fields.concat() as any,
-                    form.contexts[0].fields.findIndex((e) => e.id == active.id),
-                    form.contexts[0].fields.findIndex((e) => e.id == over.id),
+                    form.fields.concat() as any,
+                    form.fields.findIndex((e) => e.id == active.id),
+                    form.fields.findIndex((e) => e.id == over.id),
                   ),
                 ),
               );
 
-              // const body = new PositionEntity({ position, id: active.id, orderable: OrderableTypeEnum.links }); // prettier-ignore
+              const body = new ContextFieldPositionEntity({ position, id: active.id, context_id: form.contexts[0].id }); // prettier-ignore
 
-              // await PositionEntity.self.save.build(body);
+              await ContextFieldPositionEntity.self.save.build(body);
               await reload();
             })
           }
@@ -442,18 +490,21 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
             name={actions[form.stage_id]}
             actions={actions}
             onChange={(dst_stage_id: string) =>
-              ErrorService.envelop(async () => {
-                const body = new TaskPositionEntity({
-                  position: 1,
-                  id: form.id,
-                  stage_id: dst_stage_id,
-                  src_stage_id: form.stage_id,
-                  orderable: OrderableTypeEnum.tasks,
-                });
+              ErrorService.envelop(
+                async () => {
+                  const body = new TaskPositionEntity({
+                    position: 1,
+                    id: form.id,
+                    stage_id: dst_stage_id,
+                    src_stage_id: form.stage_id,
+                    orderable: OrderableTypeEnum.tasks,
+                  });
 
-                await TaskPositionEntity.self.save.build(body);
-                await reload(dst_stage_id);
-              })
+                  await TaskPositionEntity.self.save.build(body);
+                  await reload(dst_stage_id);
+                },
+                { in_progress: true },
+              )
             }
             setOptions={{
               buttonPadding: 'py-1.5 px-3',
@@ -469,12 +520,15 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
             open={deletePanel}
             onClose={() => openDeletePanel(false)}
             onNext={() => {
-              ErrorService.envelop(async () => {
-                await AdminTaskEntity.self.delete.exec(form);
+              ErrorService.envelop(
+                async () => {
+                  await AdminTaskEntity.self.delete.exec(form);
 
-                dispatch(AdminTaskFormStore.actions.reset());
-                await reload();
-              });
+                  dispatch(AdminTaskFormStore.actions.reset());
+                  await reload();
+                },
+                { in_progress: true },
+              );
             }}
           />
 
@@ -579,16 +633,19 @@ export default function TaskFormUpdatePage(props: TaskFormPageUpdateProps) {
                   className="p-1 rounded bg-gray-800 hover:bg-gray-700 cursor-pointer"
                   icon={faPlus}
                   onClick={() =>
-                    ErrorService.envelop(async () => {
-                      const body = new AdminContextEntity({
-                        name: 'Checklist',
-                        contextable_id: form.id,
-                        contextable_type: ContextContextableTypeEnum.tasks,
-                      });
+                    ErrorService.envelop(
+                      async () => {
+                        const body = new AdminContextEntity({
+                          name: 'Checklist',
+                          contextable_id: form.id,
+                          contextable_type: ContextContextableTypeEnum.tasks,
+                        });
 
-                      await AdminContextEntity.self.save.build(body);
-                      await reload();
-                    })
+                        await AdminContextEntity.self.save.build(body);
+                        await reload();
+                      },
+                      { in_progress: true },
+                    )
                   }
                 />
               </div>

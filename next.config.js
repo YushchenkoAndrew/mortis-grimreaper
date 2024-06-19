@@ -4,11 +4,30 @@ module.exports = {
   basePath: process.env.BASE_PATH || '/projects',
   images: { minimumCacheTTL: 60 },
 
+  // async headers() {
+  //   return [
+  //     {
+  //       source: '/(.*)',
+  //       headers: [
+  //         {
+  //           key: 'Cross-Origin-Embedder-Policy',
+  //           value: 'require-corp',
+  //         },
+  //         {
+  //           key: 'Cross-Origin-Opener-Policy',
+  //           value: 'same-origin',
+  //         },
+  //       ],
+  //     },
+  //   ];
+  // },
+
   async rewrites() {
     const proxy = (src, dst, options) => ({
       ...options,
       source: `/api/${src}`,
       destination: `${process.env.API_URL}/${dst || src}`,
+      // Headers
     });
 
     return [

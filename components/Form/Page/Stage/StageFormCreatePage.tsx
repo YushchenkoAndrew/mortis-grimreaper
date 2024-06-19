@@ -1,4 +1,5 @@
 import { KeyboardEvent, useCallback } from 'react';
+import { useValidate } from '../../../../hooks/useValidate';
 import { ErrorService } from '../../../../lib/common/error.service';
 import { useAppDispatch, useAppSelector } from '../../../../lib/common/store';
 import { AdminDashboardCollection } from '../../../../lib/dashboard/collections/admin-dashboard.collection';
@@ -14,15 +15,19 @@ export interface StageFormPageCreateProps {
 export default function StageFormCreatePage(props: StageFormPageCreateProps) {
   const dispatch = useAppDispatch();
   const form = useAppSelector((state) => state.admin.dashboard.stage.form);
+  const errors = useValidate(AdminStageEntity, form);
 
   const onSubmit = useCallback(() => {
-    ErrorService.envelop(async () => {
-      const copy = { ...form, id: null };
-      await dispatch(AdminStageEntity.self.save.thunk(copy)).unwrap(); // prettier-ignore
-      dispatch(AdminStageFormStore.actions.reset());
+    ErrorService.envelop(
+      async () => {
+        const copy = { ...form, id: null };
+        await dispatch(AdminStageEntity.self.save.thunk(copy)).unwrap(); // prettier-ignore
+        dispatch(AdminStageFormStore.actions.reset());
 
-      await dispatch(AdminDashboardCollection.self.select.thunk({})); // prettier-ignore
-    });
+        await dispatch(AdminDashboardCollection.self.select.thunk({})); // prettier-ignore
+      },
+      { in_progress: true },
+    );
   }, [form]);
 
   const onKeyDown = (e: KeyboardEvent<any>) => e.key == 'Enter' && onSubmit();
@@ -34,6 +39,7 @@ export default function StageFormCreatePage(props: StageFormPageCreateProps) {
           name="Stage Name"
           placeholder="Stage Name"
           value={form.name}
+          errors={errors?.name}
           onChange={(e) => dispatch(AdminStageFormStore.actions.setName(e))}
           onKeyDown={onKeyDown}
           required

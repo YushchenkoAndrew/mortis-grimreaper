@@ -1,5 +1,6 @@
+import { z } from 'zod';
 import { Config } from '../../../config';
-import { Column, Request } from '../../common/decorators/column';
+import { Column, Request, Validate } from '../../common/decorators/column';
 import { Entity } from '../../common/decorators/request-entity';
 import { IdEntity } from '../../common/entities/id.entity';
 
@@ -12,6 +13,7 @@ export class AttachmentEntity extends IdEntity {
 
   @Column()
   @Request({ nullable: true })
+  @Validate(() => z.string())
   path: string = '';
 
   @Column()

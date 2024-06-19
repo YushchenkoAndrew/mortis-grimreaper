@@ -20,6 +20,7 @@ export interface KeyValueFormElementProps
   placeholder?: [string, string];
   contextComponent?: ReactNode;
 
+  hidden?: [boolean, boolean];
   autoFocus?: boolean;
   autoComplete?: HTMLInputAutoCompleteAttribute;
   type?: 'password' | 'text';
@@ -44,10 +45,11 @@ export default function KeyValueFormElement(props: KeyValueFormElementProps) {
       }}
     >
       {props.values.map(([key, value], index) => {
+        const [first, last] = props.hidden || [false, false];
         const isFinal = props.values.length - 1 != index;
         return (
           <div key={index} className="flex space-x-2 items-center">
-            <div className="flex flex-col w-full">
+            <div className={`flex-col w-full ${first ? 'hidden' : 'flex'}`}>
               <span
                 className={`text-sm font-semibold text-gray-500 dark:text-gray-400 ${
                   index ? 'hidden' : ''
@@ -71,7 +73,7 @@ export default function KeyValueFormElement(props: KeyValueFormElementProps) {
                 onKeyDown={(e) => props.onKeyDown?.(e)}
               />
             </div>
-            <div className="flex flex-col w-full">
+            <div className={`flex-col w-full ${last ? 'hidden' : 'flex'}`}>
               <span
                 className={`text-sm font-semibold text-gray-500 dark:text-gray-400 ${
                   index ? 'hidden' : ''

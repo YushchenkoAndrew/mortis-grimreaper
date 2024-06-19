@@ -17,6 +17,7 @@ export interface TableFormElementProps<T extends ObjectLiteral & IdEntity> {
   rowComponent?: (
     props: { className: string; children: ReactNode },
     obj: T,
+    index: number,
   ) => ReactNode;
   dataComponent: TableFormElementDataComponent<T>;
   firstComponent?: (obj: T) => ReactNode;
@@ -48,12 +49,12 @@ export default function TableFormElement<T extends ObjectLiteral & IdEntity>(
       'bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-gray-700'
     }`;
 
-    return props.data.map((row) =>
+    return props.data.map((row, index) =>
       props.rowComponent ? (
-        props.rowComponent({ className, children: td(row) }, row)
+        props.rowComponent({ className, children: td(row) }, row, index)
       ) : (
         <tr
-          key={row.id}
+          key={row.id ?? index}
           className={className}
           onClick={() => props.onClick?.(row)}
         >

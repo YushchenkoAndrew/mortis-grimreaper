@@ -16,7 +16,6 @@ import { AttachmentService } from '../../../../lib/attachment/attachment.service
 import { mode } from '../../../../components/dynamic/AceEditor';
 import { AdminAttachmentEntity } from '../../../../lib/attachment/entities/admin-attachment.entity';
 import { RequestTypeEnum } from '../../../../lib/common/types/request-type.enum';
-import InputFormElement from '../../../../components/Form/Elements/InputFormElement';
 import { AttachmentAttachableTypeEnum } from '../../../../lib/attachment/types/attachment-attachable-type.enum';
 import { getServerSession } from 'next-auth';
 import { options } from '../../../api/admin/auth/[...nextauth]';
@@ -55,26 +54,29 @@ export default function () {
     });
 
   const save = () =>
-    ErrorService.envelop(async () => {
-      if (!attachmentRef.current.name) {
-        throw new Error(`file name can't be blank`);
-      }
+    ErrorService.envelop(
+      async () => {
+        if (!attachmentRef.current.name) {
+          throw new Error(`file name can't be blank`);
+        }
 
-      const blob = new Blob([attachmentRef.current.buffer]);
-      const file = new File([blob], attachmentRef.current.name);
+        const blob = new Blob([attachmentRef.current.buffer]);
+        const file = new File([blob], attachmentRef.current.name);
 
-      const attachment = (await AdminAttachmentEntity.self.save.build(
-        new AdminAttachmentEntity({
-          path: attachmentRef.current.path + '/',
-          file: file as any,
-          attachable_id: attachmentRef.current.attachable_id,
-          attachable_type: AttachmentAttachableTypeEnum.projects,
-        }),
-        { type: RequestTypeEnum.form },
-      )) as AdminAttachmentEntity;
+        const attachment = (await AdminAttachmentEntity.self.save.build(
+          new AdminAttachmentEntity({
+            path: attachmentRef.current.path + '/',
+            file: file as any,
+            attachable_id: attachmentRef.current.attachable_id,
+            attachable_type: AttachmentAttachableTypeEnum.projects,
+          }),
+          { type: RequestTypeEnum.form },
+        )) as AdminAttachmentEntity;
 
-      redirect(AttachmentService.filepath(attachment));
-    });
+        redirect(AttachmentService.filepath(attachment));
+      },
+      { in_progress: true },
+    );
 
   return (
     <AdminLayout

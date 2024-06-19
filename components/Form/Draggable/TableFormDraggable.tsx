@@ -123,8 +123,8 @@ export default function TableFormGraggable<T extends ObjectLiteral & IdEntity>(
             {children}
           </SortableContext>
         )}
-        rowComponent={(props, row) => (
-          <RowComponent key={row.id} {...props} row={row} />
+        rowComponent={(props, row, index) => (
+          <RowComponent key={row.id ?? index} {...props} row={row} />
         )}
         firstComponent={(row) =>
           props.firstComponent?.({

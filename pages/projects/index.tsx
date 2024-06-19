@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, useEffect } from 'react';
 import Thumbnail from '../../components/Thumbnail/Thumbnail';
 import { useAppDispatch, useAppSelector } from '../../lib/common/store';
 import { VirtuosoGrid } from 'react-virtuoso';
@@ -6,10 +6,39 @@ import { ErrorService } from '../../lib/common/error.service';
 import { ProjectPageEntity } from '../../lib/project/entities/project-page.entity';
 import { ProjectTypeEnum } from '../../lib/project/types/project-type.enum';
 import DefaultLayout from '../../components/Container/Layout/DefaultLayout';
+import { GetServerSidePropsContext } from 'next';
+import { Config } from '../../config';
+import { ProjectsStore } from '../../lib/project/stores/projects.store';
 
-export default function () {
+interface PropsT {
+  projects: ProjectPageEntity;
+}
+
+export default function (props: PropsT) {
   const dispatch = useAppDispatch();
   const projects = useAppSelector((state) => state.project);
+
+  const page = useAppSelector((state) => state.project.page);
+  const request_id = useAppSelector((state) => state.project.request_id);
+
+  useEffect(() => {
+    const projects = ProjectPageEntity.self.build(props.projects);
+    dispatch(ProjectsStore.actions.init(projects));
+  }, []);
+
+  useEffect(() => {
+    if (request_id === null) return;
+
+    let ignore = false;
+    const delay = setTimeout(() => {
+      ErrorService.envelop(async () => {
+        const projects = await ProjectPageEntity.self.select.build({ page }); // prettier-ignore
+        if (!ignore) dispatch(ProjectsStore.actions.push(projects));
+      });
+    }, 100);
+
+    return () => ((ignore = true), clearTimeout(delay));
+  }, [page]);
 
   return (
     <DefaultLayout title="Mortis Projects">
@@ -18,12 +47,7 @@ export default function () {
         style={{ height: null }}
         data={projects.result}
         atBottomStateChange={() =>
-          ErrorService.envelop(async () => {
-            if (projects.result.length >= projects.total) return;
-            dispatch(
-              ProjectPageEntity.self.select.thunk({ page: projects.page + 1 }), // prettier-ignore
-            ).unwrap();
-          })
+          dispatch(ProjectsStore.actions.setPage(page + 1))
         }
         components={{
           List: forwardRef(({ children, className, style, ...props }, ref) => (
@@ -64,4 +88,13 @@ export default function () {
       />
     </DefaultLayout>
   );
+}
+
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+  const projects: ProjectPageEntity = await ProjectPageEntity.self.select
+    .build({ page: 1 }, { hostname: Config.self.base.grape, ctx })
+    .then((res) => JSON.parse(JSON.stringify(res)))
+    .catch(() => null);
+
+  return { props: { ...ctx.params, projects } };
 }

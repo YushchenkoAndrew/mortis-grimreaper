@@ -47,8 +47,8 @@ export default function (props: PropsT) {
       const attachment = project.attachments.find((e) => e._filepath() == root);
 
       // prettier-ignore
-      if (!attachment) return dispatch(AdminAttachmentStore.actions.setBuffer(null));
-      dispatch(AdminAttachmentStore.actions.init(attachment as any));
+      if (!attachment) dispatch(AdminAttachmentStore.actions.setBuffer(null));
+      else dispatch(AdminAttachmentStore.actions.init(attachment));
 
       // const text = await AttachmentEntity.self.load.raw(attachment.id);
       // dispatch(AdminAttachmentStore.actions.setBuffer(text));
@@ -99,46 +99,44 @@ export default function (props: PropsT) {
         />
       </div>
 
-      <TabFormElement
-        className={`p-4 ${attachment.buffer !== null ? 'block' : 'hidden'}`}
-        default="code"
-        disabled={project.html ? [] : ['preview']}
-        columns={{ preview: 'Preview', code: 'Code' }}
-        headerComponent={
-          <span className="flex ml-auto text-sm items-center text-gray-400">
-            {attachment.updated_at && moment(attachment.updated_at).toNow()}
-          </span>
-        }
-        dataComponent={{
-          preview: () => (
-            <RenderHtml
-              className="w-full h-full overflow-y-hidden py-5 pl-5 "
-              html={project.html}
-              setOptions={{
-                height: 'calc(100vh - 14rem)',
-                containerHeighOffset: 8,
-                containerClassName: `${
-                  project.html ? 'block' : 'hidden'
-                } relative border rounded-b`,
-              }}
-            />
-          ),
-          code: () => (
-            <EditorFormElement
-              vars={AttachmentService.vars(project.attachments)}
-              onPreview={(src) =>
-                dispatch(AdminProjectStore.actions.setHtml(src))
-              }
-            />
-          ),
-        }}
-      />
-
-      <CustomAttachmentDraggable
-        hidden={attachment.buffer !== null}
-        className="mx-4"
-        pathname={router.route}
-      />
+      {attachment.buffer == null ? (
+        <CustomAttachmentDraggable className="mx-4" pathname={router.route} />
+      ) : (
+        <TabFormElement
+          className="p-4"
+          default="code"
+          disabled={project.html ? [] : ['preview']}
+          columns={{ preview: 'Preview', code: 'Code' }}
+          headerComponent={
+            <span className="flex ml-auto text-sm items-center text-gray-400">
+              {attachment.updated_at && moment(attachment.updated_at).toNow()}
+            </span>
+          }
+          dataComponent={{
+            preview: () => (
+              <RenderHtml
+                className="w-full h-full overflow-y-hidden py-5 pl-5 "
+                html={project.html}
+                setOptions={{
+                  height: 'calc(100vh - 14rem)',
+                  containerHeighOffset: 8,
+                  containerClassName: `${
+                    project.html ? 'block' : 'hidden'
+                  } relative border rounded-b`,
+                }}
+              />
+            ),
+            code: () => (
+              <EditorFormElement
+                vars={AttachmentService.vars(project.attachments)}
+                onPreview={(src) =>
+                  dispatch(AdminProjectStore.actions.setHtml(src))
+                }
+              />
+            ),
+          }}
+        />
+      )}
     </AdminLayout>
   );
 }

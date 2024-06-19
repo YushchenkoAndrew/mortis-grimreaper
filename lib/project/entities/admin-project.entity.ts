@@ -1,5 +1,6 @@
+import { z } from 'zod';
 import { AdminAttachmentEntity } from '../../attachment/entities/admin-attachment.entity';
-import { Column, Request } from '../../common/decorators/column';
+import { Column, Request, Validate } from '../../common/decorators/column';
 import { Entity } from '../../common/decorators/request-entity';
 import { AdminLinkEntity } from '../../link/entities/admin-link.entity';
 import { AdminTagEntity } from '../../tag/entities/admin-tag.entity';
@@ -17,6 +18,7 @@ export class AdminProjectEntity extends ProjectEntity {
   readme: boolean = null;
 
   @Request({ nullable: true })
+  @Validate(() => z.string().url())
   link: string = '';
 
   @Column()

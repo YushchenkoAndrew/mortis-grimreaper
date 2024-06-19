@@ -19,17 +19,20 @@ export default function CustomProjectStatusPreview({
         project.status == ProjectStatusEnum.inactive ? 'bg-gray-300' : ''
       }`}
       onClick={() =>
-        ErrorService.envelop(async () => {
-          await AdminProjectEntity.self.save.build(
-            new AdminProjectEntity({
-              id: project.id,
-              status: project.invertStatus(),
-            }),
-          );
+        ErrorService.envelop(
+          async () => {
+            await AdminProjectEntity.self.save.build(
+              new AdminProjectEntity({
+                id: project.id,
+                status: project.invertStatus(),
+              }),
+            );
 
-          const updated = await AdminProjectEntity.self.load.build(project.id); // prettier-ignore
-          props.onChange?.(updated);
-        })
+            const updated = await AdminProjectEntity.self.load.build(project.id); // prettier-ignore
+            props.onChange?.(updated);
+          },
+          { in_progress: true },
+        )
       }
     >
       {StringService.humanize(project.status)}

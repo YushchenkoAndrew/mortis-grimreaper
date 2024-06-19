@@ -23,38 +23,53 @@ import ProjectFormCreatePage from '../../../components/Form/Page/Project/Project
 import { AdminProjectFormStore } from '../../../lib/project/stores/admin-project-form.store';
 import ProjectCardSortable from '../../../components/Form/Sortable/ProjectCardSortable';
 import CustomProjectDraggable from '../../../components/Form/Custom/Draggable/CustomProjectDraggable';
+import { Config } from '../../../config';
 
-export default function () {
+interface PropsT {
+  projects: AdminProjectPageEntity;
+}
+
+export default function (props: PropsT) {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const [query, setQuery] = useState('');
+
+  const page = useAppSelector((state) => state.admin.projects.page);
+  const query = useAppSelector((state) => state.admin.projects.query);
+  const total = useAppSelector((state) => state.admin.projects.total);
+  const request_id = useAppSelector((state) => state.admin.projects.request_id);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const trash = useAppSelector((state) => state.admin.projects.trash);
   const new_project = useAppSelector((state) => state.admin.project.form.id);
-  const total = useAppSelector((state) => state.admin.projects.total);
 
   const className =
     'max-w-96 md:max-w-[calc(49.5rem)] lg:max-w-[calc(74rem)] 2xl:max-w-[calc(99rem)]';
 
   useEffect(() => {
-    const autofocus = () => inputRef.current.focus();
+    const projects = AdminProjectPageEntity.self.build(props.projects);
+    dispatch(AdminProjectsStore.actions.init(projects));
 
+    const autofocus = () => inputRef.current.focus();
     addEventListener('keydown', autofocus);
     return () => removeEventListener('keydown', autofocus);
   }, []);
 
   useEffect(() => {
+    if (request_id === null) return;
+
     let ignore = false;
     const delay = setTimeout(() => {
       ErrorService.envelop(async () => {
-        const page = await AdminProjectPageEntity.self.select.build({ page: 1, query }); // prettier-ignore
-        if (!ignore) dispatch(AdminProjectsStore.actions.search([query, page]));
+        const projects = await AdminProjectPageEntity.self.select.build({ page, query }); // prettier-ignore
+        if (ignore) return;
+
+        if (page == 1) dispatch(AdminProjectsStore.actions.init(projects));
+        else dispatch(AdminProjectsStore.actions.push(projects));
       });
     }, 100);
 
     return () => ((ignore = true), clearTimeout(delay));
-  }, [query]);
+  }, [page, query]);
 
   return (
     <AdminLayout title="Admin Projects">
@@ -63,9 +78,9 @@ export default function () {
           <InputFormElement
             ref={inputRef}
             className="w-full"
-            value={query}
+            value={query || ''}
             placeholder="Search..."
-            onChange={(v) => setQuery(v)}
+            onChange={(v) => dispatch(AdminProjectsStore.actions.setQuery(v))}
             setOptions={{
               inputFocus:
                 'bg-gray-100 focus:bg-white focus:ring-inset ring-gray-400',
@@ -158,5 +173,11 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const session = await getServerSession(ctx.req, ctx.res, options);
   if (!session) return { redirect: { destination: '/admin/login' } };
 
-  return { props: ctx.params || {} };
+  const projects: AdminProjectPageEntity =
+    await AdminProjectPageEntity.self.select
+      .build({ page: 1 }, { hostname: Config.self.base.grape, ctx })
+      .then((res) => JSON.parse(JSON.stringify(res)))
+      .catch(() => null);
+
+  return { props: { ...ctx.params, projects } };
 }

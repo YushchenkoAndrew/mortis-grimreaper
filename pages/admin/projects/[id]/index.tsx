@@ -106,10 +106,13 @@ export default function (props: PropsT) {
             open={deletePanel}
             onClose={() => openDeletePanel(false)}
             onNext={() => {
-              ErrorService.envelop(async () => {
-                await AdminProjectEntity.self.delete.exec(project.id);
-                router.push({ pathname: `${router.route}/..` });
-              });
+              ErrorService.envelop(
+                async () => {
+                  await AdminProjectEntity.self.delete.exec(project.id);
+                  router.push({ pathname: `${router.route}/..` });
+                },
+                { in_progress: true },
+              );
             }}
           />
 
@@ -131,14 +134,12 @@ export default function (props: PropsT) {
               buttonTextColor: 'text-gray-700 ',
               noChevronDown: true,
             }}
-            onChange={(action) =>
-              ErrorService.envelop(async () => {
-                switch (action) {
-                  case 'delete':
-                    return openDeletePanel(true);
-                }
-              })
-            }
+            onChange={(action) => {
+              switch (action) {
+                case 'delete':
+                  return openDeletePanel(true);
+              }
+            }}
           />
         </div>
 

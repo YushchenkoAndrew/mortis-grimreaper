@@ -12,6 +12,7 @@ import { ArrayService, StringService } from '..';
 import { RequestOptionsType } from '../types/request-options.type';
 import { RequestTypeEnum } from '../types/request-type.enum';
 import Handlebars from 'handlebars';
+import { z, ZodString } from 'zod';
 
 @Entity()
 export class CommonEntity {
@@ -75,6 +76,19 @@ export class CommonEntity {
     }
 
     return res;
+  }
+
+  zod() {
+    const schema: [string, ZodString][] = [];
+
+    for (const k of Object.keys(this)) {
+      const transformer = this.getGlobal(ColumnKey.validate, k);
+      if (!transformer) continue;
+
+      schema.push([k, transformer()]);
+    }
+
+    return z.object(Object.fromEntries(schema));
   }
 
   /**

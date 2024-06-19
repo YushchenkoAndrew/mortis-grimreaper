@@ -2,10 +2,12 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { KeyboardEvent, useCallback } from 'react';
 import { Config } from '../../../../config';
+import { useValidate } from '../../../../hooks/useValidate';
 import { ErrorService } from '../../../../lib/common/error.service';
 import { useAppDispatch, useAppSelector } from '../../../../lib/common/store';
 import { AdminDashboardCollection } from '../../../../lib/dashboard/collections/admin-dashboard.collection';
 import { AdminTaskEntity } from '../../../../lib/dashboard/entities/admin-task.entity';
+import { TaskEntity } from '../../../../lib/dashboard/entities/task.entity';
 import { AdminTaskFormStore } from '../../../../lib/dashboard/stores/admin-task-form.store';
 import { AdminLinkEntity } from '../../../../lib/link/entities/admin-link.entity';
 import { AdminTagEntity } from '../../../../lib/tag/entities/admin-tag.entity';
@@ -24,32 +26,36 @@ export interface TaskFormPageCreateProps {
 export default function TaskFormCreatePage(props: TaskFormPageCreateProps) {
   const dispatch = useAppDispatch();
   const form = useAppSelector((state) => state.admin.dashboard.task.form);
+  const errors = useValidate(TaskEntity, form);
 
   const onSubmit = useCallback(() => {
-    ErrorService.envelop(async () => {
-      const body = new AdminTaskEntity({ name: form.name, stage_id: form.stage_id }); // prettier-ignore
-      const res = await dispatch(AdminTaskEntity.self.save.thunk(body)).unwrap(); // prettier-ignore
+    ErrorService.envelop(
+      async () => {
+        const body = new AdminTaskEntity({ name: form.name, stage_id: form.stage_id }); // prettier-ignore
+        const res = await dispatch(AdminTaskEntity.self.save.thunk(body)).unwrap(); // prettier-ignore
 
-      if (form.description) {
-        const body = new AdminTaskEntity({ description: form.description, id: res.id, stage_id: form.stage_id }); // prettier-ignore
-        await dispatch(AdminTaskEntity.self.save.thunk(body)).unwrap(); // prettier-ignore
-      }
+        if (form.description) {
+          const body = new AdminTaskEntity({ description: form.description, id: res.id, stage_id: form.stage_id }); // prettier-ignore
+          await dispatch(AdminTaskEntity.self.save.thunk(body)).unwrap(); // prettier-ignore
+        }
 
-      for (const tag of form.tags) {
-        if (tag.id) continue;
-        const body = new AdminTagEntity({ ...tag, taggable_id: res.id });
-        await AdminTagEntity.self.save.build(body); // prettier-ignore
-      }
+        for (const tag of form.tags) {
+          if (tag.id) continue;
+          const body = new AdminTagEntity({ ...tag, taggable_id: res.id });
+          await AdminTagEntity.self.save.build(body); // prettier-ignore
+        }
 
-      for (const link of form.links) {
-        if (!link.name) continue;
-        const body = new AdminLinkEntity({ ...link, linkable_id: res.id });
-        await AdminLinkEntity.self.save.build(body); // prettier-ignore
-      }
+        for (const link of form.links) {
+          if (!link.name) continue;
+          const body = new AdminLinkEntity({ ...link, linkable_id: res.id });
+          await AdminLinkEntity.self.save.build(body); // prettier-ignore
+        }
 
-      dispatch(AdminTaskFormStore.actions.reset());
-      await dispatch(AdminDashboardCollection.self.select.thunk({})); // prettier-ignore
-    });
+        dispatch(AdminTaskFormStore.actions.reset());
+        await dispatch(AdminDashboardCollection.self.select.thunk({})); // prettier-ignore
+      },
+      { in_progress: true },
+    );
   }, [form]);
 
   const onKeyDown = (e: KeyboardEvent<any>) => e.key == 'Enter' && onSubmit();
@@ -61,6 +67,7 @@ export default function TaskFormCreatePage(props: TaskFormPageCreateProps) {
           name="Task Name"
           placeholder="Task Name"
           value={form.name}
+          errors={errors?.name}
           onChange={(e) => dispatch(AdminTaskFormStore.actions.setName(e))}
           onKeyDown={onKeyDown}
           required
@@ -71,6 +78,7 @@ export default function TaskFormCreatePage(props: TaskFormPageCreateProps) {
           description="This input provides a brief and clear synopsis of this task"
           placeholder="Provide task synopsis"
           value={form.description}
+          errors={errors?.description}
           onChange={(e) =>
             dispatch(AdminTaskFormStore.actions.setDescription(e))
           }
@@ -125,6 +133,7 @@ export default function TaskFormCreatePage(props: TaskFormPageCreateProps) {
 
           <ListFormGraggable
             noSuggestion
+            preview={['name', 'link']}
             placeholder={[
               'Displayed link name',
               'http://localhost:8000/projects',

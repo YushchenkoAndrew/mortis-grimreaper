@@ -15,7 +15,7 @@ import {
   useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { ObjectLiteral } from '../../../lib/common/types';
+import { ObjectLiteral, OnlyStringValueOf } from '../../../lib/common/types';
 import { CSS } from '@dnd-kit/utilities';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGripVertical, faXmark } from '@fortawesome/free-solid-svg-icons';
@@ -32,6 +32,7 @@ export interface ListFormGraggableProps<T extends ObjectLiteral & EntityT>
   onDragCancel?: Dispatch<DragCancelEvent>;
   onDragEnd?: Dispatch<DragEndEvent>;
 
+  preview: [OnlyStringValueOf<T>, OnlyStringValueOf<T>];
   values: T[];
   onDelete: Dispatch<number>;
   onClick?: Dispatch<T>;
@@ -64,7 +65,7 @@ export default function ListFormGraggable<T extends ObjectLiteral & EntityT>(
       <KeyValueFormElement
         {...props}
         onChange={(key, value) => props.onChange(key, value, index)}
-        values={last ? [[last.name, last.link]] : []}
+        values={last ? [props.preview.map((k) => last[k]) as any] : []}
         contextComponent={
           <div>
             <SortableContext
@@ -95,6 +96,30 @@ function Preview(props: {
   onDelete: Dispatch<void>;
 }) {
   const { attributes, listeners, transform, transition, setNodeRef, isDragging } = useSortable({ id: props.data.id }); // prettier-ignore
+  // TODO:
+  // const [rename, setName] = useState(null);
+
+  // const [focused, onFocus] = useState(props.data.name);
+  // const [styles, setStyles] = useState<ObjectLiteral>(null);
+
+  // const blurRef = useRef(false);
+  // // blurRef.current = props.blur;
+  // blurRef.current = true;
+
+  // useEffect(() => {
+  //   let ignore = false;
+  //   const delay = setTimeout(() => {
+  //     if (ignore) return;
+  //     if (blurRef.current) return setStyles(null);
+  //     setStyles({
+  //       inputFont:
+  //         'text-sm font-bold bg-transparent focus:bg-gray-700 cursor-pointer focus:cursor-text',
+  //       inputFocus: 'focus:ring-2 focus:ring-blue-600',
+  //     });
+  //   }, 200);
+
+  //   return () => ((ignore = true), clearTimeout(delay));
+  // }, [focused]);
 
   return (
     <div
@@ -103,7 +128,9 @@ function Preview(props: {
       style={{ transition, transform: CSS.Transform.toString(transform) }}
       onClick={(e) => {
         if (e.currentTarget != e.target) return;
-        props.onClick?.(props.data);
+
+        if (props.onClick) props.onClick(props.data);
+        // else setName(props.data.name);
       }}
     >
       <div className="flex items-center">
@@ -119,6 +146,25 @@ function Preview(props: {
         <span className="text-gray-800 dark:text-gray-300 text-sm group-hover:underline">
           {props.data.name}
         </span>
+
+        {/* <InputFormElement
+          // className={`w-full ${props.setOptions?.inputClassName ?? ''}`}
+
+          placeholder="Enter name"
+          value={rename}
+          onFocus={() => onFocus(v4())}
+          onChange={(value) => setName(value)}
+          // onBlur={() => styles && (setStyles(null), props.onSubmit?.())}
+          onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
+          setOptions={{
+            inputPadding: 'py-1.5',
+            inputFont: 'text-sm cursor-pointer',
+            inputFontColor: 'text-gray-300 placeholder:text-gray-400 ',
+            inputRing: 'ring-0 ring-gray-900',
+            inputFocus: 'caret-transparent',
+            ...styles,
+          }}
+        /> */}
       </div>
 
       <FontAwesomeIcon

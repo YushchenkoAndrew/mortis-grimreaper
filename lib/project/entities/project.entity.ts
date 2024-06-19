@@ -1,4 +1,4 @@
-import { Column, Request } from '../../common/decorators/column';
+import { Column, Request, Validate } from '../../common/decorators/column';
 import { Entity } from '../../common/decorators/request-entity';
 import { AttachmentEntity } from '../../attachment/entities/attachment.entity';
 import { IdEntity } from '../../common/entities/id.entity';
@@ -9,6 +9,7 @@ import { createAvatar } from '@dicebear/core';
 import { identicon } from '@dicebear/collection';
 import { LinkEntity } from '../../link/entities/link.entity';
 import { TagEntity } from '../../tag/entities/tag.entity';
+import { z } from 'zod';
 
 @Entity({ route: 'projects' })
 export class ProjectEntity extends IdEntity {
@@ -19,14 +20,17 @@ export class ProjectEntity extends IdEntity {
 
   @Request({ nullable: true })
   @Column()
+  @Validate(() => z.string())
   description: string = '';
 
   @Request()
   @Column({ nullable: true })
+  @Validate(() => z.string())
   footer: string = '';
 
   @Request()
   @Column((e) => ProjectTypeEnum[e.type] ?? ProjectTypeEnum.html)
+  @Validate(() => z.nativeEnum(ProjectTypeEnum))
   type: ProjectTypeEnum = null;
 
   @Column((e) => new PaletteEntity().build(e.palette ?? {}))

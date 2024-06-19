@@ -1,6 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { faFile } from '@fortawesome/free-regular-svg-icons';
+import { faFile, faSquareCheck } from '@fortawesome/free-regular-svg-icons';
 import {
   faArrowUpRightFromSquare,
   faGripVertical,
@@ -53,6 +53,14 @@ export default function TaskFormSortable(props: TaskFormSortableProps) {
             <div className="group flex items-center">
               <FontAwesomeIcon className="mr-1 pb-0.5" icon={faHashtag} />
               {task?.tags?.length || 0}
+            </div>
+            <div
+              className={`group items-center ${
+                task?.contexts?.[0] ? 'flex' : 'hidden'
+              }`}
+            >
+              <FontAwesomeIcon className="mr-1 pb-0.5" icon={faSquareCheck} />
+              {task?.contexts?.[0]?.outOf().join('/')}
             </div>
           </div>
         }

@@ -1,5 +1,6 @@
+import { z } from 'zod';
 import { AttachmentEntity } from '../../attachment/entities/attachment.entity';
-import { Column, Request } from '../../common/decorators/column';
+import { Column, Request, Validate } from '../../common/decorators/column';
 import { Entity } from '../../common/decorators/request-entity';
 import { IdEntity } from '../../common/entities/id.entity';
 import { LinkEntity } from '../../link/entities/link.entity';
@@ -15,6 +16,7 @@ export class TaskEntity extends IdEntity {
 
   @Request({ nullable: true })
   @Column()
+  @Validate(() => z.string())
   description: string = '';
 
   @Column((e) => new UserEntity().build(e.owner ?? []))

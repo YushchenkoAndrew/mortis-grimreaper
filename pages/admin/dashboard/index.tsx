@@ -1,6 +1,8 @@
 import {
   closestCenter,
+  closestCorners,
   DndContext,
+  MeasuringStrategy,
   MouseSensor,
   TouchSensor,
   useSensor,
@@ -107,15 +109,22 @@ export default function (props: PropsT) {
         open={!!trash.length}
         onClose={() => dispatch(AdminDashboardStore.actions.clearTrash())}
         onNext={() => {
-          ErrorService.envelop(async () => {
-            await AdminStageEntity.self.delete.exec(trash[0].id);
-            await dispatch(AdminDashboardCollection.self.select.thunk({})); // prettier-ignore
-          });
+          ErrorService.envelop(
+            async () => {
+              await AdminStageEntity.self.delete.exec(trash[0].id);
+              await dispatch(AdminDashboardCollection.self.select.thunk({})); // prettier-ignore
+            },
+            { in_progress: true },
+          );
         }}
       />
 
       <DndContext
         sensors={sensors}
+        collisionDetection={closestCorners}
+        measuring={{
+          droppable: { strategy: MeasuringStrategy.Always },
+        }}
         onDragEnd={({ active, over }) =>
           ErrorService.envelop(async () => {
             const position = stages.find((e) => e.id == over?.id)?.order ?? null; // prettier-ignore

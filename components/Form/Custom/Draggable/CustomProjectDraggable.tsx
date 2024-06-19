@@ -21,9 +21,7 @@ export default memo(function CustomProjectDraggable(
   const dispatch = useAppDispatch();
 
   const page = useAppSelector((state) => state.admin.projects.page);
-  const query = useAppSelector((state) => state.admin.projects.query);
   const picked = useAppSelector((state) => state.admin.projects.picked);
-  const total = useAppSelector((state) => state.admin.projects.total);
   const projects = useAppSelector((state) => state.admin.projects.result);
 
   return (
@@ -32,15 +30,7 @@ export default memo(function CustomProjectDraggable(
         projects?.length ? 'block' : 'hidden'
       }`}
       atBottomStateChange={() =>
-        ErrorService.envelop(async () => {
-          if (projects.length >= total) return;
-          dispatch(
-            AdminProjectPageEntity.self.select.thunk({
-              query: query || null,
-              page: page + 1,
-            }),
-          ).unwrap();
-        })
+        dispatch(AdminProjectsStore.actions.setPage(page + 1))
       }
       // graggable={!query}
       data={projects}
@@ -74,10 +64,7 @@ export default memo(function CustomProjectDraggable(
             Array(page)
               .fill(0)
               .map((_, index) =>
-                AdminProjectPageEntity.self.select.build({
-                  query: query || null,
-                  page: index + 1,
-                }),
+                AdminProjectPageEntity.self.select.build({ page: index + 1 }),
               ),
           );
 

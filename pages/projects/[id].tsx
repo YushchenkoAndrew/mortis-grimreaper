@@ -3,13 +3,13 @@ import { Config } from '../../config';
 import { ProjectEntity } from '../../lib/project/entities/project.entity';
 import { AttachmentService } from '../../lib/attachment/attachment.service';
 import { ProjectTypeEnum } from '../../lib/project/types/project-type.enum';
-import { AttachmentEntity } from '../../lib/attachment/entities/attachment.entity';
-import P5js from '../../components/Container/Project/P5js';
 import Emscripten from '../../components/Container/Project/Emscripten';
+import P5js from '../../components/Container/Project/P5js';
 import Markdown from '../../components/Container/Project/Markdown';
 import Html from '../../components/Container/Project/Html';
-import DefaultLayout from '../../components/Container/Layout/DefaultLayout';
+import { AttachmentEntity } from '../../lib/attachment/entities/attachment.entity';
 import { marked } from 'marked';
+import DefaultLayout from '../../components/Container/Layout/DefaultLayout';
 
 interface PropsT {
   project: ProjectEntity;

@@ -19,6 +19,9 @@ export class ContextFieldEntity extends IdEntity {
   @Request({ nullable: true })
   options: ContextFieldOptionType = null;
 
+  @Request(() => undefined, { nullable: true })
+  context_id: string = null;
+
   evaluate(): boolean | number | null {
     if (!this.options) return null;
     switch (this.options?.type) {

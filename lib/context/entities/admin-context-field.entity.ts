@@ -15,7 +15,4 @@ export class AdminContextFieldEntity extends ContextFieldEntity {
 
   @Column()
   updated_at: string = '';
-
-  @Request(() => undefined, { nullable: true })
-  context_id: string = null;
 }

@@ -31,9 +31,11 @@ module.exports = {
     });
 
     return [
+      proxy('stages'),
       proxy('projects'),
       proxy('projects/:id'),
       proxy('attachments/:id'),
+
       proxy('admin/projects'),
       proxy('admin/projects/:id'),
       proxy('admin/projects/:id/order'),

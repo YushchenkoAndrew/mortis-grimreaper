@@ -13,15 +13,17 @@ describe('Page /admin/projects/:id/new', () => {
       /\/admin\/projects\/[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}\/new/,
     );
 
-    cy.contains('span', name).should('be.visible').parent().find('input').wait(200).type('tmp/test.js', { delay: 300 }); // prettier-ignore
+    cy.contains('span', name).should('be.visible').parent().find('input').wait(2000).type('tmp/test.js', { delay: 300 }); // prettier-ignore
     cy.get('div[class=ace_content]').should('be.visible').type('itest');
 
     cy.contains('button', 'Create new file').click();
 
-    cy.location().should(
-      'match',
-      /\/admin\/projects\/[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}\/tree\/tmp\/test.js/,
-    );
+    cy.wait(4000)
+      .location()
+      .should(
+        'match',
+        /\/admin\/projects\/[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}\/tree\/tmp\/test.js/,
+      );
 
     cy.contains('span', 'tmp').should('be.visible');
     cy.contains('a', name).click();

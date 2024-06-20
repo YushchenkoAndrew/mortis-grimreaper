@@ -33,7 +33,7 @@ export default function MyApp({
         session={session}
       >
         <Provider store={storeRef.current}>
-          <ToastContainer stacked />
+          <ToastContainer stacked theme="colored" />
           <Component {...pageProps} />
         </Provider>
       </SessionProvider>

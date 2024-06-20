@@ -3,6 +3,7 @@ import { AttachmentEntity } from '../../attachment/entities/attachment.entity';
 import { Column, Request, Validate } from '../../common/decorators/column';
 import { Entity } from '../../common/decorators/request-entity';
 import { IdEntity } from '../../common/entities/id.entity';
+import { ContextEntity } from '../../context/entities/context.entity';
 import { LinkEntity } from '../../link/entities/link.entity';
 import { TagEntity } from '../../tag/entities/tag.entity';
 import { UserEntity } from '../../user/entities/user.entity';
@@ -30,6 +31,9 @@ export class TaskEntity extends IdEntity {
 
   @Column((e) => new TagEntity().buildAll(e.tags ?? {}))
   tags: TagEntity[] = [];
+
+  @Column((e) => new ContextEntity().buildAll(e.contexts ?? {}))
+  contexts: ContextEntity[] = [];
 
   // "contexts": [
   //   {

@@ -14,11 +14,17 @@ import { AdminProjectsStore } from '../project/stores/admin-projects.store';
 import { AdminDashboardStore } from '../dashboard/stores/admin-dashboard.store';
 import { AdminStageFormStore } from '../dashboard/stores/admin-stage-form.store';
 import { AdminTaskFormStore } from '../dashboard/stores/admin-task-form.store';
+import { DashboardStore } from '../dashboard/stores/dashboard.store';
+import { TaskFormStore } from '../dashboard/stores/task-form.store';
 
 export const store = () => {
   return configureStore({
     reducer: {
       project: ProjectsStore.reducer,
+      dashboard: combineReducers({
+        index: DashboardStore.reducer,
+        task: TaskFormStore.reducer,
+      }),
       admin: combineReducers({
         login: LoginStore.reducer,
         attachment: AdminAttachmentStore.reducer,

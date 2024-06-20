@@ -1,22 +1,14 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAppDispatch, useAppSelector } from '../../../lib/common/store';
 import { useSortable } from '@dnd-kit/sortable';
-import { memo, useEffect, useMemo, useState } from 'react';
+import { memo } from 'react';
 import CardFormPreview from '../Previews/CardFormPreview';
 import { CSS } from '@dnd-kit/utilities';
 import { useRouter } from 'next/router';
 import { AdminProjectsStore } from '../../../lib/project/stores/admin-projects.store';
-import { ProjectCircle } from '../../constants/projects';
-import { faFile } from '@fortawesome/free-regular-svg-icons';
-import {
-  faArrowUpRightFromSquare,
-  faGripVertical,
-  faHashtag,
-} from '@fortawesome/free-solid-svg-icons';
-import TooltipFormPreview from '../Previews/TooltipFormPreview';
+import { faGripVertical } from '@fortawesome/free-solid-svg-icons';
 import CustomProjectStatusPreview from '../Custom/Previews/CustomProjectStatusPreview';
-import { ErrorService } from '../../../lib/common/error.service';
-import { IdEntity } from '../../../lib/common/entities/id.entity';
+import ProjectStatsPreview from '../Previews/ProjectStatsPreview';
 
 export interface ProjectCardSortableProps {
   id: string;
@@ -74,43 +66,7 @@ export default memo(function ProjectCardSortable(
       onClick={() =>
         trash && dispatch(AdminProjectsStore.actions.pushTrash(project))
       }
-      contextComponent={
-        <div className="flex text-sm items-center mt-1">
-          <div className="flex items-center">
-            <ProjectCircle type={project.type} />
-            {project.type}
-          </div>
-          <div className="flex items-center ml-3 text-gray-600">
-            <FontAwesomeIcon
-              className="text-gray-400 mr-1 pb-0.5"
-              icon={faFile}
-            />
-            {project.attachments.length}
-          </div>
-          <div className="flex items-center ml-3 text-gray-600">
-            <FontAwesomeIcon
-              className="text-gray-400 mr-1 pb-0.5"
-              icon={faArrowUpRightFromSquare}
-            />
-            {project.links.length}
-          </div>
-          <div className="group flex items-center ml-3 text-gray-600 cursor-pointer">
-            <FontAwesomeIcon
-              className="text-gray-400 mr-1 pb-0.5"
-              icon={faHashtag}
-            />
-            {project.tags.length}
-            <TooltipFormPreview
-              value={project.tags.map((e) => e.name).join()}
-              setOptions={{
-                color: 'bg-gray-600 text-white',
-                rounded: 'rounded-lg',
-                margin: 'mt-14',
-              }}
-            />
-          </div>
-        </div>
-      }
+      contextComponent={<ProjectStatsPreview project={project} />}
     />
   );
 });

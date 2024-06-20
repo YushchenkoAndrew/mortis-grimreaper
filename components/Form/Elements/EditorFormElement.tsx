@@ -41,6 +41,8 @@ export default function EditorFormElement(props: EditorFormElementProps) {
 
   useEffect(() => {
     ErrorService.envelop(async () => {
+      if (!attachment.id) return;
+
       const text = await AttachmentEntity.self.load.raw(attachment.id);
       dispatch(AdminAttachmentStore.actions.setBuffer(text));
 

@@ -10,6 +10,7 @@ export interface DefaultLayoutProps {
   title: string;
   className?: string;
   children?: ReactNode;
+  background?: string;
 }
 
 export default function DefaultLayout(props: DefaultLayoutProps) {
@@ -21,6 +22,7 @@ export default function DefaultLayout(props: DefaultLayoutProps) {
         className={
           props.className ?? 'overflow-y-hidden w-full h-[calc(100vh-4rem)]'
         }
+        background={props.background}
         Navbar={
           <Navbar
             Item={GlitchItem}

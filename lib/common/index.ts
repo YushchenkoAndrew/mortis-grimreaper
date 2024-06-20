@@ -1,7 +1,7 @@
-import { marked } from 'marked';
 import { Config } from '../../config';
 import { ObjectLiteral } from './types';
 import { v4 as uuid } from 'uuid';
+import { URL } from 'url';
 
 export class NumberService {
   static random(max: number, min: number = 0, seed: string = '') {
@@ -64,6 +64,16 @@ export class StringService {
     return name.replace(/ /g, '_').replace(/\//g, '').toLowerCase();
   }
 
+  static isUrlValid(url: string): boolean {
+    if (!url) return false;
+    try {
+      new URL(url);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   static route(str: string) {
     return str.replace(/\/$/, '');
   }
@@ -84,14 +94,12 @@ export class StringService {
     return `${Config.self.base.web}/${path.join('/')}`;
   }
 
-  static async markdown(src: string): Promise<string> {
-    const markdown = await marked.parse(src);
-    return `
-    <div>
-      <style scoped>@import url("${Config.self.base.web}/styles/markdown.css");</style>
-      ${markdown}
-    </div>`;
-  }
+  // static async markdown(src: string): Promise<string> {
+  //   const markdown = await marked.parse(src);
+  //   const filename = `html/markdown-template.html.hbs`;
+  //   const template = (existsSync(filename) && readFileSync(filename, 'utf-8')) || ''; // prettier-ignore
+  //   return Handlebars.compile(template)({ title: 'Markdown', markdown });
+  // }
 }
 
 export class ArrayService {

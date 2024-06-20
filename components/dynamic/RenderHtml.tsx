@@ -1,11 +1,15 @@
 import DOMPurify from 'dompurify';
-import { ReactNode, useRef, useState } from 'react';
+import { ReactNode, useMemo, useRef, useState } from 'react';
 
 export type RenderHtmlProps = React.DetailedHTMLProps<
   React.IframeHTMLAttributes<HTMLIFrameElement>,
   HTMLIFrameElement
 > & {
   html: string;
+  dompurify?: DOMPurify.Config & {
+    RETURN_DOM_FRAGMENT?: false | undefined;
+    RETURN_DOM?: false | undefined;
+  };
   headerComponent?: ReactNode;
   setOptions?: Partial<{
     height: string;
@@ -17,6 +21,17 @@ export type RenderHtmlProps = React.DetailedHTMLProps<
 export default function (props: RenderHtmlProps) {
   const iframeRef = useRef<HTMLIFrameElement>();
   const [height, setHeight] = useState(0);
+
+  const copy = useMemo(() => {
+    const copy = { ...props };
+
+    delete copy.html;
+    delete copy.dompurify;
+    delete copy.setOptions;
+    delete copy.headerComponent;
+
+    return copy;
+  }, [props]);
 
   return (
     <div
@@ -32,9 +47,9 @@ export default function (props: RenderHtmlProps) {
       {props.headerComponent}
 
       <iframe
-        {...props}
+        {...copy}
         ref={iframeRef}
-        srcDoc={DOMPurify.sanitize(props.html)}
+        srcDoc={DOMPurify.sanitize(props.html, props.dompurify)}
         onLoad={() =>
           setHeight(iframeRef.current.contentWindow.document.body.scrollHeight)
         }

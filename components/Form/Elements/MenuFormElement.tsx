@@ -3,13 +3,8 @@ import {
   faCircleExclamation,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Menu } from '@headlessui/react';
-import {
-  Dispatch,
-  HTMLInputAutoCompleteAttribute,
-  ReactNode,
-  useState,
-} from 'react';
+import { Menu, Transition } from '@headlessui/react';
+import { Dispatch, Fragment, ReactNode } from 'react';
 import { ObjectLiteral } from '../../../lib/common/types';
 
 export interface MenuFormElementProps<T extends ObjectLiteral> {
@@ -59,34 +54,44 @@ export default function MenuFormElement<T extends ObjectLiteral>(
           icon={faChevronDown}
         />
       </Menu.Button>
-      <Menu.Items className="absolute z-10 right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-gray-50 shadow-lg ring-1 ring-black/5 focus:outline-none">
-        <div className="p-1">
-          {Object.entries(props.actions).map(([key, value], index) => {
-            const className =
-              'w-full p-2 text-left items-center rounded-md text-sm hover:bg-blue-100';
-            return (
-              <Menu.Item key={index}>
-                {props.itemComponent?.[key] ? (
-                  props.itemComponent[key]({
-                    className,
-                    key,
-                    value,
-                    onChange: props.onChange,
-                  })
-                ) : (
-                  <button
-                    className={className}
-                    type="button"
-                    onClick={() => props.onChange(key)}
-                  >
-                    {value}
-                  </button>
-                )}
-              </Menu.Item>
-            );
-          })}
-        </div>
-      </Menu.Items>
+      <Transition
+        as={Fragment}
+        enter="transition ease-out duration-100"
+        enterFrom="transform opacity-0 scale-95"
+        enterTo="transform opacity-100 scale-100"
+        leave="transition ease-in duration-75"
+        leaveFrom="transform opacity-100 scale-100"
+        leaveTo="transform opacity-0 scale-95"
+      >
+        <Menu.Items className="absolute z-10 right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 dark:divide-gray-700 rounded-md bg-gray-50 dark:bg-gray-800 dark:border border-gray-700 shadow-lg ring-1 ring-black/5 focus:outline-none">
+          <div className="p-1">
+            {Object.entries(props.actions).map(([key, value], index) => {
+              const className =
+                'w-full p-2 text-left items-center rounded-md text-sm text-gray-800 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-gray-600';
+              return (
+                <Menu.Item key={index}>
+                  {props.itemComponent?.[key] ? (
+                    props.itemComponent[key]({
+                      className,
+                      key,
+                      value,
+                      onChange: props.onChange,
+                    })
+                  ) : (
+                    <button
+                      className={className}
+                      type="button"
+                      onClick={() => props.onChange(key)}
+                    >
+                      {value}
+                    </button>
+                  )}
+                </Menu.Item>
+              );
+            })}
+          </div>
+        </Menu.Items>
+      </Transition>
     </Menu>
   );
 }

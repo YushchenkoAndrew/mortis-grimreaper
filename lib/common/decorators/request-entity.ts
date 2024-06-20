@@ -34,6 +34,11 @@ export class RequestProps {
    * If private then send access_token in Authorization
    */
   session: true;
+
+  /**
+   * If false then disable adding /:id to the end of route
+   */
+  modify: false;
 }
 
 type PropsT = Partial<Omit<RequestProps, 'self' | 'key'>>;

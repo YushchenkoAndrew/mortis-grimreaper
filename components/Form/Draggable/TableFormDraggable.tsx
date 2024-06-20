@@ -23,7 +23,8 @@ import TableFormElement, {
 } from '../Elements/TableFormElement';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGripVertical } from '@fortawesome/free-solid-svg-icons';
-import { Dispatch, ReactNode } from 'react';
+import { Dispatch, ReactNode, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 type IdEntity = { id: string };
 
@@ -36,6 +37,11 @@ export interface TableFormGraggableProps<T extends ObjectLiteral & IdEntity>
   lastComponent?: (props: { row: T; children: ReactNode }) => ReactNode;
 
   picked?: T;
+  setOptions?: Partial<{
+    rowColor: string;
+    dataPadding: string;
+    overlayClassName: string;
+  }>;
 }
 
 type RowComponentT<T> = {
@@ -52,6 +58,11 @@ export default function TableFormGraggable<T extends ObjectLiteral & IdEntity>(
     useSensor(TouchSensor, {}),
   );
 
+  const elementRef = useRef<Element>(null);
+  useEffect(() => {
+    elementRef.current = document.body;
+  }, []);
+
   const RowComponent = ({ className, children, row }: RowComponentT<T>) => {
     const { transform, transition, setNodeRef, isDragging } = useSortable({
       id: row.id,
@@ -64,15 +75,15 @@ export default function TableFormGraggable<T extends ObjectLiteral & IdEntity>(
         style={{ transition, transform: CSS.Transform.toString(transform) }}
         onClick={() => props.onClick?.(row)}
       >
-        {!isDragging ? (
-          children
-        ) : (
+        {isDragging && props.onDragStart ? (
           <td
-            className="py-4 bg-blue-50"
+            className="py-4 bg-blue-50 dark:bg-gray-700"
             colSpan={Object.keys(props.columns).length}
           >
             &nbsp;
           </td>
+        ) : (
+          children
         )}
       </tr>
     );
@@ -86,7 +97,7 @@ export default function TableFormGraggable<T extends ObjectLiteral & IdEntity>(
         {...attributes}
         {...listeners}
         icon={faGripVertical}
-        className={`text-gray-400 text-lg pl-3 pr-2 py-4 ${
+        className={`text-gray-400 dark:text-gray-600 text-lg pl-3 pr-2 py-4 ${
           props.isDragging ? 'cursor-grabbing' : 'cursor-grab'
         }`}
       />
@@ -112,8 +123,8 @@ export default function TableFormGraggable<T extends ObjectLiteral & IdEntity>(
             {children}
           </SortableContext>
         )}
-        rowComponent={(props, row) => (
-          <RowComponent key={row.id} {...props} row={row} />
+        rowComponent={(props, row, index) => (
+          <RowComponent key={row.id ?? index} {...props} row={row} />
         )}
         firstComponent={(row) =>
           props.firstComponent?.({
@@ -125,21 +136,28 @@ export default function TableFormGraggable<T extends ObjectLiteral & IdEntity>(
         dataComponent={props.dataComponent}
       />
 
-      <DragOverlay>
-        <TableFormElement
-          noHeader
-          columns={props.columns}
-          data={[].concat(props.picked || [])}
-          dataComponent={props.dataComponent}
-          firstComponent={(row) =>
-            props.firstComponent?.({
-              row,
-              children: <FirstComponent row={row} isDragging />,
-            }) ?? <FirstComponent row={row} isDragging />
-          }
-          setOptions={{ rowColor: 'bg-white', dataPadding: 'pr-6' }}
-        />
-      </DragOverlay>
+      {elementRef.current &&
+        createPortal(
+          <DragOverlay className={props.setOptions?.overlayClassName}>
+            <TableFormElement
+              noHeader
+              columns={props.columns}
+              data={[].concat(props.picked || [])}
+              dataComponent={props.dataComponent}
+              firstComponent={(row) =>
+                props.firstComponent?.({
+                  row,
+                  children: <FirstComponent row={row} isDragging />,
+                }) ?? <FirstComponent row={row} isDragging />
+              }
+              setOptions={{
+                rowColor: 'bg-white dark:bg-gray-800',
+                dataPadding: 'pr-6',
+              }}
+            />
+          </DragOverlay>,
+          elementRef.current,
+        )}
     </DndContext>
   );
 }

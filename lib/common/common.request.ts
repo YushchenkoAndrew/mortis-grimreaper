@@ -5,6 +5,7 @@ import { CommonEntity } from './entities/common.entity';
 import { RequestOptionsType } from './types/request-options.type';
 import { RequestTypeEnum } from './types/request-type.enum';
 import { StringService } from '.';
+import { MarkdownEntity } from './entities/markdown.entity';
 
 export class CommonRequest<
   T extends (...args: any) => Promise<Response>,
@@ -20,9 +21,11 @@ export class CommonRequest<
   ) {}
 
   public get exec() {
-    return this.fetch(
-      Config.self.base.api,
-      async (options?: RequestOptionsType) => {
+    const ctl = new AbortController();
+    const abort = setTimeout(() => ctl.abort(), Config.self.base.timeout);
+
+    return (...args: Args) =>
+      this.fetch(Config.self.base.api, async (options?: RequestOptionsType) => {
         const headers: ObjectLiteral = { ...options?.headers };
 
         if (!options?.type || options.type == RequestTypeEnum.json) {
@@ -52,9 +55,8 @@ export class CommonRequest<
           }
         }
 
-        return { headers };
-      },
-    );
+        return { headers, cache: options.cache, signal: ctl.signal };
+      })(...args).then((res) => (clearTimeout(abort), res));
   }
 
   public get thunk() {
@@ -72,11 +74,13 @@ export class CommonRequest<
       });
   }
 
+  public get blob() {
+    return (...args: Args) => this.exec(...args).then((res) => res.blob());
+  }
+
   public get file() {
     return (filename: string, ...args: Args) =>
-      this.exec(...args)
-        .then((res) => res.blob())
-        .then((blob) => new File([blob], filename));
+      this.blob(...args).then((blob) => new File([blob], filename));
   }
 
   public get tmp() {
@@ -89,10 +93,5 @@ export class CommonRequest<
 
   public get text() {
     return (...args: Args) => this.exec(...args).then((res) => res.text());
-  }
-
-  public get markdown() {
-    return (...args: Args) =>
-      this.raw(...args).then((text) => StringService.markdown(text));
   }
 }

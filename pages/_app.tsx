@@ -34,7 +34,7 @@ export default function MyApp({
         session={session}
       >
         <Provider store={storeRef.current}>
-          <ToastContainer />
+          <ToastContainer stacked theme="colored" />
           <Component {...pageProps} />
         </Provider>
       </SessionProvider>

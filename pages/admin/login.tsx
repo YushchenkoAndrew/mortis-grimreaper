@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import Container from '../../components/Container/Container';
 import Header from '../../components/Header/Header';
 import { Config } from '../../config';
@@ -14,10 +14,13 @@ import { GetServerSidePropsContext } from 'next';
 import { getServerSession } from 'next-auth';
 import { options } from '../api/admin/auth/[...nextauth]';
 import { useRouter } from 'next/router';
+import { LoginEntity } from '../../lib/auth/entities/login.entity';
+import { useValidate } from '../../hooks/useValidate';
 
 export default function () {
   const dispatch = useAppDispatch();
   const form = useAppSelector((state) => state.admin.login);
+  const errors = useValidate(LoginEntity, form);
 
   const router = useRouter();
   const reCaptchaRef = useRef<ReCAPTCHA>(null);
@@ -47,6 +50,7 @@ export default function () {
               autoComplete="username"
               value={form.username}
               onChange={(e) => dispatch(LoginStore.actions.setUsername(e))}
+              errors={errors?.username}
               required
             />
             <InputFormElement
@@ -55,6 +59,7 @@ export default function () {
               type="password"
               value={form.password}
               onChange={(e) => dispatch(LoginStore.actions.setPassword(e))}
+              errors={errors?.password}
               required
             />
 
@@ -71,9 +76,7 @@ export default function () {
                 onClick={() =>
                   ErrorService.envelop(
                     async () => {
-                      if (!form.username || !form.password) {
-                        throw new Error(`username or password can't be blank`);
-                      }
+                      if (errors) return;
 
                       const captcha =
                         form.recaptcha == RecaptchaSizeEnum.invisible
@@ -89,7 +92,10 @@ export default function () {
 
                       router.push('/admin/projects');
                     },
-                    async () => reCaptchaRef.current?.reset(),
+                    {
+                      in_progress: true,
+                      error: async () => reCaptchaRef.current?.reset(),
+                    },
                   )
                 }
               >

@@ -11,6 +11,8 @@ import { CommonRequest } from '../common.request';
 import { ArrayService, StringService } from '..';
 import { RequestOptionsType } from '../types/request-options.type';
 import { RequestTypeEnum } from '../types/request-type.enum';
+import Handlebars from 'handlebars';
+import { z, ZodString } from 'zod';
 
 @Entity()
 export class CommonEntity {
@@ -30,7 +32,7 @@ export class CommonEntity {
    * This method will build response-dto/request-dto
    * @see {@link Column}
    */
-  build<T>(entity: T, type: ColumnKey = ColumnKey.type): this {
+  build<T>(entity: T, type: ColumnKey = ColumnKey.type): T {
     if (!entity) return null;
     // const keys = this.getGlobal<Set<string>>(ColumnKey.keys) || new Set();
 
@@ -51,14 +53,14 @@ export class CommonEntity {
       }
     }
 
-    return this;
+    return this as any;
   }
 
   /**
    * This method will build response-dto/request-dto
    * @see {@link Column}
    */
-  buildAll<T>(entities: T[], type: ColumnKey = ColumnKey.type): this[] {
+  buildAll<T>(entities: T[], type: ColumnKey = ColumnKey.type): T[] {
     return entities?.length
       ? entities.map((item) => this.newInstance(this.defined()).build(item, type)) // prettier-ignore
       : [];
@@ -74,6 +76,19 @@ export class CommonEntity {
     }
 
     return res;
+  }
+
+  zod() {
+    const schema: [string, ZodString][] = [];
+
+    for (const k of Object.keys(this)) {
+      const transformer = this.getGlobal(ColumnKey.validate, k);
+      if (!transformer) continue;
+
+      schema.push([k, transformer()]);
+    }
+
+    return z.object(Object.fromEntries(schema));
   }
 
   /**
@@ -125,7 +140,9 @@ export class CommonEntity {
       (base: string, init) =>
         async (query: ObjectLiteral, options?: RequestOptionsType) =>
           fetch(
-            `${this.url(base, props, options)}?${StringService.toQuery(query)}`,
+            `${this.url(base, props, options, query)}?${StringService.toQuery(
+              query,
+            )}`,
             await init({ ...options, session: props.session }),
           ),
     );
@@ -172,8 +189,9 @@ export class CommonEntity {
 
           const id = (entity as any).id || (this as any).id || '';
           const config = await init({ ...options, session: props.session });
+          const attach = props.modify !== false && id ? `/${id}` : '';
 
-          return fetch(this.url(base, props, options) + (id ? `/${id}` : ''), {
+          return fetch(this.url(base, props, options, entity) + attach, {
             ...config,
             method: options?.method || (id ? 'PUT' : 'POST'),
             body:
@@ -193,13 +211,18 @@ export class CommonEntity {
       this.newInstance(),
       `${''}${props.route}/action/delete`,
       (base: string, init) =>
-        async (id: string | string[], options?: RequestOptionsType) => {
+        async (
+          params: string | string[] | (ObjectLiteral & { id: string }),
+          options?: RequestOptionsType,
+        ) => {
           const config = await init({ ...options, session: props.session });
+          const id = typeof params == 'string' ? params : Array.isArray(params) ? params[0] : params.id; // prettier-ignore
+          const entity = typeof params == 'object' && !Array.isArray(params) ? params : null; // prettier-ignore
 
-          return fetch(
-            `${this.url(base, props, options)}/${ArrayService.first(id)}`,
-            { ...config, method: 'DELETE' },
-          );
+          return fetch(`${this.url(base, props, options, entity)}/${id}`, {
+            ...config,
+            method: 'DELETE',
+          });
         },
     );
   }
@@ -234,9 +257,12 @@ export class CommonEntity {
     base: string,
     props: RequestProps,
     options?: RequestOptionsType,
+    entity?: ObjectLiteral,
   ): string {
-    if (options?.pathname) return options.pathname;
+    const compile = (template: string) => Handlebars.compile(template)(entity);
+
+    if (options?.pathname) return compile(options.pathname);
     const hostname = options?.hostname || base;
-    return `${hostname}/${options?.route || props.route}`;
+    return compile(`${hostname}/${options?.route || props.route}`);
   }
 }

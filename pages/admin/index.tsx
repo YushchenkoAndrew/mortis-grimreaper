@@ -1,27 +1,9 @@
-import React from 'react';
-import Container from '../../components/Container/Container';
-import Header from '../../components/Header/Header';
-import GlitchItem from '../../components/Navbar/GlitchItem';
-import Navbar from '../../components/Navbar/Navbar';
-import { Config } from '../../config';
-import { NAVIGATION } from '../../constants';
+import AdminLayout from '../../components/Container/Layout/AdminLayout';
 
 export default function () {
   return (
-    <>
-      <Header title="Admin Projects"></Header>
-
-      <Container
-        Navbar={
-          <Navbar
-            Item={GlitchItem}
-            navigation={NAVIGATION.admin}
-            avatar={Config.self.github}
-          />
-        }
-        // Breadcrumbs={<Breadcrumbs path={['Home', 'Projects']} />}
-      >
-        {/* <div className="grid grid-cols-1 items-center gap-x-2 gap-y-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 xl:gap-y-8">
+    <AdminLayout title="Admin Projects">
+      {/* <div className="grid grid-cols-1 items-center gap-x-2 gap-y-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 xl:gap-y-8">
           <Virtuoso
             data={projects}
             endReached={() =>
@@ -55,8 +37,7 @@ export default function () {
             />
           ))}
         </div> */}
-      </Container>
-    </>
+    </AdminLayout>
   );
 }
 

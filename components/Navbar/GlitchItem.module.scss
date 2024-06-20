@@ -1,7 +1,15 @@
+.uniq-key {
+}
+
 .glitch-rgb {
   font-family: 'FourBit';
 
   @apply flex text-white relative text-3xl md:text-2xl lg:text-3xl items-center my-0 mx-3 translate-x-0 #{!important};
+
+  /* .uniq-key {
+    font-family: 'BitAdvanced';
+    @apply text-xl mt-1 #{!important};
+  } */
 
   &::before,
   &::after {
@@ -9,6 +17,11 @@
     content: attr(data-glitch);
 
     @apply block absolute opacity-80  #{!important};
+
+    /* .uniq-key {
+      font-family: 'BitAdvanced';
+      @apply text-xl ml-1 mt-1 #{!important};
+    } */
   }
 
   &::after {
@@ -22,7 +35,7 @@
   }
 
   &:hover {
-    @apply text-white #{!important};
+    /* @apply text-white #{!important}; */
 
     &::before {
       animation: glitch-rgb 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;

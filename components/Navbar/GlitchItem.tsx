@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { NumberService, StringService } from '../../lib/common';
 import styles from './GlitchItem.module.scss';
 import { NavbarItemProps } from './NavbarItem';
@@ -10,6 +10,12 @@ export default function GlitchItem(props: NavbarItemProps) {
   const [count, setCount] = useState(0);
   const [index, setIndex] = useState(-1);
   const [glitch, setGlitch] = useState(0);
+
+  const uniq = useMemo(() => {
+    return (
+      NumberService.random(props.name.length, 0, props.name) % props.name.length
+    );
+  }, [props.name]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -40,7 +46,12 @@ export default function GlitchItem(props: NavbarItemProps) {
       }
     >
       {props.name.split('').map((char, i) => (
-        <div key={i} className={i == index ? 'text-gray-500' : 'text-white'}>
+        <div
+          key={i}
+          className={[i == index ? 'text-gray-500' : 'text-white']
+            .concat(i == uniq ? styles['uniq-key'] : '')
+            .join(' ')}
+        >
           {i == index ? GLITCH_CHARS.charAt(glitch) : char}
         </div>
       ))}

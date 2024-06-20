@@ -1,0 +1,20 @@
+<html>
+  <head>
+    <meta charset='utf-8' />
+    <script src='{{web}}/js/lib/p5.min.js'></script>
+    <script src='{{web}}/js/lib/p5.sound.min.js'></script>
+
+    {{#each scripts}}
+      <script src='{{this}}'></script>
+    {{/each}}
+
+    <style>
+      body { margin: 0px; }
+    </style>
+
+    <title>{{title}}</title>
+  </head>
+  <body>
+    <div id='p5js-container'></div>
+  </body>
+</html>

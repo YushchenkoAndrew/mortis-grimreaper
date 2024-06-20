@@ -1,12 +1,10 @@
 import Link from 'next/link';
 import { BehaviorProps } from './Behavior';
-import type { UrlObject } from 'url';
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import styles from './Thumbnail.module.scss';
 import { NumberService } from '../../lib/common';
 import LineFormPreview from '../Form/Previews/LineFormPreview';
-import Image from 'next/image';
-import moment from 'moment';
+import { useImage } from '../../hooks/useImage';
 
 export interface ThumbnailProps {
   img: string;
@@ -30,6 +28,8 @@ export default function Thumbnail({ Behavior, ...props }: ThumbnailProps) {
     return ['curtain-t', 'curtain-b', 'curtain-r', 'curtain-l'][index % 4];
   }, [props.name]);
 
+  useImage(props.img);
+
   return (
     <div
       ref={divRef}
@@ -37,7 +37,7 @@ export default function Thumbnail({ Behavior, ...props }: ThumbnailProps) {
         styles['thumbnail']
       } ${props.setOptions?.imgSize || 'aspect-1'}`}
     >
-      <a
+      <Link
         className="block relative"
         href={props.href}
         target={props.target || '_self'}
@@ -75,7 +75,7 @@ export default function Thumbnail({ Behavior, ...props }: ThumbnailProps) {
             }}
           />
         )}
-      </a>
+      </Link>
     </div>
   );
 }

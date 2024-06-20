@@ -5,7 +5,7 @@ import { memo, useMemo } from 'react';
 import 'highlight.js/styles/github.css';
 import ScriptFormPreview from '../../Form/Previews/ScriptFormPreview';
 import { ProjectContainer } from './ProjectContainer';
-import { Config } from '../../../config';
+import { RenderHtml } from '../../dynamic';
 
 hljs.registerLanguage('js', javascript);
 
@@ -15,23 +15,18 @@ export default memo(function P5js(props: ProjectContainer) {
       ([name, text]) =>
         [name, hljs.highlight(text, { language: 'js' }).value] as const,
     );
-  }, [props.scripts]);
+  }, [props.preview]);
 
   return (
     <>
-      {props.scripts.map((src) => (
-        <script defer key={src.id} src={src._url()} />
-      ))}
-
-      <script defer src={`${Config.self.base.web}/js/lib/p5.min.js`} />
-      {/* <script src={`${Config.self.base.web}/js/lib/p5.sound.min.js`} /> */}
-
       <div className="flex flex-col lg:flex-row h-full w-full overflow-x-hidden overflow-y-auto lg:overflow-y-hidden">
-        <div
-          className="flex-1"
-          suppressHydrationWarning
-          dangerouslySetInnerHTML={{
-            __html: `<div id="p5js-container"></div>`,
+        <RenderHtml
+          className="w-full h-full overflow-y-hidden"
+          html={props.html}
+          dompurify={{ FORCE_BODY: true, ADD_TAGS: ['script'] }}
+          setOptions={{
+            height: 'calc(100vh - 4rem)',
+            containerClassName: 'flex-1',
           }}
         />
         <div className="flex-1 lg:w-1/2">

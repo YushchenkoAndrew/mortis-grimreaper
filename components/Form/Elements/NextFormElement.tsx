@@ -11,7 +11,7 @@ export interface NextFormElementProps {
   onNext: Dispatch<void>;
   onBack?: Dispatch<void>;
 
-  setOptions?: Partial<{ buttonPadding: string }>;
+  setOptions?: Partial<{ buttonPadding: string; nextButtonColor: string }>;
 }
 
 export default function NextFormElement(props: NextFormElementProps) {
@@ -20,7 +20,7 @@ export default function NextFormElement(props: NextFormElementProps) {
       <button
         className={`${props.onBack ? 'block' : 'hidden'} bg-transparent ${
           props.setOptions?.buttonPadding || 'px-4 py-3'
-        } text-sm font-semibold border border-gray-400 rounded text-gray-700 hover:border-gray-500 hover:bg-gray-200`}
+        } text-sm font-semibold border border-gray-400 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 hover:border-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700`}
         type="button"
         onClick={() => props.onBack?.()}
       >
@@ -29,7 +29,10 @@ export default function NextFormElement(props: NextFormElementProps) {
       <button
         className={`flex items-center rounded ${
           props.setOptions?.buttonPadding || 'px-4 py-3'
-        } text-sm font-semibold shadow-sm  text-white bg-blue-600  hover:bg-blue-500`}
+        } text-sm font-semibold shadow-sm ${
+          props.setOptions?.nextButtonColor ||
+          'text-white bg-blue-600  hover:bg-blue-500'
+        }`}
         type="button"
         onClick={() => props.onNext()}
       >

@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { ZodTypeAny } from 'zod';
 import { CommonEntity } from '../entities/common.entity';
 
 export enum ColumnKey {
@@ -7,6 +8,7 @@ export enum ColumnKey {
   string = 'COLUMN_STRING',
   request = 'COLUMN_REQUEST',
   defined = 'COLUMN_DEFINED',
+  validate = 'COLUMN_VALIDATE',
   // keys = 'COLUMN_KEYS',
 }
 
@@ -77,5 +79,11 @@ export function Request(transformer?: TransformerT | PropsT, props?: PropsT) {
       target,
       key,
     );
+  };
+}
+
+export function Validate(transformer: () => ZodTypeAny) {
+  return function (target: any, key: string) {
+    Reflect.defineMetadata(ColumnKey.validate, transformer, target, key);
   };
 }

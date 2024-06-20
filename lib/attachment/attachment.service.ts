@@ -1,8 +1,11 @@
 import imageCompression from 'browser-image-compression';
 import { DeepEntity, ObjectLiteral, TreeT } from '../common/types';
+import { RequestTypeEnum } from '../common/types/request-type.enum';
+import { ProjectEntity } from '../project/entities/project.entity';
 import { ProjectTypeEnum } from '../project/types/project-type.enum';
 import { AdminAttachmentEntity } from './entities/admin-attachment.entity';
 import { AttachmentEntity } from './entities/attachment.entity';
+import { AttachmentAttachableTypeEnum } from './types/attachment-attachable-type.enum';
 
 export class AttachmentService {
   static filepath<T extends AttachmentEntity>(entity: T): string[] {
@@ -91,13 +94,45 @@ export class AttachmentService {
   }
 
   static async thumbnail(file: File): Promise<File> {
-    const jpeg = await imageCompression(file, {
-      maxSizeMB: 1,
-      initialQuality: 0.5,
+    const img = await imageCompression(file, {
+      maxSizeMB: 0.04,
+      maxWidthOrHeight: 600,
       fileType: 'image/webp',
       useWebWorker: true,
     });
 
-    return new File([jpeg], 'thumbnail.webp');
+    return new File([img], 'thumbnail.webp');
+  }
+
+  static async saveAttachments<
+    T extends { id: string; attachments: DeepEntity<AttachmentEntity[]> },
+  >(
+    entity: T,
+    type: AttachmentAttachableTypeEnum,
+    filepath: string,
+    files: File[],
+    by_name?: boolean,
+  ) {
+    for (const file of files) {
+      const name = by_name ? file.name.split('.')[0] : file.name;
+      const attachment = entity.attachments.find(
+        (e) =>
+          (by_name ? e._without_ext() : e.name) == name && e.path == filepath,
+      );
+
+      await AdminAttachmentEntity.self.save.build(
+        new AdminAttachmentEntity({
+          id: attachment?.id,
+          path: filepath,
+          file: file as any,
+          attachable_id: entity.id,
+          attachable_type: type,
+        }),
+        { type: RequestTypeEnum.form },
+      );
+
+      // NOTE: Reload project attachments list
+      // await dispatch(AdminProjectEntity.self.load.thunk(router.query.id)).unwrap(); // prettier-ignore
+    }
   }
 }

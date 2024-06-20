@@ -1,33 +1,53 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ObjectLiteral } from '../../common/types';
+import { v4 as uuid } from 'uuid';
+import { DeepEntity, ObjectLiteral } from '../../common/types';
 import { AdminProjectPageEntity } from '../entities/admin-project-page.entity';
 import { AdminProjectEntity } from '../entities/admin-project.entity';
 
 type StoreT = AdminProjectPageEntity & {
+  request_id: string;
   query: string;
 
+  picked: string;
   trash: ObjectLiteral<AdminProjectEntity>;
-  picked: AdminProjectEntity;
 };
 
 export const AdminProjectsStore = createSlice({
   name: 'admin-projects',
   initialState: {
+    request_id: null,
     page: 0,
-    query: '',
+    query: null,
+
     result: [],
 
     trash: null,
     picked: null,
   } as StoreT,
   reducers: {
-    init: (state) => {
-      state.page = 0;
-      state.result = [];
-      state.trash = null;
+    init: (state, action: PayloadAction<AdminProjectPageEntity>) => {
+      state.page = action.payload.page;
+      state.per_page = action.payload.per_page;
+      state.total = action.payload.total;
+
+      state.result = action.payload.result;
+    },
+    push: (state, action: PayloadAction<AdminProjectPageEntity>) => {
+      state.page = action.payload.page;
+      state.per_page = action.payload.per_page;
+      state.total = action.payload.total;
+
+      state.result.push(...action.payload.result);
+    },
+    setPage: (state, action: PayloadAction<number>) => {
+      if (state.result.length >= state.total) return;
+
+      state.page = action.payload;
+      state.request_id = uuid();
     },
     setQuery: (state, action: PayloadAction<string>) => {
-      state.query = action.payload || '';
+      [state.page, state.query] = [1, action.payload];
+      state.request_id = uuid();
     },
     replace: (state, action: PayloadAction<AdminProjectEntity>) => {
       const index = state.result.findIndex((e) => e.id == action.payload.id);
@@ -35,17 +55,13 @@ export const AdminProjectsStore = createSlice({
 
       state.result[index] = action.payload;
     },
-    search: (state, action: PayloadAction<AdminProjectPageEntity>) => {
-      state.result = action.payload.result;
-
-      state.page = action.payload.page;
-      state.per_page = action.payload.per_page;
-      state.total = action.payload.total;
-    },
     initTrash: (state) => {
       state.trash = {};
     },
-    pushTrash: (state, action: PayloadAction<AdminProjectEntity>) => {
+    pushTrash: (
+      state,
+      action: PayloadAction<DeepEntity<AdminProjectEntity>>,
+    ) => {
       const id = action.payload.id;
 
       if (state.trash[id]) delete state.trash[id];
@@ -56,8 +72,7 @@ export const AdminProjectsStore = createSlice({
     },
 
     onPick: (state, action: PayloadAction<string>) => {
-      const id = action.payload;
-      state.picked = state.result.find((e) => e.id == id) || null;
+      state.picked = action.payload;
     },
     onReorder: (state, action: PayloadAction<AdminProjectEntity[]>) => {
       state.result = action.payload.map((e, index) => ((e.order = index), e));
@@ -73,17 +88,15 @@ export const AdminProjectsStore = createSlice({
     },
   },
   extraReducers(builder) {
-    builder.addCase(
-      AdminProjectPageEntity.self.select.thunk.fulfilled,
-      (state, { payload }) => {
-        const res: AdminProjectPageEntity = payload as any;
-
-        state.page = res.page;
-        state.per_page = res.per_page;
-        state.total = res.total;
-
-        state.result.push(...res.result);
-      },
-    );
+    // builder.addCase(
+    //   AdminProjectPageEntity.self.select.thunk.fulfilled,
+    //   (state, { payload }) => {
+    //     const res: AdminProjectPageEntity = payload as any;
+    //     state.page = res.page;
+    //     state.per_page = res.per_page;
+    //     state.total = res.total;
+    //     state.result.push(...res.result);
+    //   },
+    // );
   },
 });

@@ -1,6 +1,9 @@
+import { z } from 'zod';
 import { AdminAttachmentEntity } from '../../attachment/entities/admin-attachment.entity';
-import { Column, Request } from '../../common/decorators/column';
+import { Column, Request, Validate } from '../../common/decorators/column';
 import { Entity } from '../../common/decorators/request-entity';
+import { AdminLinkEntity } from '../../link/entities/admin-link.entity';
+import { AdminTagEntity } from '../../tag/entities/admin-tag.entity';
 import { ProjectStatusEnum } from '../types/project-status.enum';
 import { ProjectEntity } from './project.entity';
 
@@ -15,6 +18,7 @@ export class AdminProjectEntity extends ProjectEntity {
   readme: boolean = null;
 
   @Request({ nullable: true })
+  @Validate(() => z.string().url())
   link: string = '';
 
   @Column()
@@ -26,6 +30,12 @@ export class AdminProjectEntity extends ProjectEntity {
 
   @Column((e) => new AdminAttachmentEntity().buildAll(e.attachments ?? []))
   attachments: AdminAttachmentEntity[] = [];
+
+  @Column((e) => new AdminLinkEntity().buildAll(e.links ?? []))
+  links: AdminLinkEntity[] = [];
+
+  @Column((e) => new AdminTagEntity().buildAll(e.tags ?? {}))
+  tags: AdminTagEntity[] = [];
 
   invertStatus(): ProjectStatusEnum {
     switch (this.status) {

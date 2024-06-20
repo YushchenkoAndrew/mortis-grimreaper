@@ -15,8 +15,8 @@ export const options: AuthOptions = {
 
   callbacks: {
     async jwt(options) {
-      const token = options.token;
-      const auth: AuthEntity = options.user as any;
+      const token = options?.token || {};
+      const auth: AuthEntity = options?.user as any;
 
       if (auth) {
         token.user = auth.user;

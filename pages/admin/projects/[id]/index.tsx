@@ -1,212 +1,151 @@
-import {
-  faEye,
-  faEyeSlash,
-  faFile,
-  faPenToSquare,
-} from '@fortawesome/free-regular-svg-icons';
+import { faFile } from '@fortawesome/free-regular-svg-icons';
 import {
   faArrowUpRightFromSquare,
+  faChevronDown,
   faEllipsisVertical,
-  faFolder,
+  faGear,
+  faLink,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
-import { useEffect, useRef } from 'react';
-import {
-  PROJECT_ACTIONS,
-  PROJECT_FILE_ACTIONS,
-} from '../../../../components/constants/projects';
-import Container from '../../../../components/Container/Container';
+import { useEffect, useRef, useState } from 'react';
 import MenuFormElement from '../../../../components/Form/Elements/MenuFormElement';
-import Header from '../../../../components/Header/Header';
-import Navbar from '../../../../components/Navbar/Navbar';
-import NavbarItem from '../../../../components/Navbar/NavbarItem';
 import { Config } from '../../../../config';
-import { NAVIGATION } from '../../../../constants';
 import { AttachmentEntity } from '../../../../lib/attachment/entities/attachment.entity';
 import { AdminProjectEntity } from '../../../../lib/project/entities/admin-project.entity';
 import { ErrorService } from '../../../../lib/common/error.service';
 import { AdminProjectStore } from '../../../../lib/project/stores/admin-project.store';
 import { useAppDispatch, useAppSelector } from '../../../../lib/common/store';
 import { AttachmentService } from '../../../../lib/attachment/attachment.service';
-import { AdminAttachmentEntity } from '../../../../lib/attachment/entities/admin-attachment.entity';
-import { AttachmentAttachableTypeEnum } from '../../../../lib/attachment/types/attachment-attachable-type.enum';
-import moment from 'moment';
-import { RequestTypeEnum } from '../../../../lib/common/types/request-type.enum';
 import Link from 'next/link';
-import CustomMenuFormElement from '../../../../components/Form/Custom/CustomMenuFormElement';
 import { getServerSession } from 'next-auth';
 import { options } from '../../../api/admin/auth/[...nextauth]';
-import { StringService } from '../../../../lib/common';
-import { ProjectStatusEnum } from '../../../../lib/project/types/project-status.enum';
-import TableFormGraggable from '../../../../components/Form/Draggable/TableFormDraggable';
-import { arrayMove } from '@dnd-kit/sortable';
-import { PositionEntity } from '../../../../lib/common/entities/position.entity';
-import CustomPopupSimpleFormElement from '../../../../components/Form/Custom/CustomPopupSimpleFormElement';
 import { RenderHtml } from '../../../../components/dynamic';
 import ImgFormElement from '../../../../components/Form/Elements/ImgFormElement';
 import TooltipFormPreview from '../../../../components/Form/Previews/TooltipFormPreview';
+import PopupFormElement from '../../../../components/Form/Elements/PopupFormElement';
+import CustomAttachmentDraggable from '../../../../components/Form/Custom/Draggable/CustomAttachmentDraggable';
+import TopicFormPreview from '../../../../components/Form/Previews/TopicFormPreview';
+import AdminLayout from '../../../../components/Container/Layout/AdminLayout';
+import CustomProjectMenuElement from '../../../../components/Form/Custom/Elements/CustomProjectMenuElement';
+import ProjectFormUpdatePage from '../../../../components/Form/Page/Project/ProjectFormUpdatePage';
+import { AdminProjectFormStore } from '../../../../lib/project/stores/admin-project-form.store';
+import CustomYesNoPopupElement from '../../../../components/Form/Custom/Elements/CustomYesNoPopupElement';
+import CustomProjectStatusPreview from '../../../../components/Form/Custom/Previews/CustomProjectStatusPreview';
+import { AttachmentAttachableTypeEnum } from '../../../../lib/attachment/types/attachment-attachable-type.enum';
+import TagFormPreview from '../../../../components/Form/Previews/TagFormPreview';
+import { MarkdownEntity } from '../../../../lib/common/entities/markdown.entity';
 
-export default function () {
+interface PropsT {
+  project: AdminProjectEntity;
+}
+
+export default function (props: PropsT) {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const project = useAppSelector((state) => state.admin.project.index);
-  const fileRef = useRef<HTMLInputElement>(null);
+  const project_update = useAppSelector((state) => state.admin.project.form.id);
+
+  const [deletePanel, openDeletePanel] = useState(false);
 
   useEffect(() => {
     ErrorService.envelop(async () => {
-      dispatch(() => dispatch(AdminProjectStore.actions.init()));
+      const project = AdminProjectEntity.self.build(props.project);
+      dispatch(AdminProjectStore.actions.init(project));
 
-      const project = (await dispatch(
-        AdminProjectEntity.self.load.thunk(router.query.id),
-      ).unwrap()) as AdminProjectEntity;
-
-      const readme = AttachmentService.readme(project.attachments);
+      const readme = AttachmentService.readme(props.project.attachments);
       if (!readme) return;
 
-      const preview = await AttachmentEntity.self.load.markdown(readme.id);
+      const text = await AttachmentEntity.self.load.text(readme.id);
+      const preview = await MarkdownEntity.self.save.text({ text });
       dispatch(AdminProjectStore.actions.setHtml(preview));
     });
   }, []);
 
-  const redirect = (path: string[]) =>
-    router.push({
-      pathname: `${router.route}/tree/[...path]`,
-      query: { ...router.query, path },
-    });
-
-  const onFile = (files: File[], by_name?: boolean) =>
-    ErrorService.envelop(async () => {
-      for (const file of files) {
-        const name = by_name ? file.name.split('.')[0] : file.name;
-        const attachment = project.attachments.find(
-          (e) => (by_name ? e._without_ext() : e.name) == name && e.path == '/',
-        );
-
-        await AdminAttachmentEntity.self.save.build(
-          new AdminAttachmentEntity({
-            id: attachment?.id,
-            path: '/',
-            file: file as any,
-            attachable_id: project.id,
-            attachable_type: AttachmentAttachableTypeEnum.projects,
-          }),
-          { type: RequestTypeEnum.form },
-        );
-
-        await dispatch(AdminProjectEntity.self.load.thunk(router.query.id)).unwrap(); // prettier-ignore
-      }
-    });
-
   return (
-    <>
-      <Header title={project.name || 'Project'}></Header>
-
-      <Container
-        Navbar={
-          <Navbar
-            Item={NavbarItem}
-            navigation={NAVIGATION.admin}
-            avatar={Config.self.github}
+    <AdminLayout title={project.name} className="">
+      <div className="flex flex-col max-w-6xl">
+        <div className="flex items-center my-4 pb-3 border-b border-gray-300">
+          <ImgFormElement
+            img={project.avatar}
+            onFile={(file) =>
+              ErrorService.envelop(async () => {
+                const thumbnail = await AttachmentService.thumbnail(file);
+                const type = AttachmentAttachableTypeEnum.projects;
+                await AttachmentService.saveAttachments(project as any, type, '/', [thumbnail], true); // prettier-ignore
+                await dispatch(AdminProjectEntity.self.load.thunk(router.query.id)).unwrap(); // prettier-ignore
+              })
+            }
           />
-        }
-        // TODO:
-        // Sidebar={
-        //   <Sidebar
-        //     Element={SidebarElement}
-        //     data={PROJECT_ACTIONS}
-        //     onClick={(data) => {
-        //       // TODO:
-        //       ErrorService.envelop(async () => {
-        //         throw new Error('Impl this button !!');
-        //       });
-        //     }}
-        //   />
-        // }
-      >
-        <CustomPopupSimpleFormElement
-          name="Directory name"
-          value={project.directory || ''}
-          open={project.directory !== null}
-          onClose={() => dispatch(AdminProjectStore.actions.clearDir())}
-          onChange={(v) => dispatch(AdminProjectStore.actions.setDir(v))}
-          onNext={() => {
-            const path = project.directory.split('/').filter(Boolean);
-            if (!path.length) return dispatch(AdminProjectStore.actions.clearDir()); // prettier-ignore
 
-            redirect(AttachmentService.filepath({ path: project.directory } as any)); // prettier-ignore
-          }}
-        />
+          <Link
+            className="group text-2xl font-semibold max-w-xl truncate hover:underline"
+            target="_blank"
+            href={{
+              pathname: '/projects/[id]',
+              query: { id: project.id },
+            }}
+          >
+            {project.name}
+            <TooltipFormPreview
+              value={project.name}
+              setOptions={{ margin: '-ml-2' }}
+            />
+          </Link>
 
-        <div className="flex flex-col mx-auto max-w-3xl w-full">
-          <div className="flex flex-col">
-            <div className="flex items-center my-4">
-              <ImgFormElement
-                img={project.avatar}
-                onFile={(file) =>
-                  ErrorService.envelop(async () => {
-                    onFile([await AttachmentService.thumbnail(file)], true);
-                  })
-                }
-              />
+          <CustomProjectStatusPreview
+            project={new AdminProjectEntity(project as any)}
+            onChange={(e) =>
+              dispatch(AdminProjectStore.actions.setStatus(e.status))
+            }
+          />
 
-              <Link
-                className="group text-2xl font-semibold max-w-xl truncate hover:underline"
-                target="_blank"
-                href={{
-                  pathname: '/projects/[id]',
-                  query: { id: project.id },
-                }}
-              >
-                {project.name}
+          <CustomYesNoPopupElement
+            title="Are you sure, you want to delete this project ?"
+            open={deletePanel}
+            onClose={() => openDeletePanel(false)}
+            onNext={() => {
+              ErrorService.envelop(
+                async () => {
+                  await AdminProjectEntity.self.delete.exec(project.id);
+                  router.push({ pathname: `${router.route}/..` });
+                },
+                { in_progress: true },
+              );
+            }}
+          />
 
-                <TooltipFormPreview
-                  value={project.name}
-                  setOptions={{ margin: '-ml-2' }}
-                />
-              </Link>
+          <MenuFormElement
+            className="ml-auto"
+            name={
+              <>
+                <span className="mr-2">Options</span>
+                <FontAwesomeIcon icon={faChevronDown} />
+              </>
+            }
+            actions={{
+              delete: 'Delete this project',
+            }}
+            setOptions={{
+              buttonPadding: 'py-1.5 px-3',
+              buttonColor:
+                'bg-transparent border border-gray-400 hover:border-gray-500 hover:bg-gray-200',
+              buttonTextColor: 'text-gray-700 ',
+              noChevronDown: true,
+            }}
+            onChange={(action) => {
+              switch (action) {
+                case 'delete':
+                  return openDeletePanel(true);
+              }
+            }}
+          />
+        </div>
 
-              <span className="text-xs font-normal leading-4 mx-2 px-1 rounded-xl border border-gray-400 text-gray-500 ">
-                {StringService.humanize(project.status)}
-              </span>
-
-              <MenuFormElement
-                className="ml-auto"
-                name={<FontAwesomeIcon icon={faEllipsisVertical} />}
-                actions={PROJECT_ACTIONS}
-                setOptions={{
-                  buttonPadding: 'py-2 px-3.5',
-                  buttonColor:
-                    'bg-transparent border border-gray-400 hover:border-gray-500 hover:bg-gray-200',
-                  buttonTextColor: 'text-gray-700 ',
-                  noChevronDown: true,
-                }}
-                onChange={(action) =>
-                  ErrorService.envelop(async () => {
-                    const status =
-                      project.status == ProjectStatusEnum.active
-                        ? ProjectStatusEnum.inactive
-                        : ProjectStatusEnum.active;
-
-                    switch (action) {
-                      case 'status':
-                        return await dispatch(
-                          AdminProjectEntity.self.save.thunk(
-                            new AdminProjectEntity({ id: project.id, status }),
-                          ),
-                        ).unwrap();
-
-                      case 'delete':
-                        await AdminProjectEntity.self.delete.exec(project.id);
-                        return router.push({ pathname: `${router.route}/..` });
-                    }
-                  })
-                }
-              />
-            </div>
-
-            <div className="flex">
+        <div className="flex">
+          <div className="flex flex-col justify-start max-w-4xl w-full">
+            <div className="flex mb-3">
               <div className="flex ml-1 items-center text-sm">
                 <div className="flex items-center text-gray-600">
                   <FontAwesomeIcon
@@ -230,153 +169,111 @@ export default function () {
                 </div>
               </div>
 
-              <CustomMenuFormElement
-                className="ml-auto mb-3"
-                fileRef={fileRef}
-                next="Delete files..."
-                actions={PROJECT_FILE_ACTIONS}
-                isSubmitButton={!!project.trash}
-                onChange={(action) => {
-                  switch (action) {
-                    case 'dir':
-                      return dispatch(AdminProjectStore.actions.initDir());
-
-                    case 'upload':
-                      return fileRef.current.click();
-
-                    case 'create':
-                      return router.push({
-                        pathname: `${router.route}/new`,
-                        query: { ...router.query },
-                      });
-
-                    case 'delete':
-                      return dispatch(AdminProjectStore.actions.initTrash());
-                  }
+              <CustomProjectMenuElement
+                pathname={{
+                  create: `${router.route}/new`,
+                  attachment: `${router.route}/tree/[...path]`,
                 }}
-                onFile={(event) => onFile(Array.from(event.target.files))}
-                onNext={() =>
-                  ErrorService.envelop(async () => {
-                    if (!project.trash) return;
-
-                    await Promise.all(
-                      Object.keys(project.trash).map((id) =>
-                        AdminAttachmentEntity.self.delete.exec(id),
-                      ),
-                    );
-
-                    await dispatch(AdminProjectEntity.self.load.thunk(router.query.id)).unwrap(); // prettier-ignore
-                    dispatch(AdminProjectStore.actions.clearTrash());
-                  })
-                }
-                onBack={() => dispatch(AdminProjectStore.actions.clearTrash())}
               />
             </div>
+
+            <CustomAttachmentDraggable
+              pathname={`${router.route}/tree/[...path]`}
+            />
+
+            <RenderHtml
+              className="w-full h-full overflow-y-hidden p-5"
+              html={project.html}
+              headerComponent={
+                <div className="flex text-sm font-medium text-gray-800 bg-gray-100 px-4 py-2">
+                  <FontAwesomeIcon
+                    className="text-gray-500 text-lg mr-1.5"
+                    icon={faFile}
+                  />
+                  README
+                </div>
+              }
+              setOptions={{
+                containerHeighOffset: 8,
+                containerClassName: `${
+                  project.html ? 'block' : 'hidden'
+                } relative border rounded-md`,
+              }}
+            />
           </div>
 
-          <TableFormGraggable
-            className="mb-8 rounded-md"
-            columns={{ name: 'Name', updated_at: 'Last updated' }}
-            picked={project.picked}
-            data={AttachmentService.toList<AdminAttachmentEntity>(
-              project.attachments,
-            )}
-            onDragStart={(e) =>
-              dispatch(AdminProjectStore.actions.onPick(e.active.id as string))
-            }
-            onDragEnd={({ active, over }) =>
-              ErrorService.envelop(async () => {
-                const position =
-                  project.attachments.find((e) => e.id == over?.id)?.order ??
-                  null;
-
-                if (!over?.id || position === null) {
-                  return dispatch(AdminProjectStore.actions.onDrop());
-                }
-
-                dispatch(
-                  AdminProjectStore.actions.onReorder(
-                    arrayMove(
-                      project.attachments.concat() as any,
-                      project.attachments.findIndex((e) => e.id == active.id),
-                      project.attachments.findIndex((e) => e.id == over.id),
-                    ),
-                  ),
-                );
-
-                await AdminAttachmentEntity.self.save.build(
-                  new PositionEntity({ position }),
-                  {
-                    method: 'PUT',
-                    route: `admin/attachments/${active.id}/order`,
-                  },
-                );
-
-                await dispatch(
-                  AdminProjectEntity.self.load.thunk(router.query.id),
-                ).unwrap();
-              })
-            }
-            onDragCancel={() => dispatch(AdminProjectStore.actions.onDrop())}
-            onClick={(attachment: AdminAttachmentEntity) =>
-              project.trash
-                ? dispatch(AdminProjectStore.actions.pushTrash(attachment))
-                : redirect(AttachmentService.filepath(attachment))
-            }
-            firstComponent={(props) =>
-              props.row.type ? props.children : <span className="pl-7 py-6" />
-            }
-            dataComponent={{
-              name: (attachment) => (
-                <span
-                  className={`group flex h-full whitespace-nowrap ${
-                    project.trash?.[attachment.id]
-                      ? 'line-through text-gray-500'
-                      : 'text-gray-800'
-                  }`}
-                >
-                  <FontAwesomeIcon
-                    className="text-gray-500 text-lg mr-2"
-                    icon={attachment.type ? faFile : faFolder}
-                  />
-                  {attachment.name}
-
-                  <TooltipFormPreview
-                    value={`${attachment.size / 1000} KB`}
-                    setOptions={{
-                      // margin: 'mt-4',
-                      rounded: 'rounded-md',
-                      color: 'bg-gray-600 text-white',
-                    }}
-                  />
-                </span>
-              ),
-              updated_at: (attachment) => moment(attachment.updated_at).toNow(),
-            }}
-          />
-
-          <RenderHtml
-            className="w-full h-full overflow-y-hidden p-5"
-            html={project.html}
-            headerComponent={
-              <div className="flex text-sm font-medium text-gray-800 bg-gray-100 px-4 py-2">
-                <FontAwesomeIcon
-                  className="text-gray-500 text-lg mr-1.5"
-                  icon={faFile}
-                />
-                README
-              </div>
-            }
+          <PopupFormElement
+            open={!!project_update}
+            onClose={() => dispatch(AdminProjectFormStore.actions.reset())}
             setOptions={{
-              containerHeighOffset: 8,
-              containerClassName: `${
-                project.html ? 'block' : 'hidden'
-              } relative border rounded-md`,
+              panelSize: 'sm:w-full sm:max-w-3xl',
             }}
-          />
+          >
+            <div className="flex text-sm font-medium text-gray-800 bg-gray-100 px-4 py-3 border-b border-gray-300">
+              Update project details
+            </div>
+
+            <ProjectFormUpdatePage className="flex flex-col mx-5 mb-3" />
+          </PopupFormElement>
+
+          <div className="flex flex-col ml-5 max-w-60 w-full">
+            <TopicFormPreview
+              title="About"
+              name="description"
+              description={project.description}
+              headerComponent={
+                <FontAwesomeIcon
+                  className="pt-1 text-gray-600 focus:outline-none hover:text-indigo-600 cursor-pointer"
+                  icon={faGear}
+                  onClick={() =>
+                    dispatch(AdminProjectFormStore.actions.init(project as any))
+                  }
+                />
+              }
+            />
+            <TopicFormPreview
+              title="Summary"
+              name="footer"
+              description={project.footer}
+            />
+
+            <div
+              className={
+                project.tags?.length
+                  ? 'flex flex-wrap mb-4 space-x-1 space-y-2'
+                  : 'hidden'
+              }
+            >
+              {project.tags.map((e) => (
+                <TagFormPreview key={e.id} name={e.name} />
+              ))}
+            </div>
+
+            <div
+              className={
+                project.links?.length ? 'flex flex-wrap space-x-2' : 'hidden'
+              }
+            >
+              <FontAwesomeIcon
+                className="text-sm pt-1.5 text-gray-600"
+                icon={faLink}
+              />
+              {project.links.map((e) => (
+                <Link
+                  key={e.id}
+                  className="text-indigo-600 hover:underline cursor-pointer"
+                  href={e.link}
+                >
+                  {e.name}
+                </Link>
+              ))}
+            </div>
+
+            <span className="w-full mt-2 border-b border-gray-300" />
+          </div>
         </div>
-      </Container>
-    </>
+      </div>
+    </AdminLayout>
   );
 }
 
@@ -384,13 +281,10 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const session = await getServerSession(ctx.req, ctx.res, options);
   if (!session) return { redirect: { destination: '/admin/login' } };
 
-  return { props: ctx.params || {} };
-  // const project = await AdminProjectEntity.self.load
-  //   .build(ctx.params.id, { ctx, hostname: Config.self.base.grape })
-  //   .catch((err) => null);
+  const project: AdminProjectEntity = await AdminProjectEntity.self.load
+    .build(ctx.params.id, { hostname: Config.self.base.grape, ctx })
+    .then((res) => JSON.parse(JSON.stringify(res)))
+    .catch(() => null);
 
-  // if (!project) return { redirect: { destination: '/admin/projects' } };
-  // return {
-  //   props: { ...ctx.params, project: JSON.parse(JSON.stringify(project)) },
-  // };
+  return { props: { ...ctx.params, project } };
 }

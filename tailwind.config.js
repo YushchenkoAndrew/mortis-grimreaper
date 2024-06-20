@@ -17,5 +17,8 @@ module.exports = {
     require('@tailwindcss/forms'),
     require('@tailwindcss/aspect-ratio'),
     require('@tailwindcss/line-clamp'),
+    // require('tailwindcss/plugin')(({ addVariant }) => {
+    //   addVariant('only-dark', ['.dark&', ':is(.only-dark &)']);
+    // }),
   ],
 };

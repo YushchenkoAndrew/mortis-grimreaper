@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mortis-grimreaper-deployment
-  namespace: demo
+  namespace: prod
 spec:
   replicas: 1
   selector:
@@ -17,11 +17,14 @@ spec:
         - name: mortis-grimreaper
           image: grimreapermortis/mortis-grimreaper:latest
           imagePullPolicy: Always
-          ports:
-            - containerPort: 8000
           envFrom:
             - secretRef:
                 name: mortis-grimreaper-secrete
+          env:
+            - name: NEXTAUTH_URL
+              value: http://localhost:8000
+          ports:
+            - containerPort: 8000
 # ---
 # apiVersion: apps/v1
 # kind: Deployment

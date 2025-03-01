@@ -2,14 +2,14 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mortis-grimreaper-service
-  namespace: demo
+  namespace: prod
 spec:
   selector:
     app: mortis-grimreaper
   ports:
     - port: 8008
       targetPort: 8000
-  type: LoadBalancer
+  type: ClusterIP
 # ---
 # apiVersion: v1
 # kind: Service
